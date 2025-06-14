@@ -51,6 +51,7 @@ function calculateSM2(
   if (quality < 3) {
     newRepetition = 0;
     newInterval = 1;
+    // Keep the current ease factor unchanged for failed reviews
   } else {
     // Successful review - increment repetition
     newRepetition = repetition + 1;
@@ -63,14 +64,14 @@ function calculateSM2(
     } else {
       newInterval = Math.round(interval * easeFactor);
     }
-  }
 
-  // Update ease factor based on quality (regardless of success/failure)
-  newEaseFactor = easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
-  
-  // Ensure ease factor doesn't go below 1.3
-  if (newEaseFactor < 1.3) {
-    newEaseFactor = 1.3;
+    // Update ease factor based on quality (only for successful reviews)
+    newEaseFactor = easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+
+    // Ensure ease factor doesn't go below 1.3
+    if (newEaseFactor < 1.3) {
+      newEaseFactor = 1.3;
+    }
   }
 
   // Calculate due date (current time + interval in days)
@@ -246,15 +247,15 @@ export const getNewCardsForDeck = query({
 
     const limit = args.limit ?? DAILY_NEW_CARD_LIMIT;
 
-    // Get cards that have never been reviewed (repetition is null or 0)
-    const allCards = await ctx.db
+    // Get cards that have never been reviewed (repetition = 0) using efficient database index
+    // This query uses the compound index to find new cards directly in the database
+    // Note: Cards should be initialized with repetition = 0 when created for this to work efficiently
+    const newCards = await ctx.db
       .query("cards")
-      .withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
-      .collect();
-
-    const newCards = allCards
-      .filter(card => (card.repetition ?? 0) === 0)
-      .slice(0, limit);
+      .withIndex("by_deckId_and_repetition", (q) =>
+        q.eq("deckId", args.deckId).eq("repetition", 0)
+      )
+      .take(limit);
 
     return newCards;
   },

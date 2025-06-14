@@ -22,7 +22,7 @@ This document describes the implementation of the Spaced Repetition study mode u
 
 ### Database Schema Updates
 
-The cards table has been extended with spaced repetition fields:
+The cards table has been extended with spaced repetition fields and optimized indexes:
 
 ```typescript
 cards: defineTable({
@@ -30,14 +30,23 @@ cards: defineTable({
   deckId: v.id("decks"),
   front: v.string(),
   back: v.string(),
-  
-  // New spaced repetition fields
-  repetition: v.optional(v.number()),    // Number of successful repetitions
+
+  // Spaced repetition fields (initialized when cards are created)
+  repetition: v.optional(v.number()),    // Number of successful repetitions (default: 0)
   easeFactor: v.optional(v.number()),    // Ease factor for scheduling (default: 2.5)
-  interval: v.optional(v.number()),      // Days until next review
+  interval: v.optional(v.number()),      // Days until next review (default: 1)
   dueDate: v.optional(v.number()),       // Unix timestamp when card is due
-})
+}).index("by_deckId", ["deckId"])        // Index for efficient queries by deck
+  .index("by_dueDate", ["dueDate"])      // Index for spaced repetition due date queries
+  .index("by_deckId_and_dueDate", ["deckId", "dueDate"]) // Compound index for deck-specific due cards
+  .index("by_deckId_and_repetition", ["deckId", "repetition"]), // Index for finding new cards efficiently
 ```
+
+### Performance Optimizations
+
+**Efficient New Card Queries**: Added a compound index `by_deckId_and_repetition` to enable efficient database-level filtering of new cards (repetition = 0) without requiring in-memory filtering. This dramatically improves performance for large decks.
+
+**Automatic Field Initialization**: New cards are created with spaced repetition fields pre-initialized to ensure optimal query performance and eliminate the need for lazy initialization.
 
 ### SM-2 Algorithm Implementation
 
@@ -49,10 +58,11 @@ function calculateSM2(quality, repetition, easeFactor, interval) {
   if (quality < 3) {
     newRepetition = 0;
     newInterval = 1;
+    // Keep the current ease factor unchanged for failed reviews
   } else {
     // Successful review - increment repetition
     newRepetition = repetition + 1;
-    
+
     // Calculate new interval based on repetition count
     if (newRepetition === 1) {
       newInterval = 1;
@@ -61,19 +71,23 @@ function calculateSM2(quality, repetition, easeFactor, interval) {
     } else {
       newInterval = Math.round(interval * easeFactor);
     }
+
+    // Update ease factor based on quality (only for successful reviews)
+    newEaseFactor = easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+
+    // Ensure ease factor doesn't go below 1.3
+    if (newEaseFactor < 1.3) {
+      newEaseFactor = 1.3;
+    }
   }
-  
-  // Update ease factor based on quality
-  newEaseFactor = easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
-  
-  // Ensure ease factor doesn't go below 1.3
-  if (newEaseFactor < 1.3) {
-    newEaseFactor = 1.3;
-  }
-  
+
   return { repetition, easeFactor, interval, dueDate };
 }
 ```
+
+### Algorithm Correctness
+
+**Proper Ease Factor Handling**: The ease factor is only updated on successful reviews (quality >= 3), following the standard SM-2 algorithm. This prevents cards from getting permanently stuck at low ease factors due to early failures.
 
 ### Quality Scale
 
@@ -116,8 +130,8 @@ docs/
 
 ### Queries
 
-- `getDueCardsForDeck(deckId)`: Get cards that are due for review
-- `getNewCardsForDeck(deckId, limit?)`: Get new cards with daily limit
+- `getDueCardsForDeck(deckId)`: Get cards that are due for review using efficient compound index
+- `getNewCardsForDeck(deckId, limit?)`: Get new cards with daily limit using optimized database query (no in-memory filtering)
 
 ## Usage
 

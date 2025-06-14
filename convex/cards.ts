@@ -100,11 +100,16 @@ export const addCardToDeck = mutation({
       throw new Error("You can only add cards to your own decks");
     }
 
-    // Insert the new card into the database
+    // Insert the new card into the database with initialized spaced repetition fields
     const cardId = await ctx.db.insert("cards", {
       deckId: args.deckId,
       front: args.front.trim(),
       back: args.back.trim(),
+      // Initialize spaced repetition fields for optimal query performance
+      repetition: 0,        // New card, never reviewed
+      easeFactor: 2.5,      // Default ease factor
+      interval: 1,          // Default interval (1 day)
+      dueDate: Date.now(),  // Available for study immediately
     });
 
     return cardId;

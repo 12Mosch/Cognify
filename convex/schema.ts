@@ -24,5 +24,6 @@ export default defineSchema({
     dueDate: v.optional(v.number()),       // Unix timestamp when card is due for review
   }).index("by_deckId", ["deckId"])        // Index for efficient queries by deck
     .index("by_dueDate", ["dueDate"])      // Index for spaced repetition due date queries
-    .index("by_deckId_and_dueDate", ["deckId", "dueDate"]), // Compound index for deck-specific due cards
+    .index("by_deckId_and_dueDate", ["deckId", "dueDate"]) // Compound index for deck-specific due cards
+    .index("by_deckId_and_repetition", ["deckId", "repetition"]), // Index for finding new cards efficiently
 });
