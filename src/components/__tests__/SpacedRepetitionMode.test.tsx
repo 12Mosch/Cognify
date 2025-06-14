@@ -4,7 +4,7 @@
  */
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { SpacedRepetitionMode } from '../SpacedRepetitionMode';
+import SpacedRepetitionMode from '../SpacedRepetitionMode';
 import { Id } from '../../../convex/_generated/dataModel';
 
 // Mock Convex hooks

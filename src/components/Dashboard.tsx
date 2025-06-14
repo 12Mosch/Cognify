@@ -1,13 +1,32 @@
-import { useState } from "react";
+import { useState, Suspense, lazy } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { CreateDeckForm } from "./CreateDeckForm";
-import { StudySession } from "./StudySession";
-import { SpacedRepetitionMode } from "./SpacedRepetitionMode";
-import { StudyModeSelector } from "./StudyModeSelector";
-import { DeckView } from "./DeckView";
 import { QuickAddCardForm } from "./QuickAddCardForm";
 import { Id } from "../../convex/_generated/dataModel";
+
+// Lazy-loaded components for better performance
+const DeckView = lazy(() => import("./DeckView"));
+const StudyModeSelector = lazy(() => import("./StudyModeSelector"));
+const StudySession = lazy(() => import("./StudySession"));
+const SpacedRepetitionMode = lazy(() => import("./SpacedRepetitionMode"));
+
+// Loading fallback component
+function LoadingFallback({ message = "Loading..." }: { message?: string }) {
+  return (
+    <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-48 mx-auto mb-4"></div>
+            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32 mx-auto"></div>
+          </div>
+          <p className="text-slate-600 dark:text-slate-400 mt-4">{message}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface Deck {
   _id: Id<"decks">;
@@ -27,10 +46,12 @@ export function Dashboard() {
   // If user is viewing a deck, show the DeckView component
   if (viewingDeckId) {
     return (
-      <DeckView
-        deckId={viewingDeckId}
-        onBack={() => setViewingDeckId(null)}
-      />
+      <Suspense fallback={<LoadingFallback message="Loading deck view..." />}>
+        <DeckView
+          deckId={viewingDeckId}
+          onBack={() => setViewingDeckId(null)}
+        />
+      </Suspense>
     );
   }
 
@@ -38,16 +59,18 @@ export function Dashboard() {
   if (selectingStudyMode) {
     const selectedDeck = decks?.find(deck => deck._id === selectingStudyMode);
     return (
-      <StudyModeSelector
-        deckId={selectingStudyMode}
-        deckName={selectedDeck?.name || "Unknown Deck"}
-        onSelectMode={(mode) => {
-          setStudyMode(mode);
-          setStudyingDeckId(selectingStudyMode);
-          setSelectingStudyMode(null);
-        }}
-        onCancel={() => setSelectingStudyMode(null)}
-      />
+      <Suspense fallback={<LoadingFallback message="Loading study mode selector..." />}>
+        <StudyModeSelector
+          deckId={selectingStudyMode}
+          deckName={selectedDeck?.name || "Unknown Deck"}
+          onSelectMode={(mode: 'basic' | 'spaced-repetition') => {
+            setStudyMode(mode);
+            setStudyingDeckId(selectingStudyMode);
+            setSelectingStudyMode(null);
+          }}
+          onCancel={() => setSelectingStudyMode(null)}
+        />
+      </Suspense>
     );
   }
 
@@ -60,17 +83,21 @@ export function Dashboard() {
 
     if (studyMode === 'spaced-repetition') {
       return (
-        <SpacedRepetitionMode
-          deckId={studyingDeckId}
-          onExit={handleExitStudy}
-        />
+        <Suspense fallback={<LoadingFallback message="Loading spaced repetition mode..." />}>
+          <SpacedRepetitionMode
+            deckId={studyingDeckId}
+            onExit={handleExitStudy}
+          />
+        </Suspense>
       );
     } else {
       return (
-        <StudySession
-          deckId={studyingDeckId}
-          onExit={handleExitStudy}
-        />
+        <Suspense fallback={<LoadingFallback message="Loading study session..." />}>
+          <StudySession
+            deckId={studyingDeckId}
+            onExit={handleExitStudy}
+          />
+        </Suspense>
       );
     }
   }

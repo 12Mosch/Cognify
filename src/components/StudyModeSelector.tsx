@@ -14,7 +14,7 @@ interface StudyModeSelectorProps {
  * - Basic Study: Simple sequential review of all cards
  * - Spaced Repetition: Intelligent scheduling using SM-2 algorithm
  */
-export function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onCancel }: StudyModeSelectorProps) {
+function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onCancel }: StudyModeSelectorProps) {
   return (
     <div className="flex flex-col gap-8 max-w-2xl mx-auto">
       {/* Header */}
@@ -160,3 +160,5 @@ export function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onC
     </div>
   );
 }
+
+export default StudyModeSelector;

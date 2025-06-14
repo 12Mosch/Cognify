@@ -4,7 +4,7 @@
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
-import { StudyModeSelector } from '../StudyModeSelector';
+import StudyModeSelector from '../StudyModeSelector';
 import { Id } from '../../../convex/_generated/dataModel';
 
 const mockDeckId = 'test-deck-id' as Id<"decks">;

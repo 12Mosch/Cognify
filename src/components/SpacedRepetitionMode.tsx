@@ -37,7 +37,7 @@ interface Card {
  * - No visible progress counters to prevent "grinding" behavior
  * - Clean, distraction-free interface
  */
-export function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
+function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   // State management for the study session
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
@@ -315,3 +315,5 @@ export function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModePro
     </div>
   );
 }
+
+export default SpacedRepetitionMode;

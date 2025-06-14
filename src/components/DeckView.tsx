@@ -16,7 +16,7 @@ interface Card {
   back: string;
 }
 
-export function DeckView({ deckId, onBack }: DeckViewProps) {
+function DeckView({ deckId, onBack }: DeckViewProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCard, setEditingCard] = useState<Card | null>(null);
 
@@ -502,3 +502,5 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
     </div>
   );
 }
+
+export default DeckView;

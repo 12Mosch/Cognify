@@ -9,7 +9,7 @@ interface StudySessionProps {
   onExit: () => void;
 }
 
-export function StudySession({ deckId, onExit }: StudySessionProps) {
+function StudySession({ deckId, onExit }: StudySessionProps) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionStarted, setSessionStarted] = useState(false);
@@ -230,3 +230,5 @@ export function StudySession({ deckId, onExit }: StudySessionProps) {
     </div>
   );
 }
+
+export default StudySession;
