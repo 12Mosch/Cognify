@@ -150,7 +150,7 @@ interface CardItemProps {
 function CardItem({ card, onEdit }: CardItemProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  
+
   const deleteCard = useMutation(api.cards.deleteCard);
 
   const handleDelete = async () => {
@@ -162,26 +162,56 @@ function CardItem({ card, onEdit }: CardItemProps) {
     }
   };
 
+  const handleFlipCard = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.code === 'Space' || event.code === 'Enter') {
+      event.preventDefault();
+      handleFlipCard();
+    }
+  };
+
   return (
     <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
       <div className="flex flex-col h-full min-h-[200px]">
-        {/* Card Content */}
-        <div 
-          className="flex-1 cursor-pointer mb-4"
-          onClick={() => setIsFlipped(!isFlipped)}
+        {/* Card Content with 3D Flip Animation */}
+        <div
+          className="flashcard-container flex-1 mb-4 cursor-pointer"
+          onClick={handleFlipCard}
+          onKeyDown={handleKeyDown}
+          tabIndex={0}
+          role="button"
+          aria-label={isFlipped ? "Click to show front" : "Click to show back"}
         >
-          <div className="text-xs text-slate-500 mb-2 uppercase tracking-wide">
-            {isFlipped ? "Back" : "Front"}
-          </div>
-          <div className="text-sm leading-relaxed">
-            {isFlipped ? card.back : card.front}
+          <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
+            {/* Front side */}
+            <div className="flashcard-side flashcard-front flex flex-col justify-center">
+              <div className="text-xs text-slate-500 mb-2 uppercase tracking-wide pointer-events-none">
+                Front
+              </div>
+              <div className="text-sm leading-relaxed pointer-events-none">
+                {card.front}
+              </div>
+            </div>
+
+            {/* Back side */}
+            <div className="flashcard-side flashcard-back flex flex-col justify-center">
+              <div className="text-xs text-slate-500 mb-2 uppercase tracking-wide pointer-events-none">
+                Back
+              </div>
+              <div className="text-sm leading-relaxed pointer-events-none">
+                {card.back}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Card Actions */}
         <div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700">
           <button
-            onClick={() => setIsFlipped(!isFlipped)}
+            onClick={handleFlipCard}
             className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
           >
             {isFlipped ? "Show Front" : "Show Back"}

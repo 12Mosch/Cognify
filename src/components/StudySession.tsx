@@ -9,11 +9,9 @@ interface StudySessionProps {
   onExit: () => void;
 }
 
-
-
 export function StudySession({ deckId, onExit }: StudySessionProps) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [showAnswer, setShowAnswer] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
   const [sessionStarted, setSessionStarted] = useState(false);
 
   const deck = useQuery(api.decks.getDeckById, { deckId });
@@ -25,7 +23,7 @@ export function StudySession({ deckId, onExit }: StudySessionProps) {
   useEffect(() => {
     setSessionStarted(false);
     setCurrentCardIndex(0);
-    setShowAnswer(false);
+    setIsFlipped(false);
   }, [deckId]);
 
   // Track study session start when component mounts and deck is loaded
@@ -122,19 +120,27 @@ export function StudySession({ deckId, onExit }: StudySessionProps) {
   const handleNextCard = () => {
     if (currentCardIndex < cards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
-      setShowAnswer(false);
+      setIsFlipped(false);
     }
   };
 
   const handlePreviousCard = () => {
     if (currentCardIndex > 0) {
       setCurrentCardIndex(currentCardIndex - 1);
-      setShowAnswer(false);
+      setIsFlipped(false);
     }
   };
 
-  const handleShowAnswer = () => {
-    setShowAnswer(true);
+  const handleFlipCard = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  // Handle keyboard shortcuts for flipping cards
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.code === 'Space' || event.code === 'Enter') {
+      event.preventDefault();
+      handleFlipCard();
+    }
   };
 
   return (
@@ -163,45 +169,63 @@ export function StudySession({ deckId, onExit }: StudySessionProps) {
         ></div>
       </div>
 
-      {/* Flashcard */}
-      <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-lg border-2 border-slate-200 dark:border-slate-700 min-h-[300px] flex flex-col justify-center items-center text-center">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">
-            {showAnswer ? "Answer" : "Question"}
-          </h2>
-          <p className="text-xl">
-            {showAnswer ? currentCard.back : currentCard.front}
-          </p>
-        </div>
-
-        {!showAnswer ? (
-          <button
-            onClick={handleShowAnswer}
-            className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
-          >
-            Show Answer
-          </button>
-        ) : (
-          <div className="flex gap-4">
-            <button
-              onClick={handlePreviousCard}
-              disabled={currentCardIndex === 0}
-              className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
-            <button
-              onClick={
-                currentCardIndex === cards.length - 1
-                  ? onExit
-                  : handleNextCard
-              }
-              className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
-            >
-              {currentCardIndex === cards.length - 1 ? "Finish" : "Next"}
-            </button>
+      {/* Flashcard with 3D Flip Animation */}
+      <div
+        className="flashcard-container min-h-[300px] cursor-pointer"
+        onClick={handleFlipCard}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+        role="button"
+        aria-label={isFlipped ? "Click to show question" : "Click to show answer"}
+      >
+        <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
+          {/* Front side (Question) */}
+          <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
+            <div className="mb-6 pointer-events-none">
+              <h2 className="text-lg font-semibold mb-4">Question</h2>
+              <p className="text-xl">{currentCard.front}</p>
+            </div>
+            {/* Flip hint */}
+            <div className="text-sm text-slate-500 dark:text-slate-400 mb-4 pointer-events-none">
+              Click anywhere or press Space/Enter to flip
+            </div>
           </div>
-        )}
+
+          {/* Back side (Answer) */}
+          <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
+            <div className="mb-6 pointer-events-none">
+              <h2 className="text-lg font-semibold mb-4">Answer</h2>
+              <p className="text-xl">{currentCard.back}</p>
+            </div>
+            {/* Flip hint */}
+            <div className="text-sm text-slate-500 dark:text-slate-400 mb-4 pointer-events-none">
+              Click anywhere or press Space/Enter to flip
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Controls */}
+      <div className="flex gap-4 justify-center">
+        <button
+          onClick={handlePreviousCard}
+          disabled={currentCardIndex === 0}
+          className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Previous card"
+        >
+          Previous
+        </button>
+        <button
+          onClick={
+            currentCardIndex === cards.length - 1
+              ? onExit
+              : handleNextCard
+          }
+          className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
+          aria-label={currentCardIndex === cards.length - 1 ? "Finish study session" : "Next card"}
+        >
+          {currentCardIndex === cards.length - 1 ? "Finish" : "Next"}
+        </button>
       </div>
     </div>
   );

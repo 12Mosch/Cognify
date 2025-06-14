@@ -183,33 +183,60 @@ export function StudyMode({ deckId, onExit }: StudyModeProps) {
         ></div>
       </div>
 
-      {/* Flashcard display area */}
-      <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-lg border-2 border-slate-200 dark:border-slate-700 min-h-[300px] flex flex-col justify-center items-center text-center">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">
-            {isFlipped ? "Answer" : "Question"}
-          </h2>
-          <p className="text-xl">
-            {isFlipped ? currentCard.back : currentCard.front}
-          </p>
-        </div>
+      {/* Flashcard display area with 3D Flip Animation */}
+      <div className="flashcard-container min-h-[300px]">
+        <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
+          {/* Front side (Question) */}
+          <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 flex flex-col justify-center items-center text-center">
+            <div className="mb-6 pointer-events-none">
+              <h2 className="text-lg font-semibold mb-4">Question</h2>
+              <p className="text-xl">{currentCard.front}</p>
+            </div>
 
-        {/* Control buttons */}
-        <div className="flex gap-4">
-          <button
-            onClick={handleFlipCard}
-            className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
-            aria-label={isFlipped ? "Show question" : "Show answer"}
-          >
-            {isFlipped ? "Show Question" : "Show Answer"}
-          </button>
-          <button
-            onClick={handleNextCard}
-            className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-6 py-3 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity font-medium"
-            aria-label="Next card"
-          >
-            Next Card
-          </button>
+            {/* Control buttons */}
+            <div className="flex gap-4 pointer-events-auto">
+              <button
+                onClick={handleFlipCard}
+                className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
+                aria-label="Show answer"
+              >
+                Show Answer
+              </button>
+              <button
+                onClick={handleNextCard}
+                className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-6 py-3 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity font-medium"
+                aria-label="Next card"
+              >
+                Next Card
+              </button>
+            </div>
+          </div>
+
+          {/* Back side (Answer) */}
+          <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 flex flex-col justify-center items-center text-center">
+            <div className="mb-6 pointer-events-none">
+              <h2 className="text-lg font-semibold mb-4">Answer</h2>
+              <p className="text-xl">{currentCard.back}</p>
+            </div>
+
+            {/* Control buttons */}
+            <div className="flex gap-4 pointer-events-auto">
+              <button
+                onClick={handleFlipCard}
+                className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
+                aria-label="Show question"
+              >
+                Show Question
+              </button>
+              <button
+                onClick={handleNextCard}
+                className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-6 py-3 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity font-medium"
+                aria-label="Next card"
+              >
+                Next Card
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

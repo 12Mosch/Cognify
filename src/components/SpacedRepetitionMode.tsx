@@ -85,6 +85,16 @@ export function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModePro
   };
 
   /**
+   * Handle keyboard shortcuts for flipping cards
+   */
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.code === 'Space' || event.code === 'Enter') {
+      event.preventDefault();
+      handleFlipCard();
+    }
+  };
+
+  /**
    * Handle card review with quality rating
    */
   const handleReview = async (quality: number) => {
@@ -223,65 +233,84 @@ export function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModePro
         </button>
       </div>
 
-      {/* Flashcard */}
-      <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-lg border-2 border-slate-200 dark:border-slate-700 min-h-[400px] flex flex-col justify-center items-center text-center">
-        <div className="mb-8 w-full">
-          <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">
-            {isFlipped ? "Answer" : "Question"}
-          </h2>
-          <p className="text-2xl leading-relaxed">
-            {isFlipped ? currentCard.back : currentCard.front}
-          </p>
-        </div>
-
-        {/* Action buttons */}
-        {!isFlipped ? (
-          // Show card button
-          <button
-            onClick={handleFlipCard}
-            className="bg-dark dark:bg-light text-light dark:text-dark text-lg px-8 py-4 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
-            aria-label="Show answer"
-          >
-            Show Answer
-          </button>
-        ) : (
-          // Quality rating buttons
-          <div className="flex flex-col gap-4 w-full max-w-md">
-            <p className="text-slate-600 dark:text-slate-400 mb-2">
-              How well did you know this?
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => { void handleReview(0); }}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
-                aria-label="Again - I didn't know this at all"
-              >
-                Again
-              </button>
-              <button
-                onClick={() => { void handleReview(3); }}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
-                aria-label="Hard - I knew this with difficulty"
-              >
-                Hard
-              </button>
-              <button
-                onClick={() => { void handleReview(4); }}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
-                aria-label="Good - I knew this well"
-              >
-                Good
-              </button>
-              <button
-                onClick={() => { void handleReview(5); }}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
-                aria-label="Easy - I knew this perfectly"
-              >
-                Easy
-              </button>
+      {/* Flashcard with 3D Flip Animation */}
+      <div
+        className="flashcard-container min-h-[400px] cursor-pointer"
+        onClick={handleFlipCard}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+        role="button"
+        aria-label={isFlipped ? "Click to show question" : "Click to show answer"}
+      >
+        <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
+          {/* Front side (Question) */}
+          <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
+            <div className="mb-8 w-full pointer-events-none">
+              <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">Question</h2>
+              <p className="text-2xl leading-relaxed">{currentCard.front}</p>
+            </div>
+            {/* Show Answer button */}
+            <button
+              onClick={handleFlipCard}
+              className="bg-dark dark:bg-light text-light dark:text-dark text-lg px-8 py-4 rounded-md border-2 hover:opacity-80 transition-opacity font-medium pointer-events-auto"
+              aria-label="Show answer"
+            >
+              Show Answer
+            </button>
+            {/* Flip hint */}
+            <div className="text-sm text-slate-500 dark:text-slate-400 mt-4 pointer-events-none">
+              Click anywhere or press Space/Enter to flip
             </div>
           </div>
-        )}
+
+          {/* Back side (Answer) */}
+          <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
+            <div className="mb-8 w-full pointer-events-none">
+              <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">Answer</h2>
+              <p className="text-2xl leading-relaxed">{currentCard.back}</p>
+            </div>
+            {/* Quality rating buttons */}
+            <div className="flex flex-col gap-4 w-full max-w-md pointer-events-auto">
+              <p className="text-slate-600 dark:text-slate-400 mb-2">
+                How well did you know this?
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => { void handleReview(0); }}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
+                  aria-label="Again - I didn't know this at all"
+                >
+                  Again
+                </button>
+                <button
+                  onClick={() => { void handleReview(3); }}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
+                  aria-label="Hard - I knew this with difficulty"
+                >
+                  Hard
+                </button>
+                <button
+                  onClick={() => { void handleReview(4); }}
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
+                  aria-label="Good - I knew this well"
+                >
+                  Good
+                </button>
+                <button
+                  onClick={() => { void handleReview(5); }}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
+                  aria-label="Easy - I knew this perfectly"
+                >
+                  Easy
+                </button>
+              </div>
+            </div>
+            {/* Flip hint */}
+            <div className="text-sm text-slate-500 dark:text-slate-400 mt-4 pointer-events-none">
+              Click anywhere or press Space/Enter to flip back
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
