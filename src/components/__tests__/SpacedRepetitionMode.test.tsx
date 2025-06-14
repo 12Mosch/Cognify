@@ -116,8 +116,7 @@ describe('SpacedRepetitionMode', () => {
   it('renders study interface with cards', async () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getDueCardsForDeck')) return [mockCards[1]]; // Due card
-      if (query.toString().includes('getNewCardsForDeck')) return [mockCards[0]]; // New card
+      if (query.toString().includes('getStudyQueue')) return [mockCards[1], mockCards[0]]; // Combined study queue
       return [];
     });
 
@@ -137,8 +136,7 @@ describe('SpacedRepetitionMode', () => {
   it('allows flipping cards to show answer', async () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getDueCardsForDeck')) return [mockCards[1]];
-      if (query.toString().includes('getNewCardsForDeck')) return [];
+      if (query.toString().includes('getStudyQueue')) return [mockCards[1]];
       return [];
     });
 
@@ -164,8 +162,7 @@ describe('SpacedRepetitionMode', () => {
   it('handles card review and moves to next card', async () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getDueCardsForDeck')) return mockCards;
-      if (query.toString().includes('getNewCardsForDeck')) return [];
+      if (query.toString().includes('getStudyQueue')) return mockCards;
       return [];
     });
 
@@ -203,8 +200,7 @@ describe('SpacedRepetitionMode', () => {
   it('exits when all cards are reviewed', async () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getDueCardsForDeck')) return [mockCards[0]]; // Only one card
-      if (query.toString().includes('getNewCardsForDeck')) return [];
+      if (query.toString().includes('getStudyQueue')) return [mockCards[0]]; // Only one card
       return [];
     });
 
@@ -232,8 +228,7 @@ describe('SpacedRepetitionMode', () => {
   it('handles exit button click', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getDueCardsForDeck')) return [mockCards[0]];
-      if (query.toString().includes('getNewCardsForDeck')) return [];
+      if (query.toString().includes('getStudyQueue')) return [mockCards[0]];
       return [];
     });
 

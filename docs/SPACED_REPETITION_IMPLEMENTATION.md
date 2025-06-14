@@ -48,6 +48,13 @@ cards: defineTable({
 
 **Automatic Field Initialization**: New cards are created with spaced repetition fields pre-initialized to ensure optimal query performance and eliminate the need for lazy initialization.
 
+**Unified Study Queue**: The `getStudyQueue` API combines due cards and new cards in a single, intelligent query that:
+- Prioritizes due cards (highest learning priority)
+- Fills remaining slots with new cards up to daily limit
+- Optionally shuffles the queue for varied study experience
+- Eliminates client-side complexity of managing separate queries
+- Reduces network requests from 2 to 1 per study session
+
 ### SM-2 Algorithm Implementation
 
 The algorithm is implemented in `convex/spacedRepetition.ts`:
@@ -130,8 +137,10 @@ docs/
 
 ### Queries
 
+- `getStudyQueue(deckId, maxCards?, shuffle?)`: **Primary API** - Get a unified study queue combining due cards and new cards, with optional shuffling for varied experience
+- `getStudyQueueStats(deckId)`: Get statistics about the study queue (due count, new count, total study cards)
 - `getDueCardsForDeck(deckId)`: Get cards that are due for review using efficient compound index
-- `getNewCardsForDeck(deckId, limit?)`: Get new cards with daily limit using optimized database query (no in-memory filtering)
+- `getNewCardsForDeck(deckId, limit?)`: **Deprecated** - Use `getStudyQueue` instead for unified experience
 
 ## Usage
 
@@ -142,7 +151,7 @@ docs/
    - Basic Study (existing functionality)
    - Spaced Repetition (new feature)
 3. User selects "Spaced Repetition"
-4. SpacedRepetitionMode component loads with due cards and new cards
+4. SpacedRepetitionMode component loads unified study queue with intelligent card mixing
 
 ### Study Flow
 

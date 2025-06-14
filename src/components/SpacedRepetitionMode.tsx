@@ -44,11 +44,13 @@ export function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModePro
   const [studyQueue, setStudyQueue] = useState<Card[]>([]);
   const [sessionStarted, setSessionStarted] = useState<boolean>(false);
 
-  // Fetch deck and cards data using Convex queries
+  // Fetch deck and study queue using Convex queries
   const deck = useQuery(api.decks.getDeckById, { deckId });
-  const dueCards = useQuery(api.spacedRepetition.getDueCardsForDeck, { deckId });
-  const newCards = useQuery(api.spacedRepetition.getNewCardsForDeck, { deckId, limit: 20 });
-  
+  const studyQueueData = useQuery(api.spacedRepetition.getStudyQueue, {
+    deckId,
+    shuffle: true // Enable shuffling for varied study experience
+  });
+
   // Mutations for card operations
   const reviewCard = useMutation(api.spacedRepetition.reviewCard);
   const initializeCard = useMutation(api.spacedRepetition.initializeCardForSpacedRepetition);
@@ -57,17 +59,15 @@ export function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModePro
 
   // Initialize study queue when data is loaded
   useEffect(() => {
-    if (dueCards && newCards && !sessionStarted) {
-      // Combine due cards and new cards, prioritizing due cards
-      const combinedQueue = [...dueCards, ...newCards];
-      setStudyQueue(combinedQueue);
-      
-      if (combinedQueue.length > 0 && deck) {
-        trackStudySessionStarted(deckId, deck.name, combinedQueue.length);
+    if (studyQueueData && !sessionStarted) {
+      setStudyQueue(studyQueueData);
+
+      if (studyQueueData.length > 0 && deck) {
+        trackStudySessionStarted(deckId, deck.name, studyQueueData.length);
         setSessionStarted(true);
       }
     }
-  }, [dueCards, newCards, sessionStarted, deckId, deck, trackStudySessionStarted]);
+  }, [studyQueueData, sessionStarted, deckId, deck, trackStudySessionStarted]);
 
   // Reset state when deck changes
   useEffect(() => {
@@ -134,7 +134,7 @@ export function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModePro
   };
 
   // Loading state
-  if (deck === undefined || dueCards === undefined || newCards === undefined) {
+  if (deck === undefined || studyQueueData === undefined) {
     return (
       <div className="flex flex-col gap-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-center py-12">
@@ -174,7 +174,7 @@ export function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModePro
   }
 
   // No cards to study state
-  if (studyQueue.length === 0) {
+  if (studyQueueData && studyQueueData.length === 0) {
     return (
       <div className="flex flex-col gap-8 max-w-4xl mx-auto">
         {/* Header with deck name and exit button */}

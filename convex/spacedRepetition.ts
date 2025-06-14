@@ -206,7 +206,91 @@ export const getDueCardsForDeck = query({
 });
 
 /**
+ * Gets a combined list of due and new cards for a study session.
+ * Prioritizes due cards first, then fills the rest of the queue with new cards
+ * up to the daily limit. This provides a unified study experience.
+ */
+export const getStudyQueue = query({
+  args: {
+    deckId: v.id("decks"),
+    maxCards: v.optional(v.number()), // Optional override for daily limit
+    shuffle: v.optional(v.boolean()),  // Whether to shuffle the final queue
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("cards"),
+      _creationTime: v.number(),
+      deckId: v.id("decks"),
+      front: v.string(),
+      back: v.string(),
+      repetition: v.optional(v.number()),
+      easeFactor: v.optional(v.number()),
+      interval: v.optional(v.number()),
+      dueDate: v.optional(v.number()),
+    })
+  ),
+  handler: async (ctx, args) => {
+    // Get the current authenticated user
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("User must be authenticated to access cards");
+    }
+
+    // Verify deck ownership
+    const deck = await ctx.db.get(args.deckId);
+
+    if (!deck) {
+      throw new Error("Deck not found");
+    }
+
+    if (deck.userId !== identity.subject) {
+      throw new Error("You can only access cards from your own decks");
+    }
+
+    const now = Date.now();
+    const maxCards = args.maxCards ?? DAILY_NEW_CARD_LIMIT;
+
+    // 1. Get all cards that are due for review (highest priority)
+    const dueCards = await ctx.db
+      .query("cards")
+      .withIndex("by_deckId_and_dueDate", (q) =>
+        q.eq("deckId", args.deckId).lte("dueDate", now)
+      )
+      .collect();
+
+    let newCards: any[] = [];
+
+    // 2. If we have fewer due cards than the daily limit, fill with new cards
+    if (dueCards.length < maxCards) {
+      const remainingSlots = maxCards - dueCards.length;
+      newCards = await ctx.db
+        .query("cards")
+        .withIndex("by_deckId_and_repetition", (q) =>
+          q.eq("deckId", args.deckId).eq("repetition", 0)
+        )
+        .take(remainingSlots);
+    }
+
+    // 3. Combine the cards into a study queue
+    const queue = [...dueCards, ...newCards];
+
+    // 4. Optional: Shuffle the queue so users don't always see due cards first
+    // This creates a more varied study experience
+    if (args.shuffle !== false) { // Default to true unless explicitly set to false
+      for (let i = queue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [queue[i], queue[j]] = [queue[j], queue[i]];
+      }
+    }
+
+    return queue;
+  },
+});
+
+/**
  * Get new cards (never reviewed) for a specific deck with daily limit
+ * @deprecated Use getStudyQueue instead for a unified study experience
  */
 export const getNewCardsForDeck = query({
   args: {
@@ -229,14 +313,14 @@ export const getNewCardsForDeck = query({
   handler: async (ctx, args) => {
     // Get the current authenticated user
     const identity = await ctx.auth.getUserIdentity();
-    
+
     if (!identity) {
       throw new Error("User must be authenticated to access cards");
     }
 
     // Verify deck ownership
     const deck = await ctx.db.get(args.deckId);
-    
+
     if (!deck) {
       throw new Error("Deck not found");
     }
@@ -258,6 +342,74 @@ export const getNewCardsForDeck = query({
       .take(limit);
 
     return newCards;
+  },
+});
+
+/**
+ * Get study queue statistics for a deck (useful for UI progress indicators)
+ */
+export const getStudyQueueStats = query({
+  args: {
+    deckId: v.id("decks"),
+  },
+  returns: v.object({
+    dueCount: v.number(),
+    newCount: v.number(),
+    totalStudyCards: v.number(),
+    totalCardsInDeck: v.number(),
+  }),
+  handler: async (ctx, args) => {
+    // Get the current authenticated user
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("User must be authenticated to access cards");
+    }
+
+    // Verify deck ownership
+    const deck = await ctx.db.get(args.deckId);
+
+    if (!deck) {
+      throw new Error("Deck not found");
+    }
+
+    if (deck.userId !== identity.subject) {
+      throw new Error("You can only access cards from your own decks");
+    }
+
+    const now = Date.now();
+
+    // Get counts efficiently using indexes
+    const dueCards = await ctx.db
+      .query("cards")
+      .withIndex("by_deckId_and_dueDate", (q) =>
+        q.eq("deckId", args.deckId).lte("dueDate", now)
+      )
+      .collect();
+
+    const newCards = await ctx.db
+      .query("cards")
+      .withIndex("by_deckId_and_repetition", (q) =>
+        q.eq("deckId", args.deckId).eq("repetition", 0)
+      )
+      .collect();
+
+    const totalCards = await ctx.db
+      .query("cards")
+      .withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
+      .collect();
+
+    const dueCount = dueCards.length;
+    const newCount = newCards.length;
+    const availableNewCards = Math.min(newCount, Math.max(0, DAILY_NEW_CARD_LIMIT - dueCount));
+    const totalStudyCards = dueCount + availableNewCards;
+
+    return {
+      dueCount,
+      newCount,
+      totalStudyCards,
+      totalCardsInDeck: totalCards.length,
+    };
   },
 });
 
