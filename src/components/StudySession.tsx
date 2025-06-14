@@ -5,6 +5,7 @@ import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
 import KeyboardShortcutsModal from "./KeyboardShortcutsModal";
 import HelpIcon from "./HelpIcon";
+import PostSessionSummary from "./PostSessionSummary";
 import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
 
 interface StudySessionProps {
@@ -17,6 +18,9 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionStarted, setSessionStarted] = useState(false);
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [sessionStartTime, setSessionStartTime] = useState(0);
+  const [cardsReviewed, setCardsReviewed] = useState(0);
 
   const deck = useQuery(api.decks.getDeckById, { deckId });
   const cards = useQuery(api.cards.getCardsForDeck, { deckId });
@@ -28,8 +32,15 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
     if (cards && currentCardIndex < cards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
       setIsFlipped(false);
+      setCardsReviewed(prev => prev + 1);
     }
   }, [cards, currentCardIndex]);
+
+  // Handle finishing the study session
+  const handleFinishSession = useCallback(() => {
+    setCardsReviewed(prev => prev + 1); // Count the last card
+    setShowSummary(true);
+  }, []);
 
   const handlePreviousCard = useCallback(() => {
     if (currentCardIndex > 0) {
@@ -47,6 +58,9 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
     setSessionStarted(false);
     setCurrentCardIndex(0);
     setIsFlipped(false);
+    setShowSummary(false);
+    setSessionStartTime(0);
+    setCardsReviewed(0);
   }, [deckId]);
 
   // Global keyboard event listener for shortcuts
@@ -92,6 +106,7 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
     if (deck && cards && !sessionStarted) {
       trackStudySessionStarted(deckId, deck.name, cards.length);
       setSessionStarted(true);
+      setSessionStartTime(Date.now());
     }
   }, [deck, deckId, cards, trackStudySessionStarted, sessionStarted]);
 
@@ -186,6 +201,20 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
     }
   };
 
+  // Show summary if session is complete
+  if (showSummary && deck) {
+    return (
+      <PostSessionSummary
+        deckId={deckId}
+        deckName={deck.name}
+        cardsReviewed={cardsReviewed}
+        studyMode="basic"
+        sessionDuration={sessionStartTime > 0 ? Date.now() - sessionStartTime : undefined}
+        onReturnToDashboard={onExit}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8 max-w-4xl mx-auto">
       {/* Header */}
@@ -267,7 +296,7 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
         <button
           onClick={
             currentCardIndex === cards.length - 1
-              ? onExit
+              ? handleFinishSession
               : handleNextCard
           }
           className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"

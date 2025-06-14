@@ -10,7 +10,8 @@ export type AnalyticsEvent =
   | 'user_signed_up'
   | 'deck_created'
   | 'card_created'
-  | 'study_session_started';
+  | 'study_session_started'
+  | 'study_session_completed';
 
 export interface AnalyticsEventData {
   user_signed_up: Record<string, never>; // No additional data needed
@@ -26,6 +27,13 @@ export interface AnalyticsEventData {
     deckId: string;
     deckName?: string;
     cardCount?: number;
+  };
+  study_session_completed: {
+    deckId: string;
+    deckName?: string;
+    cardsReviewed: number;
+    studyMode: 'basic' | 'spaced-repetition';
+    sessionDuration?: number;
   };
 }
 
@@ -111,6 +119,26 @@ export function trackStudySessionStarted(
 }
 
 /**
+ * Track study session completion event
+ */
+export function trackStudySessionCompleted(
+  posthog: ReturnType<typeof usePostHog> | null,
+  deckId: string,
+  deckName: string | undefined,
+  cardsReviewed: number,
+  studyMode: 'basic' | 'spaced-repetition',
+  sessionDuration?: number
+): void {
+  trackEvent(posthog, 'study_session_completed', {
+    deckId,
+    deckName,
+    cardsReviewed,
+    studyMode,
+    sessionDuration,
+  });
+}
+
+/**
  * Hook to get PostHog instance with error handling
  */
 export function useAnalytics() {
@@ -125,6 +153,13 @@ export function useAnalytics() {
       trackCardCreated(posthog, cardId, deckName),
     trackStudySessionStarted: (deckId: string, deckName?: string, cardCount?: number) =>
       trackStudySessionStarted(posthog, deckId, deckName, cardCount),
+    trackStudySessionCompleted: (
+      deckId: string,
+      deckName: string | undefined,
+      cardsReviewed: number,
+      studyMode: 'basic' | 'spaced-repetition',
+      sessionDuration?: number
+    ) => trackStudySessionCompleted(posthog, deckId, deckName, cardsReviewed, studyMode, sessionDuration),
   };
 }
 

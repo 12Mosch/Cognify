@@ -5,6 +5,7 @@ import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
 import KeyboardShortcutsModal from "./KeyboardShortcutsModal";
 import HelpIcon from "./HelpIcon";
+import PostSessionSummary from "./PostSessionSummary";
 import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
 
 interface SpacedRepetitionModeProps {
@@ -47,6 +48,9 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   const [studyQueue, setStudyQueue] = useState<Card[]>([]);
   const [sessionStarted, setSessionStarted] = useState<boolean>(false);
   const [showKeyboardHelp, setShowKeyboardHelp] = useState<boolean>(false);
+  const [showSummary, setShowSummary] = useState<boolean>(false);
+  const [sessionStartTime, setSessionStartTime] = useState<number>(0);
+  const [cardsReviewed, setCardsReviewed] = useState<number>(0);
 
   // Fetch deck and study queue using Convex queries
   const deck = useQuery(api.decks.getDeckById, { deckId });
@@ -69,6 +73,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       if (studyQueueData.length > 0 && deck) {
         trackStudySessionStarted(deckId, deck.name, studyQueueData.length);
         setSessionStarted(true);
+        setSessionStartTime(Date.now());
       }
     }
   }, [studyQueueData, sessionStarted, deckId, deck, trackStudySessionStarted]);
@@ -99,9 +104,11 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
       // Move to next card or finish session
       const nextIndex = currentCardIndex + 1;
+      setCardsReviewed(prev => prev + 1);
+
       if (nextIndex >= studyQueue.length) {
-        // Session complete
-        onExit();
+        // Session complete - show summary
+        setShowSummary(true);
       } else {
         setCurrentCardIndex(nextIndex);
         setIsFlipped(false);
@@ -110,14 +117,16 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       console.error("Error reviewing card:", error);
       // Continue to next card even if there's an error
       const nextIndex = currentCardIndex + 1;
+      setCardsReviewed(prev => prev + 1);
+
       if (nextIndex >= studyQueue.length) {
-        onExit();
+        setShowSummary(true);
       } else {
         setCurrentCardIndex(nextIndex);
         setIsFlipped(false);
       }
     }
-  }, [studyQueue, currentCardIndex, initializeCard, reviewCard, onExit]);
+  }, [studyQueue, currentCardIndex, initializeCard, reviewCard]);
 
   // Reset state when deck changes
   useEffect(() => {
@@ -125,6 +134,9 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
     setIsFlipped(false);
     setStudyQueue([]);
     setSessionStarted(false);
+    setShowSummary(false);
+    setSessionStartTime(0);
+    setCardsReviewed(0);
   }, [deckId]);
 
   // Global keyboard event listener for shortcuts
@@ -280,6 +292,20 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
           </div>
         </div>
       </div>
+    );
+  }
+
+  // Show summary if session is complete
+  if (showSummary && deck) {
+    return (
+      <PostSessionSummary
+        deckId={deckId}
+        deckName={deck.name}
+        cardsReviewed={cardsReviewed}
+        studyMode="spaced-repetition"
+        sessionDuration={sessionStartTime > 0 ? Date.now() - sessionStartTime : undefined}
+        onReturnToDashboard={onExit}
+      />
     );
   }
 
