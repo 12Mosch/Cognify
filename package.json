@@ -15,6 +15,7 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.32.0",
     "convex": "^1.23.0",
+    "posthog-js": "^1.252.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useAnalytics } from "../lib/analytics";
 
 interface CreateDeckFormProps {
   onSuccess?: () => void;
@@ -15,8 +16,9 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
   const [showForm, setShowForm] = useState(false);
 
   const createDeck = useMutation(api.decks.createDeck);
+  const { trackDeckCreated } = useAnalytics();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -38,25 +40,34 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 
     setIsSubmitting(true);
 
-    try {
-      await createDeck({
-        name: name.trim(),
-        description: description.trim(),
-      });
+    // Handle async operations without making the handler async
+    const submitDeck = async () => {
+      try {
+        const deckId = await createDeck({
+          name: name.trim(),
+          description: description.trim(),
+        });
 
-      // Reset form
-      setName("");
-      setDescription("");
-      setShowForm(false);
-      setError(null);
+        // Track deck creation event
+        trackDeckCreated(deckId, name.trim());
 
-      // Call success callback
-      onSuccess?.();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create deck");
-    } finally {
-      setIsSubmitting(false);
-    }
+        // Reset form
+        setName("");
+        setDescription("");
+        setShowForm(false);
+        setError(null);
+
+        // Call success callback
+        onSuccess?.();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to create deck");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+    // Execute the async function and handle any unhandled promise rejections
+    void submitDeck();
   };
 
   const handleCancel = () => {

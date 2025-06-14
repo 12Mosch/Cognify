@@ -1,13 +1,35 @@
 "use client";
 
+import { useEffect } from "react";
 import {
   Authenticated,
   Unauthenticated,
 } from "convex/react";
-import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/clerk-react";
 import { Dashboard } from "./components/Dashboard";
+import { useAnalytics, hasUserBeenTrackedForRegistration, markUserAsTrackedForRegistration } from "./lib/analytics";
 
 export default function App() {
+  const { user, isLoaded } = useUser();
+  const { trackUserSignUp } = useAnalytics();
+
+  // Track user registration when user first signs up
+  useEffect(() => {
+    if (isLoaded && user) {
+      // Check if this is a new user registration
+      const userCreatedAt = new Date(user.createdAt!);
+      const now = new Date();
+      const timeDifference = now.getTime() - userCreatedAt.getTime();
+      const isNewUser = timeDifference < 60000; // Within last minute (adjust as needed)
+
+      // Only track if user is new and hasn't been tracked before
+      if (isNewUser && !hasUserBeenTrackedForRegistration()) {
+        trackUserSignUp();
+        markUserAsTrackedForRegistration();
+      }
+    }
+  }, [isLoaded, user, trackUserSignUp]);
+
   return (
     <>
       <header className="sticky top-0 z-10 bg-light dark:bg-dark p-4 border-b-2 border-slate-200 dark:border-slate-800 flex flex-row justify-between items-center">

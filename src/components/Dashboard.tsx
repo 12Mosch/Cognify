@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { CreateDeckForm } from "./CreateDeckForm";
+import { StudySession } from "./StudySession";
 import { Id } from "../../convex/_generated/dataModel";
 
 interface Deck {
@@ -12,7 +14,18 @@ interface Deck {
 }
 
 export function Dashboard() {
+  const [studyingDeckId, setStudyingDeckId] = useState<Id<"decks"> | null>(null);
   const decks = useQuery(api.decks.getDecksForUser);
+
+  // If user is in a study session, show the StudySession component
+  if (studyingDeckId) {
+    return (
+      <StudySession
+        deckId={studyingDeckId}
+        onExit={() => setStudyingDeckId(null)}
+      />
+    );
+  }
 
   // Loading state
   if (decks === undefined) {
@@ -62,7 +75,11 @@ export function Dashboard() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {decks.map((deck) => (
-            <DeckCard key={deck._id} deck={deck} />
+            <DeckCard
+              key={deck._id}
+              deck={deck}
+              onStartStudy={() => setStudyingDeckId(deck._id)}
+            />
           ))}
         </div>
       )}
@@ -102,7 +119,7 @@ function EmptyState() {
   );
 }
 
-function DeckCard({ deck }: { deck: Deck }) {
+function DeckCard({ deck, onStartStudy }: { deck: Deck; onStartStudy: () => void }) {
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString(undefined, {
       year: 'numeric',
@@ -112,7 +129,7 @@ function DeckCard({ deck }: { deck: Deck }) {
   };
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer group">
+    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors group">
       <div className="flex flex-col h-full">
         {/* Deck Header */}
         <div className="flex-1">
@@ -138,23 +155,11 @@ function DeckCard({ deck }: { deck: Deck }) {
               0 cards
             </span>
             <button
-              className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-              aria-label={`Open ${deck.name} deck`}
+              onClick={onStartStudy}
+              className="text-xs bg-dark dark:bg-light text-light dark:text-dark px-3 py-1 rounded hover:opacity-80 transition-opacity font-medium"
+              aria-label={`Study ${deck.name} deck`}
             >
-              <svg 
-                className="w-4 h-4" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M9 5l7 7-7 7" 
-                />
-              </svg>
+              Study
             </button>
           </div>
         </div>
