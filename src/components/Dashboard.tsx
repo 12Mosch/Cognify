@@ -4,6 +4,7 @@ import { api } from "../../convex/_generated/api";
 import { CreateDeckForm } from "./CreateDeckForm";
 import { StudySession } from "./StudySession";
 import { DeckView } from "./DeckView";
+import { QuickAddCardForm } from "./QuickAddCardForm";
 import { Id } from "../../convex/_generated/dataModel";
 
 interface Deck {
@@ -65,6 +66,11 @@ export function Dashboard() {
     console.log("Deck created successfully!");
   };
 
+  const handleCardCreateSuccess = () => {
+    // The query will automatically refetch due to Convex reactivity
+    console.log("Card created successfully!");
+  };
+
   return (
     <div className="flex flex-col gap-8 max-w-6xl mx-auto">
       {/* Header */}
@@ -72,13 +78,16 @@ export function Dashboard() {
         <div>
           <h1 className="text-3xl font-bold">My Flashcard Decks</h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
-            {decks.length === 0 
-              ? "Create your first deck to get started" 
+            {decks.length === 0
+              ? "Create your first deck to get started"
               : `${decks.length} deck${decks.length === 1 ? '' : 's'}`
             }
           </p>
         </div>
-        <CreateDeckForm onSuccess={handleCreateSuccess} />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <QuickAddCardForm onSuccess={handleCardCreateSuccess} />
+          <CreateDeckForm onSuccess={handleCreateSuccess} />
+        </div>
       </div>
 
       {/* Decks Grid */}

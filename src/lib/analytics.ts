@@ -6,15 +6,20 @@ import { usePostHog } from 'posthog-js/react';
  */
 
 // Define event types for better type safety
-export type AnalyticsEvent = 
+export type AnalyticsEvent =
   | 'user_signed_up'
   | 'deck_created'
+  | 'card_created'
   | 'study_session_started';
 
 export interface AnalyticsEventData {
   user_signed_up: Record<string, never>; // No additional data needed
   deck_created: {
     deckId?: string;
+    deckName?: string;
+  };
+  card_created: {
+    cardId?: string;
     deckName?: string;
   };
   study_session_started: {
@@ -79,6 +84,17 @@ export function trackDeckCreated(
 }
 
 /**
+ * Track card creation event
+ */
+export function trackCardCreated(
+  posthog: ReturnType<typeof usePostHog> | null,
+  cardId?: string,
+  deckName?: string
+): void {
+  trackEvent(posthog, 'card_created', { cardId, deckName });
+}
+
+/**
  * Track study session start event
  */
 export function trackStudySessionStarted(
@@ -99,13 +115,15 @@ export function trackStudySessionStarted(
  */
 export function useAnalytics() {
   const posthog = usePostHog();
-  
+
   return {
     posthog,
     trackUserSignUp: () => trackUserSignUp(posthog),
-    trackDeckCreated: (deckId?: string, deckName?: string) => 
+    trackDeckCreated: (deckId?: string, deckName?: string) =>
       trackDeckCreated(posthog, deckId, deckName),
-    trackStudySessionStarted: (deckId: string, deckName?: string, cardCount?: number) => 
+    trackCardCreated: (cardId?: string, deckName?: string) =>
+      trackCardCreated(posthog, cardId, deckName),
+    trackStudySessionStarted: (deckId: string, deckName?: string, cardCount?: number) =>
       trackStudySessionStarted(posthog, deckId, deckName, cardCount),
   };
 }
