@@ -14,6 +14,7 @@ export const getDecksForUser = query({
       userId: v.string(),
       name: v.string(),
       description: v.string(),
+      cardCount: v.number(),
     })
   ),
   handler: async (ctx, _args) => {
@@ -73,6 +74,7 @@ export const createDeck = mutation({
       userId: identity.subject,
       name: args.name.trim(),
       description: args.description.trim(),
+      cardCount: 0, // Initialize with zero cards
     });
 
     return deckId;

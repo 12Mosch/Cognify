@@ -9,6 +9,7 @@ export default defineSchema({
     userId: v.string(), // ID of the user who owns this deck
     name: v.string(),   // Name of the deck
     description: v.string(), // Description of the deck
+    cardCount: v.number(), // Number of cards in this deck (for performance optimization)
   }),
 
   // Cards table - stores individual flashcards

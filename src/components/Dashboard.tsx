@@ -34,6 +34,7 @@ interface Deck {
   userId: string;
   name: string;
   description: string;
+  cardCount: number;
 }
 
 export function Dashboard() {
@@ -204,7 +205,7 @@ function EmptyState() {
 }
 
 function DeckCard({ deck, onStartStudy, onManageCards }: { deck: Deck; onStartStudy: () => void; onManageCards: () => void }) {
-  const cards = useQuery(api.cards.getCardsForDeck, { deckId: deck._id });
+  // No longer need to query cards - we have the count directly from the deck
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString(undefined, {
@@ -238,7 +239,7 @@ function DeckCard({ deck, onStartStudy, onManageCards }: { deck: Deck; onStartSt
           
           <div className="flex items-center gap-2">
             <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
-              {cards === undefined ? "..." : `${cards.length} card${cards.length === 1 ? '' : 's'}`}
+              {`${deck.cardCount} card${deck.cardCount === 1 ? '' : 's'}`}
             </span>
             <button
               onClick={onManageCards}

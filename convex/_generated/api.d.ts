@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as cards from "../cards.js";
 import type * as decks from "../decks.js";
+import type * as migrations_addCardCountToDecks from "../migrations/addCardCountToDecks.js";
 import type * as spacedRepetition from "../spacedRepetition.js";
 
 /**
@@ -28,6 +29,7 @@ import type * as spacedRepetition from "../spacedRepetition.js";
 declare const fullApi: ApiFromModules<{
   cards: typeof cards;
   decks: typeof decks;
+  "migrations/addCardCountToDecks": typeof migrations_addCardCountToDecks;
   spacedRepetition: typeof spacedRepetition;
 }>;
 export declare const api: FilterApi<

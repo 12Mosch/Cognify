@@ -112,6 +112,11 @@ export const addCardToDeck = mutation({
       dueDate: Date.now(),  // Available for study immediately
     });
 
+    // Increment the deck's card count for performance optimization
+    await ctx.db.patch(args.deckId, {
+      cardCount: (deck.cardCount || 0) + 1,
+    });
+
     return cardId;
   },
 });
@@ -222,6 +227,11 @@ export const deleteCard = mutation({
 
     // Delete the card
     await ctx.db.delete(args.cardId);
+
+    // Decrement the deck's card count for performance optimization
+    await ctx.db.patch(existingCard.deckId, {
+      cardCount: Math.max(0, (deck.cardCount || 0) - 1),
+    });
 
     return null;
   },
