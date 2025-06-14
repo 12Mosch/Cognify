@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
@@ -128,7 +128,7 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
   );
 }
 
-function EmptyState() {
+const EmptyState = memo(function EmptyState() {
   return (
     <div className="flex items-center justify-center py-16">
       <div className="text-center max-w-md">
@@ -140,14 +140,14 @@ function EmptyState() {
       </div>
     </div>
   );
-}
+});
 
 interface CardItemProps {
   card: Card;
   onEdit: () => void;
 }
 
-function CardItem({ card, onEdit }: CardItemProps) {
+const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -261,7 +261,7 @@ function CardItem({ card, onEdit }: CardItemProps) {
       )}
     </div>
   );
-}
+});
 
 interface AddCardFormProps {
   deckId: Id<"decks">;
