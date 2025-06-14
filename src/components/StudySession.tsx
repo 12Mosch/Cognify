@@ -9,13 +9,7 @@ interface StudySessionProps {
   onExit: () => void;
 }
 
-interface Card {
-  _id: Id<"cards">;
-  _creationTime: number;
-  deckId: Id<"decks">;
-  front: string;
-  back: string;
-}
+
 
 export function StudySession({ deckId, onExit }: StudySessionProps) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -23,9 +17,7 @@ export function StudySession({ deckId, onExit }: StudySessionProps) {
   const [sessionStarted, setSessionStarted] = useState(false);
 
   const deck = useQuery(api.decks.getDeckById, { deckId });
-  // Note: We'll need to create a query for cards in the future
-  // For now, we'll use mock data to demonstrate the analytics integration
-  const cards: Card[] = []; // This would be replaced with actual card query
+  const cards = useQuery(api.cards.getCardsForDeck, { deckId });
 
   const { trackStudySessionStarted } = useAnalytics();
 
@@ -38,14 +30,14 @@ export function StudySession({ deckId, onExit }: StudySessionProps) {
 
   // Track study session start when component mounts and deck is loaded
   useEffect(() => {
-    if (deck && !sessionStarted) {
+    if (deck && cards && !sessionStarted) {
       trackStudySessionStarted(deckId, deck.name, cards.length);
       setSessionStarted(true);
     }
-  }, [deck, deckId, cards.length, trackStudySessionStarted, sessionStarted]);
+  }, [deck, deckId, cards, trackStudySessionStarted, sessionStarted]);
 
   // Loading state
-  if (deck === undefined) {
+  if (deck === undefined || cards === undefined) {
     return (
       <div className="flex flex-col gap-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-center py-12">

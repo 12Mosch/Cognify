@@ -3,6 +3,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { CreateDeckForm } from "./CreateDeckForm";
 import { StudySession } from "./StudySession";
+import { DeckView } from "./DeckView";
 import { Id } from "../../convex/_generated/dataModel";
 
 interface Deck {
@@ -15,7 +16,18 @@ interface Deck {
 
 export function Dashboard() {
   const [studyingDeckId, setStudyingDeckId] = useState<Id<"decks"> | null>(null);
+  const [viewingDeckId, setViewingDeckId] = useState<Id<"decks"> | null>(null);
   const decks = useQuery(api.decks.getDecksForUser);
+
+  // If user is viewing a deck, show the DeckView component
+  if (viewingDeckId) {
+    return (
+      <DeckView
+        deckId={viewingDeckId}
+        onBack={() => setViewingDeckId(null)}
+      />
+    );
+  }
 
   // If user is in a study session, show the StudySession component
   if (studyingDeckId) {
@@ -79,6 +91,7 @@ export function Dashboard() {
               key={deck._id}
               deck={deck}
               onStartStudy={() => setStudyingDeckId(deck._id)}
+              onManageCards={() => setViewingDeckId(deck._id)}
             />
           ))}
         </div>
@@ -119,7 +132,9 @@ function EmptyState() {
   );
 }
 
-function DeckCard({ deck, onStartStudy }: { deck: Deck; onStartStudy: () => void }) {
+function DeckCard({ deck, onStartStudy, onManageCards }: { deck: Deck; onStartStudy: () => void; onManageCards: () => void }) {
+  const cards = useQuery(api.cards.getCardsForDeck, { deckId: deck._id });
+
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString(undefined, {
       year: 'numeric',
@@ -152,8 +167,15 @@ function DeckCard({ deck, onStartStudy }: { deck: Deck; onStartStudy: () => void
           
           <div className="flex items-center gap-2">
             <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
-              0 cards
+              {cards === undefined ? "..." : `${cards.length} card${cards.length === 1 ? '' : 's'}`}
             </span>
+            <button
+              onClick={onManageCards}
+              className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1 rounded hover:opacity-80 transition-opacity font-medium"
+              aria-label={`Manage cards in ${deck.name} deck`}
+            >
+              Manage
+            </button>
             <button
               onClick={onStartStudy}
               className="text-xs bg-dark dark:bg-light text-light dark:text-dark px-3 py-1 rounded hover:opacity-80 transition-opacity font-medium"

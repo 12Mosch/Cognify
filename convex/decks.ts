@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
 
 /**
  * Get all decks for the currently authenticated user.
@@ -17,7 +16,7 @@ export const getDecksForUser = query({
       description: v.string(),
     })
   ),
-  handler: async (ctx, args) => {
+  handler: async (ctx, _args) => {
     // Get the current authenticated user
     const identity = await ctx.auth.getUserIdentity();
     
@@ -164,7 +163,7 @@ export const deleteDeck = mutation({
     // Delete all cards associated with this deck
     const cards = await ctx.db
       .query("cards")
-      .filter((q) => q.eq(q.field("deckId"), args.deckId))
+      .withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
       .collect();
 
     for (const card of cards) {

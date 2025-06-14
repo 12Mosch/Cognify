@@ -16,5 +16,5 @@ export default defineSchema({
     deckId: v.id("decks"), // Reference to the deck this card belongs to
     front: v.string(),     // Front side of the card (question/prompt)
     back: v.string(),      // Back side of the card (answer)
-  }),
+  }).index("by_deckId", ["deckId"]), // Index for efficient queries by deck
 });
