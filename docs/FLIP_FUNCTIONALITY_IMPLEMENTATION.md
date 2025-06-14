@@ -151,6 +151,8 @@ Provides clear instructions for users on how to interact with the flashcard.
 - **Tab navigation**: Flashcard is focusable with Tab key
 - **Space/Enter activation**: Standard keyboard shortcuts for button activation
 - **Focus indicators**: Visual focus indicators for keyboard users
+- **Comprehensive Shortcuts**: Full keyboard shortcut system with help modal
+- **Context-Aware**: Different shortcuts available based on study mode
 
 ### Screen Reader Support
 - **Role attributes**: `role="button"` indicates interactive element
@@ -189,6 +191,8 @@ The implementation follows the same patterns used in:
    - Tab to flashcard and press Space to flip
    - Tab to flashcard and press Enter to flip
    - Verify focus indicators are visible
+   - Test comprehensive keyboard shortcuts (arrows, numbers, help)
+   - Verify help modal opens with ? key
 
 3. **Navigation integration**
    - Flip card, then navigate to next card
@@ -206,6 +210,9 @@ The component includes comprehensive unit tests covering:
 - State management and navigation
 - Accessibility attributes
 - Loading and error states
+- Keyboard shortcuts system (arrows, numbers, help modal)
+- Context-aware shortcut behavior
+- Help system functionality
 
 ## Browser Compatibility
 

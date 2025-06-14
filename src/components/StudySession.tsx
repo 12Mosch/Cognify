@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
+import KeyboardShortcutsModal from "./KeyboardShortcutsModal";
+import HelpIcon from "./HelpIcon";
+import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
 
 interface StudySessionProps {
   deckId: Id<"decks">;
@@ -13,11 +16,31 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionStarted, setSessionStarted] = useState(false);
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
   const deck = useQuery(api.decks.getDeckById, { deckId });
   const cards = useQuery(api.cards.getCardsForDeck, { deckId });
 
   const { trackStudySessionStarted } = useAnalytics();
+
+  // Define callback functions first (before any early returns)
+  const handleNextCard = useCallback(() => {
+    if (cards && currentCardIndex < cards.length - 1) {
+      setCurrentCardIndex(currentCardIndex + 1);
+      setIsFlipped(false);
+    }
+  }, [cards, currentCardIndex]);
+
+  const handlePreviousCard = useCallback(() => {
+    if (currentCardIndex > 0) {
+      setCurrentCardIndex(currentCardIndex - 1);
+      setIsFlipped(false);
+    }
+  }, [currentCardIndex]);
+
+  const handleFlipCard = useCallback(() => {
+    setIsFlipped(!isFlipped);
+  }, [isFlipped]);
 
   // Reset analytics gate whenever we switch decks
   useEffect(() => {
@@ -25,6 +48,44 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
     setCurrentCardIndex(0);
     setIsFlipped(false);
   }, [deckId]);
+
+  // Global keyboard event listener for shortcuts
+  useEffect(() => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      // Don't handle shortcuts if modal is open or if user is typing in an input
+      if (showKeyboardHelp || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Handle help shortcut
+      if (isShortcutKey(event, '?')) {
+        event.preventDefault();
+        setShowKeyboardHelp(true);
+        return;
+      }
+
+      // Handle flip shortcuts
+      if (isShortcutKey(event, 'Space') || isShortcutKey(event, 'Enter')) {
+        event.preventDefault();
+        handleFlipCard();
+        return;
+      }
+
+      // Handle navigation shortcuts
+      if (isShortcutKey(event, '←')) {
+        event.preventDefault();
+        handlePreviousCard();
+      } else if (isShortcutKey(event, '→')) {
+        event.preventDefault();
+        handleNextCard();
+      }
+    };
+
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleGlobalKeyDown);
+    };
+  }, [showKeyboardHelp, handleFlipCard, handlePreviousCard, handleNextCard]);
 
   // Track study session start when component mounts and deck is loaded
   useEffect(() => {
@@ -117,25 +178,7 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
 
   const currentCard = cards[currentCardIndex];
 
-  const handleNextCard = () => {
-    if (currentCardIndex < cards.length - 1) {
-      setCurrentCardIndex(currentCardIndex + 1);
-      setIsFlipped(false);
-    }
-  };
-
-  const handlePreviousCard = () => {
-    if (currentCardIndex > 0) {
-      setCurrentCardIndex(currentCardIndex - 1);
-      setIsFlipped(false);
-    }
-  };
-
-  const handleFlipCard = () => {
-    setIsFlipped(!isFlipped);
-  };
-
-  // Handle keyboard shortcuts for flipping cards
+  // Handle keyboard shortcuts for flipping cards (kept for card-specific events)
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.code === 'Space' || event.code === 'Enter') {
       event.preventDefault();
@@ -153,12 +196,15 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
             Card {currentCardIndex + 1} of {cards.length}
           </p>
         </div>
-        <button
-          onClick={onExit}
-          className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
-        >
-          Exit Study Session
-        </button>
+        <div className="flex items-center gap-3">
+          <HelpIcon onClick={() => setShowKeyboardHelp(true)} />
+          <button
+            onClick={onExit}
+            className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
+          >
+            Exit Study Session
+          </button>
+        </div>
       </div>
 
       {/* Progress Bar */}
@@ -211,9 +257,12 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
           onClick={handlePreviousCard}
           disabled={currentCardIndex === 0}
           className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          aria-label="Previous card"
+          aria-label="Previous card (Press Left Arrow)"
         >
-          Previous
+          <span className="flex items-center gap-2">
+            Previous
+            <kbd className="px-1.5 py-0.5 text-xs bg-slate-300 dark:bg-slate-600 rounded border border-slate-400 dark:border-slate-500">←</kbd>
+          </span>
         </button>
         <button
           onClick={
@@ -222,11 +271,24 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
               : handleNextCard
           }
           className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
-          aria-label={currentCardIndex === cards.length - 1 ? "Finish study session" : "Next card"}
+          aria-label={currentCardIndex === cards.length - 1 ? "Finish study session" : "Next card (Press Right Arrow)"}
         >
-          {currentCardIndex === cards.length - 1 ? "Finish" : "Next"}
+          <span className="flex items-center gap-2">
+            {currentCardIndex === cards.length - 1 ? "Finish" : "Next"}
+            {currentCardIndex !== cards.length - 1 && (
+              <kbd className="px-1.5 py-0.5 text-xs bg-slate-600 dark:bg-slate-300 bg-opacity-50 rounded border border-slate-400 dark:border-slate-500">→</kbd>
+            )}
+          </span>
         </button>
       </div>
+
+      {/* Keyboard Shortcuts Modal */}
+      <KeyboardShortcutsModal
+        isOpen={showKeyboardHelp}
+        onClose={() => setShowKeyboardHelp(false)}
+        shortcuts={getKeyboardShortcuts('basic')}
+        studyMode="basic"
+      />
     </div>
   );
 }

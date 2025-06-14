@@ -194,6 +194,7 @@ export const getDeckById = query({
       userId: v.string(),
       name: v.string(),
       description: v.string(),
+      cardCount: v.number(),
     }),
     v.null()
   ),

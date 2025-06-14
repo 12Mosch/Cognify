@@ -241,4 +241,117 @@ describe('SpacedRepetitionMode', () => {
 
     expect(mockOnExit).toHaveBeenCalled();
   });
+
+  it('renders help icon and opens keyboard shortcuts modal', async () => {
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.toString().includes('getDeckById')) return mockDeck;
+      if (query.toString().includes('getStudyQueue')) return [mockCards[0]];
+      return [];
+    });
+
+    render(
+      <SpacedRepetitionMode deckId={mockDeckId} onExit={mockOnExit} />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Show keyboard shortcuts help')).toBeInTheDocument();
+    });
+
+    // Click help icon
+    const helpIcon = screen.getByLabelText('Show keyboard shortcuts help');
+    fireEvent.click(helpIcon);
+
+    await waitFor(() => {
+      expect(screen.getByText('Keyboard Shortcuts')).toBeInTheDocument();
+      expect(screen.getByText(/Available shortcuts for Spaced Repetition mode/)).toBeInTheDocument();
+    });
+  });
+
+  it('handles number key shortcuts for rating when card is flipped', async () => {
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.toString().includes('getDeckById')) return mockDeck;
+      if (query.toString().includes('getStudyQueue')) return [mockCards[0]];
+      return [];
+    });
+
+    mockReviewCard.mockResolvedValue(null);
+
+    render(
+      <SpacedRepetitionMode deckId={mockDeckId} onExit={mockOnExit} />
+    );
+
+    // Wait for component to load
+    await waitFor(() => {
+      expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
+    });
+
+    // Flip the card first
+    fireEvent.click(screen.getByText('Show Answer'));
+
+    await waitFor(() => {
+      expect(screen.getByText('4')).toBeInTheDocument();
+    });
+
+    // Press number key 3 for "Good" rating
+    fireEvent.keyDown(document, { key: '3' });
+
+    await waitFor(() => {
+      expect(mockReviewCard).toHaveBeenCalledWith({ cardId: mockCards[0]._id, quality: 4 });
+    });
+  });
+
+  it('displays rating buttons with keyboard shortcuts', async () => {
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.toString().includes('getDeckById')) return mockDeck;
+      if (query.toString().includes('getStudyQueue')) return [mockCards[0]];
+      return [];
+    });
+
+    render(
+      <SpacedRepetitionMode deckId={mockDeckId} onExit={mockOnExit} />
+    );
+
+    // Wait for component to load and flip card
+    await waitFor(() => {
+      expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('Show Answer'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Again')).toBeInTheDocument();
+      expect(screen.getByText('Hard')).toBeInTheDocument();
+      expect(screen.getByText('Good')).toBeInTheDocument();
+      expect(screen.getByText('Easy')).toBeInTheDocument();
+
+      // Check for keyboard shortcut indicators
+      expect(screen.getByText('1')).toBeInTheDocument();
+      expect(screen.getByText('2')).toBeInTheDocument();
+      expect(screen.getByText('3')).toBeInTheDocument();
+      expect(screen.getByText('4')).toBeInTheDocument();
+    });
+  });
+
+  it('opens keyboard shortcuts modal when ? key is pressed', async () => {
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.toString().includes('getDeckById')) return mockDeck;
+      if (query.toString().includes('getStudyQueue')) return [mockCards[0]];
+      return [];
+    });
+
+    render(
+      <SpacedRepetitionMode deckId={mockDeckId} onExit={mockOnExit} />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
+    });
+
+    // Press ? key
+    fireEvent.keyDown(document, { key: '?' });
+
+    await waitFor(() => {
+      expect(screen.getByText('Keyboard Shortcuts')).toBeInTheDocument();
+    });
+  });
 });

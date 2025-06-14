@@ -1,8 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
+import KeyboardShortcutsModal from "./KeyboardShortcutsModal";
+import HelpIcon from "./HelpIcon";
+import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
 
 interface SpacedRepetitionModeProps {
   deckId: Id<"decks">;
@@ -43,6 +46,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const [studyQueue, setStudyQueue] = useState<Card[]>([]);
   const [sessionStarted, setSessionStarted] = useState<boolean>(false);
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState<boolean>(false);
 
   // Fetch deck and study queue using Convex queries
   const deck = useQuery(api.decks.getDeckById, { deckId });
@@ -69,35 +73,17 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
     }
   }, [studyQueueData, sessionStarted, deckId, deck, trackStudySessionStarted]);
 
-  // Reset state when deck changes
-  useEffect(() => {
-    setCurrentCardIndex(0);
-    setIsFlipped(false);
-    setStudyQueue([]);
-    setSessionStarted(false);
-  }, [deckId]);
-
   /**
    * Handle flipping the current card between front and back
    */
-  const handleFlipCard = () => {
+  const handleFlipCard = useCallback(() => {
     setIsFlipped(!isFlipped);
-  };
-
-  /**
-   * Handle keyboard shortcuts for flipping cards
-   */
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.code === 'Space' || event.code === 'Enter') {
-      event.preventDefault();
-      handleFlipCard();
-    }
-  };
+  }, [isFlipped]);
 
   /**
    * Handle card review with quality rating
    */
-  const handleReview = async (quality: number) => {
+  const handleReview = useCallback(async (quality: number) => {
     if (studyQueue.length === 0) return;
 
     const currentCard = studyQueue[currentCardIndex];
@@ -131,7 +117,73 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
         setIsFlipped(false);
       }
     }
+  }, [studyQueue, currentCardIndex, initializeCard, reviewCard, onExit]);
+
+  // Reset state when deck changes
+  useEffect(() => {
+    setCurrentCardIndex(0);
+    setIsFlipped(false);
+    setStudyQueue([]);
+    setSessionStarted(false);
+  }, [deckId]);
+
+  // Global keyboard event listener for shortcuts
+  useEffect(() => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      // Don't handle shortcuts if modal is open or if user is typing in an input
+      if (showKeyboardHelp || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Handle help shortcut
+      if (isShortcutKey(event, '?')) {
+        event.preventDefault();
+        setShowKeyboardHelp(true);
+        return;
+      }
+
+      // Handle flip shortcuts
+      if (isShortcutKey(event, 'Space') || isShortcutKey(event, 'Enter')) {
+        event.preventDefault();
+        handleFlipCard();
+        return;
+      }
+
+      // Handle rating shortcuts (only when card is flipped)
+      if (isFlipped && studyQueue.length > 0) {
+        if (isShortcutKey(event, '1')) {
+          event.preventDefault();
+          void handleReview(0); // Again
+        } else if (isShortcutKey(event, '2')) {
+          event.preventDefault();
+          void handleReview(3); // Hard
+        } else if (isShortcutKey(event, '3')) {
+          event.preventDefault();
+          void handleReview(4); // Good
+        } else if (isShortcutKey(event, '4')) {
+          event.preventDefault();
+          void handleReview(5); // Easy
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleGlobalKeyDown);
+    };
+  }, [isFlipped, studyQueue.length, showKeyboardHelp, handleFlipCard, handleReview]);
+
+  /**
+   * Handle keyboard shortcuts for flipping cards
+   */
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.code === 'Space' || event.code === 'Enter') {
+      event.preventDefault();
+      handleFlipCard();
+    }
   };
+
+
 
   // Loading state
   if (deck === undefined || studyQueueData === undefined) {
@@ -214,9 +266,26 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
   const currentCard = studyQueue[currentCardIndex];
 
+  // Additional safety check - if currentCard is undefined, show loading
+  if (!currentCard) {
+    return (
+      <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-pulse">
+              <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-48 mx-auto mb-4"></div>
+              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32 mx-auto"></div>
+            </div>
+            <p className="text-slate-600 dark:text-slate-400 mt-4">Preparing your study session...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-8 max-w-4xl mx-auto">
-      {/* Header with deck name and exit button */}
+      {/* Header with deck name, help icon, and exit button */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">{deck.name}</h1>
@@ -224,13 +293,16 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
             Spaced Repetition Mode
           </p>
         </div>
-        <button
-          onClick={onExit}
-          className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
-          aria-label="Exit spaced repetition mode"
-        >
-          Exit Study
-        </button>
+        <div className="flex items-center gap-3">
+          <HelpIcon onClick={() => setShowKeyboardHelp(true)} />
+          <button
+            onClick={onExit}
+            className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
+            aria-label="Exit spaced repetition mode"
+          >
+            Exit Study
+          </button>
+        </div>
       </div>
 
       {/* Flashcard with 3D Flip Animation */}
@@ -277,31 +349,43 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => { void handleReview(0); }}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
-                  aria-label="Again - I didn't know this at all"
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-md font-medium transition-colors relative"
+                  aria-label="Again - I didn't know this at all (Press 1)"
                 >
-                  Again
+                  <span className="flex items-center justify-between">
+                    Again
+                    <kbd className="ml-2 px-1.5 py-0.5 text-xs bg-red-600 bg-opacity-50 rounded border border-red-400">1</kbd>
+                  </span>
                 </button>
                 <button
                   onClick={() => { void handleReview(3); }}
-                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
-                  aria-label="Hard - I knew this with difficulty"
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-md font-medium transition-colors relative"
+                  aria-label="Hard - I knew this with difficulty (Press 2)"
                 >
-                  Hard
+                  <span className="flex items-center justify-between">
+                    Hard
+                    <kbd className="ml-2 px-1.5 py-0.5 text-xs bg-orange-600 bg-opacity-50 rounded border border-orange-400">2</kbd>
+                  </span>
                 </button>
                 <button
                   onClick={() => { void handleReview(4); }}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
-                  aria-label="Good - I knew this well"
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-md font-medium transition-colors relative"
+                  aria-label="Good - I knew this well (Press 3)"
                 >
-                  Good
+                  <span className="flex items-center justify-between">
+                    Good
+                    <kbd className="ml-2 px-1.5 py-0.5 text-xs bg-green-600 bg-opacity-50 rounded border border-green-400">3</kbd>
+                  </span>
                 </button>
                 <button
                   onClick={() => { void handleReview(5); }}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-md font-medium transition-colors"
-                  aria-label="Easy - I knew this perfectly"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-md font-medium transition-colors relative"
+                  aria-label="Easy - I knew this perfectly (Press 4)"
                 >
-                  Easy
+                  <span className="flex items-center justify-between">
+                    Easy
+                    <kbd className="ml-2 px-1.5 py-0.5 text-xs bg-blue-600 bg-opacity-50 rounded border border-blue-400">4</kbd>
+                  </span>
                 </button>
               </div>
             </div>
@@ -312,6 +396,14 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
           </div>
         </div>
       </div>
+
+      {/* Keyboard Shortcuts Modal */}
+      <KeyboardShortcutsModal
+        isOpen={showKeyboardHelp}
+        onClose={() => setShowKeyboardHelp(false)}
+        shortcuts={getKeyboardShortcuts('spaced-repetition')}
+        studyMode="spaced-repetition"
+      />
     </div>
   );
 }
