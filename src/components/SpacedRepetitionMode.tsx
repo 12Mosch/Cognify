@@ -7,6 +7,7 @@ import KeyboardShortcutsModal from "./KeyboardShortcutsModal";
 import HelpIcon from "./HelpIcon";
 import PostSessionSummary from "./PostSessionSummary";
 import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
+import { formatNextReviewTime } from "../lib/dateUtils";
 
 interface SpacedRepetitionModeProps {
   deckId: Id<"decks">;
@@ -58,6 +59,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
     deckId,
     shuffle: true // Enable shuffling for varied study experience
   });
+  const nextReviewInfo = useQuery(api.spacedRepetition.getNextReviewInfo, { deckId });
 
   // Mutations for card operations
   const reviewCard = useMutation(api.spacedRepetition.reviewCard);
@@ -239,6 +241,12 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
   // No cards to study state
   if (studyQueueData && studyQueueData.length === 0) {
+    // Generate enhanced messaging based on session and next review data
+    const sessionCardsReviewed = cardsReviewed;
+    const hasNextReview = nextReviewInfo?.nextDueDate;
+    const nextReviewTime = hasNextReview ? formatNextReviewTime(hasNextReview) : null;
+    const totalCards = nextReviewInfo?.totalCardsInDeck || 0;
+
     return (
       <div className="flex flex-col gap-8 max-w-4xl mx-auto">
         {/* Header with deck name and exit button */}
@@ -253,16 +261,52 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
           </button>
         </div>
 
-        {/* No cards message */}
+        {/* Enhanced "All Caught Up" message */}
         <div className="flex items-center justify-center py-12">
-          <div className="text-center">
+          <div className="text-center max-w-2xl">
             <h2 className="text-2xl font-bold mb-4">All Caught Up! 🎉</h2>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
-              You have no cards due for review right now. Great job staying on top of your studies!
+
+            {/* Session statistics */}
+            {sessionCardsReviewed > 0 && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6">
+                <p className="text-green-800 dark:text-green-200 font-medium">
+                  Great work! You've reviewed {sessionCardsReviewed} card{sessionCardsReviewed === 1 ? '' : 's'} in this session.
+                </p>
+              </div>
+            )}
+
+            {/* Main encouragement message */}
+            <p className="text-slate-600 dark:text-slate-400 mb-4 text-lg">
+              You have no cards due for review right now. Excellent job staying on track with your studies!
             </p>
-            <p className="text-slate-500 dark:text-slate-500 text-sm mb-6">
-              Come back later when more cards are due for review, or add new cards to this deck.
-            </p>
+
+            {/* Next review information */}
+            {hasNextReview && nextReviewTime ? (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                <p className="text-blue-800 dark:text-blue-200">
+                  <span className="font-medium">Next review:</span> {nextReviewTime}
+                </p>
+                <p className="text-blue-600 dark:text-blue-300 text-sm mt-1">
+                  Come back then to continue your learning journey!
+                </p>
+              </div>
+            ) : totalCards > 0 ? (
+              <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-6">
+                <p className="text-slate-600 dark:text-slate-400">
+                  All {totalCards} card{totalCards === 1 ? '' : 's'} in this deck {totalCards === 1 ? 'is' : 'are'} up to date.
+                </p>
+                <p className="text-slate-500 dark:text-slate-500 text-sm mt-1">
+                  Add new cards to continue expanding your knowledge!
+                </p>
+              </div>
+            ) : (
+              <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-6">
+                <p className="text-slate-600 dark:text-slate-400">
+                  This deck is empty. Add some cards to start your learning journey!
+                </p>
+              </div>
+            )}
+
             <button
               onClick={onExit}
               className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"

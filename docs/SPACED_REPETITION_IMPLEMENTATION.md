@@ -109,6 +109,22 @@ function calculateSM2(quality, repetition, easeFactor, interval) {
 2. **Secondary Queue**: New cards (`repetition === 0`) with daily limit (default 20)
 3. **No Progress Indicators**: Prevents "grinding" behavior and maintains focus
 
+### Enhanced "All Caught Up" State
+
+When no cards are due for review, the interface provides encouraging and informative feedback:
+
+**Session Statistics**: Displays the number of cards reviewed in the current session with positive reinforcement messaging.
+
+**Next Review Information**: Shows when the next cards will be due using user-friendly formatting:
+- "tomorrow" for next day reviews
+- "in X hours" for same-day reviews
+- "on [date]" for future dates
+- Handles empty decks with appropriate messaging
+
+**Positive Reinforcement**: Uses encouraging language that acknowledges the user's progress and maintains motivation for continued learning.
+
+**Visual Design**: Uses color-coded information boxes to clearly communicate different types of information (session stats, next review timing, deck status).
+
 ## File Structure
 
 ```
@@ -139,6 +155,7 @@ docs/
 
 - `getStudyQueue(deckId, maxCards?, shuffle?)`: **Primary API** - Get a unified study queue combining due cards and new cards, with optional shuffling for varied experience
 - `getStudyQueueStats(deckId)`: Get statistics about the study queue (due count, new count, total study cards)
+- `getNextReviewInfo(deckId)`: Get next review information including earliest due date and deck statistics for enhanced "All Caught Up" messaging
 - `getDueCardsForDeck(deckId)`: Get cards that are due for review using efficient compound index
 - `getNewCardsForDeck(deckId, limit?)`: **Deprecated** - Use `getStudyQueue` instead for unified experience
 

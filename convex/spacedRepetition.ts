@@ -414,6 +414,71 @@ export const getStudyQueueStats = query({
 });
 
 /**
+ * Get next review information for a deck including earliest due date and daily review stats
+ */
+export const getNextReviewInfo = query({
+  args: {
+    deckId: v.id("decks"),
+  },
+  returns: v.object({
+    nextDueDate: v.optional(v.number()), // Earliest due date for any card in the deck
+    hasCardsToReview: v.boolean(), // Whether there are any cards that will be due in the future
+    totalCardsInDeck: v.number(), // Total number of cards in the deck
+  }),
+  handler: async (ctx, args) => {
+    // Get the current authenticated user
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("User must be authenticated to access cards");
+    }
+
+    // Verify deck ownership
+    const deck = await ctx.db.get(args.deckId);
+
+    if (!deck) {
+      throw new Error("Deck not found");
+    }
+
+    if (deck.userId !== identity.subject) {
+      throw new Error("You can only access cards from your own decks");
+    }
+
+    const now = Date.now();
+
+    // Get all cards in the deck that have been reviewed (have a dueDate)
+    const reviewedCards = await ctx.db
+      .query("cards")
+      .withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
+      .filter((q) => q.neq(q.field("dueDate"), undefined))
+      .collect();
+
+    // Get total card count
+    const totalCards = await ctx.db
+      .query("cards")
+      .withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
+      .collect();
+
+    // Find the earliest due date that's in the future
+    let nextDueDate: number | undefined;
+
+    for (const card of reviewedCards) {
+      if (card.dueDate && card.dueDate > now) {
+        if (!nextDueDate || card.dueDate < nextDueDate) {
+          nextDueDate = card.dueDate;
+        }
+      }
+    }
+
+    return {
+      nextDueDate,
+      hasCardsToReview: reviewedCards.length > 0,
+      totalCardsInDeck: totalCards.length,
+    };
+  },
+});
+
+/**
  * Initialize spaced repetition fields for existing cards that don't have them
  */
 export const initializeCardForSpacedRepetition = mutation({

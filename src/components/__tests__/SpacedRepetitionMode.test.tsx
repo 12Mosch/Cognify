@@ -99,9 +99,16 @@ describe('SpacedRepetitionMode', () => {
     expect(screen.getByText('Back to Dashboard')).toBeInTheDocument();
   });
 
-  it('renders no cards state when there are no cards to study', () => {
+  it('renders enhanced no cards state when there are no cards to study', () => {
+    const mockNextReviewInfo = {
+      nextDueDate: Date.now() + 86400000, // Tomorrow
+      hasCardsToReview: true,
+      totalCardsInDeck: 5,
+    };
+
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
+      if (query.toString().includes('getNextReviewInfo')) return mockNextReviewInfo;
       return []; // No due cards or new cards
     });
 
@@ -110,13 +117,70 @@ describe('SpacedRepetitionMode', () => {
     );
 
     expect(screen.getByText('All Caught Up! 🎉')).toBeInTheDocument();
-    expect(screen.getByText(/You have no cards due for review/)).toBeInTheDocument();
+    expect(screen.getByText(/You have no cards due for review right now/)).toBeInTheDocument();
+    expect(screen.getByText(/Next review: tomorrow/)).toBeInTheDocument();
+    expect(screen.getByText(/Come back then to continue your learning journey!/)).toBeInTheDocument();
+  });
+
+  it('renders enhanced no cards state with session statistics', () => {
+    const mockNextReviewInfo = {
+      nextDueDate: Date.now() + 86400000, // Tomorrow
+      hasCardsToReview: true,
+      totalCardsInDeck: 5,
+    };
+
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.toString().includes('getDeckById')) return mockDeck;
+      if (query.toString().includes('getNextReviewInfo')) return mockNextReviewInfo;
+      if (query.toString().includes('getStudyQueue')) return []; // Start with cards, then empty
+      return [];
+    });
+
+    // Simulate having reviewed cards in the session
+    const { rerender } = render(
+      <SpacedRepetitionMode deckId={mockDeckId} onExit={mockOnExit} />
+    );
+
+    // Mock that we've reviewed some cards and now have no more
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.toString().includes('getDeckById')) return mockDeck;
+      if (query.toString().includes('getNextReviewInfo')) return mockNextReviewInfo;
+      return []; // No more cards to study
+    });
+
+    rerender(<SpacedRepetitionMode deckId={mockDeckId} onExit={mockOnExit} />);
+
+    expect(screen.getByText('All Caught Up! 🎉')).toBeInTheDocument();
+    expect(screen.getByText(/Next review: tomorrow/)).toBeInTheDocument();
+  });
+
+  it('renders no cards state for empty deck', () => {
+    const mockNextReviewInfo = {
+      nextDueDate: undefined,
+      hasCardsToReview: false,
+      totalCardsInDeck: 0,
+    };
+
+    mockUseQuery.mockImplementation((query: any) => {
+      if (query.toString().includes('getDeckById')) return mockDeck;
+      if (query.toString().includes('getNextReviewInfo')) return mockNextReviewInfo;
+      return [];
+    });
+
+    render(
+      <SpacedRepetitionMode deckId={mockDeckId} onExit={mockOnExit} />
+    );
+
+    expect(screen.getByText('All Caught Up! 🎉')).toBeInTheDocument();
+    expect(screen.getByText(/This deck is empty/)).toBeInTheDocument();
+    expect(screen.getByText(/Add some cards to start your learning journey!/)).toBeInTheDocument();
   });
 
   it('renders study interface with cards', async () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
       if (query.toString().includes('getStudyQueue')) return [mockCards[1], mockCards[0]]; // Combined study queue
+      if (query.toString().includes('getNextReviewInfo')) return { nextDueDate: undefined, hasCardsToReview: true, totalCardsInDeck: 2 };
       return [];
     });
 
@@ -137,6 +201,7 @@ describe('SpacedRepetitionMode', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
       if (query.toString().includes('getStudyQueue')) return [mockCards[1]];
+      if (query.toString().includes('getNextReviewInfo')) return { nextDueDate: undefined, hasCardsToReview: true, totalCardsInDeck: 1 };
       return [];
     });
 
@@ -163,6 +228,7 @@ describe('SpacedRepetitionMode', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
       if (query.toString().includes('getStudyQueue')) return mockCards;
+      if (query.toString().includes('getNextReviewInfo')) return { nextDueDate: undefined, hasCardsToReview: true, totalCardsInDeck: 2 };
       return [];
     });
 
@@ -201,6 +267,7 @@ describe('SpacedRepetitionMode', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
       if (query.toString().includes('getStudyQueue')) return [mockCards[0]]; // Only one card
+      if (query.toString().includes('getNextReviewInfo')) return { nextDueDate: undefined, hasCardsToReview: true, totalCardsInDeck: 1 };
       return [];
     });
 
@@ -229,6 +296,7 @@ describe('SpacedRepetitionMode', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
       if (query.toString().includes('getStudyQueue')) return [mockCards[0]];
+      if (query.toString().includes('getNextReviewInfo')) return { nextDueDate: undefined, hasCardsToReview: true, totalCardsInDeck: 1 };
       return [];
     });
 
@@ -246,6 +314,7 @@ describe('SpacedRepetitionMode', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
       if (query.toString().includes('getStudyQueue')) return [mockCards[0]];
+      if (query.toString().includes('getNextReviewInfo')) return { nextDueDate: undefined, hasCardsToReview: true, totalCardsInDeck: 1 };
       return [];
     });
 
@@ -271,6 +340,7 @@ describe('SpacedRepetitionMode', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
       if (query.toString().includes('getStudyQueue')) return [mockCards[0]];
+      if (query.toString().includes('getNextReviewInfo')) return { nextDueDate: undefined, hasCardsToReview: true, totalCardsInDeck: 1 };
       return [];
     });
 
@@ -304,6 +374,7 @@ describe('SpacedRepetitionMode', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
       if (query.toString().includes('getStudyQueue')) return [mockCards[0]];
+      if (query.toString().includes('getNextReviewInfo')) return { nextDueDate: undefined, hasCardsToReview: true, totalCardsInDeck: 1 };
       return [];
     });
 
@@ -336,6 +407,7 @@ describe('SpacedRepetitionMode', () => {
     mockUseQuery.mockImplementation((query: any) => {
       if (query.toString().includes('getDeckById')) return mockDeck;
       if (query.toString().includes('getStudyQueue')) return [mockCards[0]];
+      if (query.toString().includes('getNextReviewInfo')) return { nextDueDate: undefined, hasCardsToReview: true, totalCardsInDeck: 1 };
       return [];
     });
 
