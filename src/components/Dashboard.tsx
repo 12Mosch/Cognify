@@ -3,6 +3,8 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { CreateDeckForm } from "./CreateDeckForm";
 import { StudySession } from "./StudySession";
+import { SpacedRepetitionMode } from "./SpacedRepetitionMode";
+import { StudyModeSelector } from "./StudyModeSelector";
 import { DeckView } from "./DeckView";
 import { QuickAddCardForm } from "./QuickAddCardForm";
 import { Id } from "../../convex/_generated/dataModel";
@@ -17,6 +19,8 @@ interface Deck {
 
 export function Dashboard() {
   const [studyingDeckId, setStudyingDeckId] = useState<Id<"decks"> | null>(null);
+  const [studyMode, setStudyMode] = useState<'basic' | 'spaced-repetition' | null>(null);
+  const [selectingStudyMode, setSelectingStudyMode] = useState<Id<"decks"> | null>(null);
   const [viewingDeckId, setViewingDeckId] = useState<Id<"decks"> | null>(null);
   const decks = useQuery(api.decks.getDecksForUser);
 
@@ -30,14 +34,45 @@ export function Dashboard() {
     );
   }
 
-  // If user is in a study session, show the StudySession component
-  if (studyingDeckId) {
+  // If user is selecting a study mode, show the StudyModeSelector
+  if (selectingStudyMode) {
+    const selectedDeck = decks?.find(deck => deck._id === selectingStudyMode);
     return (
-      <StudySession
-        deckId={studyingDeckId}
-        onExit={() => setStudyingDeckId(null)}
+      <StudyModeSelector
+        deckId={selectingStudyMode}
+        deckName={selectedDeck?.name || "Unknown Deck"}
+        onSelectMode={(mode) => {
+          setStudyMode(mode);
+          setStudyingDeckId(selectingStudyMode);
+          setSelectingStudyMode(null);
+        }}
+        onCancel={() => setSelectingStudyMode(null)}
       />
     );
+  }
+
+  // If user is in a study session, show the appropriate study component
+  if (studyingDeckId && studyMode) {
+    const handleExitStudy = () => {
+      setStudyingDeckId(null);
+      setStudyMode(null);
+    };
+
+    if (studyMode === 'spaced-repetition') {
+      return (
+        <SpacedRepetitionMode
+          deckId={studyingDeckId}
+          onExit={handleExitStudy}
+        />
+      );
+    } else {
+      return (
+        <StudySession
+          deckId={studyingDeckId}
+          onExit={handleExitStudy}
+        />
+      );
+    }
   }
 
   // Loading state
@@ -99,7 +134,7 @@ export function Dashboard() {
             <DeckCard
               key={deck._id}
               deck={deck}
-              onStartStudy={() => setStudyingDeckId(deck._id)}
+              onStartStudy={() => setSelectingStudyMode(deck._id)}
               onManageCards={() => setViewingDeckId(deck._id)}
             />
           ))}

@@ -16,6 +16,11 @@ export const getCardsForDeck = query({
       deckId: v.id("decks"),
       front: v.string(),
       back: v.string(),
+      // Spaced repetition fields
+      repetition: v.optional(v.number()),
+      easeFactor: v.optional(v.number()),
+      interval: v.optional(v.number()),
+      dueDate: v.optional(v.number()),
     })
   ),
   handler: async (ctx, args) => {

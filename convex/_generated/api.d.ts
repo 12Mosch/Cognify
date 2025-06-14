@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as cards from "../cards.js";
 import type * as decks from "../decks.js";
+import type * as spacedRepetition from "../spacedRepetition.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -27,6 +28,7 @@ import type * as decks from "../decks.js";
 declare const fullApi: ApiFromModules<{
   cards: typeof cards;
   decks: typeof decks;
+  spacedRepetition: typeof spacedRepetition;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

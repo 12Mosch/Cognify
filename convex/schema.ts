@@ -16,5 +16,13 @@ export default defineSchema({
     deckId: v.id("decks"), // Reference to the deck this card belongs to
     front: v.string(),     // Front side of the card (question/prompt)
     back: v.string(),      // Back side of the card (answer)
-  }).index("by_deckId", ["deckId"]), // Index for efficient queries by deck
+
+    // Spaced Repetition fields (SM-2 algorithm)
+    repetition: v.optional(v.number()),    // Number of successful repetitions (default: 0)
+    easeFactor: v.optional(v.number()),    // Ease factor for scheduling (default: 2.5)
+    interval: v.optional(v.number()),      // Days until next review (default: 1)
+    dueDate: v.optional(v.number()),       // Unix timestamp when card is due for review
+  }).index("by_deckId", ["deckId"])        // Index for efficient queries by deck
+    .index("by_dueDate", ["dueDate"])      // Index for spaced repetition due date queries
+    .index("by_deckId_and_dueDate", ["deckId", "dueDate"]), // Compound index for deck-specific due cards
 });
