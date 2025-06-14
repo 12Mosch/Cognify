@@ -8,7 +8,7 @@ import { Id } from "../../convex/_generated/dataModel";
 // Lazy-loaded components for better performance
 const DeckView = lazy(() => import("./DeckView"));
 const StudyModeSelector = lazy(() => import("./StudyModeSelector"));
-const StudySession = lazy(() => import("./StudySession"));
+const BasicStudyMode = lazy(() => import("./BasicStudyMode"));
 const SpacedRepetitionMode = lazy(() => import("./SpacedRepetitionMode"));
 
 // Loading fallback component
@@ -93,8 +93,8 @@ export function Dashboard() {
       );
     } else {
       return (
-        <Suspense fallback={<LoadingFallback message="Loading study session..." />}>
-          <StudySession
+        <Suspense fallback={<LoadingFallback message="Loading basic study mode..." />}>
+          <BasicStudyMode
             deckId={studyingDeckId}
             onExit={handleExitStudy}
           />

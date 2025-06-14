@@ -1,10 +1,10 @@
 /**
- * Tests for StudySession component
+ * Tests for BasicStudyMode component
  * These tests verify the basic study session interface works correctly with keyboard shortcuts
  */
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import StudySession from '../StudySession';
+import BasicStudyMode from '../BasicStudyMode';
 import { Id } from '../../../convex/_generated/dataModel';
 
 // Mock Convex hooks
@@ -48,7 +48,7 @@ const mockCards = [
   },
 ];
 
-describe('StudySession', () => {
+describe('BasicStudyMode', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -56,7 +56,7 @@ describe('StudySession', () => {
   it('renders loading state when data is not loaded', () => {
     mockUseQuery.mockImplementation(() => undefined);
 
-    render(<StudySession deckId={mockDeckId} onExit={mockOnExit} />);
+    render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     expect(screen.getByText('Loading study session...')).toBeInTheDocument();
   });
@@ -68,7 +68,7 @@ describe('StudySession', () => {
       return [];
     });
 
-    render(<StudySession deckId={mockDeckId} onExit={mockOnExit} />);
+    render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     await waitFor(() => {
       expect(screen.getByText('Test Deck')).toBeInTheDocument();
@@ -85,7 +85,7 @@ describe('StudySession', () => {
       return [];
     });
 
-    render(<StudySession deckId={mockDeckId} onExit={mockOnExit} />);
+    render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     await waitFor(() => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('StudySession', () => {
       return [];
     });
 
-    render(<StudySession deckId={mockDeckId} onExit={mockOnExit} />);
+    render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     await waitFor(() => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
@@ -127,7 +127,7 @@ describe('StudySession', () => {
       return [];
     });
 
-    render(<StudySession deckId={mockDeckId} onExit={mockOnExit} />);
+    render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     await waitFor(() => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
@@ -149,7 +149,7 @@ describe('StudySession', () => {
       return [];
     });
 
-    render(<StudySession deckId={mockDeckId} onExit={mockOnExit} />);
+    render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     await waitFor(() => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
@@ -178,7 +178,7 @@ describe('StudySession', () => {
       return [];
     });
 
-    render(<StudySession deckId={mockDeckId} onExit={mockOnExit} />);
+    render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     await waitFor(() => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
@@ -200,7 +200,7 @@ describe('StudySession', () => {
       return [];
     });
 
-    render(<StudySession deckId={mockDeckId} onExit={mockOnExit} />);
+    render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     await waitFor(() => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
@@ -222,7 +222,7 @@ describe('StudySession', () => {
       return [];
     });
 
-    render(<StudySession deckId={mockDeckId} onExit={mockOnExit} />);
+    render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     await waitFor(() => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
@@ -250,7 +250,7 @@ describe('StudySession', () => {
       return [];
     });
 
-    render(<StudySession deckId={mockDeckId} onExit={mockOnExit} />);
+    render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     await waitFor(() => {
       expect(screen.getByText('Previous')).toBeInTheDocument();

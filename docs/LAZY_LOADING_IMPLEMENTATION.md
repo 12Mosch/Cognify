@@ -11,8 +11,8 @@ This document describes the implementation of lazy loading for large components 
 The following components have been converted to use React.lazy() for dynamic imports:
 
 1. **DeckView** - Deck management and card viewing interface
-2. **StudyModeSelector** - Study mode selection interface  
-3. **StudySession** - Basic study session component
+2. **StudyModeSelector** - Study mode selection interface
+3. **BasicStudyMode** - Basic study session component
 4. **SpacedRepetitionMode** - Spaced repetition study interface
 
 ### Changes Made
@@ -40,14 +40,14 @@ export default ComponentName;
 // Before - Static imports
 import { DeckView } from "./DeckView";
 import { StudyModeSelector } from "./StudyModeSelector";
-import { StudySession } from "./StudySession";
+import { BasicStudyMode } from "./BasicStudyMode";
 import { SpacedRepetitionMode } from "./SpacedRepetitionMode";
 
 // After - Lazy imports
 import { Suspense, lazy } from "react";
 const DeckView = lazy(() => import("./DeckView"));
 const StudyModeSelector = lazy(() => import("./StudyModeSelector"));
-const StudySession = lazy(() => import("./StudySession"));
+const BasicStudyMode = lazy(() => import("./BasicStudyMode"));
 const SpacedRepetitionMode = lazy(() => import("./SpacedRepetitionMode"));
 ```
 
@@ -120,7 +120,7 @@ import StudyModeSelector from '../StudyModeSelector';
 
 1. **DeckView**: Loads when user clicks "Manage" on a deck
 2. **StudyModeSelector**: Loads when user clicks "Study" on a deck
-3. **StudySession**: Loads when user selects "Basic Study" mode
+3. **BasicStudyMode**: Loads when user selects "Basic Study" mode
 4. **SpacedRepetitionMode**: Loads when user selects "Spaced Repetition" mode
 
 ### Loading States
@@ -214,7 +214,7 @@ src/
 │   ├── Dashboard.tsx                    # Updated with lazy loading
 │   ├── DeckView.tsx                     # Converted to default export
 │   ├── StudyModeSelector.tsx            # Converted to default export
-│   ├── StudySession.tsx                 # Converted to default export
+│   ├── BasicStudyMode.tsx               # Converted to default export
 │   ├── SpacedRepetitionMode.tsx         # Converted to default export
 │   └── __tests__/
 │       ├── StudyModeSelector.test.tsx   # Updated imports

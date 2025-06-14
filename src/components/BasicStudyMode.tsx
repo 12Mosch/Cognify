@@ -8,12 +8,12 @@ import HelpIcon from "./HelpIcon";
 import PostSessionSummary from "./PostSessionSummary";
 import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
 
-interface StudySessionProps {
+interface BasicStudyModeProps {
   deckId: Id<"decks">;
   onExit: () => void;
 }
 
-function StudySession({ deckId, onExit }: StudySessionProps) {
+function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [sessionStarted, setSessionStarted] = useState(false);
@@ -322,4 +322,4 @@ function StudySession({ deckId, onExit }: StudySessionProps) {
   );
 }
 
-export default StudySession;
+export default BasicStudyMode;
