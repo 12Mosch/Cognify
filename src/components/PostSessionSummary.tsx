@@ -11,6 +11,7 @@ interface PostSessionSummaryProps {
   studyMode: 'basic' | 'spaced-repetition';
   sessionDuration?: number;
   onReturnToDashboard: () => void;
+  onContinueStudying?: () => void;
 }
 
 /**
@@ -36,7 +37,8 @@ function PostSessionSummary({
   cardsReviewed,
   studyMode,
   sessionDuration,
-  onReturnToDashboard
+  onReturnToDashboard,
+  onContinueStudying
 }: PostSessionSummaryProps) {
   const [hasTrackedCompletion, setHasTrackedCompletion] = useState(false);
 
@@ -47,7 +49,7 @@ function PostSessionSummary({
 
   // Track session completion analytics (only once)
   useEffect(() => {
-    if (!hasTrackedCompletion) {
+    if (!hasTrackedCompletion && trackStudySessionCompleted) {
       trackStudySessionCompleted(deckId, deckName, cardsReviewed, studyMode, sessionDuration);
       setHasTrackedCompletion(true);
     }
@@ -201,13 +203,9 @@ function PostSessionSummary({
         </button>
         
         {/* Continue Studying Button (for spaced repetition with more cards available) */}
-        {studyMode === 'spaced-repetition' && studyQueueStats && studyQueueStats.dueCount > 0 && (
+        {studyMode === 'spaced-repetition' && studyQueueStats && studyQueueStats.dueCount > 0 && onContinueStudying && (
           <button
-            onClick={() => {
-              // This would trigger another study session
-              // For now, we'll just return to dashboard and let user start again
-              onReturnToDashboard();
-            }}
+            onClick={onContinueStudying}
             className="bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-medium py-3 px-6 rounded-lg border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
           >
             Continue Studying ({studyQueueStats.dueCount} more cards)

@@ -103,35 +103,29 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
       // Review the card with the given quality
       await reviewCard({ cardId: currentCard._id, quality });
-
-      // Move to next card or finish session
-      const nextIndex = currentCardIndex + 1;
-      setCardsReviewed(prev => prev + 1);
-
-      if (nextIndex >= studyQueue.length) {
-        // Session complete - show summary
-        setShowSummary(true);
-      } else {
-        setCurrentCardIndex(nextIndex);
-        setIsFlipped(false);
-      }
     } catch (error) {
       console.error("Error reviewing card:", error);
       // Continue to next card even if there's an error
-      const nextIndex = currentCardIndex + 1;
-      setCardsReviewed(prev => prev + 1);
+    }
 
-      if (nextIndex >= studyQueue.length) {
-        setShowSummary(true);
-      } else {
-        setCurrentCardIndex(nextIndex);
-        setIsFlipped(false);
-      }
+    // Increment cards reviewed count (once per review attempt)
+    setCardsReviewed(prev => prev + 1);
+
+    // Move to next card or finish session
+    const nextIndex = currentCardIndex + 1;
+    if (nextIndex >= studyQueue.length) {
+      // Session complete - show summary
+      setShowSummary(true);
+    } else {
+      setCurrentCardIndex(nextIndex);
+      setIsFlipped(false);
     }
   }, [studyQueue, currentCardIndex, initializeCard, reviewCard]);
 
-  // Reset state when deck changes
-  useEffect(() => {
+  /**
+   * Reset session state to start a new study session
+   */
+  const resetSessionState = useCallback(() => {
     setCurrentCardIndex(0);
     setIsFlipped(false);
     setStudyQueue([]);
@@ -139,7 +133,20 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
     setShowSummary(false);
     setSessionStartTime(0);
     setCardsReviewed(0);
-  }, [deckId]);
+  }, []);
+
+  /**
+   * Handle continuing study session - restart with fresh queue
+   */
+  const handleContinueStudying = useCallback(() => {
+    resetSessionState();
+    // The useEffect will automatically reinitialize the session when sessionStarted becomes false
+  }, [resetSessionState]);
+
+  // Reset state when deck changes
+  useEffect(() => {
+    resetSessionState();
+  }, [deckId, resetSessionState]);
 
   // Global keyboard event listener for shortcuts
   useEffect(() => {
@@ -349,6 +356,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
         studyMode="spaced-repetition"
         sessionDuration={sessionStartTime > 0 ? Date.now() - sessionStartTime : undefined}
         onReturnToDashboard={onExit}
+        onContinueStudying={handleContinueStudying}
       />
     );
   }

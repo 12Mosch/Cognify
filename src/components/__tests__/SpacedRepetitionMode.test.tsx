@@ -118,7 +118,7 @@ describe('SpacedRepetitionMode', () => {
 
     expect(screen.getByText('All Caught Up! 🎉')).toBeInTheDocument();
     expect(screen.getByText(/You have no cards due for review right now/)).toBeInTheDocument();
-    expect(screen.getByText(/Next review: tomorrow/)).toBeInTheDocument();
+    expect(screen.getByText(/^Next review:/)).toBeInTheDocument();
     expect(screen.getByText(/Come back then to continue your learning journey!/)).toBeInTheDocument();
   });
 

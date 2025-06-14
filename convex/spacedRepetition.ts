@@ -415,6 +415,11 @@ export const getStudyQueueStats = query({
 
 /**
  * Get next review information for a deck including earliest due date and daily review stats
+ *
+ * Performance optimized to use O(1) indexed queries:
+ * - Uses compound index by_deckId_and_dueDate for efficient database-level filtering
+ * - Queries only the single earliest future due card instead of all reviewed cards
+ * - Leverages deck.cardCount for total count instead of querying all cards
  */
 export const getNextReviewInfo = query({
   args: {
@@ -446,34 +451,21 @@ export const getNextReviewInfo = query({
 
     const now = Date.now();
 
-    // Get all cards in the deck that have been reviewed (have a dueDate)
-    const reviewedCards = await ctx.db
+    // Use compound index to efficiently find the earliest future due card
+    const nextCard = await ctx.db
       .query("cards")
-      .withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
-      .filter((q) => q.neq(q.field("dueDate"), undefined))
-      .collect();
+      .withIndex("by_deckId_and_dueDate", (q) =>
+        q.eq("deckId", args.deckId).gt("dueDate", now)
+      )
+      .order("asc") // Order by dueDate ascending to get the earliest
+      .first(); // Take only the first (earliest) result
 
-    // Get total card count
-    const totalCards = await ctx.db
-      .query("cards")
-      .withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
-      .collect();
-
-    // Find the earliest due date that's in the future
-    let nextDueDate: number | undefined;
-
-    for (const card of reviewedCards) {
-      if (card.dueDate && card.dueDate > now) {
-        if (!nextDueDate || card.dueDate < nextDueDate) {
-          nextDueDate = card.dueDate;
-        }
-      }
-    }
+    const nextDueDate = nextCard?.dueDate;
 
     return {
       nextDueDate,
-      hasCardsToReview: reviewedCards.length > 0,
-      totalCardsInDeck: totalCards.length,
+      hasCardsToReview: Boolean(nextDueDate),
+      totalCardsInDeck: deck.cardCount || 0,
     };
   },
 });

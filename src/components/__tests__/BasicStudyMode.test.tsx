@@ -92,7 +92,7 @@ describe('BasicStudyMode', () => {
     });
 
     // Press Space key
-    fireEvent.keyDown(document, { code: 'Space' });
+    fireEvent.keyDown(document, { code: 'Space', key: ' ' });
 
     await waitFor(() => {
       expect(screen.getByText('4')).toBeInTheDocument();
@@ -113,7 +113,7 @@ describe('BasicStudyMode', () => {
     });
 
     // Press Enter key
-    fireEvent.keyDown(document, { code: 'Enter' });
+    fireEvent.keyDown(document, { code: 'Enter', key: ' ' });
 
     await waitFor(() => {
       expect(screen.getByText('4')).toBeInTheDocument();
@@ -134,7 +134,7 @@ describe('BasicStudyMode', () => {
     });
 
     // Press Right Arrow key
-    fireEvent.keyDown(document, { code: 'ArrowRight' });
+    fireEvent.keyDown(document, { code: 'ArrowRight', key: ' ' });
 
     await waitFor(() => {
       expect(screen.getByText('What is the capital of France?')).toBeInTheDocument();
@@ -163,7 +163,7 @@ describe('BasicStudyMode', () => {
     });
 
     // Press Left Arrow key to go back
-    fireEvent.keyDown(document, { code: 'ArrowLeft' });
+    fireEvent.keyDown(document, { code: 'ArrowLeft', key: ' ' });
 
     await waitFor(() => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();

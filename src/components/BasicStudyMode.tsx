@@ -20,25 +20,25 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [sessionStartTime, setSessionStartTime] = useState(0);
-  const [cardsReviewed, setCardsReviewed] = useState(0);
 
   const deck = useQuery(api.decks.getDeckById, { deckId });
   const cards = useQuery(api.cards.getCardsForDeck, { deckId });
 
   const { trackStudySessionStarted } = useAnalytics();
 
+  // Calculate cards reviewed based on current position (always accurate regardless of navigation)
+  const cardsReviewed = currentCardIndex + 1;
+
   // Define callback functions first (before any early returns)
   const handleNextCard = useCallback(() => {
     if (cards && currentCardIndex < cards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
       setIsFlipped(false);
-      setCardsReviewed(prev => prev + 1);
     }
   }, [cards, currentCardIndex]);
 
   // Handle finishing the study session
   const handleFinishSession = useCallback(() => {
-    setCardsReviewed(prev => prev + 1); // Count the last card
     setShowSummary(true);
   }, []);
 
@@ -60,7 +60,6 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
     setIsFlipped(false);
     setShowSummary(false);
     setSessionStartTime(0);
-    setCardsReviewed(0);
   }, [deckId]);
 
   // Global keyboard event listener for shortcuts
@@ -211,6 +210,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
         studyMode="basic"
         sessionDuration={sessionStartTime > 0 ? Date.now() - sessionStartTime : undefined}
         onReturnToDashboard={onExit}
+        onContinueStudying={undefined} // Basic mode doesn't support continue studying
       />
     );
   }

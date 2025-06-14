@@ -55,6 +55,13 @@ cards: defineTable({
 - Eliminates client-side complexity of managing separate queries
 - Reduces network requests from 2 to 1 per study session
 
+**Optimized Next Review Queries**: The `getNextReviewInfo` function has been optimized for O(1) performance:
+- **Before**: Fetched ALL reviewed cards (O(n)) and looped through them in memory to find earliest future due date
+- **After**: Uses compound index `by_deckId_and_dueDate` with database-level filtering (`dueDate > now`) and `.first()` to get only the earliest future due card in O(1) time
+- **Memory Usage**: Reduced from fetching all reviewed cards to fetching only a single card
+- **Query Performance**: Scales efficiently regardless of deck size
+- **Database Optimization**: Leverages deck.cardCount field instead of querying all cards for total count
+
 ### SM-2 Algorithm Implementation
 
 The algorithm is implemented in `convex/spacedRepetition.ts`:
@@ -155,7 +162,7 @@ docs/
 
 - `getStudyQueue(deckId, maxCards?, shuffle?)`: **Primary API** - Get a unified study queue combining due cards and new cards, with optional shuffling for varied experience
 - `getStudyQueueStats(deckId)`: Get statistics about the study queue (due count, new count, total study cards)
-- `getNextReviewInfo(deckId)`: Get next review information including earliest due date and deck statistics for enhanced "All Caught Up" messaging
+- `getNextReviewInfo(deckId)`: **Performance Optimized** - Get next review information using O(1) indexed queries for earliest due date and deck statistics for enhanced "All Caught Up" messaging
 - `getDueCardsForDeck(deckId)`: Get cards that are due for review using efficient compound index
 - `getNewCardsForDeck(deckId, limit?)`: **Deprecated** - Use `getStudyQueue` instead for unified experience
 

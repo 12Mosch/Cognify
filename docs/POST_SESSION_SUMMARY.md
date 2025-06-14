@@ -38,6 +38,7 @@ interface PostSessionSummaryProps {
   studyMode: 'basic' | 'spaced-repetition';
   sessionDuration?: number;
   onReturnToDashboard: () => void;
+  onContinueStudying?: () => void;
 }
 ```
 
@@ -61,6 +62,13 @@ The component provides intelligent recommendations based on the study mode:
 - Guidance about new cards available tomorrow
 - "All caught up" message when no cards are due
 
+#### Continue Studying Feature
+**Spaced Repetition Mode Only:**
+- Shows "Continue Studying" button when more cards are due for review
+- Button only appears when `onContinueStudying` callback is provided
+- Allows users to start a new session without returning to dashboard
+- Resets session state and loads fresh study queue
+
 #### Accessibility Features
 - Proper focus management (heading receives focus on mount)
 - ARIA labels and semantic HTML structure
@@ -81,6 +89,12 @@ if (nextIndex >= studyQueue.length) {
   setShowSummary(true);
 }
 
+// Session restart logic
+const handleContinueStudying = useCallback(() => {
+  resetSessionState();
+  // The useEffect will automatically reinitialize the session when sessionStarted becomes false
+}, [resetSessionState]);
+
 // Conditional rendering
 if (showSummary && deck) {
   return (
@@ -91,26 +105,38 @@ if (showSummary && deck) {
       studyMode="spaced-repetition"
       sessionDuration={sessionStartTime > 0 ? Date.now() - sessionStartTime : undefined}
       onReturnToDashboard={onExit}
+      onContinueStudying={handleContinueStudying}
     />
   );
 }
 ```
 
-### StudySession.tsx (Basic Mode)
+### BasicStudyMode.tsx
 ```typescript
 // Session state tracking
 const [showSummary, setShowSummary] = useState(false);
 const [sessionStartTime, setSessionStartTime] = useState(0);
-const [cardsReviewed, setCardsReviewed] = useState(0);
+const cardsReviewed = currentCardIndex + 1;
 
 // Handle finish session
 const handleFinishSession = useCallback(() => {
-  setCardsReviewed(prev => prev + 1);
   setShowSummary(true);
 }, []);
 
-// Update finish button
-onClick={currentCardIndex === cards.length - 1 ? handleFinishSession : handleNextCard}
+// Conditional rendering (no continue studying for basic mode)
+if (showSummary && deck) {
+  return (
+    <PostSessionSummary
+      deckId={deckId}
+      deckName={deck.name}
+      cardsReviewed={cardsReviewed}
+      studyMode="basic"
+      sessionDuration={sessionStartTime > 0 ? Date.now() - sessionStartTime : undefined}
+      onReturnToDashboard={onExit}
+      onContinueStudying={undefined} // Basic mode doesn't support continue studying
+    />
+  );
+}
 ```
 
 ## Analytics Enhancement

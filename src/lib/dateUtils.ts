@@ -23,7 +23,10 @@ export function formatNextReviewTime(timestamp: number): string {
   
   // Less than 1 hour
   if (diffMinutes < 60) {
-    if (diffMinutes <= 1) {
+    if (diffMinutes === 0) {
+      return "now";
+    }
+    if (diffMinutes === 1) {
       return "in 1 minute";
     }
     return `in ${diffMinutes} minutes`;

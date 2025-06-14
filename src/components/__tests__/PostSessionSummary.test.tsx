@@ -134,7 +134,24 @@ describe('PostSessionSummary', () => {
     expect(mockOnReturnToDashboard).toHaveBeenCalledTimes(1);
   });
 
-  it('shows continue studying button for spaced repetition with due cards', () => {
+  it('shows continue studying button for spaced repetition with due cards when onContinueStudying is provided', () => {
+    const mockOnContinueStudying = jest.fn();
+
+    render(
+      <PostSessionSummary
+        deckId={mockDeckId}
+        deckName={mockDeckName}
+        cardsReviewed={5}
+        studyMode="spaced-repetition"
+        onReturnToDashboard={mockOnReturnToDashboard}
+        onContinueStudying={mockOnContinueStudying}
+      />
+    );
+
+    expect(screen.getByText('Continue Studying (5 more cards)')).toBeInTheDocument();
+  });
+
+  it('does not show continue studying button when onContinueStudying is not provided', () => {
     render(
       <PostSessionSummary
         deckId={mockDeckId}
@@ -145,7 +162,27 @@ describe('PostSessionSummary', () => {
       />
     );
 
-    expect(screen.getByText('Continue Studying (5 more cards)')).toBeInTheDocument();
+    expect(screen.queryByText(/Continue Studying/)).not.toBeInTheDocument();
+  });
+
+  it('calls onContinueStudying when continue studying button is clicked', () => {
+    const mockOnContinueStudying = jest.fn();
+
+    render(
+      <PostSessionSummary
+        deckId={mockDeckId}
+        deckName={mockDeckName}
+        cardsReviewed={5}
+        studyMode="spaced-repetition"
+        onReturnToDashboard={mockOnReturnToDashboard}
+        onContinueStudying={mockOnContinueStudying}
+      />
+    );
+
+    const continueButton = screen.getByText('Continue Studying (5 more cards)');
+    fireEvent.click(continueButton);
+
+    expect(mockOnContinueStudying).toHaveBeenCalledTimes(1);
   });
 
   it('does not show continue studying button for basic mode', () => {
