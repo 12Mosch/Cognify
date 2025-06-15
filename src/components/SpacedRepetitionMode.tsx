@@ -339,9 +339,9 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   }
 
   return (
-    <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+    <div className="flex flex-col max-w-4xl mx-auto p-4" style={{ height: 'calc(100vh - 120px)' }}>
       {/* Header with deck name, help icon, and exit button */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-shrink-0 mb-6">
         <div>
           <h1 className="text-3xl font-bold">{deck.name}</h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -360,45 +360,57 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
         </div>
       </div>
 
-      {/* Flashcard with 3D Flip Animation */}
+      {/* Flashcard with 3D Flip Animation - Takes remaining height */}
       <div
-        className="flashcard-container min-h-[400px] cursor-pointer"
+        className="flashcard-container flex-1 cursor-pointer"
         onClick={handleFlipCard}
         onKeyDown={handleKeyDown}
         tabIndex={0}
         role="button"
         aria-label={isFlipped ? "Click to show question" : "Click to show answer"}
-        style={{ minHeight: '400px' }}
       >
         <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
           {/* Front side (Question) */}
-          <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
-            <div className="mb-8 w-full pointer-events-none">
+          <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
+            {/* Content area with proper spacing */}
+            <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
               <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">Question</h2>
-              <p className="text-2xl leading-relaxed text-slate-900 dark:text-slate-100">{currentCard.front}</p>
+              {/* Scrollable text content area */}
+              <div className="flex-1 overflow-y-auto px-2 py-4" style={{ minHeight: 0 }}>
+                <p className="text-2xl leading-relaxed text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.front}</p>
+              </div>
             </div>
-            {/* Show Answer button */}
-            <button
-              onClick={handleFlipCard}
-              className="bg-dark dark:bg-light text-light dark:text-dark text-lg px-8 py-4 rounded-md border-2 hover:opacity-80 transition-opacity font-medium pointer-events-auto"
-              aria-label="Show answer"
-            >
-              Show Answer
-            </button>
-            {/* Flip hint */}
-            <div className="text-sm text-slate-500 dark:text-slate-400 mt-4 pointer-events-none">
-              Click anywhere or press Space/Enter to flip
+            {/* Fixed bottom section for controls */}
+            <div className="flex-shrink-0 mt-6">
+              {/* Show Answer button */}
+              <button
+                onClick={handleFlipCard}
+                className="bg-dark dark:bg-light text-light dark:text-dark text-lg px-8 py-4 rounded-md border-2 hover:opacity-80 transition-opacity font-medium pointer-events-auto"
+                aria-label="Show answer"
+              >
+                Show Answer
+              </button>
+              {/* Flip hint */}
+              <div className="text-sm text-slate-500 dark:text-slate-400 mt-4 pointer-events-none">
+                Click anywhere or press Space/Enter to flip
+              </div>
             </div>
           </div>
 
           {/* Back side (Answer) */}
-          <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
-            <div className="mb-8 w-full pointer-events-none">
+          <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
+            {/* Content area with proper spacing */}
+            <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
               <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">Answer</h2>
-              <p className="text-2xl leading-relaxed text-slate-900 dark:text-slate-100">{currentCard.back}</p>
+              {/* Scrollable text content area */}
+              <div className="flex-1 overflow-y-auto px-2 py-2" style={{ minHeight: 0 }}>
+                <p className="text-2xl leading-relaxed text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.back}</p>
+              </div>
             </div>
-            {/* Quality rating buttons */}
-            <div className="flex flex-col gap-4 w-full max-w-md pointer-events-auto">
+            {/* Fixed bottom section for controls */}
+            <div className="flex-shrink-0 mt-6">
+              {/* Quality rating buttons */}
+              <div className="flex flex-col gap-4 w-full max-w-md mx-auto pointer-events-auto">
               <p className="text-slate-600 dark:text-slate-400 mb-2">
                 How well did you know this?
               </p>
@@ -444,10 +456,11 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
                   </span>
                 </button>
               </div>
+              {/* Flip hint */}
+              <div className="text-sm text-slate-500 dark:text-slate-400 mt-4 pointer-events-none">
+                Click anywhere or press Space/Enter to flip back
+              </div>
             </div>
-            {/* Flip hint */}
-            <div className="text-sm text-slate-500 dark:text-slate-400 mt-4 pointer-events-none">
-              Click anywhere or press Space/Enter to flip back
             </div>
           </div>
         </div>

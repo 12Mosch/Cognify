@@ -31,6 +31,8 @@
   position: relative;
   /* Ensure minimum height is respected */
   min-height: inherit;
+  /* Use full available height when flex-1 is applied */
+  height: 100%;
   /* Temporary debug border to see container bounds */
   /* border: 2px solid red; */
 }
@@ -103,6 +105,38 @@
   /* Ensure text stays within the card bounds */
   position: relative;
   z-index: 1;
+}
+
+/* Scrollable text content areas for long text */
+.flashcard-front .overflow-y-auto,
+.flashcard-back .overflow-y-auto {
+  /* Custom scrollbar styling for better UX */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+  /* Ensure scrolling works properly within flex containers */
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.flashcard-front .overflow-y-auto::-webkit-scrollbar,
+.flashcard-back .overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.flashcard-front .overflow-y-auto::-webkit-scrollbar-track,
+.flashcard-back .overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.flashcard-front .overflow-y-auto::-webkit-scrollbar-thumb,
+.flashcard-back .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.5);
+  border-radius: 3px;
+}
+
+.flashcard-front .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.flashcard-back .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(148, 163, 184, 0.7);
 }
 
 /* Ensure the content container has proper dimensions and positioning */

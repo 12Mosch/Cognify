@@ -205,9 +205,9 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
   }
 
   return (
-    <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+    <div className="flex flex-col max-w-4xl mx-auto p-4" style={{ height: 'calc(100vh - 120px)' }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-shrink-0 mb-4">
         <div>
           <h1 className="text-3xl font-bold">{deck.name}</h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -226,16 +226,16 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-        <div 
+      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 flex-shrink-0 mb-6">
+        <div
           className="bg-dark dark:bg-light h-2 rounded-full transition-all duration-300"
           style={{ width: `${((currentCardIndex + 1) / cards.length) * 100}%` }}
         ></div>
       </div>
 
-      {/* Flashcard with 3D Flip Animation */}
+      {/* Flashcard with 3D Flip Animation - Takes remaining height */}
       <div
-        className="flashcard-container min-h-[300px] cursor-pointer"
+        className="flashcard-container flex-1 cursor-pointer mb-6"
         onClick={handleFlipCard}
         onKeyDown={handleKeyDown}
         tabIndex={0}
@@ -244,33 +244,47 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
       >
         <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
           {/* Front side (Question) */}
-          <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
-            <div className="mb-6 pointer-events-none">
+          <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
+            {/* Content area with proper spacing */}
+            <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
               <h2 className="text-lg font-semibold mb-4 text-slate-600 dark:text-slate-400">Question</h2>
-              <p className="text-xl text-slate-900 dark:text-slate-100">{currentCard.front}</p>
+              {/* Scrollable text content area */}
+              <div className="flex-1 overflow-y-auto px-2 py-4" style={{ minHeight: 0 }}>
+                <p className="text-xl text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.front}</p>
+              </div>
             </div>
-            {/* Flip hint */}
-            <div className="text-sm text-slate-500 dark:text-slate-400 mb-4 pointer-events-none">
-              Click anywhere or press Space/Enter to flip
+            {/* Fixed bottom section for controls */}
+            <div className="flex-shrink-0 mt-4">
+              {/* Flip hint */}
+              <div className="text-sm text-slate-500 dark:text-slate-400 pointer-events-none">
+                Click anywhere or press Space/Enter to flip
+              </div>
             </div>
           </div>
 
           {/* Back side (Answer) */}
-          <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
-            <div className="mb-6 pointer-events-none">
+          <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
+            {/* Content area with proper spacing */}
+            <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
               <h2 className="text-lg font-semibold mb-4 text-slate-600 dark:text-slate-400">Answer</h2>
-              <p className="text-xl text-slate-900 dark:text-slate-100">{currentCard.back}</p>
+              {/* Scrollable text content area */}
+              <div className="flex-1 overflow-y-auto px-2 py-4" style={{ minHeight: 0 }}>
+                <p className="text-xl text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.back}</p>
+              </div>
             </div>
-            {/* Flip hint */}
-            <div className="text-sm text-slate-500 dark:text-slate-400 mb-4 pointer-events-none">
-              Click anywhere or press Space/Enter to flip
+            {/* Fixed bottom section for controls */}
+            <div className="flex-shrink-0 mt-4">
+              {/* Flip hint */}
+              <div className="text-sm text-slate-500 dark:text-slate-400 pointer-events-none">
+                Click anywhere or press Space/Enter to flip
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Navigation Controls */}
-      <div className="flex gap-4 justify-center">
+      <div className="flex gap-4 justify-center flex-shrink-0">
         <button
           onClick={handlePreviousCard}
           disabled={currentCardIndex === 0}

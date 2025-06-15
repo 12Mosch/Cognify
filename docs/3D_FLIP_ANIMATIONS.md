@@ -13,11 +13,23 @@ Fixed several UI glitches in the study interface that were causing text visibili
 1. **Text Visibility**: Question and answer text was not visible in dark mode due to missing color classes
 2. **Layout Positioning**: Improved CSS positioning for better cross-browser compatibility
 3. **Content Overflow**: Enhanced container styles to prevent content clipping
+4. **Text Overlapping**: Fixed issue where long text content would overlap with buttons and controls
+5. **Scrollable Content**: Added proper scrolling for long text content while maintaining button visibility
+6. **Dynamic Height**: Made flashcard containers use full viewport height for better content visibility
+7. **Responsive Layout**: Improved layout to adapt to different screen sizes and content lengths
 
 #### Changes Made
-- **SpacedRepetitionMode.tsx**: Added explicit text color classes (`text-slate-900 dark:text-slate-100`) to question and answer text
-- **BasicStudyMode.tsx**: Added explicit text color classes to question and answer text
-- **index.css**: Enhanced CSS with improved layout rules and debugging styles for better text positioning
+- **SpacedRepetitionMode.tsx**:
+  - Added explicit text color classes (`text-slate-900 dark:text-slate-100`) to question and answer text
+  - Restructured layout to use flexible containers with proper scrolling areas
+  - Fixed button positioning to prevent overlap with long text content
+- **BasicStudyMode.tsx**:
+  - Added explicit text color classes to question and answer text
+  - Restructured layout to use flexible containers with proper scrolling areas
+- **index.css**:
+  - Enhanced CSS with improved layout rules and debugging styles for better text positioning
+  - Added custom scrollbar styling for better UX in scrollable text areas
+  - Updated flashcard container to use full available height when flex-1 is applied
 
 #### Technical Details
 - Added `color: inherit` and proper text wrapping to ensure text is always visible
@@ -148,6 +160,128 @@ For browsers without 3D transform support:
   }
 }
 ```
+
+## Long Text Content Handling
+
+### Problem
+When flashcards contain long text content (questions or answers), the text would overlap with buttons and controls, making the interface unusable.
+
+### Solution
+Implemented a flexible layout structure that:
+
+1. **Separates content and controls**: Uses `flex-1` for content area and `flex-shrink-0` for button areas
+2. **Enables scrolling**: Long text content becomes scrollable within its designated area
+3. **Maintains button visibility**: Buttons remain fixed at the bottom and are always accessible
+4. **Preserves centering**: Short text remains centered, long text scrolls naturally
+
+### Layout Structure
+```typescript
+<div className="flashcard-side ... flex flex-col">
+  {/* Flexible content area */}
+  <div className="flex-1 flex flex-col min-h-0 w-full">
+    <h2>Question/Answer</h2>
+    {/* Scrollable text area */}
+    <div className="flex-1 overflow-y-auto px-2 py-4">
+      <div className="flex items-center justify-center min-h-full">
+        <p className="text-2xl ... break-words text-center">{content}</p>
+      </div>
+    </div>
+  </div>
+
+  {/* Fixed controls area */}
+  <div className="flex-shrink-0 mt-6">
+    {/* Buttons and controls */}
+  </div>
+</div>
+```
+
+### Key CSS Classes
+- `flex-1`: Allows content area to expand and fill available space
+- `min-h-0`: Prevents flex items from having implicit minimum height
+- `overflow-y-auto`: Enables vertical scrolling when content exceeds container
+- `flex-shrink-0`: Prevents button area from shrinking
+- `break-words`: Ensures long words wrap properly
+
+### Custom Scrollbar Styling
+```css
+.flashcard-front .overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.flashcard-front .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.5);
+  border-radius: 3px;
+}
+```
+
+### Dynamic Height Implementation
+
+#### Full Viewport Usage
+The flashcard components now use the full available viewport height:
+
+```typescript
+// Main container uses calculated height accounting for header
+<div className="flex flex-col max-w-4xl mx-auto p-4" style={{ height: 'calc(100vh - 120px)' }}>
+  {/* Header section - fixed height */}
+  <div className="flex items-center justify-between flex-shrink-0 mb-6">
+    {/* Header content */}
+  </div>
+
+  {/* Flashcard container - takes remaining space */}
+  <div className="flashcard-container flex-1 cursor-pointer">
+    {/* Flashcard content */}
+  </div>
+</div>
+```
+
+#### CSS Height Management
+```css
+.flashcard-container {
+  /* Use full available height when flex-1 is applied */
+  height: 100%;
+  /* Other properties... */
+}
+```
+
+#### Benefits
+- **Maximum content visibility**: Long text can use the full screen height
+- **Responsive design**: Adapts to different screen sizes automatically
+- **Better scrolling**: Scrollable areas have more space to work with
+- **Consistent layout**: Buttons remain accessible regardless of content length
+
+### Scrolling Implementation
+
+#### Problem with Flex Containers
+In flex containers, child elements with `flex-1` and `overflow-y-auto` may not scroll properly because:
+1. The flex item expands to fill available space
+2. The content inside tries to match the container height
+3. No overflow occurs, so scrollbars don't appear
+
+#### Solution
+```typescript
+// Apply minHeight: 0 to force scrolling in flex containers
+<div className="flex-1 overflow-y-auto px-2 py-4" style={{ minHeight: 0 }}>
+  <p className="text-2xl leading-relaxed text-slate-900 dark:text-slate-100 break-words text-center">
+    {content}
+  </p>
+</div>
+```
+
+#### CSS Support
+```css
+.flashcard-front .overflow-y-auto,
+.flashcard-back .overflow-y-auto {
+  /* Ensure scrolling works properly within flex containers */
+  overflow-y: auto;
+  min-height: 0;
+}
+```
+
+#### Key Points
+- `minHeight: 0` overrides the default flex item behavior
+- Removes implicit minimum height constraints
+- Allows content to overflow and trigger scrollbars
+- Works consistently across different browsers
 
 ## Performance Considerations
 
