@@ -45,10 +45,11 @@ function KeyboardShortcutsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black bg-opacity-50"
         onClick={onClose}
         aria-hidden="true"
+        data-testid="modal-backdrop"
       />
       
       {/* Modal */}

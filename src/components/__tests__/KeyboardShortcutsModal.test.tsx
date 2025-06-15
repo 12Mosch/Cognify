@@ -45,7 +45,11 @@ describe('KeyboardShortcutsModal', () => {
     );
 
     expect(screen.getByText('Keyboard Shortcuts')).toBeInTheDocument();
-    expect(screen.getByText(/Available shortcuts for Basic Study mode/)).toBeInTheDocument();
+    // Check for the specific paragraph with the study mode text
+    expect(screen.getByText((_content, element) => {
+      return element?.tagName === 'P' &&
+             (element?.textContent?.includes('Available shortcuts for Basic Study mode:') ?? false);
+    })).toBeInTheDocument();
   });
 
   it('displays basic study shortcuts correctly', () => {
@@ -58,8 +62,8 @@ describe('KeyboardShortcutsModal', () => {
       />
     );
 
-    // Check for flip shortcuts
-    expect(screen.getByText('Flip card')).toBeInTheDocument();
+    // Check for flip shortcuts - there are multiple "Flip card" entries, so use getAllByText
+    expect(screen.getAllByText('Flip card')).toHaveLength(2);
     expect(screen.getByText('Space')).toBeInTheDocument();
     expect(screen.getByText('Enter')).toBeInTheDocument();
 
@@ -80,14 +84,17 @@ describe('KeyboardShortcutsModal', () => {
       />
     );
 
-    expect(screen.getByText(/Available shortcuts for Spaced Repetition mode/)).toBeInTheDocument();
+    expect(screen.getByText((_content, element) => {
+      return element?.tagName === 'P' &&
+             (element?.textContent?.includes('Available shortcuts for Spaced Repetition mode:') ?? false);
+    })).toBeInTheDocument();
 
     // Check for rating shortcuts
     expect(screen.getByText('Again (when answer is shown)')).toBeInTheDocument();
     expect(screen.getByText('Hard (when answer is shown)')).toBeInTheDocument();
     expect(screen.getByText('Good (when answer is shown)')).toBeInTheDocument();
     expect(screen.getByText('Easy (when answer is shown)')).toBeInTheDocument();
-    
+
     // Check for number keys
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
@@ -121,7 +128,7 @@ describe('KeyboardShortcutsModal', () => {
       />
     );
 
-    const backdrop = screen.getByRole('dialog').previousSibling as HTMLElement;
+    const backdrop = screen.getByTestId('modal-backdrop');
     fireEvent.click(backdrop);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
