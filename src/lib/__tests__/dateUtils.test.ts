@@ -12,16 +12,17 @@ import {
 } from '../dateUtils';
 
 describe('dateUtils', () => {
-beforeEach(() => {
-     // Mock Date.now() to return a consistent timestamp for testing
-     // January 15, 2024, 12:00:00 PM UTC
-     jest.useFakeTimers();
-     jest.setSystemTime(new Date('2024-01-15T12:00:00.000Z'));
-   });
+  beforeEach(() => {
+    // Mock Date.now() to return a consistent timestamp for testing
+    // January 15, 2024, 12:00:00 PM UTC
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2024-01-15T12:00:00.000Z'));
+  });
 
   afterEach(() => {
     // Restore real timers so other test files are unaffected
     jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
   describe('formatNextReviewTime', () => {

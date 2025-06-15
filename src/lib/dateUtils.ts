@@ -84,14 +84,14 @@ export function formatNextReviewTime(timestamp: number): string {
   
   // Same year - show month and day
   if (date.getFullYear() === today.getFullYear()) {
-    return `on ${date.toLocaleDateString(undefined, {
+    return `on ${date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric'
     })}`;
   }
-  
+
   // Different year - show month, day, and year
-  return `on ${date.toLocaleDateString(undefined, {
+  return `on ${date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric'
@@ -106,10 +106,10 @@ export function formatNextReviewTime(timestamp: number): string {
 export function isToday(timestamp: number): boolean {
   const date = new Date(timestamp);
   const today = new Date();
-  
-  return date.getDate() === today.getDate() &&
-         date.getMonth() === today.getMonth() &&
-         date.getFullYear() === today.getFullYear();
+
+  return date.getUTCDate() === today.getUTCDate() &&
+         date.getUTCMonth() === today.getUTCMonth() &&
+         date.getUTCFullYear() === today.getUTCFullYear();
 }
 
 /**
@@ -120,11 +120,11 @@ export function isToday(timestamp: number): boolean {
 export function isTomorrow(timestamp: number): boolean {
   const date = new Date(timestamp);
   const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  
-  return date.getDate() === tomorrow.getDate() &&
-         date.getMonth() === tomorrow.getMonth() &&
-         date.getFullYear() === tomorrow.getFullYear();
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+
+  return date.getUTCDate() === tomorrow.getUTCDate() &&
+         date.getUTCMonth() === tomorrow.getUTCMonth() &&
+         date.getUTCFullYear() === tomorrow.getUTCFullYear();
 }
 
 /**
@@ -133,7 +133,7 @@ export function isTomorrow(timestamp: number): boolean {
  */
 export function getStartOfToday(): number {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setUTCHours(0, 0, 0, 0);
   return today.getTime();
 }
 
@@ -143,7 +143,7 @@ export function getStartOfToday(): number {
  */
 export function getEndOfToday(): number {
   const today = new Date();
-  today.setHours(23, 59, 59, 999);
+  today.setUTCHours(23, 59, 59, 999);
   return today.getTime();
 }
 
