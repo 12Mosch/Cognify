@@ -5,6 +5,27 @@ import { usePostHog } from 'posthog-js/react';
  * Provides type-safe event tracking with error handling
  */
 
+/**
+ * Safely get the current environment mode
+ * Handles both Vite (import.meta.env) and Node.js (process.env) environments
+ */
+function getEnvironmentMode(): string {
+  // In test environment, return 'test'
+  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+    return 'test';
+  }
+
+  // Try to access Vite's import.meta.env
+  try {
+    // Use eval to avoid syntax errors in Jest
+    const importMeta = eval('import.meta');
+    return importMeta?.env?.MODE || 'production';
+  } catch {
+    // Fallback to process.env for Node.js environments
+    return process.env.NODE_ENV || 'production';
+  }
+}
+
 // Define event types for better type safety
 export type AnalyticsEvent =
   | 'user_signed_up'
@@ -60,7 +81,7 @@ export function trackEvent<E extends AnalyticsEvent>(
     posthog.capture(event, properties);
 
     // Log in development for debugging
-    if (import.meta.env.MODE === 'development') {
+    if (getEnvironmentMode() === 'development') {
       console.log('Analytics event tracked:', event, properties);
     }
   } catch (error) {
