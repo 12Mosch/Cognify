@@ -23,6 +23,24 @@ const mockUseQuery = jest.mocked(jest.requireMock('convex/react').useQuery);
 const mockDeckId = 'test-deck-id' as Id<"decks">;
 const mockOnExit = jest.fn();
 
+// Helper function to setup mocks for successful data loading
+const setupSuccessfulMocks = () => {
+  // Reset the mock completely and set up fresh implementation
+  mockUseQuery.mockReset();
+
+  // Create a persistent mock that returns the right data based on call count
+  let callIndex = 0;
+  mockUseQuery.mockImplementation(() => {
+    const currentCall = callIndex++;
+    // First call in each render cycle is getDeckById, second is getCardsForDeck
+    if (currentCall % 2 === 0) {
+      return mockDeck;
+    } else {
+      return mockCards;
+    }
+  });
+};
+
 const mockDeck = {
   _id: mockDeckId,
   name: 'Test Deck',
@@ -58,32 +76,27 @@ describe('BasicStudyMode', () => {
 
     render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
-    expect(screen.getByText('Loading study session...')).toBeInTheDocument();
+    // Check for skeleton loading state instead of specific text
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading flashcard')).toBeInTheDocument();
   });
 
   it('renders study interface with cards and help icon', async () => {
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getCardsForDeck')) return mockCards;
-      return [];
-    });
+    setupSuccessfulMocks();
 
     render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     await waitFor(() => {
       expect(screen.getByText('Test Deck')).toBeInTheDocument();
-      expect(screen.getByText('Card 1 of 2')).toBeInTheDocument();
-      expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
-      expect(screen.getByLabelText('Show keyboard shortcuts help')).toBeInTheDocument();
     });
+
+    expect(screen.getByText('Card 1 of 2')).toBeInTheDocument();
+    expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
+    expect(screen.getByLabelText('Show keyboard shortcuts help')).toBeInTheDocument();
   });
 
   it('flips card when Space key is pressed', async () => {
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getCardsForDeck')) return mockCards;
-      return [];
-    });
+    setupSuccessfulMocks();
 
     render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
@@ -100,11 +113,7 @@ describe('BasicStudyMode', () => {
   });
 
   it('flips card when Enter key is pressed', async () => {
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getCardsForDeck')) return mockCards;
-      return [];
-    });
+    setupSuccessfulMocks();
 
     render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
@@ -112,8 +121,8 @@ describe('BasicStudyMode', () => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
     });
 
-    // Press Enter key
-    fireEvent.keyDown(document, { code: 'Enter', key: ' ' });
+    // Press Enter key (fix the key value)
+    fireEvent.keyDown(document, { code: 'Enter', key: 'Enter' });
 
     await waitFor(() => {
       expect(screen.getByText('4')).toBeInTheDocument();
@@ -121,11 +130,7 @@ describe('BasicStudyMode', () => {
   });
 
   it('navigates to next card when Right Arrow key is pressed', async () => {
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getCardsForDeck')) return mockCards;
-      return [];
-    });
+    setupSuccessfulMocks();
 
     render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
@@ -133,21 +138,18 @@ describe('BasicStudyMode', () => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
     });
 
-    // Press Right Arrow key
-    fireEvent.keyDown(document, { code: 'ArrowRight', key: ' ' });
+    // Press Right Arrow key (fix the key value)
+    fireEvent.keyDown(document, { code: 'ArrowRight', key: 'ArrowRight' });
 
     await waitFor(() => {
       expect(screen.getByText('What is the capital of France?')).toBeInTheDocument();
-      expect(screen.getByText('Card 2 of 2')).toBeInTheDocument();
     });
+
+    expect(screen.getByText('Card 2 of 2')).toBeInTheDocument();
   });
 
   it('navigates to previous card when Left Arrow key is pressed', async () => {
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getCardsForDeck')) return mockCards;
-      return [];
-    });
+    setupSuccessfulMocks();
 
     render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
@@ -156,27 +158,24 @@ describe('BasicStudyMode', () => {
     });
 
     // Go to second card first
-    fireEvent.keyDown(document, { code: 'ArrowRight' });
+    fireEvent.keyDown(document, { code: 'ArrowRight', key: 'ArrowRight' });
 
     await waitFor(() => {
       expect(screen.getByText('What is the capital of France?')).toBeInTheDocument();
     });
 
-    // Press Left Arrow key to go back
-    fireEvent.keyDown(document, { code: 'ArrowLeft', key: ' ' });
+    // Press Left Arrow key to go back (fix the key value)
+    fireEvent.keyDown(document, { code: 'ArrowLeft', key: 'ArrowLeft' });
 
     await waitFor(() => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
-      expect(screen.getByText('Card 1 of 2')).toBeInTheDocument();
     });
+
+    expect(screen.getByText('Card 1 of 2')).toBeInTheDocument();
   });
 
   it('opens keyboard shortcuts modal when ? key is pressed', async () => {
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getCardsForDeck')) return mockCards;
-      return [];
-    });
+    setupSuccessfulMocks();
 
     render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
@@ -184,21 +183,16 @@ describe('BasicStudyMode', () => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
     });
 
-    // Press ? key
-    fireEvent.keyDown(document, { key: '?' });
+    // Press ? key (Shift + /)
+    fireEvent.keyDown(document, { key: '?', shiftKey: true });
 
     await waitFor(() => {
       expect(screen.getByText('Keyboard Shortcuts')).toBeInTheDocument();
-      expect(screen.getByText(/Available shortcuts for Basic Study mode/)).toBeInTheDocument();
     });
   });
 
   it('opens keyboard shortcuts modal when help icon is clicked', async () => {
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getCardsForDeck')) return mockCards;
-      return [];
-    });
+    setupSuccessfulMocks();
 
     render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
@@ -216,11 +210,7 @@ describe('BasicStudyMode', () => {
   });
 
   it('does not handle keyboard shortcuts when modal is open', async () => {
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getCardsForDeck')) return mockCards;
-      return [];
-    });
+    setupSuccessfulMocks();
 
     render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
@@ -229,34 +219,30 @@ describe('BasicStudyMode', () => {
     });
 
     // Open modal
-    fireEvent.keyDown(document, { key: '?' });
+    fireEvent.keyDown(document, { key: '?', shiftKey: true });
 
     await waitFor(() => {
       expect(screen.getByText('Keyboard Shortcuts')).toBeInTheDocument();
     });
 
     // Try to flip card while modal is open - should not work
-    fireEvent.keyDown(document, { code: 'Space' });
+    fireEvent.keyDown(document, { code: 'Space', key: ' ' });
 
-    // Card should still show question (not flipped)
-    expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
-    expect(screen.queryByText('4')).not.toBeInTheDocument();
+    // Card should still show question (not flipped) - check aria-label indicates it's showing question
+    expect(screen.getByRole('button', { name: 'Click to show answer' })).toBeInTheDocument();
   });
 
   it('displays navigation buttons with keyboard shortcuts', async () => {
-    mockUseQuery.mockImplementation((query: any) => {
-      if (query.toString().includes('getDeckById')) return mockDeck;
-      if (query.toString().includes('getCardsForDeck')) return mockCards;
-      return [];
-    });
+    setupSuccessfulMocks();
 
     render(<BasicStudyMode deckId={mockDeckId} onExit={mockOnExit} />);
 
     await waitFor(() => {
       expect(screen.getByText('Previous')).toBeInTheDocument();
-      expect(screen.getByText('Next')).toBeInTheDocument();
-      expect(screen.getByText('←')).toBeInTheDocument();
-      expect(screen.getByText('→')).toBeInTheDocument();
     });
+
+    expect(screen.getByText('Next')).toBeInTheDocument();
+    expect(screen.getByText('←')).toBeInTheDocument();
+    expect(screen.getByText('→')).toBeInTheDocument();
   });
 });

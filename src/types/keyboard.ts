@@ -80,7 +80,7 @@ export function isShortcutKey(event: KeyboardEvent, shortcutKey: string): boolea
     case '→':
       return event.code === 'ArrowRight';
     case '?':
-      return event.key === '?' && !event.shiftKey; // Handle ? key properly
+      return event.key === '?'; // Handle ? key properly (shift is required to type ?)
     default:
       // Handle number keys and other regular keys
       return event.key === shortcutKey;

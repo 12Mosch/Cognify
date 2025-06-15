@@ -57,8 +57,10 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
   }, []);
 
   const handleFlipCard = useCallback(() => {
+    // Don't flip if modal is open
+    if (showKeyboardHelp) return;
     setIsFlipped(prev => !prev);
-  }, []);
+  }, [showKeyboardHelp]);
 
   // Reset analytics gate whenever we switch decks
   useEffect(() => {
