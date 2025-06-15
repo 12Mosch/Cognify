@@ -23,7 +23,7 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
   upcomingReviews
 }: UpcomingReviewsWidgetProps) {
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = new Date(`${dateString}T00:00:00Z`); // ISO-8601 UTC midnight
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -44,7 +44,7 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
   };
 
   const getUrgencyColor = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = new Date(`${dateString}T00:00:00Z`); // ISO-8601 UTC midnight
     const today = new Date();
     const daysDiff = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     
@@ -55,7 +55,7 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
   };
 
   const getUrgencyIcon = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = new Date(`${dateString}T00:00:00Z`); // ISO-8601 UTC midnight
     const today = new Date();
     const daysDiff = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     
@@ -108,8 +108,8 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
                     {formatDate(review.date)}
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400">
-                    {new Date(review.date).toLocaleDateString('en-US', { 
-                      month: 'short', 
+                    {new Date(`${review.date}T00:00:00Z`).toLocaleDateString('en-US', {
+                      month: 'short',
                       day: 'numeric',
                       year: 'numeric'
                     })}

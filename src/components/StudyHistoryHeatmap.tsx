@@ -41,23 +41,43 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
   const dayLabels = getDayLabels();
 
   /**
+   * Calculate tooltip position from element bounds
+   */
+  const calculateTooltipPosition = (element: Element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2,
+      y: rect.top - 10,
+    };
+  };
+
+  /**
    * Handle mouse enter on heatmap day square
    */
   const handleDayMouseEnter = (day: HeatmapDay, event: React.MouseEvent) => {
     setHoveredDay(day);
-    
-    // Position tooltip relative to mouse position
-    const rect = event.currentTarget.getBoundingClientRect();
-    setTooltipPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.top - 10,
-    });
+    setTooltipPosition(calculateTooltipPosition(event.currentTarget));
+  };
+
+  /**
+   * Handle focus on heatmap day square (keyboard navigation)
+   */
+  const handleDayFocus = (day: HeatmapDay, event: React.FocusEvent) => {
+    setHoveredDay(day);
+    setTooltipPosition(calculateTooltipPosition(event.currentTarget));
   };
 
   /**
    * Handle mouse leave on heatmap day square
    */
   const handleDayMouseLeave = () => {
+    setHoveredDay(null);
+  };
+
+  /**
+   * Handle blur on heatmap day square (keyboard navigation)
+   */
+  const handleDayBlur = () => {
     setHoveredDay(null);
   };
 
@@ -121,14 +141,11 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
                       `}
                       onMouseEnter={(e) => handleDayMouseEnter(day, e)}
                       onMouseLeave={handleDayMouseLeave}
+                      onFocus={(e) => handleDayFocus(day, e)}
+                      onBlur={handleDayBlur}
                       role="gridcell"
                       aria-label={formatTooltipContent(day)}
                       tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          handleDayMouseEnter(day, e as any);
-                        }
-                      }}
                     />
                   ))}
                 </div>

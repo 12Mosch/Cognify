@@ -110,12 +110,13 @@ export function generateHeatmapGrid(
     // If we've completed a week (7 days) or reached the end
     if (currentWeek.length === 7 || index === allDays.length - 1) {
       // Fill remaining days of the week if needed
-      while (currentWeek.length < 7) {
-        const nextDate = new Date(endDate);
-        nextDate.setDate(nextDate.getDate() + (currentWeek.length - 6));
-        
-        currentWeek.push({
-          date: nextDate.toISOString().split('T')[0],
+while (currentWeek.length < 7) {
+        const lastDayInWeek = currentWeek[currentWeek.length - 1];
+        const nextDate = new Date(lastDayInWeek.date);
+        nextDate.setDate(nextDate.getDate() + 1);
+         
+         currentWeek.push({
+           date: nextDate.toISOString().split('T')[0],
           cardsStudied: 0,
           sessionCount: 0,
           level: 0,

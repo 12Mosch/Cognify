@@ -50,7 +50,7 @@ export const getUserStatistics = query({
 
     // Calculate today's cards studied
     const today = new Date().toISOString().split('T')[0];
-    const todaySessions = allSessions.filter(session => session.date === today);
+    const todaySessions = allSessions.filter(session => session.sessionDate === today);
     const cardsStudiedToday = todaySessions.reduce((sum, session) => sum + session.cardsStudied, 0);
 
     // Calculate total study time and average session duration
@@ -61,7 +61,7 @@ export const getUserStatistics = query({
       : undefined;
 
     // Calculate streaks
-    const studyDates = Array.from(new Set(allSessions.map(s => s.date)))
+    const studyDates = Array.from(new Set(allSessions.map(s => s.sessionDate)))
       .sort((a, b) => b.localeCompare(a)); // Most recent first
 
     let currentStreak = 0;
@@ -220,7 +220,7 @@ export const getDeckStatistics = query({
       .order("desc")
       .first();
 
-    const lastStudied = lastSession ? new Date(lastSession.date).getTime() : undefined;
+    const lastStudied = lastSession ? new Date(lastSession.sessionDate).getTime() : undefined;
 
     // Calculate success rate based on card progression
     // Cards with higher repetition counts indicate better success
@@ -412,7 +412,7 @@ export const getDeckPerformanceComparison = query({
         .order("desc")
         .first();
 
-      const lastStudied = lastSession ? new Date(lastSession.date).getTime() : undefined;
+      const lastStudied = lastSession ? new Date(lastSession.sessionDate).getTime() : undefined;
 
       deckPerformance.push({
         deckId: deck._id,
@@ -468,17 +468,17 @@ export const getStudyActivityData = query({
       .query("studySessions")
       .withIndex("by_userId_and_date", (q) =>
         q.eq("userId", identity.subject)
-         .gte("date", startDateStr)
-         .lte("date", endDateStr)
+         .gte("sessionDate", startDateStr)
+         .lte("sessionDate", endDateStr)
       )
       .collect();
 
     // Group sessions by date
     const sessionsByDate = new Map<string, typeof sessions>();
     for (const session of sessions) {
-      const existing = sessionsByDate.get(session.date) || [];
+      const existing = sessionsByDate.get(session.sessionDate) || [];
       existing.push(session);
-      sessionsByDate.set(session.date, existing);
+      sessionsByDate.set(session.sessionDate, existing);
     }
 
     // Generate data for each day in the range
@@ -592,14 +592,14 @@ export const getDashboardData = query({
       .collect();
 
     const today = new Date().toISOString().split('T')[0];
-    const todaySessions = allSessions.filter(session => session.date === today);
+    const todaySessions = allSessions.filter(session => session.sessionDate === today);
     const cardsStudiedToday = todaySessions.reduce((sum, session) => sum + session.cardsStudied, 0);
 
     // Calculate streaks
     const sessionsByDate = new Map<string, number>();
     allSessions.forEach(session => {
-      const existing = sessionsByDate.get(session.date) || 0;
-      sessionsByDate.set(session.date, existing + session.cardsStudied);
+      const existing = sessionsByDate.get(session.sessionDate) || 0;
+      sessionsByDate.set(session.sessionDate, existing + session.cardsStudied);
     });
 
     const sortedDates = Array.from(sessionsByDate.keys()).sort().reverse();
@@ -736,7 +736,7 @@ export const getDashboardData = query({
         .order("desc")
         .first();
 
-      const lastStudied = lastSession ? new Date(lastSession.date).getTime() : undefined;
+      const lastStudied = lastSession ? new Date(lastSession.sessionDate).getTime() : undefined;
 
       deckPerformance.push({
         deckId: deck._id,

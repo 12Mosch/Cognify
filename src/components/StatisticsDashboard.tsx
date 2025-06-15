@@ -11,6 +11,7 @@ import LearningStreakWidget from "./statistics/LearningStreakWidget";
 import SpacedRepetitionInsights from "./statistics/SpacedRepetitionInsights";
 import StudyHistoryHeatmap from "./StudyHistoryHeatmap";
 import { toastHelpers } from "../lib/toast";
+import { exportStatisticsData, type ExportFormat } from "../lib/exportUtils";
 
 /**
  * Comprehensive Statistics Dashboard Component
@@ -38,7 +39,6 @@ interface StatisticsDashboardProps {
 }
 
 type DateRange = '7d' | '30d' | '90d' | 'all';
-type ExportFormat = 'csv' | 'json';
 
 export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps) {
   const [dateRange, setDateRange] = useState<DateRange>('30d');
@@ -53,55 +53,91 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
     return <StatisticsDashboardSkeleton />;
   }
 
-  // Extract data from unified response
-  const { userStatistics: userStats, spacedRepetitionInsights, deckPerformance, cardDistribution } = dashboardData;
+  // Defensive data extraction with fallbacks for malformed responses
+  // This protects against API changes, network issues, or unexpected data structures
+  const userStats = dashboardData?.userStatistics || {
+    totalDecks: 0,
+    totalCards: 0,
+    totalStudySessions: 0,
+    cardsStudiedToday: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    averageSessionDuration: undefined,
+    totalStudyTime: undefined,
+  };
+
+  const spacedRepetitionInsights = dashboardData?.spacedRepetitionInsights || {
+    totalDueCards: 0,
+    totalNewCards: 0,
+    cardsToReviewToday: 0,
+    upcomingReviews: [],
+    retentionRate: undefined,
+    averageInterval: undefined,
+  };
+
+  const deckPerformance = Array.isArray(dashboardData?.deckPerformance)
+    ? dashboardData.deckPerformance
+    : [];
+
+  const rawCardDistribution = dashboardData?.cardDistribution || {
+    newCards: 0,
+    learningCards: 0,
+    reviewCards: 0,
+    dueCards: 0,
+    masteredCards: 0,
+    totalCards: 0,
+  };
+
+  const cardDistribution = {
+    newCards: typeof rawCardDistribution.newCards === 'number' ? rawCardDistribution.newCards : 0,
+    learningCards: typeof rawCardDistribution.learningCards === 'number' ? rawCardDistribution.learningCards : 0,
+    reviewCards: typeof rawCardDistribution.reviewCards === 'number' ? rawCardDistribution.reviewCards : 0,
+    dueCards: typeof rawCardDistribution.dueCards === 'number' ? rawCardDistribution.dueCards : 0,
+    masteredCards: typeof rawCardDistribution.masteredCards === 'number' ? rawCardDistribution.masteredCards : 0,
+    totalCards: typeof rawCardDistribution.totalCards === 'number' ? rawCardDistribution.totalCards : 0,
+  };
+
+  // Validate critical data properties to ensure they're numbers
+  const safeUserStats = {
+    ...userStats,
+    totalDecks: typeof userStats.totalDecks === 'number' ? userStats.totalDecks : 0,
+    totalCards: typeof userStats.totalCards === 'number' ? userStats.totalCards : 0,
+    totalStudySessions: typeof userStats.totalStudySessions === 'number' ? userStats.totalStudySessions : 0,
+    cardsStudiedToday: typeof userStats.cardsStudiedToday === 'number' ? userStats.cardsStudiedToday : 0,
+    currentStreak: typeof userStats.currentStreak === 'number' ? userStats.currentStreak : 0,
+    longestStreak: typeof userStats.longestStreak === 'number' ? userStats.longestStreak : 0,
+  };
+
+  const safeSpacedRepetitionInsights = {
+    ...spacedRepetitionInsights,
+    totalDueCards: typeof spacedRepetitionInsights.totalDueCards === 'number' ? spacedRepetitionInsights.totalDueCards : 0,
+    totalNewCards: typeof spacedRepetitionInsights.totalNewCards === 'number' ? spacedRepetitionInsights.totalNewCards : 0,
+    cardsToReviewToday: typeof spacedRepetitionInsights.cardsToReviewToday === 'number' ? spacedRepetitionInsights.cardsToReviewToday : 0,
+    upcomingReviews: Array.isArray(spacedRepetitionInsights.upcomingReviews) ? spacedRepetitionInsights.upcomingReviews : [],
+  };
 
   const handleExportData = async (format: ExportFormat) => {
     setIsExporting(true);
     try {
+      // Prepare export data with defensive checks already applied
       const exportData = {
-        userStatistics: userStats,
-        spacedRepetitionInsights,
-        deckPerformance,
+        userStatistics: safeUserStats,
+        spacedRepetitionInsights: safeSpacedRepetitionInsights,
+        deckPerformance: deckPerformance.map(deck => ({
+          deckId: deck?.deckId || 'unknown',
+          deckName: typeof deck?.deckName === 'string' ? deck.deckName : 'Unknown Deck',
+          totalCards: typeof deck?.totalCards === 'number' ? deck.totalCards : 0,
+          masteredCards: typeof deck?.masteredCards === 'number' ? deck.masteredCards : 0,
+          masteryPercentage: typeof deck?.masteryPercentage === 'number' ? deck.masteryPercentage : 0,
+          averageEaseFactor: typeof deck?.averageEaseFactor === 'number' ? deck.averageEaseFactor : undefined,
+          lastStudied: typeof deck?.lastStudied === 'number' ? deck.lastStudied : undefined,
+        })),
         exportDate: new Date().toISOString(),
         dateRange,
       };
 
-      if (format === 'json') {
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-          type: 'application/json',
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `flashcard-statistics-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      } else {
-        // CSV export - simplified version
-        const csvData = [
-          ['Metric', 'Value'],
-          ['Total Decks', userStats.totalDecks.toString()],
-          ['Total Cards', userStats.totalCards.toString()],
-          ['Current Streak', userStats.currentStreak.toString()],
-          ['Longest Streak', userStats.longestStreak.toString()],
-          ['Due Cards', spacedRepetitionInsights.totalDueCards.toString()],
-          ['New Cards', spacedRepetitionInsights.totalNewCards.toString()],
-        ];
-
-        const csvContent = csvData.map(row => row.join(',')).join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `flashcard-statistics-${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
+      // Use the utility function to handle the export
+      exportStatisticsData(exportData, format);
 
       toastHelpers.success(`Statistics exported as ${format.toUpperCase()}`);
     } catch (error) {
@@ -173,9 +209,9 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
       </div>
 
       {/* Overview Cards */}
-      <StatisticsOverviewCards 
-        userStats={userStats}
-        spacedRepetitionInsights={spacedRepetitionInsights}
+      <StatisticsOverviewCards
+        userStats={safeUserStats}
+        spacedRepetitionInsights={safeSpacedRepetitionInsights}
       />
 
       {/* Study History Heatmap - Full Width */}
@@ -199,24 +235,24 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
 
         {/* Card Distribution Chart */}
         <CardDistributionChart
-          spacedRepetitionInsights={spacedRepetitionInsights}
+          spacedRepetitionInsights={safeSpacedRepetitionInsights}
           cardDistribution={cardDistribution}
         />
       </div>
 
       {/* Secondary Widgets */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <UpcomingReviewsWidget 
-          upcomingReviews={spacedRepetitionInsights.upcomingReviews}
+        <UpcomingReviewsWidget
+          upcomingReviews={safeSpacedRepetitionInsights.upcomingReviews}
         />
-        
-        <LearningStreakWidget 
-          currentStreak={userStats.currentStreak}
-          longestStreak={userStats.longestStreak}
+
+        <LearningStreakWidget
+          currentStreak={safeUserStats.currentStreak}
+          longestStreak={safeUserStats.longestStreak}
         />
-        
-        <SpacedRepetitionInsights 
-          insights={spacedRepetitionInsights}
+
+        <SpacedRepetitionInsights
+          insights={safeSpacedRepetitionInsights}
         />
       </div>
 
@@ -238,35 +274,47 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
                 </tr>
               </thead>
               <tbody>
-                {deckPerformance.map((deck) => (
-                  <tr key={deck.deckId} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-                    <td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200">
-                      {deck.deckName}
-                    </td>
-                    <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
-                      {deck.totalCards}
-                    </td>
-                    <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
-                      {deck.masteredCards}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                          <div 
-                            className="bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${Math.min(deck.masteryPercentage, 100)}%` }}
-                          ></div>
+                {deckPerformance.map((deck) => {
+                  // Defensive checks for deck data
+                  const safeDeck = {
+                    deckId: deck?.deckId || 'unknown',
+                    deckName: typeof deck?.deckName === 'string' ? deck.deckName : 'Unknown Deck',
+                    totalCards: typeof deck?.totalCards === 'number' ? deck.totalCards : 0,
+                    masteredCards: typeof deck?.masteredCards === 'number' ? deck.masteredCards : 0,
+                    masteryPercentage: typeof deck?.masteryPercentage === 'number' ? deck.masteryPercentage : 0,
+                    averageEaseFactor: typeof deck?.averageEaseFactor === 'number' ? deck.averageEaseFactor : undefined,
+                  };
+
+                  return (
+                    <tr key={safeDeck.deckId} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                      <td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200">
+                        {safeDeck.deckName}
+                      </td>
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+                        {safeDeck.totalCards}
+                      </td>
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+                        {safeDeck.masteredCards}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                            <div
+                              className="bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${Math.min(Math.max(safeDeck.masteryPercentage, 0), 100)}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-sm font-medium text-slate-600 dark:text-slate-400 min-w-[3rem]">
+                            {safeDeck.masteryPercentage.toFixed(1)}%
+                          </span>
                         </div>
-                        <span className="text-sm font-medium text-slate-600 dark:text-slate-400 min-w-[3rem]">
-                          {deck.masteryPercentage.toFixed(1)}%
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
-                      {deck.averageEaseFactor ? deck.averageEaseFactor.toFixed(2) : 'N/A'}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+                        {safeDeck.averageEaseFactor ? safeDeck.averageEaseFactor.toFixed(2) : 'N/A'}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

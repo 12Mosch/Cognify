@@ -232,7 +232,23 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
   // Generate skeleton grid structure (similar to actual heatmap)
   const weeks = Array.from({ length: 53 }, (_, weekIndex) => weekIndex);
   const days = Array.from({ length: 7 }, (_, dayIndex) => dayIndex);
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  // Generate realistic month positioning to match actual heatmap
+  // This approximates how months would be distributed across 53 weeks
+  const skeletonMonths = [
+    { name: 'Jan', weekStart: 0, weekSpan: 4 },
+    { name: 'Feb', weekStart: 4, weekSpan: 4 },
+    { name: 'Mar', weekStart: 8, weekSpan: 5 },
+    { name: 'Apr', weekStart: 13, weekSpan: 4 },
+    { name: 'May', weekStart: 17, weekSpan: 5 },
+    { name: 'Jun', weekStart: 22, weekSpan: 4 },
+    { name: 'Jul', weekStart: 26, weekSpan: 5 },
+    { name: 'Aug', weekStart: 31, weekSpan: 4 },
+    { name: 'Sep', weekStart: 35, weekSpan: 4 },
+    { name: 'Oct', weekStart: 39, weekSpan: 5 },
+    { name: 'Nov', weekStart: 44, weekSpan: 4 },
+    { name: 'Dec', weekStart: 48, weekSpan: 5 },
+  ];
 
   return (
     <div
@@ -251,9 +267,16 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
       <div className="overflow-x-auto">
         <div className="min-w-[800px]">
           {/* Month Labels */}
-          <div className="flex mb-2 ml-8">
-            {months.slice(0, 6).map((month) => (
-              <div key={month} className="flex-1 min-w-0">
+          <div className="flex mb-2 ml-8 relative">
+            {skeletonMonths.map((month) => (
+              <div
+                key={month.name}
+                className="absolute text-xs"
+                style={{
+                  marginLeft: `${month.weekStart * 14}px`,
+                  width: `${month.weekSpan * 14}px`,
+                }}
+              >
                 <SkeletonElement className="h-3 w-8" />
               </div>
             ))}

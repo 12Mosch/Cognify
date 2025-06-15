@@ -6,7 +6,9 @@ import {
   getStartOfToday,
   getEndOfToday,
   formatSessionDuration,
-  daysBetween
+  daysBetween,
+  getUserTimeZone,
+  getLocalDateString
 } from '../dateUtils';
 
 describe('dateUtils', () => {
@@ -143,6 +145,42 @@ beforeEach(() => {
       const day1 = new Date('2024-01-15T08:00:00.000Z').getTime();
       const day2 = new Date('2024-01-15T20:00:00.000Z').getTime();
       expect(daysBetween(day1, day2)).toBe(0);
+    });
+  });
+
+  describe('getUserTimeZone', () => {
+    it('returns a valid IANA timezone identifier', () => {
+      const timeZone = getUserTimeZone();
+      expect(typeof timeZone).toBe('string');
+      expect(timeZone.length).toBeGreaterThan(0);
+      // Should contain at least one slash for IANA format (e.g., "America/New_York")
+      expect(timeZone).toMatch(/\//);
+    });
+  });
+
+  describe('getLocalDateString', () => {
+    it('returns date in YYYY-MM-DD format', () => {
+      const dateString = getLocalDateString();
+      expect(dateString).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+
+    it('accepts custom timezone parameter', () => {
+      const utcDate = getLocalDateString('UTC');
+      const nyDate = getLocalDateString('America/New_York');
+
+      expect(utcDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(nyDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      // Dates might be different depending on time of day and timezone offset
+    });
+
+    it('handles timezone edge cases', () => {
+      // Test with various timezones
+      const timezones = ['UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo'];
+
+      timezones.forEach(tz => {
+        const dateString = getLocalDateString(tz);
+        expect(dateString).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      });
     });
   });
 });

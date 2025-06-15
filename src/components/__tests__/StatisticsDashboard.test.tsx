@@ -240,36 +240,45 @@ describe('StatisticsDashboard', () => {
 
   it('handles export functionality', async () => {
     // Mock URL.createObjectURL and related functions
+    const originalCreateObjectURL = global.URL.createObjectURL.bind(global.URL);
+    const originalRevokeObjectURL = global.URL.revokeObjectURL.bind(global.URL);
     global.URL.createObjectURL = jest.fn(() => 'mock-url');
     global.URL.revokeObjectURL = jest.fn();
-    
+
     const mockAppendChild = jest.fn();
     const mockRemoveChild = jest.fn();
     const mockClick = jest.fn();
-    
-    Object.defineProperty(document, 'createElement', {
-      value: jest.fn(() => ({
-        href: '',
-        download: '',
-        click: mockClick,
-      })),
-    });
-    
-    Object.defineProperty(document.body, 'appendChild', {
-      value: mockAppendChild,
-    });
-    
-    Object.defineProperty(document.body, 'removeChild', {
-      value: mockRemoveChild,
-    });
 
-    renderWithConvex(<StatisticsDashboard onBack={mockOnBack} />);
+    // Create a mock anchor element
+    const mockAnchor = {
+      href: '',
+      download: '',
+      click: mockClick,
+    };
 
-    const exportSelect = screen.getByDisplayValue('Export Data');
-    fireEvent.change(exportSelect, { target: { value: 'json' } });
+    // Spy on document.createElement instead of overriding it globally
+    const createElementSpy = jest.spyOn(document, 'createElement').mockReturnValue(mockAnchor as any);
 
-    await waitFor(() => {
-      expect(mockClick).toHaveBeenCalled();
-    });
+    // Spy on document.body methods
+    const appendChildSpy = jest.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
+    const removeChildSpy = jest.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+
+    try {
+      renderWithConvex(<StatisticsDashboard onBack={mockOnBack} />);
+
+      const exportSelect = screen.getByDisplayValue('Export Data');
+      fireEvent.change(exportSelect, { target: { value: 'json' } });
+
+      await waitFor(() => {
+        expect(mockClick).toHaveBeenCalled();
+      });
+    } finally {
+      // Restore all mocks to prevent leaking to other tests
+      createElementSpy.mockRestore();
+      appendChildSpy.mockRestore();
+      removeChildSpy.mockRestore();
+      global.URL.createObjectURL = originalCreateObjectURL;
+      global.URL.revokeObjectURL = originalRevokeObjectURL;
+    }
   });
 });

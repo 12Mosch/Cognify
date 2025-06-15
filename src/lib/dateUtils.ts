@@ -4,6 +4,34 @@
  */
 
 /**
+ * Get the user's current timezone identifier
+ * @returns IANA timezone identifier (e.g., "America/New_York")
+ */
+export function getUserTimeZone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
+/**
+ * Get the current date in the user's local timezone as YYYY-MM-DD
+ * @param timeZone - Optional IANA timezone identifier. If not provided, uses user's current timezone
+ * @returns Date string in YYYY-MM-DD format
+ */
+export function getLocalDateString(timeZone?: string): string {
+  const tz = timeZone || getUserTimeZone();
+  const now = new Date();
+
+  // Use Intl.DateTimeFormat to get the date in the user's timezone
+  const formatter = new Intl.DateTimeFormat('en-CA', { // en-CA gives us YYYY-MM-DD format
+    timeZone: tz,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+
+  return formatter.format(now);
+}
+
+/**
  * Format a timestamp into a user-friendly "next review" message
  * @param timestamp - Unix timestamp in milliseconds
  * @returns Formatted string like "Tomorrow", "in 3 hours", "on Dec 25", etc.

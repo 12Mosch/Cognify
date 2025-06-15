@@ -28,15 +28,12 @@ interface Deck {
   cardCount: number;
 }
 
+// Main Dashboard wrapper that handles statistics view routing
 export function Dashboard() {
-  const [studyingDeckId, setStudyingDeckId] = useState<Id<"decks"> | null>(null);
-  const [studyMode, setStudyMode] = useState<'basic' | 'spaced-repetition' | null>(null);
-  const [selectingStudyMode, setSelectingStudyMode] = useState<Id<"decks"> | null>(null);
-  const [viewingDeckId, setViewingDeckId] = useState<Id<"decks"> | null>(null);
   const [showingStatistics, setShowingStatistics] = useState(false);
-  const decks = useQuery(api.decks.getDecksForUser);
 
   // If user is viewing statistics, show the StatisticsDashboard component
+  // Early return to avoid unnecessary queries
   if (showingStatistics) {
     return (
       <Suspense fallback={<LoadingFallback type="default" />}>
@@ -44,6 +41,20 @@ export function Dashboard() {
       </Suspense>
     );
   }
+
+  // Render the main dashboard content
+  return <DashboardContent onShowStatistics={() => setShowingStatistics(true)} />;
+}
+
+// Separate component for the main dashboard content to avoid unnecessary queries
+function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }) {
+  const [studyingDeckId, setStudyingDeckId] = useState<Id<"decks"> | null>(null);
+  const [studyMode, setStudyMode] = useState<'basic' | 'spaced-repetition' | null>(null);
+  const [selectingStudyMode, setSelectingStudyMode] = useState<Id<"decks"> | null>(null);
+  const [viewingDeckId, setViewingDeckId] = useState<Id<"decks"> | null>(null);
+
+  // Only fetch decks when we're in the main dashboard content
+  const decks = useQuery(api.decks.getDecksForUser);
 
   // If user is viewing a deck, show the DeckView component
   if (viewingDeckId) {
@@ -135,7 +146,7 @@ export function Dashboard() {
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <button
-            onClick={() => setShowingStatistics(true)}
+            onClick={onShowStatistics}
             className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
             aria-label="View learning statistics"
           >

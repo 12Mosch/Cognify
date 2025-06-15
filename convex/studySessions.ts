@@ -10,7 +10,7 @@ import { query, mutation } from "./_generated/server";
 
 /**
  * Record a completed study session
- * Aggregates multiple sessions on the same day for the same deck
+ * Uses atomic upsert pattern to prevent duplicate sessions for the same user/date/deck/mode combination
  */
 export const recordStudySession = mutation({
   args: {
@@ -18,25 +18,34 @@ export const recordStudySession = mutation({
     cardsStudied: v.number(),
     sessionDuration: v.optional(v.number()),
     studyMode: v.union(v.literal("basic"), v.literal("spaced-repetition")),
+    // New timezone-aware fields
+    userTimeZone: v.string(), // IANA timezone identifier (e.g., "America/New_York")
+    localDate: v.string(),    // User's local date in YYYY-MM-DD format
   },
   returns: v.null(),
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    
+
     if (!identity) {
       throw new Error("User must be authenticated to record study sessions");
     }
 
-    // Get current date in YYYY-MM-DD format (user's local timezone)
-    const today = new Date().toISOString().split('T')[0];
+    // Store UTC timestamp for canonical reference
+    const utcTimestamp = new Date().toISOString();
 
-    // Check if there's already a session for this user, deck, and date
+    // Use the user's local date for grouping (passed from client)
+    // This ensures sessions are grouped by the user's calendar day, not server day
+    const sessionDate = args.localDate;
+
+    // Use the compound index to efficiently check for existing session
     const existingSession = await ctx.db
       .query("studySessions")
-      .withIndex("by_userId_and_date", (q) => 
-        q.eq("userId", identity.subject).eq("date", today)
+      .withIndex("by_unique_session", (q) =>
+        q.eq("userId", identity.subject)
+         .eq("sessionDate", sessionDate)
+         .eq("deckId", args.deckId)
+         .eq("studyMode", args.studyMode)
       )
-      .filter((q) => q.eq(q.field("deckId"), args.deckId))
       .first();
 
     if (existingSession) {
@@ -46,18 +55,21 @@ export const recordStudySession = mutation({
         sessionDuration: existingSession.sessionDuration && args.sessionDuration
           ? existingSession.sessionDuration + args.sessionDuration
           : existingSession.sessionDuration || args.sessionDuration,
-        // Keep the most recent study mode
-        studyMode: args.studyMode,
+        // Update the UTC timestamp to reflect the latest activity
+        utcTimestamp,
       });
     } else {
       // Create new session record
       await ctx.db.insert("studySessions", {
         userId: identity.subject,
         deckId: args.deckId,
-        date: today,
+        sessionDate,
         cardsStudied: args.cardsStudied,
         sessionDuration: args.sessionDuration,
         studyMode: args.studyMode,
+        // Store timezone-aware fields for accurate date handling
+        utcTimestamp,
+        userTimeZone: args.userTimeZone,
       });
     }
 
@@ -79,7 +91,7 @@ export const getStudyActivityHeatmapData = query({
   })),
   handler: async (ctx, _args) => {
     const identity = await ctx.auth.getUserIdentity();
-    
+
     if (!identity) {
       throw new Error("User must be authenticated to access study activity data");
     }
@@ -95,10 +107,10 @@ export const getStudyActivityHeatmapData = query({
     // Get all study sessions for the user in the date range
     const sessions = await ctx.db
       .query("studySessions")
-      .withIndex("by_userId_and_date", (q) => 
+      .withIndex("by_userId_and_date", (q) =>
         q.eq("userId", identity.subject)
-         .gte("date", startDateStr)
-         .lte("date", endDateStr)
+         .gte("sessionDate", startDateStr)
+         .lte("sessionDate", endDateStr)
       )
       .collect();
 
@@ -110,13 +122,13 @@ export const getStudyActivityHeatmapData = query({
     }>();
 
     for (const session of sessions) {
-      const existing = dailyActivity.get(session.date) || {
+      const existing = dailyActivity.get(session.sessionDate) || {
         cardsStudied: 0,
         sessionCount: 0,
         totalDuration: 0,
       };
 
-      dailyActivity.set(session.date, {
+      dailyActivity.set(session.sessionDate, {
         cardsStudied: existing.cardsStudied + session.cardsStudied,
         sessionCount: existing.sessionCount + 1,
         totalDuration: existing.totalDuration + (session.sessionDuration || 0),
@@ -162,10 +174,10 @@ export const getStudyStatistics = query({
     // Get all study sessions in the date range
     const sessions = await ctx.db
       .query("studySessions")
-      .withIndex("by_userId_and_date", (q) => 
+      .withIndex("by_userId_and_date", (q) =>
         q.eq("userId", identity.subject)
-         .gte("date", args.startDate)
-         .lte("date", args.endDate)
+         .gte("sessionDate", args.startDate)
+         .lte("sessionDate", args.endDate)
       )
       .collect();
 
@@ -184,13 +196,13 @@ export const getStudyStatistics = query({
     const totalCardsStudied = sessions.reduce((sum, s) => sum + s.cardsStudied, 0);
     const totalSessions = sessions.length;
     const totalStudyTime = sessions.reduce((sum, s) => sum + (s.sessionDuration || 0), 0);
-    const studyDays = new Set(sessions.map(s => s.date)).size;
+    const studyDays = new Set(sessions.map(s => s.sessionDate)).size;
 
     // Find most active day
     const dailyTotals = new Map<string, number>();
     for (const session of sessions) {
-      const current = dailyTotals.get(session.date) || 0;
-      dailyTotals.set(session.date, current + session.cardsStudied);
+      const current = dailyTotals.get(session.sessionDate) || 0;
+      dailyTotals.set(session.sessionDate, current + session.cardsStudied);
     }
 
     let mostActiveDay: { date: string; cardsStudied: number } | undefined;
@@ -240,17 +252,20 @@ export const getCurrentStudyStreak = query({
     }
 
     // Get unique study dates and sort them
-    const studyDates = Array.from(new Set(sessions.map(s => s.date)))
+    const studyDates = Array.from(new Set(sessions.map(s => s.sessionDate)))
       .sort((a, b) => b.localeCompare(a)); // Most recent first
 
     // Calculate current streak
+    // Note: This function now works with user's local dates stored in sessionDate
+    // The dates are already in the user's timezone, so we can compare them directly
     let currentStreak = 0;
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0]; // This is still UTC for server comparison
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
 
     // Check if user studied today or yesterday to start streak calculation
+    // Note: This comparison may not be accurate across timezones - consider enhancing in the future
     if (studyDates[0] === today || studyDates[0] === yesterdayStr) {
       const checkDate = new Date(studyDates[0]);
       let dateIndex = 0;

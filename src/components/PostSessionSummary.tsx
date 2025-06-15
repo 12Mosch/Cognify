@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
+import { getUserTimeZone, getLocalDateString } from "../lib/dateUtils";
 
 interface PostSessionSummaryProps {
   deckId: Id<"decks">;
@@ -54,11 +55,17 @@ function PostSessionSummary({
   // Record study session in database (only once)
   useEffect(() => {
     if (!hasRecordedSession && cardsReviewed > 0) {
+      // Get user's timezone and local date for accurate session recording
+      const userTimeZone = getUserTimeZone();
+      const localDate = getLocalDateString(userTimeZone);
+
       recordStudySession({
         deckId,
         cardsStudied: cardsReviewed,
         sessionDuration,
         studyMode,
+        userTimeZone,
+        localDate,
       }).catch((error) => {
         console.error('Failed to record study session:', error);
         // Don't block the UI if session recording fails

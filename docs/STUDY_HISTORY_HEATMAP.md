@@ -36,13 +36,18 @@ The heatmap relies on the `studySessions` table:
 studySessions: defineTable({
   userId: v.string(),           // ID of the user who completed this session
   deckId: v.id("decks"),       // Reference to the deck studied
-  date: v.string(),            // Date in YYYY-MM-DD format for consistent daily aggregation
+  sessionDate: v.string(),     // Date in YYYY-MM-DD format (user's local date) for consistent daily aggregation
   cardsStudied: v.number(),    // Number of cards reviewed in this session
   sessionDuration: v.optional(v.number()), // Duration in milliseconds
   studyMode: v.union(v.literal("basic"), v.literal("spaced-repetition")), // Type of study session
-}).index("by_userId_and_date", ["userId", "date"])     // Index for efficient user activity queries
-  .index("by_userId_and_deckId", ["userId", "deckId"]) // Index for deck-specific activity
-  .index("by_date", ["date"]),                         // Index for date-based queries
+  // Timezone-aware fields for accurate date handling
+  utcTimestamp: v.optional(v.string()),    // ISO 8601 UTC timestamp for canonical reference
+  userTimeZone: v.optional(v.string()),    // IANA timezone identifier (e.g., "America/New_York")
+}).index("by_userId_and_date", ["userId", "sessionDate"])     // Index for efficient user activity queries
+  .index("by_userId_and_deckId", ["userId", "deckId"])        // Index for deck-specific activity
+  .index("by_date", ["sessionDate"])                          // Index for date-based queries
+  // Compound index to efficiently check for existing sessions and prevent duplicates
+  .index("by_unique_session", ["userId", "sessionDate", "deckId", "studyMode"]),
 ```
 
 ### Component Structure
@@ -108,11 +113,17 @@ const recordStudySession = useMutation(api.studySessions.recordStudySession);
 
 useEffect(() => {
   if (!hasRecordedSession && cardsReviewed > 0) {
+    // Get user's timezone and local date for accurate session recording
+    const userTimeZone = getUserTimeZone();
+    const localDate = getLocalDateString(userTimeZone);
+
     recordStudySession({
       deckId,
       cardsStudied: cardsReviewed,
       sessionDuration,
       studyMode,
+      userTimeZone,
+      localDate,
     });
     setHasRecordedSession(true);
   }
