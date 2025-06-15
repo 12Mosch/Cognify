@@ -6,6 +6,8 @@ import { QuickAddCardForm } from "./QuickAddCardForm";
 import { Id } from "../../convex/_generated/dataModel";
 import { DeckListSkeleton, GenericSkeleton } from "./skeletons/SkeletonComponents";
 import { toastHelpers } from "../lib/toast";
+import PrivacySettings from "./PrivacySettings";
+import FeatureFlagDemo from "./FeatureFlagDemo";
 
 // Lazy-loaded components for better performance
 const DeckView = lazy(() => import("./DeckView"));
@@ -52,6 +54,8 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
   const [studyMode, setStudyMode] = useState<'basic' | 'spaced-repetition' | null>(null);
   const [selectingStudyMode, setSelectingStudyMode] = useState<Id<"decks"> | null>(null);
   const [viewingDeckId, setViewingDeckId] = useState<Id<"decks"> | null>(null);
+  const [showPrivacySettings, setShowPrivacySettings] = useState(false);
+  const [showFeatureFlags, setShowFeatureFlags] = useState(false);
 
   // Only fetch decks when we're in the main dashboard content
   const decks = useQuery(api.decks.getDecksForUser);
@@ -155,6 +159,39 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
             </svg>
             Statistics
           </button>
+
+          {/* Settings Dropdown */}
+          <div className="relative group">
+            <button
+              className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 hover:bg-slate-300 dark:hover:bg-slate-600"
+              aria-label="Settings menu"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Settings
+            </button>
+
+            {/* Dropdown Menu */}
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+              <div className="py-2">
+                <button
+                  onClick={() => setShowPrivacySettings(true)}
+                  className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Privacy Settings
+                </button>
+                <button
+                  onClick={() => setShowFeatureFlags(true)}
+                  className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Feature Flags
+                </button>
+              </div>
+            </div>
+          </div>
+
           <QuickAddCardForm onSuccess={handleCardCreateSuccess} />
           <CreateDeckForm onSuccess={handleCreateSuccess} />
         </div>
@@ -173,6 +210,37 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
               onManageCards={() => setViewingDeckId(deck._id)}
             />
           ))}
+        </div>
+      )}
+
+      {/* Privacy Settings Modal */}
+      <PrivacySettings
+        isOpen={showPrivacySettings}
+        onClose={() => setShowPrivacySettings(false)}
+      />
+
+      {/* Feature Flags Demo */}
+      {showFeatureFlags && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                Feature Flags
+              </h2>
+              <button
+                onClick={() => setShowFeatureFlags(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                aria-label="Close feature flags"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <FeatureFlagDemo />
+            </div>
+          </div>
         </div>
       )}
     </div>

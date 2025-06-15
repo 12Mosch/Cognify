@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
-import { useAnalytics } from "../lib/analytics";
+import { useAnalytics, useAnalyticsEnhanced } from "../lib/analytics";
 import KeyboardShortcutsModal from "./KeyboardShortcutsModal";
 import HelpIcon from "./HelpIcon";
 import PostSessionSummary from "./PostSessionSummary";
@@ -67,7 +67,8 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   const reviewCard = useMutation(api.spacedRepetition.reviewCard);
   const initializeCard = useMutation(api.spacedRepetition.initializeCardForSpacedRepetition);
 
-  const { trackStudySessionStarted, trackCardFlipped, trackDifficultyRated } = useAnalytics();
+  const { trackStudySessionStarted } = useAnalytics();
+  const { trackEventBatched, hasConsent } = useAnalyticsEnhanced();
 
   // Initialize study queue when data is loaded
   useEffect(() => {
@@ -95,12 +96,19 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
     const flipDirection: 'front_to_back' | 'back_to_front' = isFlipped ? 'back_to_front' : 'front_to_back';
     const timeToFlip = flipStartTime ? Date.now() - flipStartTime : undefined;
 
-    // Track the card flip event
-    trackCardFlipped(currentCard._id, deckId, flipDirection, timeToFlip);
+    // Track the card flip event with batching and feature flags
+    if (hasConsent) {
+      trackEventBatched('card_flipped', {
+        cardId: currentCard._id,
+        deckId,
+        flipDirection,
+        timeToFlip,
+      }, ['new-study-algorithm', 'advanced-statistics']);
+    }
 
     setIsFlipped(prev => !prev);
     setFlipStartTime(Date.now());
-  }, [studyQueue, currentCardIndex, isFlipped, flipStartTime, trackCardFlipped, deckId]);
+  }, [studyQueue, currentCardIndex, isFlipped, flipStartTime, deckId, hasConsent, trackEventBatched]);
 
   /**
    * Handle card review with quality rating
@@ -121,8 +129,14 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
     const difficulty = getDifficultyFromQuality(quality);
 
-    // Track difficulty rating
-    trackDifficultyRated(currentCard._id, deckId, difficulty);
+    // Track difficulty rating with batching and feature flags
+    if (hasConsent) {
+      trackEventBatched('difficulty_rated', {
+        cardId: currentCard._id,
+        deckId,
+        difficulty,
+      }, ['new-study-algorithm', 'advanced-statistics']);
+    }
 
     try {
       // Initialize card for spaced repetition if needed
@@ -150,7 +164,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       setIsFlipped(false);
       setFlipStartTime(Date.now()); // Reset flip timer for new card
     }
-  }, [studyQueue, currentCardIndex, initializeCard, reviewCard, trackDifficultyRated, deckId]);
+  }, [studyQueue, currentCardIndex, initializeCard, reviewCard, deckId, hasConsent, trackEventBatched]);
 
   /**
    * Reset session state to start a new study session

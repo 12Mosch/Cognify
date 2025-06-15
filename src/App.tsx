@@ -8,11 +8,12 @@ import {
 import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/clerk-react";
 import { Toaster } from "react-hot-toast";
 import { Dashboard } from "./components/Dashboard";
-import { useAnalytics, hasUserBeenTrackedForRegistration, markUserAsTrackedForRegistration } from "./lib/analytics";
+import { useAnalytics, useAnalyticsEnhanced, hasUserBeenTrackedForRegistration, markUserAsTrackedForRegistration } from "./lib/analytics";
 
 export default function App() {
   const { user, isLoaded } = useUser();
   const { trackUserSignUp } = useAnalytics();
+  const { identifyUser } = useAnalyticsEnhanced();
 
   // Track user registration when user first signs up
   useEffect(() => {
@@ -27,9 +28,19 @@ export default function App() {
       if (isNewUser && !hasUserBeenTrackedForRegistration()) {
         trackUserSignUp();
         markUserAsTrackedForRegistration();
+
+        // Identify user with cohort properties for new users
+        identifyUser(user.id, {
+          email: user.primaryEmailAddress?.emailAddress,
+          name: user.fullName || undefined,
+          signupDate: user.createdAt ? new Date(user.createdAt).toISOString() : undefined,
+          // These would typically come from onboarding or user preferences
+          studyGoal: 'casual', // Default, could be set during onboarding
+          experienceLevel: 'beginner', // Default for new users
+        });
       }
     }
-  }, [isLoaded, user, trackUserSignUp]);
+  }, [isLoaded, user, trackUserSignUp, identifyUser]);
 
   return (
     <>

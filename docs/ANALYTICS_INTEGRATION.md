@@ -1,10 +1,32 @@
 # PostHog Analytics Integration
 
-This document describes the PostHog analytics integration implemented in the flashcard application.
+This document describes the comprehensive PostHog analytics integration implemented in the flashcard application.
 
 ## Overview
 
-PostHog analytics has been integrated to track key user events and provide insights into user behavior. The integration follows privacy best practices and includes proper error handling to ensure analytics failures don't break app functionality.
+PostHog analytics has been integrated with advanced features including event batching, feature flags, privacy compliance, and cohort analysis. The integration follows privacy best practices and includes proper error handling to ensure analytics failures don't break app functionality.
+
+## Phase 2 Features
+
+### Event Batching
+- Automatic batching of analytics events for improved performance
+- Configurable batch size (default: 10 events) and flush interval (default: 5 seconds)
+- Reduces network requests and improves app responsiveness
+
+### Feature Flag Integration
+- PostHog feature flags with automatic tracking of flag interactions
+- Feature flag context included in analytics events
+- Support for A/B testing and gradual feature rollouts
+
+### Privacy Compliance
+- Granular consent management for analytics, functional, and marketing data
+- User-friendly privacy settings modal
+- Automatic opt-in/opt-out handling with PostHog
+
+### Cohort Analysis
+- Automatic user segmentation based on signup date, study goals, and behavior
+- Rich user properties for advanced analytics and targeting
+- Study persona classification for personalized experiences
 
 ## Tracked Events
 
@@ -144,7 +166,9 @@ For EU users, use `https://eu.posthog.com` as the host.
 
 ## Usage
 
-### Using the Analytics Hook
+### Using the Analytics Hooks
+
+#### Basic Analytics Hook
 ```typescript
 import { useAnalytics } from '../lib/analytics';
 
@@ -166,6 +190,66 @@ function MyComponent() {
 
   const handleDifficultyRating = (cardId: string, deckId: string) => {
     trackDifficultyRated(cardId, deckId, 'easy');
+  };
+}
+```
+
+#### Enhanced Analytics Hook with Batching and Feature Flags
+```typescript
+import { useAnalyticsEnhanced } from '../lib/analytics';
+
+function MyComponent() {
+  const {
+    trackEventBatched,
+    trackFeatureFlag,
+    identifyUser,
+    hasConsent
+  } = useAnalyticsEnhanced();
+
+  const handleCardFlip = (cardId: string, deckId: string) => {
+    if (hasConsent) {
+      trackEventBatched('card_flipped', {
+        cardId,
+        deckId,
+        flipDirection: 'front_to_back',
+        timeToFlip: 1500,
+      }, ['new-study-algorithm', 'advanced-statistics']); // Include feature flags
+    }
+  };
+
+  const handleFeatureUsage = (flagKey: string) => {
+    trackFeatureFlag(flagKey, 'enabled');
+  };
+
+  const handleUserSignup = (userId: string, userProps: any) => {
+    identifyUser(userId, userProps);
+  };
+}
+```
+
+#### Privacy-Compliant Analytics Hook
+```typescript
+import { usePrivacyCompliantAnalytics } from '../lib/analytics';
+
+function MyComponent() {
+  const {
+    trackWithConsent,
+    privacySettings,
+    grantConsent,
+    revokeConsent,
+    hasAnalyticsConsent
+  } = usePrivacyCompliantAnalytics();
+
+  const handleEvent = () => {
+    trackWithConsent('deck_created', { deckId: 'deck-123' });
+  };
+
+  const handleConsentChange = () => {
+    if (hasAnalyticsConsent) {
+      revokeConsent('analyticsConsent');
+    } else {
+      grantConsent('analyticsConsent');
+    }
   };
 }
 ```

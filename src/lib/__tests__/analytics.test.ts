@@ -18,6 +18,13 @@ const {
   trackDifficultyRated,
   useAnalytics,
   getEnvironmentMode,
+  getPrivacySettings,
+  setPrivacySettings,
+  hasAnalyticsConsent,
+  trackFeatureInteraction,
+  identifyUserWithCohorts,
+  getWeekOfYear,
+  getUserStudyPersona,
 } = analytics;
 
 // Mock PostHog React hook
@@ -31,6 +38,10 @@ const mockUsePostHog = usePostHog as jest.MockedFunction<typeof usePostHog>;
 // Mock PostHog
 const mockPostHog = {
   capture: jest.fn(),
+  identify: jest.fn(),
+  getFeatureFlag: jest.fn(),
+  opt_in_capturing: jest.fn(),
+  opt_out_capturing: jest.fn(),
 };
 
 // Mock localStorage
@@ -378,6 +389,172 @@ describe("Analytics Utilities", () => {
         deckId: "deck-202",
         difficulty: "hard",
         previousDifficulty: undefined,
+      });
+    });
+  });
+
+  describe("Privacy compliance functions", () => {
+    beforeEach(() => {
+      localStorageMock.getItem.mockClear();
+      localStorageMock.setItem.mockClear();
+    });
+
+    describe("getPrivacySettings", () => {
+      it("should return stored privacy settings", () => {
+        const mockSettings = {
+          analyticsConsent: 'granted',
+          functionalConsent: 'granted',
+          marketingConsent: 'denied'
+        };
+        localStorageMock.getItem.mockReturnValue(JSON.stringify(mockSettings));
+
+        const result = getPrivacySettings();
+
+        expect(localStorageMock.getItem).toHaveBeenCalledWith('flashcard_privacy_settings');
+        expect(result).toEqual(mockSettings);
+      });
+
+      it("should return default settings when no stored settings", () => {
+        localStorageMock.getItem.mockReturnValue(null);
+
+        const result = getPrivacySettings();
+
+        expect(result).toEqual({
+          analyticsConsent: 'pending',
+          functionalConsent: 'pending',
+          marketingConsent: 'pending',
+        });
+      });
+    });
+
+    describe("setPrivacySettings", () => {
+      it("should store privacy settings", () => {
+        const settings = {
+          analyticsConsent: 'granted' as const,
+          functionalConsent: 'denied' as const,
+          marketingConsent: 'pending' as const,
+        };
+
+        setPrivacySettings(settings);
+
+        expect(localStorageMock.setItem).toHaveBeenCalledWith(
+          'flashcard_privacy_settings',
+          JSON.stringify(settings)
+        );
+      });
+    });
+
+    describe("hasAnalyticsConsent", () => {
+      it("should return true when analytics consent is granted", () => {
+        localStorageMock.getItem.mockReturnValue(JSON.stringify({
+          analyticsConsent: 'granted',
+          functionalConsent: 'pending',
+          marketingConsent: 'pending',
+        }));
+
+        expect(hasAnalyticsConsent()).toBe(true);
+      });
+
+      it("should return false when analytics consent is denied", () => {
+        localStorageMock.getItem.mockReturnValue(JSON.stringify({
+          analyticsConsent: 'denied',
+          functionalConsent: 'pending',
+          marketingConsent: 'pending',
+        }));
+
+        expect(hasAnalyticsConsent()).toBe(false);
+      });
+    });
+  });
+
+  describe("Feature flag functions", () => {
+    describe("trackFeatureInteraction", () => {
+      it("should track feature interaction with PostHog", () => {
+        localStorageMock.getItem.mockReturnValue(JSON.stringify({
+          analyticsConsent: 'granted',
+          functionalConsent: 'pending',
+          marketingConsent: 'pending',
+        }));
+
+        trackFeatureInteraction(mockPostHog as any, 'new-study-algorithm', 'enabled');
+
+        expect(mockPostHog.capture).toHaveBeenCalledWith('$feature_interaction', {
+          feature_flag: 'new-study-algorithm',
+          $set: { '$feature_interaction/new-study-algorithm': true }
+        });
+
+        expect(mockPostHog.capture).toHaveBeenCalledWith('$feature_flag_called', {
+          $feature_flag_response: 'enabled',
+          $feature_flag: 'new-study-algorithm'
+        });
+      });
+
+      it("should not track when consent is denied", () => {
+        localStorageMock.getItem.mockReturnValue(JSON.stringify({
+          analyticsConsent: 'denied',
+          functionalConsent: 'pending',
+          marketingConsent: 'pending',
+        }));
+
+        trackFeatureInteraction(mockPostHog as any, 'new-study-algorithm');
+
+        expect(mockPostHog.capture).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("Cohort analysis functions", () => {
+    describe("getWeekOfYear", () => {
+      it("should return correct week number", () => {
+        const date = new Date('2024-01-15'); // Should be week 3
+        const week = getWeekOfYear(date);
+        expect(week).toBeGreaterThan(0);
+        expect(week).toBeLessThanOrEqual(53);
+      });
+    });
+
+    describe("getUserStudyPersona", () => {
+      it("should return exam_focused for exam prep goal", () => {
+        expect(getUserStudyPersona({ studyGoal: 'exam_prep' })).toBe('exam_focused');
+      });
+
+      it("should return learning_basics for beginner level", () => {
+        expect(getUserStudyPersona({ experienceLevel: 'beginner' })).toBe('learning_basics');
+      });
+
+      it("should return morning_studier for morning preference", () => {
+        expect(getUserStudyPersona({ preferredStudyTime: 'morning' })).toBe('morning_studier');
+      });
+
+      it("should return general_learner as default", () => {
+        expect(getUserStudyPersona({})).toBe('general_learner');
+      });
+    });
+
+    describe("identifyUserWithCohorts", () => {
+      it("should identify user with cohort properties", () => {
+        localStorageMock.getItem.mockReturnValue(JSON.stringify({
+          analyticsConsent: 'granted',
+          functionalConsent: 'pending',
+          marketingConsent: 'pending',
+        }));
+
+        const userProperties = {
+          email: 'test@example.com',
+          name: 'Test User',
+          signupDate: '2024-01-15',
+          studyGoal: 'exam_prep' as const,
+          experienceLevel: 'beginner' as const,
+        };
+
+        identifyUserWithCohorts(mockPostHog as any, 'user-123', userProperties);
+
+        expect(mockPostHog.identify).toHaveBeenCalledWith('user-123', expect.objectContaining({
+          email: 'test@example.com',
+          name: 'Test User',
+          studyPersona: 'exam_focused',
+          engagementTier: 'new_user',
+        }));
       });
     });
   });

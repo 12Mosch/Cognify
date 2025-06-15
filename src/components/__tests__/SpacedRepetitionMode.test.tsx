@@ -20,6 +20,12 @@ jest.mock('../../lib/analytics', () => ({
     trackCardFlipped: jest.fn(),
     trackDifficultyRated: jest.fn(),
   }),
+  useAnalyticsEnhanced: () => ({
+    trackEventBatched: jest.fn(),
+    trackFeatureFlag: jest.fn(),
+    identifyUser: jest.fn(),
+    hasConsent: true,
+  }),
 }));
 
 // Mock PostSessionSummary component
