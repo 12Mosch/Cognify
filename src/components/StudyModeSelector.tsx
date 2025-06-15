@@ -28,9 +28,10 @@ function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onCancel }
       {/* Study Mode Options */}
       <div className="grid gap-6">
         {/* Basic Study Mode */}
-        <div 
+        <div
           className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer group"
           onClick={() => onSelectMode('basic')}
+          data-testid="basic-study-card"
         >
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -72,9 +73,10 @@ function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onCancel }
         </div>
 
         {/* Spaced Repetition Mode */}
-        <div 
+        <div
           className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer group"
           onClick={() => onSelectMode('spaced-repetition')}
+          data-testid="spaced-repetition-card"
         >
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center flex-shrink-0">

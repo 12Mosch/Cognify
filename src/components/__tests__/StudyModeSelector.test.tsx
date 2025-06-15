@@ -28,7 +28,8 @@ describe('StudyModeSelector', () => {
     );
 
     expect(screen.getByText('Choose Study Mode')).toBeInTheDocument();
-    expect(screen.getByText(/How would you like to study Test Deck/)).toBeInTheDocument();
+    expect(screen.getByText(/How would you like to study/)).toBeInTheDocument();
+    expect(screen.getByText('Test Deck')).toBeInTheDocument();
     expect(screen.getByText('Basic Study')).toBeInTheDocument();
     expect(screen.getByText('Spaced Repetition')).toBeInTheDocument();
     expect(screen.getByText('Cancel')).toBeInTheDocument();
@@ -93,10 +94,8 @@ describe('StudyModeSelector', () => {
       />
     );
 
-    const basicStudyCard = screen.getByText('Basic Study').closest('div');
-    if (basicStudyCard) {
-      fireEvent.click(basicStudyCard);
-    }
+    const basicStudyCard = screen.getByTestId('basic-study-card');
+    fireEvent.click(basicStudyCard);
 
     expect(mockOnSelectMode).toHaveBeenCalledWith('basic');
   });
@@ -111,10 +110,8 @@ describe('StudyModeSelector', () => {
       />
     );
 
-    const spacedRepetitionCard = screen.getByText('Spaced Repetition').closest('div');
-    if (spacedRepetitionCard) {
-      fireEvent.click(spacedRepetitionCard);
-    }
+    const spacedRepetitionCard = screen.getByTestId('spaced-repetition-card');
+    fireEvent.click(spacedRepetitionCard);
 
     expect(mockOnSelectMode).toHaveBeenCalledWith('spaced-repetition');
   });
@@ -145,9 +142,9 @@ describe('StudyModeSelector', () => {
       />
     );
 
-    // Check that clickable elements are properly structured
-    const basicStudyCard = screen.getByText('Basic Study').closest('div');
-    const spacedRepetitionCard = screen.getByText('Spaced Repetition').closest('div');
+    // Check that clickable elements are properly structured using test IDs
+    const basicStudyCard = screen.getByTestId('basic-study-card');
+    const spacedRepetitionCard = screen.getByTestId('spaced-repetition-card');
 
     expect(basicStudyCard).toHaveClass('cursor-pointer');
     expect(spacedRepetitionCard).toHaveClass('cursor-pointer');
