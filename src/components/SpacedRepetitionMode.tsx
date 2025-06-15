@@ -2,7 +2,17 @@ import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
-import { useAnalytics, useAnalyticsEnhanced } from "../lib/analytics";
+import {
+  useAnalytics,
+  useAnalyticsEnhanced,
+  trackSessionStarted,
+  trackCardsReviewed,
+  trackSessionCompleted,
+  trackStreakStarted,
+  trackStreakContinued,
+  trackStreakBroken,
+  trackStreakMilestone
+} from "../lib/analytics";
 import KeyboardShortcutsModal from "./KeyboardShortcutsModal";
 import HelpIcon from "./HelpIcon";
 import PostSessionSummary from "./PostSessionSummary";
@@ -54,6 +64,8 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   const [sessionStartTime, setSessionStartTime] = useState<number>(0);
   const [cardsReviewed, setCardsReviewed] = useState<number>(0);
   const [flipStartTime, setFlipStartTime] = useState<number | null>(null);
+  const [sessionId] = useState<string>(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  const [_lastCardReviewTime, setLastCardReviewTime] = useState<number>(0);
 
   // Fetch deck and study queue using Convex queries
   const deck = useQuery(api.decks.getDeckById, { deckId });
@@ -66,8 +78,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   // Mutations for card operations
   const reviewCard = useMutation(api.spacedRepetition.reviewCard);
   const initializeCard = useMutation(api.spacedRepetition.initializeCardForSpacedRepetition);
+  const updateStreak = useMutation(api.streaks.updateStreak);
+  const recordStudySession = useMutation(api.studySessions.recordStudySession);
 
-  const { trackStudySessionStarted } = useAnalytics();
+  const { trackStudySessionStarted, posthog } = useAnalytics();
   const { trackEventBatched, hasConsent } = useAnalyticsEnhanced();
 
   // Initialize study queue when data is loaded
@@ -76,13 +90,108 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       setStudyQueue(studyQueueData);
 
       if (studyQueueData.length > 0 && deck) {
+        // Track legacy study session started event
         trackStudySessionStarted(deckId, deck.name, studyQueueData.length);
+
+        // Track funnel analysis session started event
+        if (hasConsent) {
+          trackSessionStarted(
+            posthog,
+            deckId,
+            'spaced-repetition',
+            sessionId,
+            deck.name,
+            studyQueueData.length
+          );
+        }
+
         setSessionStarted(true);
         setSessionStartTime(Date.now());
         setFlipStartTime(Date.now()); // Initialize flip timer for first card
+        setLastCardReviewTime(Date.now());
       }
     }
-  }, [studyQueueData, sessionStarted, deckId, deck, trackStudySessionStarted]);
+  }, [studyQueueData, sessionStarted, deckId, deck, trackStudySessionStarted, hasConsent, posthog, sessionId]);
+
+  /**
+   * Handle session completion with analytics and streak tracking
+   */
+  const handleSessionCompletion = useCallback(async (finalCardsReviewed: number) => {
+    if (!deck || sessionStartTime === 0) return;
+
+    const sessionDuration = Date.now() - sessionStartTime;
+    const completionRate = studyQueue.length > 0 ? (finalCardsReviewed / studyQueue.length) * 100 : 0;
+
+    // Track session completion for funnel analysis
+    if (hasConsent) {
+      trackSessionCompleted(
+        posthog,
+        deckId,
+        sessionId,
+        finalCardsReviewed,
+        'spaced-repetition',
+        sessionDuration,
+        completionRate
+      );
+    }
+
+    // Record study session in database
+    try {
+      const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const localDate = new Date().toISOString().split('T')[0];
+
+      await recordStudySession({
+        deckId,
+        cardsStudied: finalCardsReviewed,
+        sessionDuration,
+        studyMode: 'spaced-repetition',
+        userTimeZone,
+        localDate,
+      });
+
+      // Update streak and track streak events
+      const streakResult = await updateStreak({
+        studyDate: localDate,
+        timezone: userTimeZone,
+      });
+
+      // Track streak events based on result
+      if (hasConsent && streakResult) {
+        if (streakResult.streakEvent === 'started') {
+          trackStreakStarted(posthog, streakResult.currentStreak, localDate, userTimeZone);
+        } else if (streakResult.streakEvent === 'continued') {
+          trackStreakContinued(
+            posthog,
+            streakResult.currentStreak,
+            localDate,
+            userTimeZone,
+            streakResult.currentStreak - 1
+          );
+        } else if (streakResult.streakEvent === 'broken') {
+          trackStreakBroken(
+            posthog,
+            streakResult.longestStreak,
+            1, // daysMissed - simplified for now
+            localDate,
+            userTimeZone
+          );
+        }
+
+        // Track milestone if achieved
+        if (streakResult.isNewMilestone && streakResult.milestone) {
+          trackStreakMilestone(
+            posthog,
+            streakResult.currentStreak,
+            streakResult.milestone,
+            localDate,
+            userTimeZone
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Error completing session:', error);
+    }
+  }, [deck, sessionStartTime, studyQueue.length, hasConsent, posthog, deckId, sessionId, recordStudySession, updateStreak]);
 
   /**
    * Handle flipping the current card between front and back
@@ -152,19 +261,34 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
     }
 
     // Increment cards reviewed count (once per review attempt)
-    setCardsReviewed(prev => prev + 1);
+    const newCardsReviewed = cardsReviewed + 1;
+    setCardsReviewed(newCardsReviewed);
+    setLastCardReviewTime(Date.now());
+
+    // Track cards reviewed for funnel analysis
+    if (hasConsent && sessionStartTime > 0) {
+      trackCardsReviewed(
+        posthog,
+        deckId,
+        sessionId,
+        newCardsReviewed,
+        'spaced-repetition',
+        Date.now() - sessionStartTime
+      );
+    }
 
     // Move to next card or finish session
     const nextIndex = currentCardIndex + 1;
     if (nextIndex >= studyQueue.length) {
-      // Session complete - show summary
+      // Session complete - handle completion tracking and streak updates
+      await handleSessionCompletion(newCardsReviewed);
       setShowSummary(true);
     } else {
       setCurrentCardIndex(nextIndex);
       setIsFlipped(false);
       setFlipStartTime(Date.now()); // Reset flip timer for new card
     }
-  }, [studyQueue, currentCardIndex, initializeCard, reviewCard, deckId, hasConsent, trackEventBatched]);
+  }, [studyQueue, currentCardIndex, initializeCard, reviewCard, deckId, hasConsent, trackEventBatched, cardsReviewed, posthog, sessionId, sessionStartTime, handleSessionCompletion]);
 
   /**
    * Reset session state to start a new study session

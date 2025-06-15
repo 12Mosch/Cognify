@@ -44,4 +44,22 @@ export default defineSchema({
     .index("by_date", ["sessionDate"])                          // Index for date-based queries
     // Compound index to efficiently check for existing sessions and prevent duplicates
     .index("by_unique_session", ["userId", "sessionDate", "deckId", "studyMode"]),
+
+  // Study Streaks table - tracks daily study streaks for gamification and motivation
+  studyStreaks: defineTable({
+    userId: v.string(),           // ID of the user
+    currentStreak: v.number(),    // Current consecutive days of study
+    longestStreak: v.number(),    // Longest streak ever achieved
+    lastStudyDate: v.string(),    // Last date user studied (YYYY-MM-DD format)
+    streakStartDate: v.string(),  // Date when current streak started (YYYY-MM-DD format)
+    timezone: v.string(),         // User's IANA timezone identifier
+    // Milestone tracking
+    milestonesReached: v.array(v.number()), // Array of milestone numbers reached (e.g., [7, 30, 100])
+    lastMilestone: v.optional(v.number()),  // Last milestone reached
+    // Metadata
+    lastUpdated: v.string(),      // ISO 8601 timestamp of last update
+    totalStudyDays: v.number(),   // Total number of days user has studied (not necessarily consecutive)
+  }).index("by_userId", ["userId"])                             // Index for efficient user streak queries
+    .index("by_currentStreak", ["currentStreak"])               // Index for leaderboard queries
+    .index("by_longestStreak", ["longestStreak"]),              // Index for all-time leaderboard queries
 });

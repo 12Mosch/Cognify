@@ -69,7 +69,14 @@ export type AnalyticsEvent =
   | 'study_session_started'
   | 'study_session_completed'
   | 'card_flipped'
-  | 'difficulty_rated';
+  | 'difficulty_rated'
+  | 'streak_started'
+  | 'streak_continued'
+  | 'streak_broken'
+  | 'streak_milestone'
+  | 'session_started'
+  | 'cards_reviewed'
+  | 'session_completed';
 
 export interface AnalyticsEventData {
   user_signed_up: Record<string, never>; // No additional data needed
@@ -111,6 +118,56 @@ export interface AnalyticsEventData {
     deckId: string;
     difficulty: 'easy' | 'medium' | 'hard';
     previousDifficulty?: string;
+  };
+  // Streak tracking events
+  streak_started: {
+    streakLength: number;
+    studyDate: string; // YYYY-MM-DD format
+    timezone: string;
+  };
+  streak_continued: {
+    streakLength: number;
+    studyDate: string; // YYYY-MM-DD format
+    timezone: string;
+    previousStreakLength: number;
+  };
+  streak_broken: {
+    previousStreakLength: number;
+    daysMissed: number;
+    lastStudyDate: string; // YYYY-MM-DD format
+    timezone: string;
+  };
+  streak_milestone: {
+    streakLength: number;
+    milestone: number; // 7, 30, 100, etc.
+    studyDate: string;
+    timezone: string;
+  };
+  // Funnel analysis events
+  session_started: {
+    deckId: string;
+    deckName?: string;
+    studyMode: 'basic' | 'spaced-repetition';
+    cardCount?: number;
+    sessionId: string;
+  };
+  cards_reviewed: {
+    deckId: string;
+    sessionId: string;
+    cardsReviewed: number;
+    studyMode: 'basic' | 'spaced-repetition';
+    timeElapsed: number; // milliseconds
+  };
+  session_completed: {
+    deckId: string;
+    sessionId: string;
+    cardsReviewed: number;
+    studyMode: 'basic' | 'spaced-repetition';
+    sessionDuration: number; // milliseconds
+    completionRate: number; // percentage
+    averageTimePerCard?: number;
+    correctAnswers?: number;
+    incorrectAnswers?: number;
   };
 }
 
@@ -261,6 +318,138 @@ export function trackDifficultyRated(
 }
 
 /**
+ * Track streak started event
+ */
+export function trackStreakStarted(
+  posthog: ReturnType<typeof usePostHog> | null,
+  streakLength: number,
+  studyDate: string,
+  timezone: string
+): void {
+  trackEvent(posthog, 'streak_started', {
+    streakLength,
+    studyDate,
+    timezone,
+  });
+}
+
+/**
+ * Track streak continued event
+ */
+export function trackStreakContinued(
+  posthog: ReturnType<typeof usePostHog> | null,
+  streakLength: number,
+  studyDate: string,
+  timezone: string,
+  previousStreakLength: number
+): void {
+  trackEvent(posthog, 'streak_continued', {
+    streakLength,
+    studyDate,
+    timezone,
+    previousStreakLength,
+  });
+}
+
+/**
+ * Track streak broken event
+ */
+export function trackStreakBroken(
+  posthog: ReturnType<typeof usePostHog> | null,
+  previousStreakLength: number,
+  daysMissed: number,
+  lastStudyDate: string,
+  timezone: string
+): void {
+  trackEvent(posthog, 'streak_broken', {
+    previousStreakLength,
+    daysMissed,
+    lastStudyDate,
+    timezone,
+  });
+}
+
+/**
+ * Track streak milestone event
+ */
+export function trackStreakMilestone(
+  posthog: ReturnType<typeof usePostHog> | null,
+  streakLength: number,
+  milestone: number,
+  studyDate: string,
+  timezone: string
+): void {
+  trackEvent(posthog, 'streak_milestone', {
+    streakLength,
+    milestone,
+    studyDate,
+    timezone,
+  });
+}
+
+/**
+ * Track funnel analysis events
+ */
+export function trackSessionStarted(
+  posthog: ReturnType<typeof usePostHog> | null,
+  deckId: string,
+  studyMode: 'basic' | 'spaced-repetition',
+  sessionId: string,
+  deckName?: string,
+  cardCount?: number
+): void {
+  trackEvent(posthog, 'session_started', {
+    deckId,
+    deckName,
+    studyMode,
+    cardCount,
+    sessionId,
+  });
+}
+
+export function trackCardsReviewed(
+  posthog: ReturnType<typeof usePostHog> | null,
+  deckId: string,
+  sessionId: string,
+  cardsReviewed: number,
+  studyMode: 'basic' | 'spaced-repetition',
+  timeElapsed: number
+): void {
+  trackEvent(posthog, 'cards_reviewed', {
+    deckId,
+    sessionId,
+    cardsReviewed,
+    studyMode,
+    timeElapsed,
+  });
+}
+
+export function trackSessionCompleted(
+  posthog: ReturnType<typeof usePostHog> | null,
+  deckId: string,
+  sessionId: string,
+  cardsReviewed: number,
+  studyMode: 'basic' | 'spaced-repetition',
+  sessionDuration: number,
+  completionRate: number,
+  enhancedMetrics?: {
+    averageTimePerCard?: number;
+    correctAnswers?: number;
+    incorrectAnswers?: number;
+  }
+): void {
+  trackEvent(posthog, 'session_completed', {
+    deckId,
+    sessionId,
+    cardsReviewed,
+    studyMode,
+    sessionDuration,
+    completionRate,
+    ...enhancedMetrics,
+  });
+}
+
+/**
  * Analytics Queue for batching events to improve performance
  * Automatically flushes events based on batch size or time interval
  */
@@ -330,9 +519,41 @@ class AnalyticsQueue {
 }
 
 /**
- * Privacy compliance utilities
+ * Privacy compliance utilities with GDPR/CCPA support
  */
 export const PRIVACY_STORAGE_KEY = 'flashcard_privacy_settings';
+export const PRIVACY_BANNER_KEY = 'flashcard_privacy_banner_shown';
+
+export interface GDPRSettings {
+  consentGiven: boolean;
+  consentDate?: string;
+  dataProcessingPurposes: {
+    analytics: boolean;
+    functional: boolean;
+    marketing: boolean;
+    performance: boolean;
+  };
+  dataRetentionPeriod: number; // days
+  anonymizeData: boolean;
+  allowCookies: boolean;
+}
+
+export interface CCPASettings {
+  doNotSell: boolean;
+  optOutDate?: string;
+  dataCategories: {
+    personalInfo: boolean;
+    behavioralData: boolean;
+    deviceInfo: boolean;
+  };
+}
+
+export interface EnhancedPrivacySettings extends PrivacySettings {
+  gdpr?: GDPRSettings;
+  ccpa?: CCPASettings;
+  region?: 'EU' | 'CA' | 'US' | 'OTHER';
+  lastUpdated?: string;
+}
 
 export function getPrivacySettings(): PrivacySettings {
   try {
@@ -352,6 +573,92 @@ export function getPrivacySettings(): PrivacySettings {
   };
 }
 
+export function getEnhancedPrivacySettings(): EnhancedPrivacySettings {
+  try {
+    const stored = localStorage.getItem(PRIVACY_STORAGE_KEY);
+    if (stored) {
+      const settings = JSON.parse(stored);
+      // Migrate old settings to new format if needed
+      if (!settings.gdpr && !settings.ccpa) {
+        return migrateToEnhancedSettings(settings);
+      }
+      return settings;
+    }
+  } catch (error) {
+    console.warn('Failed to load enhanced privacy settings:', error);
+  }
+
+  // Default enhanced settings
+  return {
+    analyticsConsent: 'pending',
+    functionalConsent: 'pending',
+    marketingConsent: 'pending',
+    region: detectUserRegion(),
+    lastUpdated: new Date().toISOString(),
+    gdpr: {
+      consentGiven: false,
+      dataProcessingPurposes: {
+        analytics: false,
+        functional: false,
+        marketing: false,
+        performance: false,
+      },
+      dataRetentionPeriod: 365,
+      anonymizeData: true,
+      allowCookies: false,
+    },
+    ccpa: {
+      doNotSell: false,
+      dataCategories: {
+        personalInfo: false,
+        behavioralData: false,
+        deviceInfo: false,
+      },
+    },
+  };
+}
+
+function migrateToEnhancedSettings(oldSettings: PrivacySettings): EnhancedPrivacySettings {
+  return {
+    ...oldSettings,
+    region: detectUserRegion(),
+    lastUpdated: new Date().toISOString(),
+    gdpr: {
+      consentGiven: oldSettings.analyticsConsent === 'granted',
+      consentDate: oldSettings.analyticsConsent === 'granted' ? new Date().toISOString() : undefined,
+      dataProcessingPurposes: {
+        analytics: oldSettings.analyticsConsent === 'granted',
+        functional: oldSettings.functionalConsent === 'granted',
+        marketing: oldSettings.marketingConsent === 'granted',
+        performance: oldSettings.analyticsConsent === 'granted',
+      },
+      dataRetentionPeriod: 365,
+      anonymizeData: true,
+      allowCookies: oldSettings.analyticsConsent === 'granted',
+    },
+    ccpa: {
+      doNotSell: oldSettings.analyticsConsent === 'denied',
+      dataCategories: {
+        personalInfo: oldSettings.analyticsConsent === 'granted',
+        behavioralData: oldSettings.analyticsConsent === 'granted',
+        deviceInfo: oldSettings.functionalConsent === 'granted',
+      },
+    },
+  };
+}
+
+function detectUserRegion(): 'EU' | 'CA' | 'US' | 'OTHER' {
+  try {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (timezone.includes('Europe/')) return 'EU';
+    if (timezone.includes('America/') && (timezone.includes('Toronto') || timezone.includes('Vancouver'))) return 'CA';
+    if (timezone.includes('America/')) return 'US';
+    return 'OTHER';
+  } catch {
+    return 'OTHER';
+  }
+}
+
 export function setPrivacySettings(settings: PrivacySettings): void {
   try {
     localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(settings));
@@ -360,9 +667,59 @@ export function setPrivacySettings(settings: PrivacySettings): void {
   }
 }
 
+export function setEnhancedPrivacySettings(settings: EnhancedPrivacySettings): void {
+  try {
+    const updatedSettings = {
+      ...settings,
+      lastUpdated: new Date().toISOString(),
+    };
+    localStorage.setItem(PRIVACY_STORAGE_KEY, JSON.stringify(updatedSettings));
+  } catch (error) {
+    console.warn('Failed to save enhanced privacy settings:', error);
+  }
+}
+
 export function hasAnalyticsConsent(): boolean {
   const settings = getPrivacySettings();
   return settings.analyticsConsent === 'granted';
+}
+
+export function shouldShowPrivacyBanner(): boolean {
+  try {
+    const bannerShown = localStorage.getItem(PRIVACY_BANNER_KEY);
+    const settings = getPrivacySettings();
+    return !bannerShown && settings.analyticsConsent === 'pending';
+  } catch {
+    return true;
+  }
+}
+
+export function markPrivacyBannerShown(): void {
+  try {
+    localStorage.setItem(PRIVACY_BANNER_KEY, 'true');
+  } catch (error) {
+    console.warn('Failed to mark privacy banner as shown:', error);
+  }
+}
+
+export function anonymizeUserData(data: Record<string, any>): Record<string, any> {
+  const settings = getEnhancedPrivacySettings();
+  if (!settings.gdpr?.anonymizeData) {
+    return data;
+  }
+
+  const anonymized = { ...data };
+
+  // Remove or hash sensitive fields
+  const sensitiveFields = ['email', 'name', 'ip', 'userId', 'distinctId'];
+  sensitiveFields.forEach(field => {
+    if (anonymized[field]) {
+      // Simple hash for anonymization (in production, use proper hashing)
+      anonymized[field] = `anon_${btoa(anonymized[field]).slice(0, 8)}`;
+    }
+  });
+
+  return anonymized;
 }
 
 /**

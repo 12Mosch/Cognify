@@ -19,9 +19,27 @@ PostHog analytics has been integrated with advanced features including event bat
 - Support for A/B testing and gradual feature rollouts
 
 ### Privacy Compliance
-- Granular consent management for analytics, functional, and marketing data
-- User-friendly privacy settings modal
-- Automatic opt-in/opt-out handling with PostHog
+- **GDPR Compliance**: Full European data protection regulation compliance
+- **CCPA Compliance**: California Consumer Privacy Act compliance with opt-out mechanisms
+- **Regional Detection**: Automatic detection of user region for appropriate privacy messaging
+- **Enhanced Consent Management**: Granular consent controls for different data processing purposes
+- **Privacy Banner**: Contextual privacy banners based on user region (EU/CA/US/Other)
+- **Data Anonymization**: Automatic anonymization of sensitive user data
+- **Cookie Management**: Secure cookie handling with user consent
+- **Privacy-First Defaults**: PostHog configured with opt-out by default
+
+### Streak Tracking
+- **Daily Study Streaks**: Track consecutive days of study activity
+- **Milestone Tracking**: Celebrate streak milestones (7, 30, 100+ days)
+- **Timezone-Aware**: Proper handling of user timezones for accurate daily tracking
+- **Streak Analytics**: Track streak events (started, continued, broken, milestones)
+- **Gamification**: Visual streak displays and motivational messaging
+
+### Funnel Analysis
+- **Study Session Flow**: Track complete user journey from session start to completion
+- **Conversion Tracking**: Monitor session completion rates and drop-off points
+- **Engagement Metrics**: Track intermediate engagement points (card flips, ratings)
+- **Performance Analytics**: Session duration, cards reviewed, completion rates
 
 ### Cohort Analysis
 - Automatic user segmentation based on signup date, study goals, and behavior
@@ -90,6 +108,86 @@ PostHog analytics has been integrated with advanced features including event bat
   - `difficulty`: The difficulty rating ('easy', 'medium', or 'hard')
   - `previousDifficulty`: The previous difficulty rating for this card (optional)
 
+## Streak Tracking Events
+
+### 7. Streak Started (`streak_started`)
+- **When**: Triggered when a user starts their first study streak
+- **Location**: `src/components/SpacedRepetitionMode.tsx`, `src/components/BasicStudyMode.tsx`
+- **Implementation**: Tracked when streak tracking detects the beginning of a new streak
+- **Properties**:
+  - `streakLength`: Current streak length (1 for new streaks)
+  - `studyDate`: Date of study in YYYY-MM-DD format
+  - `timezone`: User's IANA timezone identifier
+
+### 8. Streak Continued (`streak_continued`)
+- **When**: Triggered when a user continues an existing study streak
+- **Location**: `src/components/SpacedRepetitionMode.tsx`, `src/components/BasicStudyMode.tsx`
+- **Implementation**: Tracked when user studies on consecutive days
+- **Properties**:
+  - `streakLength`: Current streak length
+  - `studyDate`: Date of study in YYYY-MM-DD format
+  - `timezone`: User's IANA timezone identifier
+  - `previousStreakLength`: Previous streak length
+
+### 9. Streak Broken (`streak_broken`)
+- **When**: Triggered when a user's study streak is broken due to missed days
+- **Location**: `convex/streaks.ts`
+- **Implementation**: Tracked when streak tracking detects a gap in study activity
+- **Properties**:
+  - `previousStreakLength`: Length of the broken streak
+  - `daysMissed`: Number of days missed
+  - `lastStudyDate`: Last date of study in YYYY-MM-DD format
+  - `timezone`: User's IANA timezone identifier
+
+### 10. Streak Milestone (`streak_milestone`)
+- **When**: Triggered when a user reaches a streak milestone (7, 30, 50, 100, 200, 365 days)
+- **Location**: `convex/streaks.ts`
+- **Implementation**: Tracked when streak length reaches predefined milestones
+- **Properties**:
+  - `streakLength`: Current streak length
+  - `milestone`: Milestone number reached
+  - `studyDate`: Date milestone was reached in YYYY-MM-DD format
+  - `timezone`: User's IANA timezone identifier
+
+## Funnel Analysis Events
+
+### 11. Session Started (`session_started`)
+- **When**: Triggered when a user starts a study session (funnel entry point)
+- **Location**: `src/components/SpacedRepetitionMode.tsx`, `src/components/BasicStudyMode.tsx`
+- **Implementation**: Tracked when study session initializes with cards
+- **Properties**:
+  - `deckId`: The ID of the deck being studied
+  - `deckName`: The name of the deck (optional)
+  - `studyMode`: The study mode ('basic' or 'spaced-repetition')
+  - `cardCount`: Number of cards available for study (optional)
+  - `sessionId`: Unique session identifier for funnel tracking
+
+### 12. Cards Reviewed (`cards_reviewed`)
+- **When**: Triggered periodically during study session to track progress
+- **Location**: `src/components/SpacedRepetitionMode.tsx`, `src/components/BasicStudyMode.tsx`
+- **Implementation**: Tracked when user reviews cards (intermediate funnel step)
+- **Properties**:
+  - `deckId`: The ID of the deck being studied
+  - `sessionId`: Unique session identifier
+  - `cardsReviewed`: Number of cards reviewed so far
+  - `studyMode`: The study mode ('basic' or 'spaced-repetition')
+  - `timeElapsed`: Time elapsed since session start in milliseconds
+
+### 13. Session Completed (`session_completed`)
+- **When**: Triggered when a user completes a study session (funnel exit point)
+- **Location**: `src/components/SpacedRepetitionMode.tsx`, `src/components/BasicStudyMode.tsx`
+- **Implementation**: Tracked when session ends with completion metrics
+- **Properties**:
+  - `deckId`: The ID of the deck that was studied
+  - `sessionId`: Unique session identifier
+  - `cardsReviewed`: Total number of cards reviewed
+  - `studyMode`: The study mode ('basic' or 'spaced-repetition')
+  - `sessionDuration`: Total session duration in milliseconds
+  - `completionRate`: Completion rate as a percentage
+  - `averageTimePerCard`: Average time spent per card (optional)
+  - `correctAnswers`: Number of correct answers (optional)
+  - `incorrectAnswers`: Number of incorrect answers (optional)
+
 ## File Structure
 
 ```
@@ -126,10 +224,75 @@ src/
 - Uses environment variables that work consistently across Vite and Node.js
 - Supports test, development, staging, and production environments
 
-### Privacy Considerations
-- User registration tracking uses localStorage to prevent duplicates
-- No sensitive user data is tracked
-- Debug logging only in development mode
+### Enhanced Privacy Compliance
+
+#### GDPR Compliance Features
+- **Consent Management**: Granular consent for analytics, functional, marketing, and performance data
+- **Data Processing Purposes**: Clear categorization of data usage
+- **Right to Withdraw**: Users can withdraw consent at any time
+- **Data Retention**: Configurable data retention periods
+- **Data Anonymization**: Automatic anonymization when consent is denied
+- **Cookie Consent**: Explicit consent for cookie usage
+
+#### CCPA Compliance Features
+- **Do Not Sell**: Opt-out mechanism for data selling
+- **Data Categories**: Clear categorization of personal information, behavioral data, and device info
+- **Opt-Out Rights**: Easy opt-out process for California residents
+- **Transparency**: Clear disclosure of data collection practices
+
+#### Regional Privacy Handling
+- **Automatic Detection**: Detects user region based on timezone
+- **Contextual Messaging**: Shows appropriate privacy notices based on jurisdiction
+- **EU Users**: GDPR-compliant consent banners with accept/reject/customize options
+- **California Users**: CCPA-compliant notices with opt-out mechanisms
+- **Other Regions**: Standard cookie notices with consent options
+
+#### Privacy-First Configuration
+PostHog is configured with privacy-first defaults:
+```typescript
+{
+  opt_out_capturing_by_default: true,
+  respect_dnt: true,
+  disable_session_recording: true,
+  disable_surveys: true,
+  secure_cookie: true,
+  cross_subdomain_cookie: false,
+  persistence: 'localStorage',
+}
+```
+
+#### Enhanced Privacy Settings
+```typescript
+interface EnhancedPrivacySettings {
+  analyticsConsent: 'granted' | 'denied' | 'pending';
+  functionalConsent: 'granted' | 'denied' | 'pending';
+  marketingConsent: 'granted' | 'denied' | 'pending';
+  gdpr?: {
+    consentGiven: boolean;
+    consentDate?: string;
+    dataProcessingPurposes: {
+      analytics: boolean;
+      functional: boolean;
+      marketing: boolean;
+      performance: boolean;
+    };
+    dataRetentionPeriod: number;
+    anonymizeData: boolean;
+    allowCookies: boolean;
+  };
+  ccpa?: {
+    doNotSell: boolean;
+    optOutDate?: string;
+    dataCategories: {
+      personalInfo: boolean;
+      behavioralData: boolean;
+      deviceInfo: boolean;
+    };
+  };
+  region?: 'EU' | 'CA' | 'US' | 'OTHER';
+  lastUpdated?: string;
+}
+```
 
 ### Testing
 - Comprehensive unit tests for all analytics functions
@@ -251,6 +414,111 @@ function MyComponent() {
       grantConsent('analyticsConsent');
     }
   };
+}
+```
+
+#### Streak Tracking Usage
+```typescript
+import {
+  trackStreakStarted,
+  trackStreakContinued,
+  trackStreakMilestone
+} from '../lib/analytics';
+import { usePostHog } from 'posthog-js/react';
+
+function StreakComponent() {
+  const posthog = usePostHog();
+
+  const handleStreakUpdate = (streakResult: any) => {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const today = new Date().toISOString().split('T')[0];
+
+    if (streakResult.streakEvent === 'started') {
+      trackStreakStarted(posthog, streakResult.currentStreak, today, timezone);
+    } else if (streakResult.streakEvent === 'continued') {
+      trackStreakContinued(
+        posthog,
+        streakResult.currentStreak,
+        today,
+        timezone,
+        streakResult.currentStreak - 1
+      );
+    }
+
+    if (streakResult.isNewMilestone && streakResult.milestone) {
+      trackStreakMilestone(
+        posthog,
+        streakResult.currentStreak,
+        streakResult.milestone,
+        today,
+        timezone
+      );
+    }
+  };
+}
+```
+
+#### Funnel Analysis Usage
+```typescript
+import {
+  trackSessionStarted,
+  trackCardsReviewed,
+  trackSessionCompleted
+} from '../lib/analytics';
+import { usePostHog } from 'posthog-js/react';
+
+function StudySessionComponent() {
+  const posthog = usePostHog();
+  const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+
+  const handleSessionStart = (deckId: string, deckName: string, cardCount: number) => {
+    trackSessionStarted(posthog, deckId, 'spaced-repetition', sessionId, deckName, cardCount);
+  };
+
+  const handleProgress = (deckId: string, cardsReviewed: number, timeElapsed: number) => {
+    trackCardsReviewed(posthog, deckId, sessionId, cardsReviewed, 'spaced-repetition', timeElapsed);
+  };
+
+  const handleSessionComplete = (deckId: string, metrics: any) => {
+    trackSessionCompleted(
+      posthog,
+      deckId,
+      sessionId,
+      metrics.cardsReviewed,
+      'spaced-repetition',
+      metrics.sessionDuration,
+      metrics.completionRate,
+      {
+        averageTimePerCard: metrics.averageTimePerCard,
+        correctAnswers: metrics.correctAnswers,
+        incorrectAnswers: metrics.incorrectAnswers,
+      }
+    );
+  };
+}
+```
+
+#### Privacy Banner Usage
+```typescript
+import PrivacyBanner from '../components/PrivacyBanner';
+import PrivacySettings from '../components/PrivacySettings';
+
+function App() {
+  const [showPrivacySettings, setShowPrivacySettings] = useState(false);
+
+  return (
+    <div>
+      {/* Your app content */}
+
+      {/* Privacy Banner - shows automatically based on user region and consent status */}
+      <PrivacyBanner onSettingsClick={() => setShowPrivacySettings(true)} />
+
+      {/* Privacy Settings Modal */}
+      {showPrivacySettings && (
+        <PrivacySettings onClose={() => setShowPrivacySettings(false)} />
+      )}
+    </div>
+  );
 }
 ```
 

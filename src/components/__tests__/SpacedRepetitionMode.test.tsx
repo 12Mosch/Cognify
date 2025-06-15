@@ -19,6 +19,7 @@ jest.mock('../../lib/analytics', () => ({
     trackStudySessionStarted: jest.fn(),
     trackCardFlipped: jest.fn(),
     trackDifficultyRated: jest.fn(),
+    posthog: null,
   }),
   useAnalyticsEnhanced: () => ({
     trackEventBatched: jest.fn(),
@@ -26,6 +27,14 @@ jest.mock('../../lib/analytics', () => ({
     identifyUser: jest.fn(),
     hasConsent: true,
   }),
+  // Mock the new tracking functions
+  trackSessionStarted: jest.fn(),
+  trackCardsReviewed: jest.fn(),
+  trackSessionCompleted: jest.fn(),
+  trackStreakStarted: jest.fn(),
+  trackStreakContinued: jest.fn(),
+  trackStreakBroken: jest.fn(),
+  trackStreakMilestone: jest.fn(),
 }));
 
 // Mock PostSessionSummary component

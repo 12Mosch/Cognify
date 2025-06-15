@@ -8,6 +8,8 @@ import { DeckListSkeleton, GenericSkeleton } from "./skeletons/SkeletonComponent
 import { toastHelpers } from "../lib/toast";
 import PrivacySettings from "./PrivacySettings";
 import FeatureFlagDemo from "./FeatureFlagDemo";
+import StreakDisplay from "./StreakDisplay";
+import PrivacyBanner from "./PrivacyBanner";
 
 // Lazy-loaded components for better performance
 const DeckView = lazy(() => import("./DeckView"));
@@ -197,6 +199,9 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
         </div>
       </div>
 
+      {/* Streak Display */}
+      <StreakDisplay className="mb-6" />
+
       {/* Decks Grid */}
       {decks.length === 0 ? (
         <EmptyState />
@@ -212,6 +217,9 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
           ))}
         </div>
       )}
+
+      {/* Privacy Banner */}
+      <PrivacyBanner onSettingsClick={() => setShowPrivacySettings(true)} />
 
       {/* Privacy Settings Modal */}
       <PrivacySettings

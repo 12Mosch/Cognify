@@ -19,6 +19,7 @@ import type * as migrations_addCardCountToDecks from "../migrations/addCardCount
 import type * as migrations_migrateStudySessionsDateField from "../migrations/migrateStudySessionsDateField.js";
 import type * as spacedRepetition from "../spacedRepetition.js";
 import type * as statistics from "../statistics.js";
+import type * as streaks from "../streaks.js";
 import type * as studySessions from "../studySessions.js";
 
 /**
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   "migrations/migrateStudySessionsDateField": typeof migrations_migrateStudySessionsDateField;
   spacedRepetition: typeof spacedRepetition;
   statistics: typeof statistics;
+  streaks: typeof streaks;
   studySessions: typeof studySessions;
 }>;
 export declare const api: FilterApi<
