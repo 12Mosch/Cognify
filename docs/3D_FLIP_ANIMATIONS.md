@@ -4,6 +4,26 @@
 
 This document describes the implementation of 3D flip animations for flashcards across all study components in the flashcard app. The animations provide a realistic card-flipping experience that enhances user engagement while maintaining accessibility and performance.
 
+## Recent Fixes (2025-06-15)
+
+### UI Glitch Resolution
+Fixed several UI glitches in the study interface that were causing text visibility issues and layout problems:
+
+#### Issues Resolved
+1. **Text Visibility**: Question and answer text was not visible in dark mode due to missing color classes
+2. **Layout Positioning**: Improved CSS positioning for better cross-browser compatibility
+3. **Content Overflow**: Enhanced container styles to prevent content clipping
+
+#### Changes Made
+- **SpacedRepetitionMode.tsx**: Added explicit text color classes (`text-slate-900 dark:text-slate-100`) to question and answer text
+- **BasicStudyMode.tsx**: Added explicit text color classes to question and answer text
+- **index.css**: Enhanced CSS with improved layout rules and debugging styles for better text positioning
+
+#### Technical Details
+- Added `color: inherit` and proper text wrapping to ensure text is always visible
+- Improved flexbox layout for content containers with `min-height` and proper centering
+- Enhanced fallback styles for browsers without 3D transform support
+
 ## Features
 
 ### Visual Effects

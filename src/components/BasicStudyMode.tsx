@@ -246,8 +246,8 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
           {/* Front side (Question) */}
           <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
             <div className="mb-6 pointer-events-none">
-              <h2 className="text-lg font-semibold mb-4">Question</h2>
-              <p className="text-xl">{currentCard.front}</p>
+              <h2 className="text-lg font-semibold mb-4 text-slate-600 dark:text-slate-400">Question</h2>
+              <p className="text-xl text-slate-900 dark:text-slate-100">{currentCard.front}</p>
             </div>
             {/* Flip hint */}
             <div className="text-sm text-slate-500 dark:text-slate-400 mb-4 pointer-events-none">
@@ -258,8 +258,8 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
           {/* Back side (Answer) */}
           <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
             <div className="mb-6 pointer-events-none">
-              <h2 className="text-lg font-semibold mb-4">Answer</h2>
-              <p className="text-xl">{currentCard.back}</p>
+              <h2 className="text-lg font-semibold mb-4 text-slate-600 dark:text-slate-400">Answer</h2>
+              <p className="text-xl text-slate-900 dark:text-slate-100">{currentCard.back}</p>
             </div>
             {/* Flip hint */}
             <div className="text-sm text-slate-500 dark:text-slate-400 mb-4 pointer-events-none">

@@ -368,13 +368,14 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
         tabIndex={0}
         role="button"
         aria-label={isFlipped ? "Click to show question" : "Click to show answer"}
+        style={{ minHeight: '400px' }}
       >
         <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
           {/* Front side (Question) */}
           <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
             <div className="mb-8 w-full pointer-events-none">
               <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">Question</h2>
-              <p className="text-2xl leading-relaxed">{currentCard.front}</p>
+              <p className="text-2xl leading-relaxed text-slate-900 dark:text-slate-100">{currentCard.front}</p>
             </div>
             {/* Show Answer button */}
             <button
@@ -394,7 +395,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
           <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col justify-center items-center text-center">
             <div className="mb-8 w-full pointer-events-none">
               <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">Answer</h2>
-              <p className="text-2xl leading-relaxed">{currentCard.back}</p>
+              <p className="text-2xl leading-relaxed text-slate-900 dark:text-slate-100">{currentCard.back}</p>
             </div>
             {/* Quality rating buttons */}
             <div className="flex flex-col gap-4 w-full max-w-md pointer-events-auto">
