@@ -63,12 +63,13 @@ describe('Toast Utilities', () => {
   });
 
   describe('showInfoToast', () => {
-    it('should call toast with correct message and options', () => {
+    it('should call toast with correct message and options', async () => {
       const message = 'Test info message';
       showInfoToast(message);
 
       // Import the named export for testing
-      const { toast: toastFunction } = require('react-hot-toast');
+      const toastModule = await import('react-hot-toast');
+      const toastFunction = toastModule.toast;
       
       expect(toastFunction).toHaveBeenCalledWith(message, {
         duration: 4000,

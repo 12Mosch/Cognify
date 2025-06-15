@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
@@ -41,11 +41,31 @@ function PostSessionSummary({
   onContinueStudying
 }: PostSessionSummaryProps) {
   const [hasTrackedCompletion, setHasTrackedCompletion] = useState(false);
+  const [hasRecordedSession, setHasRecordedSession] = useState(false);
 
   // Get study queue statistics for next session recommendations
   const studyQueueStats = useQuery(api.spacedRepetition.getStudyQueueStats, { deckId });
-  
+
+  // Convex mutation for recording study session
+  const recordStudySession = useMutation(api.studySessions.recordStudySession);
+
   const { trackStudySessionCompleted } = useAnalytics();
+
+  // Record study session in database (only once)
+  useEffect(() => {
+    if (!hasRecordedSession && cardsReviewed > 0) {
+      recordStudySession({
+        deckId,
+        cardsStudied: cardsReviewed,
+        sessionDuration,
+        studyMode,
+      }).catch((error) => {
+        console.error('Failed to record study session:', error);
+        // Don't block the UI if session recording fails
+      });
+      setHasRecordedSession(true);
+    }
+  }, [deckId, cardsReviewed, sessionDuration, studyMode, recordStudySession, hasRecordedSession]);
 
   // Track session completion analytics (only once)
   useEffect(() => {

@@ -226,6 +226,98 @@ export const StatsSkeleton = memo(function StatsSkeleton() {
 });
 
 /**
+ * Skeleton for Study History Heatmap
+ */
+export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
+  // Generate skeleton grid structure (similar to actual heatmap)
+  const weeks = Array.from({ length: 53 }, (_, weekIndex) => weekIndex);
+  const days = Array.from({ length: 7 }, (_, dayIndex) => dayIndex);
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  return (
+    <div
+      className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700"
+      role="status"
+      aria-busy="true"
+      aria-label="Loading study history heatmap"
+    >
+      {/* Header */}
+      <div className="mb-6">
+        <SkeletonElement className="h-6 w-48 mb-2" />
+        <SkeletonElement className="h-4 w-64" />
+      </div>
+
+      {/* Heatmap Grid */}
+      <div className="overflow-x-auto">
+        <div className="min-w-[800px]">
+          {/* Month Labels */}
+          <div className="flex mb-2 ml-8">
+            {months.slice(0, 6).map((month) => (
+              <div key={month} className="flex-1 min-w-0">
+                <SkeletonElement className="h-3 w-8" />
+              </div>
+            ))}
+          </div>
+
+          {/* Grid Container */}
+          <div className="flex">
+            {/* Day Labels */}
+            <div className="flex flex-col mr-2">
+              {days.map((_, dayIndex) => (
+                <div key={dayIndex} className="h-3 mb-1 flex items-center">
+                  {dayIndex % 2 === 1 && (
+                    <SkeletonElement className="h-3 w-3" />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Heatmap Squares */}
+            <div className="flex gap-1">
+              {weeks.map((weekIndex) => (
+                <div key={weekIndex} className="flex flex-col gap-1">
+                  {days.map((dayIndex) => (
+                    <SkeletonElement
+                      key={`${weekIndex}-${dayIndex}`}
+                      className="h-3 w-3 rounded-sm"
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Legend */}
+          <div className="flex items-center justify-between mt-4">
+            <SkeletonElement className="h-4 w-32" />
+            <div className="flex items-center gap-1">
+              <SkeletonElement className="h-3 w-8" />
+              {Array.from({ length: 5 }).map((_, index) => (
+                <SkeletonElement
+                  key={index}
+                  className="h-3 w-3 rounded-sm"
+                />
+              ))}
+              <SkeletonElement className="h-3 w-8" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="text-center">
+            <SkeletonElement className="h-6 w-12 mx-auto mb-1" />
+            <SkeletonElement className="h-4 w-16 mx-auto" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+/**
  * Generic loading fallback skeleton that adapts to different contexts
  */
 export const GenericSkeleton = memo(function GenericSkeleton({

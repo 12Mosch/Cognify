@@ -114,25 +114,32 @@ export const ERROR_MESSAGES = {
  * Convenience functions for common toast messages
  */
 export const toastHelpers = {
-  deckCreated: (deckName?: string) => 
+  deckCreated: (deckName?: string) =>
     showSuccessToast(deckName ? `"${deckName}" created successfully!` : SUCCESS_MESSAGES.DECK_CREATED),
-  
-  cardCreated: () => 
+
+  cardCreated: () =>
     showSuccessToast(SUCCESS_MESSAGES.CARD_CREATED),
-  
-  cardUpdated: () => 
+
+  cardUpdated: () =>
     showSuccessToast(SUCCESS_MESSAGES.CARD_UPDATED),
-  
-  studySessionComplete: (cardsReviewed?: number) => 
+
+  studySessionComplete: (cardsReviewed?: number) =>
     showSuccessToast(
-      cardsReviewed 
+      cardsReviewed
         ? `Study session complete! Reviewed ${cardsReviewed} card${cardsReviewed === 1 ? '' : 's'}.`
         : SUCCESS_MESSAGES.STUDY_SESSION_COMPLETE
     ),
-  
-  networkError: () => 
+
+  networkError: () =>
     showErrorToast(ERROR_MESSAGES.NETWORK_ERROR),
-  
-  temporaryError: () => 
+
+  temporaryError: () =>
     showErrorToast(ERROR_MESSAGES.TEMPORARY_ERROR),
+
+  // Generic success and error methods for flexibility
+  success: (message: string) =>
+    showSuccessToast(message),
+
+  error: (message: string) =>
+    showErrorToast(message),
 } as const;

@@ -12,6 +12,7 @@ const DeckView = lazy(() => import("./DeckView"));
 const StudyModeSelector = lazy(() => import("./StudyModeSelector"));
 const BasicStudyMode = lazy(() => import("./BasicStudyMode"));
 const SpacedRepetitionMode = lazy(() => import("./SpacedRepetitionMode"));
+const StatisticsDashboard = lazy(() => import("./StatisticsDashboard"));
 
 // Loading fallback component with skeleton loaders
 function LoadingFallback({ type = "default" }: { type?: "default" | "deck-list" | "flashcard" | "deck-view" }) {
@@ -32,7 +33,17 @@ export function Dashboard() {
   const [studyMode, setStudyMode] = useState<'basic' | 'spaced-repetition' | null>(null);
   const [selectingStudyMode, setSelectingStudyMode] = useState<Id<"decks"> | null>(null);
   const [viewingDeckId, setViewingDeckId] = useState<Id<"decks"> | null>(null);
+  const [showingStatistics, setShowingStatistics] = useState(false);
   const decks = useQuery(api.decks.getDecksForUser);
+
+  // If user is viewing statistics, show the StatisticsDashboard component
+  if (showingStatistics) {
+    return (
+      <Suspense fallback={<LoadingFallback type="default" />}>
+        <StatisticsDashboard onBack={() => setShowingStatistics(false)} />
+      </Suspense>
+    );
+  }
 
   // If user is viewing a deck, show the DeckView component
   if (viewingDeckId) {
@@ -123,6 +134,16 @@ export function Dashboard() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => setShowingStatistics(true)}
+            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
+            aria-label="View learning statistics"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Statistics
+          </button>
           <QuickAddCardForm onSuccess={handleCardCreateSuccess} />
           <CreateDeckForm onSuccess={handleCreateSuccess} />
         </div>

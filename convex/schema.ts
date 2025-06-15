@@ -27,4 +27,16 @@ export default defineSchema({
     .index("by_dueDate", ["dueDate"])      // Index for spaced repetition due date queries
     .index("by_deckId_and_dueDate", ["deckId", "dueDate"]) // Compound index for deck-specific due cards
     .index("by_deckId_and_repetition", ["deckId", "repetition"]), // Index for finding new cards efficiently
+
+  // Study Sessions table - tracks daily study activity for analytics and heatmap visualization
+  studySessions: defineTable({
+    userId: v.string(),           // ID of the user who completed this session
+    deckId: v.id("decks"),       // Reference to the deck studied
+    date: v.string(),            // Date in YYYY-MM-DD format for consistent daily aggregation
+    cardsStudied: v.number(),    // Number of cards reviewed in this session
+    sessionDuration: v.optional(v.number()), // Duration in milliseconds
+    studyMode: v.union(v.literal("basic"), v.literal("spaced-repetition")), // Type of study session
+  }).index("by_userId_and_date", ["userId", "date"])     // Index for efficient user activity queries
+    .index("by_userId_and_deckId", ["userId", "deckId"]) // Index for deck-specific activity
+    .index("by_date", ["date"]),                         // Index for date-based queries
 });
