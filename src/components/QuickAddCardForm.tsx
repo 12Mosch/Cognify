@@ -62,6 +62,8 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
     setIsSubmitting(true);
 
     const submitCard = async () => {
+      let shouldCloseForms = false;
+
       try {
         const cardId = await addCard({
           deckId: selectedDeckId,
@@ -78,10 +80,7 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
         setFront("");
         setBack("");
         setError(null);
-        setShowForm(false);
-
-        // Restore focus to trigger element
-        restoreFocus();
+        shouldCloseForms = true;
 
         // Call success callback
         onSuccess?.();
@@ -89,16 +88,17 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
         const errorMessage = err instanceof Error ? err.message : "Failed to add card";
         setError(errorMessage);
 
-        // Show error toast for network/temporary failures
-        if (errorMessage.toLowerCase().includes('network') ||
-            errorMessage.toLowerCase().includes('connection') ||
-            errorMessage.toLowerCase().includes('timeout')) {
-          showErrorToast("Network error. Please check your connection and try again.");
-        } else {
-          showErrorToast("Failed to add card. Please try again.");
-        }
+        // Show error toast for all failures
+        // Let the user see the specific error in the inline error display
+        showErrorToast("Failed to add card. Please try again.");
       } finally {
         setIsSubmitting(false);
+
+        // Close form and restore focus only on success
+        if (shouldCloseForms) {
+          setShowForm(false);
+          restoreFocus();
+        }
       }
     };
 

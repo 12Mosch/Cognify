@@ -93,12 +93,24 @@
 /* Skeleton Loading Animations */
 
 /* Enhanced shimmer animation for skeleton loaders */
-@keyframes shimmer {
-  0% {
-    background-position: -200px 0;
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes shimmer {
+    0% {
+      background-position: -200px 0;
+    }
+    100% {
+      background-position: calc(200px + 100%) 0;
+    }
   }
-  100% {
-    background-position: calc(200px + 100%) 0;
+
+  /* Alternative pulse animation for better performance on some devices */
+  @keyframes skeleton-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
   }
 }
 
@@ -111,7 +123,13 @@
     #f0f0f0 80px
   );
   background-size: 200px;
-  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Only animate when motion is preferred */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-shimmer {
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
 }
 
 /* Dark mode shimmer effect */
@@ -127,16 +145,16 @@
   }
 }
 
-/* Alternative pulse animation for better performance on some devices */
-@keyframes skeleton-pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
+/* Pulse animation skeleton */
+.animate-skeleton-pulse {
+  /* Static fallback - slightly reduced opacity for loading indication */
+  opacity: 0.8;
 }
 
-.animate-skeleton-pulse {
-  animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+/* Only animate when motion is preferred */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-skeleton-pulse {
+    opacity: 1;
+    animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 }

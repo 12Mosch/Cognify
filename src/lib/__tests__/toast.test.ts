@@ -3,12 +3,12 @@ import { showSuccessToast, showErrorToast, showInfoToast, toastHelpers } from '.
 // Mock react-hot-toast
 jest.mock('react-hot-toast', () => ({
   __esModule: true,
-  default: {
+  default: Object.assign(jest.fn(), {
     success: jest.fn(),
     error: jest.fn(),
     // Regular toast function for info messages
     __call: jest.fn(),
-  },
+  }),
   // Named export for the regular toast function
   toast: jest.fn(),
 }));

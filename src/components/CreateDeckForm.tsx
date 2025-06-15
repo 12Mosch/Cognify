@@ -86,14 +86,9 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
         const errorMessage = err instanceof Error ? err.message : "Failed to create deck";
         setError(errorMessage);
 
-        // Show error toast for network/temporary failures
-        if (errorMessage.toLowerCase().includes('network') ||
-            errorMessage.toLowerCase().includes('connection') ||
-            errorMessage.toLowerCase().includes('timeout')) {
-          showErrorToast("Network error. Please check your connection and try again.");
-        } else {
-          showErrorToast("Failed to create deck. Please try again.");
-        }
+        // Show error toast for all failures
+        // Let the user see the specific error in the inline error display
+        showErrorToast("Failed to create deck. Please try again.");
       } finally {
         setIsSubmitting(false);
       }

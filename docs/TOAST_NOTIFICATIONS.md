@@ -99,20 +99,17 @@ const handleCardCreateSuccess = () => {
 
 ### Error Handling
 
-Network and temporary errors show toast notifications alongside inline errors:
+All errors show toast notifications alongside inline errors for better user experience:
 
 ```typescript
 // CreateDeckForm.tsx
 catch (err) {
   const errorMessage = err instanceof Error ? err.message : "Failed to create deck";
   setError(errorMessage); // Inline error (preserved)
-  
-  // Toast notification for network issues
-  if (errorMessage.toLowerCase().includes('network')) {
-    showErrorToast("Network error. Please check your connection and try again.");
-  } else {
-    showErrorToast("Failed to create deck. Please try again.");
-  }
+
+  // Show error toast for all failures
+  // Let the user see the specific error in the inline error display
+  showErrorToast("Failed to create deck. Please try again.");
 }
 ```
 

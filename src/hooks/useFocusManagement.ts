@@ -6,7 +6,7 @@ import { useEffect, useRef, useCallback } from 'react';
  */
 export function useFocusManagement(isOpen: boolean) {
   const triggerElementRef = useRef<HTMLElement | null>(null);
-  const firstFocusableElementRef = useRef<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null>(null);
+  const firstFocusableElementRef = useRef<HTMLElement | null>(null);
 
   /**
    * Store reference to the element that triggered the modal
@@ -43,23 +43,6 @@ export function useFocusManagement(isOpen: boolean) {
   }, []);
 
   /**
-   * Handle ESC key to close modal
-   */
-  const handleEscapeKey = useCallback((onClose: () => void) => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isOpen]);
-
-  /**
    * Auto-focus first element when modal opens
    */
   useEffect(() => {
@@ -73,7 +56,6 @@ export function useFocusManagement(isOpen: boolean) {
     storeTriggerElement,
     restoreFocus,
     focusFirstElement,
-    handleEscapeKey,
   };
 }
 
