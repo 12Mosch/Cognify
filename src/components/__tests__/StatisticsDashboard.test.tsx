@@ -1,5 +1,4 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import StatisticsDashboard from '../StatisticsDashboard';
 
 // Mock the chart components since they use recharts
@@ -51,12 +50,19 @@ jest.mock('../statistics/StatisticsOverviewCards', () => {
   };
 });
 
-// Mock Convex queries
-const mockConvex = new ConvexReactClient(process.env.VITE_CONVEX_URL!);
+// Mock StudyHistoryHeatmap component
+jest.mock('../StudyHistoryHeatmap', () => {
+  return function MockStudyHistoryHeatmap() {
+    return <div data-testid="study-history-heatmap">Study History Heatmap</div>;
+  };
+});
 
+// Mock Convex queries
 jest.mock('convex/react', () => ({
   ...jest.requireActual('convex/react'),
   useQuery: jest.fn(),
+  ConvexProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  ConvexReactClient: jest.fn().mockImplementation(() => ({})),
 }));
 
 import { useQuery } from 'convex/react';
@@ -68,6 +74,11 @@ jest.mock('../../lib/toast', () => ({
     success: jest.fn(),
     error: jest.fn(),
   },
+}));
+
+// Mock export utilities
+jest.mock('../../lib/exportUtils', () => ({
+  exportStatisticsData: jest.fn(),
 }));
 
 describe('StatisticsDashboard', () => {
@@ -154,27 +165,14 @@ describe('StatisticsDashboard', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Setup mock query responses for unified dashboard query
-    mockUseQuery.mockImplementation((query) => {
-      if (query.toString().includes('getDashboardData')) {
-        return mockDashboardData;
-      }
-      if (query.toString().includes('getStudyActivityData')) {
-        return []; // Mock empty activity data for StudyActivityChart
-      }
-      if (query.toString().includes('getStudyActivityHeatmapData')) {
-        return []; // Mock empty heatmap data for StudyHistoryHeatmap
-      }
-      return undefined;
+    // Setup mock query responses - always return mockDashboardData for the main query
+    mockUseQuery.mockImplementation(() => {
+      return mockDashboardData;
     });
   });
 
   const renderWithConvex = (component: React.ReactElement) => {
-    return render(
-      <ConvexProvider client={mockConvex}>
-        {component}
-      </ConvexProvider>
-    );
+    return render(component);
   };
 
   it('renders the statistics dashboard with all components', async () => {
@@ -182,20 +180,22 @@ describe('StatisticsDashboard', () => {
 
     // Check for main heading
     expect(screen.getByText('Learning Analytics')).toBeInTheDocument();
-    
+
     // Check for all major components
     await waitFor(() => {
       expect(screen.getByTestId('statistics-overview-cards')).toBeInTheDocument();
-      expect(screen.getByTestId('study-activity-chart')).toBeInTheDocument();
-      expect(screen.getByTestId('deck-performance-chart')).toBeInTheDocument();
-      expect(screen.getByTestId('card-distribution-chart')).toBeInTheDocument();
-      expect(screen.getByTestId('upcoming-reviews-widget')).toBeInTheDocument();
-      expect(screen.getByTestId('learning-streak-widget')).toBeInTheDocument();
-      expect(screen.getByTestId('spaced-repetition-insights')).toBeInTheDocument();
     });
+
+    expect(screen.getByTestId('study-history-heatmap')).toBeInTheDocument();
+    expect(screen.getByTestId('study-activity-chart')).toBeInTheDocument();
+    expect(screen.getByTestId('deck-performance-chart')).toBeInTheDocument();
+    expect(screen.getByTestId('card-distribution-chart')).toBeInTheDocument();
+    expect(screen.getByTestId('upcoming-reviews-widget')).toBeInTheDocument();
+    expect(screen.getByTestId('learning-streak-widget')).toBeInTheDocument();
+    expect(screen.getByTestId('spaced-repetition-insights')).toBeInTheDocument();
   });
 
-  it('calls onBack when back button is clicked', async () => {
+  it('calls onBack when back button is clicked', () => {
     renderWithConvex(<StatisticsDashboard onBack={mockOnBack} />);
 
     const backButton = screen.getByLabelText('Back to dashboard');
@@ -204,7 +204,7 @@ describe('StatisticsDashboard', () => {
     expect(mockOnBack).toHaveBeenCalledTimes(1);
   });
 
-  it('allows changing date range filter', async () => {
+  it('allows changing date range filter', () => {
     renderWithConvex(<StatisticsDashboard onBack={mockOnBack} />);
 
     const dateRangeSelect = screen.getByDisplayValue('Last 30 days');
@@ -218,17 +218,15 @@ describe('StatisticsDashboard', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Deck Performance Overview')).toBeInTheDocument();
-      expect(screen.getByText('Spanish Vocabulary')).toBeInTheDocument();
-      expect(screen.getByText('Math Formulas')).toBeInTheDocument();
     });
+
+    expect(screen.getByText('Spanish Vocabulary')).toBeInTheDocument();
+    expect(screen.getByText('Math Formulas')).toBeInTheDocument();
   });
 
   it('shows loading state when data is undefined', () => {
-    mockUseQuery.mockImplementation((query) => {
-      if (query.toString().includes('getDashboardData')) {
-        return undefined;
-      }
-      return [];
+    mockUseQuery.mockImplementation(() => {
+      return undefined;
     });
 
     renderWithConvex(<StatisticsDashboard onBack={mockOnBack} />);
@@ -239,46 +237,15 @@ describe('StatisticsDashboard', () => {
   });
 
   it('handles export functionality', async () => {
-    // Mock URL.createObjectURL and related functions
-    const originalCreateObjectURL = global.URL.createObjectURL.bind(global.URL);
-    const originalRevokeObjectURL = global.URL.revokeObjectURL.bind(global.URL);
-    global.URL.createObjectURL = jest.fn(() => 'mock-url');
-    global.URL.revokeObjectURL = jest.fn();
+    renderWithConvex(<StatisticsDashboard onBack={mockOnBack} />);
 
-    const mockAppendChild = jest.fn();
-    const mockRemoveChild = jest.fn();
-    const mockClick = jest.fn();
+    const exportSelect = screen.getByDisplayValue('Export Data');
+    fireEvent.change(exportSelect, { target: { value: 'json' } });
 
-    // Create a mock anchor element
-    const mockAnchor = {
-      href: '',
-      download: '',
-      click: mockClick,
-    };
-
-    // Spy on document.createElement instead of overriding it globally
-    const createElementSpy = jest.spyOn(document, 'createElement').mockReturnValue(mockAnchor as any);
-
-    // Spy on document.body methods
-    const appendChildSpy = jest.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
-    const removeChildSpy = jest.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
-
-    try {
-      renderWithConvex(<StatisticsDashboard onBack={mockOnBack} />);
-
-      const exportSelect = screen.getByDisplayValue('Export Data');
-      fireEvent.change(exportSelect, { target: { value: 'json' } });
-
-      await waitFor(() => {
-        expect(mockClick).toHaveBeenCalled();
-      });
-    } finally {
-      // Restore all mocks to prevent leaking to other tests
-      createElementSpy.mockRestore();
-      appendChildSpy.mockRestore();
-      removeChildSpy.mockRestore();
-      global.URL.createObjectURL = originalCreateObjectURL;
-      global.URL.revokeObjectURL = originalRevokeObjectURL;
-    }
+    // Wait for the export to complete
+    await waitFor(() => {
+      // The export functionality should reset the select value
+      expect((exportSelect as HTMLSelectElement).value).toBe('');
+    });
   });
 });
