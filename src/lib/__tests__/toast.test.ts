@@ -6,14 +6,15 @@ jest.mock('react-hot-toast', () => ({
   default: Object.assign(jest.fn(), {
     success: jest.fn(),
     error: jest.fn(),
-    // Regular toast function for info messages
-    __call: jest.fn(),
   }),
-  // Named export for the regular toast function
-  toast: jest.fn(),
 }));
 
 import toast from 'react-hot-toast';
+
+// Get references to the mocked functions
+const mockedToast = toast as jest.MockedFunction<typeof toast>;
+const mockedToastSuccess = toast.success as jest.MockedFunction<typeof toast.success>;
+const mockedToastError = toast.error as jest.MockedFunction<typeof toast.error>;
 
 describe('Toast Utilities', () => {
   beforeEach(() => {
@@ -25,7 +26,7 @@ describe('Toast Utilities', () => {
       const message = 'Test success message';
       showSuccessToast(message);
 
-      expect(toast.success).toHaveBeenCalledWith(message, {
+      expect(mockedToastSuccess).toHaveBeenCalledWith(message, {
         duration: 4000,
         icon: '✅',
         style: {
@@ -46,7 +47,7 @@ describe('Toast Utilities', () => {
       const message = 'Test error message';
       showErrorToast(message);
 
-      expect(toast.error).toHaveBeenCalledWith(message, {
+      expect(mockedToastError).toHaveBeenCalledWith(message, {
         duration: 6000,
         icon: '❌',
         style: {
@@ -63,15 +64,11 @@ describe('Toast Utilities', () => {
   });
 
   describe('showInfoToast', () => {
-    it('should call toast with correct message and options', async () => {
+    it('should call toast with correct message and options', () => {
       const message = 'Test info message';
       showInfoToast(message);
 
-      // Import the named export for testing
-      const toastModule = await import('react-hot-toast');
-      const toastFunction = toastModule.toast;
-      
-      expect(toastFunction).toHaveBeenCalledWith(message, {
+      expect(mockedToast).toHaveBeenCalledWith(message, {
         duration: 4000,
         icon: 'ℹ️',
         style: {
@@ -93,7 +90,7 @@ describe('Toast Utilities', () => {
         const deckName = 'My Test Deck';
         toastHelpers.deckCreated(deckName);
 
-        expect(toast.success).toHaveBeenCalledWith(
+        expect(mockedToastSuccess).toHaveBeenCalledWith(
           `"${deckName}" created successfully!`,
           expect.any(Object)
         );
@@ -102,7 +99,7 @@ describe('Toast Utilities', () => {
       it('should show generic success toast when no deck name provided', () => {
         toastHelpers.deckCreated();
 
-        expect(toast.success).toHaveBeenCalledWith(
+        expect(mockedToastSuccess).toHaveBeenCalledWith(
           'Deck created successfully!',
           expect.any(Object)
         );
@@ -113,7 +110,7 @@ describe('Toast Utilities', () => {
       it('should show success toast for card creation', () => {
         toastHelpers.cardCreated();
 
-        expect(toast.success).toHaveBeenCalledWith(
+        expect(mockedToastSuccess).toHaveBeenCalledWith(
           'Card added successfully!',
           expect.any(Object)
         );
@@ -124,7 +121,7 @@ describe('Toast Utilities', () => {
       it('should show success toast for card update', () => {
         toastHelpers.cardUpdated();
 
-        expect(toast.success).toHaveBeenCalledWith(
+        expect(mockedToastSuccess).toHaveBeenCalledWith(
           'Card updated successfully!',
           expect.any(Object)
         );
@@ -136,7 +133,7 @@ describe('Toast Utilities', () => {
         const cardsReviewed = 5;
         toastHelpers.studySessionComplete(cardsReviewed);
 
-        expect(toast.success).toHaveBeenCalledWith(
+        expect(mockedToastSuccess).toHaveBeenCalledWith(
           `Study session complete! Reviewed ${cardsReviewed} cards.`,
           expect.any(Object)
         );
@@ -146,7 +143,7 @@ describe('Toast Utilities', () => {
         const cardsReviewed = 1;
         toastHelpers.studySessionComplete(cardsReviewed);
 
-        expect(toast.success).toHaveBeenCalledWith(
+        expect(mockedToastSuccess).toHaveBeenCalledWith(
           `Study session complete! Reviewed ${cardsReviewed} card.`,
           expect.any(Object)
         );
@@ -155,7 +152,7 @@ describe('Toast Utilities', () => {
       it('should show generic message when no card count provided', () => {
         toastHelpers.studySessionComplete();
 
-        expect(toast.success).toHaveBeenCalledWith(
+        expect(mockedToastSuccess).toHaveBeenCalledWith(
           'Study session completed!',
           expect.any(Object)
         );
@@ -166,7 +163,7 @@ describe('Toast Utilities', () => {
       it('should show error toast for network issues', () => {
         toastHelpers.networkError();
 
-        expect(toast.error).toHaveBeenCalledWith(
+        expect(mockedToastError).toHaveBeenCalledWith(
           'Network error. Please check your connection and try again.',
           expect.any(Object)
         );
@@ -177,7 +174,7 @@ describe('Toast Utilities', () => {
       it('should show error toast for temporary issues', () => {
         toastHelpers.temporaryError();
 
-        expect(toast.error).toHaveBeenCalledWith(
+        expect(mockedToastError).toHaveBeenCalledWith(
           'Something went wrong. Please try again in a moment.',
           expect.any(Object)
         );
@@ -188,7 +185,7 @@ describe('Toast Utilities', () => {
   describe('Toast Configuration', () => {
     it('should use correct duration for success toasts', () => {
       showSuccessToast('test');
-      expect(toast.success).toHaveBeenCalledWith(
+      expect(mockedToastSuccess).toHaveBeenCalledWith(
         'test',
         expect.objectContaining({ duration: 4000 })
       );
@@ -196,7 +193,7 @@ describe('Toast Utilities', () => {
 
     it('should use correct duration for error toasts', () => {
       showErrorToast('test');
-      expect(toast.error).toHaveBeenCalledWith(
+      expect(mockedToastError).toHaveBeenCalledWith(
         'test',
         expect.objectContaining({ duration: 6000 })
       );
@@ -204,7 +201,7 @@ describe('Toast Utilities', () => {
 
     it('should use correct accessibility attributes for success toasts', () => {
       showSuccessToast('test');
-      expect(toast.success).toHaveBeenCalledWith(
+      expect(mockedToastSuccess).toHaveBeenCalledWith(
         'test',
         expect.objectContaining({
           ariaProps: {
@@ -217,7 +214,7 @@ describe('Toast Utilities', () => {
 
     it('should use correct accessibility attributes for error toasts', () => {
       showErrorToast('test');
-      expect(toast.error).toHaveBeenCalledWith(
+      expect(mockedToastError).toHaveBeenCalledWith(
         'test',
         expect.objectContaining({
           ariaProps: {

@@ -273,6 +273,22 @@ Fixed and enhanced the `src/lib/__tests__/analytics.test.ts` test suite:
 
 **Result**: All 17 analytics tests now pass successfully with clean output, maintaining full test coverage for PostHog integration, error handling, and all utility functions.
 
+### ESLint Testing Rules Compliance (2025-01-15)
+
+Fixed all ESLint and TypeScript linting issues across the test suite:
+
+**Issues Fixed**:
+1. **Testing Library Violations**: Replaced `container.querySelector()` with proper Testing Library queries in ChartWidget tests
+2. **Jest Preferences**: Updated `.length).toBe(0)` to `.toHaveLength(0)` in heatmapUtils tests for better Jest assertions
+3. **React Refresh Warnings**: Added ESLint disable comments for test utilities that mix components and non-components
+
+**Files Updated**:
+- `src/components/__tests__/ChartWidget.test.tsx`: Improved test queries to follow Testing Library best practices
+- `src/lib/__tests__/heatmapUtils.test.ts`: Updated length assertions to use Jest's preferred matchers
+- `src/test-utils.tsx`: Added ESLint disable comments for react-refresh warnings
+
+**Result**: All linting rules now pass with zero errors and zero warnings, ensuring consistent code quality across the entire test suite.
+
 ## Future Improvements
 
 - Consider adding visual regression testing

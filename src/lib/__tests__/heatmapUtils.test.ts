@@ -133,7 +133,7 @@ describe('heatmapUtils', () => {
       // Check that all days have level 0 (no activity)
       const allDays = result.weeks.flatMap(week => week.days);
       const activeDays = allDays.filter(day => day.level > 0);
-      expect(activeDays.length).toBe(0);
+      expect(activeDays).toHaveLength(0);
     });
 
     it('generates correct grid structure with study data', () => {
@@ -149,8 +149,8 @@ describe('heatmapUtils', () => {
       // Find the days with activity
       const allDays = result.weeks.flatMap(week => week.days);
       const activeDays = allDays.filter(day => day.cardsStudied > 0);
-      
-      expect(activeDays.length).toBe(2);
+
+      expect(activeDays).toHaveLength(2);
       expect(activeDays[0].cardsStudied).toBe(5);
       expect(activeDays[1].cardsStudied).toBe(8);
       expect(activeDays[1].totalDuration).toBe(600000);
@@ -170,7 +170,7 @@ describe('heatmapUtils', () => {
         });
         
         // Each week should have exactly 7 days
-        expect(week.days.length).toBe(7);
+        expect(week.days).toHaveLength(7);
       });
     });
 
