@@ -257,13 +257,21 @@ This approach ensures compatibility between Vite's development environment and J
 
 ### Analytics Test Fix (2025-01-15)
 
-Fixed the `src/lib/__tests__/analytics.test.ts` test that was failing due to `import.meta.env` syntax errors in Jest:
+Fixed and enhanced the `src/lib/__tests__/analytics.test.ts` test suite:
 
-**Problem**: Jest couldn't parse `import.meta.env.MODE` syntax used in the analytics module for development logging.
+**Problems Fixed**:
+1. Jest couldn't parse `import.meta.env.MODE` syntax used in the analytics module for development logging
+2. Console output noise during tests from expected error handling scenarios
+3. Missing test coverage for helper functions and useAnalytics hook
 
-**Solution**: Implemented a `getEnvironmentMode()` utility function that safely handles environment detection across different runtime environments.
+**Solutions Implemented**:
+1. Implemented a `getEnvironmentMode()` utility function that safely handles environment detection across different runtime environments
+2. Added console mocking in beforeEach/afterEach to suppress expected console output during tests
+3. Added comprehensive tests for all helper functions (trackUserSignUp, trackDeckCreated, etc.)
+4. Added tests for the useAnalytics hook with proper PostHog mocking
+5. Improved test organization and structure with better descriptions
 
-**Result**: All 9 analytics tests now pass successfully, maintaining full test coverage for PostHog integration and error handling.
+**Result**: All 17 analytics tests now pass successfully with clean output, maintaining full test coverage for PostHog integration, error handling, and all utility functions.
 
 ## Future Improvements
 

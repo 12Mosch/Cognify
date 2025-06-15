@@ -3,11 +3,27 @@
  * These tests verify that our PostHog integration works correctly
  */
 
-import {
+import * as analytics from "../analytics";
+
+const {
   trackEvent,
   hasUserBeenTrackedForRegistration,
   markUserAsTrackedForRegistration,
-} from "../analytics";
+  trackUserSignUp,
+  trackDeckCreated,
+  trackCardCreated,
+  trackStudySessionStarted,
+  trackStudySessionCompleted,
+  useAnalytics,
+} = analytics;
+
+// Mock PostHog React hook
+jest.mock('posthog-js/react', () => ({
+  usePostHog: jest.fn(),
+}));
+
+import { usePostHog } from 'posthog-js/react';
+const mockUsePostHog = usePostHog as jest.MockedFunction<typeof usePostHog>;
 
 // Mock PostHog
 const mockPostHog = {
@@ -22,6 +38,11 @@ const localStorageMock = {
   clear: jest.fn(),
 };
 
+// Mock console methods to suppress expected output during tests
+const originalConsoleWarn = console.warn;
+const originalConsoleError = console.error;
+const originalConsoleLog = console.log;
+
 // Setup mocks
 beforeEach(() => {
   jest.clearAllMocks();
@@ -29,6 +50,21 @@ beforeEach(() => {
     value: localStorageMock,
     writable: true,
   });
+
+  // Mock console methods to suppress expected output
+  console.warn = jest.fn();
+  console.error = jest.fn();
+  console.log = jest.fn();
+
+  // Reset PostHog mock
+  mockUsePostHog.mockReturnValue(mockPostHog as any);
+});
+
+afterEach(() => {
+  // Restore console methods
+  console.warn = originalConsoleWarn;
+  console.error = originalConsoleError;
+  console.log = originalConsoleLog;
 });
 
 describe("Analytics Utilities", () => {
@@ -112,6 +148,122 @@ describe("Analytics Utilities", () => {
       expect(() => {
         markUserAsTrackedForRegistration();
       }).not.toThrow();
+    });
+  });
+
+  describe("Helper functions", () => {
+    describe("trackUserSignUp", () => {
+      it("should call posthog.capture with user_signed_up event", () => {
+        trackUserSignUp(mockPostHog as any);
+
+        expect(mockPostHog.capture).toHaveBeenCalledWith("user_signed_up", undefined);
+      });
+    });
+
+    describe("trackDeckCreated", () => {
+      it("should call posthog.capture with deck_created event and properties", () => {
+        trackDeckCreated(mockPostHog as any, "deck-123", "My Deck");
+
+        expect(mockPostHog.capture).toHaveBeenCalledWith("deck_created", {
+          deckId: "deck-123",
+          deckName: "My Deck",
+        });
+      });
+
+      it("should handle undefined properties", () => {
+        trackDeckCreated(mockPostHog as any);
+
+        expect(mockPostHog.capture).toHaveBeenCalledWith("deck_created", {
+          deckId: undefined,
+          deckName: undefined,
+        });
+      });
+    });
+
+    describe("trackCardCreated", () => {
+      it("should call posthog.capture with card_created event and properties", () => {
+        trackCardCreated(mockPostHog as any, "card-456", "Test Deck");
+
+        expect(mockPostHog.capture).toHaveBeenCalledWith("card_created", {
+          cardId: "card-456",
+          deckName: "Test Deck",
+        });
+      });
+    });
+
+    describe("trackStudySessionStarted", () => {
+      it("should call posthog.capture with study_session_started event and properties", () => {
+        trackStudySessionStarted(mockPostHog as any, "deck-789", "Study Deck", 10);
+
+        expect(mockPostHog.capture).toHaveBeenCalledWith("study_session_started", {
+          deckId: "deck-789",
+          deckName: "Study Deck",
+          cardCount: 10,
+        });
+      });
+    });
+
+    describe("trackStudySessionCompleted", () => {
+      it("should call posthog.capture with study_session_completed event and properties", () => {
+        trackStudySessionCompleted(
+          mockPostHog as any,
+          "deck-101",
+          "Completed Deck",
+          5,
+          "basic",
+          120
+        );
+
+        expect(mockPostHog.capture).toHaveBeenCalledWith("study_session_completed", {
+          deckId: "deck-101",
+          deckName: "Completed Deck",
+          cardsReviewed: 5,
+          studyMode: "basic",
+          sessionDuration: 120,
+        });
+      });
+    });
+  });
+
+  describe("useAnalytics hook", () => {
+    it("should return analytics functions with PostHog instance", () => {
+      mockUsePostHog.mockReturnValue(mockPostHog as any);
+
+      const analyticsHook = useAnalytics();
+
+      expect(analyticsHook).toHaveProperty('posthog', mockPostHog);
+      expect(analyticsHook).toHaveProperty('trackUserSignUp');
+      expect(analyticsHook).toHaveProperty('trackDeckCreated');
+      expect(analyticsHook).toHaveProperty('trackCardCreated');
+      expect(analyticsHook).toHaveProperty('trackStudySessionStarted');
+      expect(analyticsHook).toHaveProperty('trackStudySessionCompleted');
+    });
+
+    it("should call tracking functions correctly", () => {
+      mockUsePostHog.mockReturnValue(mockPostHog as any);
+
+      const analyticsHook = useAnalytics();
+
+      // Test trackUserSignUp
+      analyticsHook.trackUserSignUp();
+      expect(mockPostHog.capture).toHaveBeenCalledWith("user_signed_up", undefined);
+
+      // Test trackDeckCreated
+      analyticsHook.trackDeckCreated("deck-123", "Test Deck");
+      expect(mockPostHog.capture).toHaveBeenCalledWith("deck_created", {
+        deckId: "deck-123",
+        deckName: "Test Deck",
+      });
+
+      // Test trackStudySessionCompleted
+      analyticsHook.trackStudySessionCompleted("deck-456", "Study Deck", 5, "basic", 120);
+      expect(mockPostHog.capture).toHaveBeenCalledWith("study_session_completed", {
+        deckId: "deck-456",
+        deckName: "Study Deck",
+        cardsReviewed: 5,
+        studyMode: "basic",
+        sessionDuration: 120,
+      });
     });
   });
 });
