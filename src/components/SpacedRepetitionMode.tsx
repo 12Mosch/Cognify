@@ -8,6 +8,7 @@ import HelpIcon from "./HelpIcon";
 import PostSessionSummary from "./PostSessionSummary";
 import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
 import { formatNextReviewTime } from "../lib/dateUtils";
+import { FlashcardSkeleton } from "./skeletons/SkeletonComponents";
 
 interface SpacedRepetitionModeProps {
   deckId: Id<"decks">;
@@ -208,19 +209,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
   // Loading state
   if (deck === undefined || studyQueueData === undefined) {
-    return (
-      <div className="flex flex-col gap-8 max-w-4xl mx-auto">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="animate-pulse">
-              <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-48 mx-auto mb-4"></div>
-              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32 mx-auto"></div>
-            </div>
-            <p className="text-slate-600 dark:text-slate-400 mt-4">Loading spaced repetition session...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <FlashcardSkeleton />;
   }
 
   // Error state - deck not found
@@ -331,19 +320,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
   // Additional safety check - if currentCard is undefined, show loading
   if (!currentCard) {
-    return (
-      <div className="flex flex-col gap-8 max-w-4xl mx-auto">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="animate-pulse">
-              <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-48 mx-auto mb-4"></div>
-              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32 mx-auto"></div>
-            </div>
-            <p className="text-slate-600 dark:text-slate-400 mt-4">Preparing your study session...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <FlashcardSkeleton />;
   }
 
   // Show summary if session is complete

@@ -7,6 +7,7 @@ import KeyboardShortcutsModal from "./KeyboardShortcutsModal";
 import HelpIcon from "./HelpIcon";
 import PostSessionSummary from "./PostSessionSummary";
 import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
+import { FlashcardSkeleton } from "./skeletons/SkeletonComponents";
 
 interface BasicStudyModeProps {
   deckId: Id<"decks">;
@@ -111,19 +112,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 
   // Loading state
   if (deck === undefined || cards === undefined) {
-    return (
-      <div className="flex flex-col gap-8 max-w-4xl mx-auto">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="animate-pulse">
-              <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-48 mx-auto mb-4"></div>
-              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32 mx-auto"></div>
-            </div>
-            <p className="text-slate-600 dark:text-slate-400 mt-4">Loading study session...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <FlashcardSkeleton />;
   }
 
   // Deck not found

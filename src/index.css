@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
-@theme {
-  --color-light: #ffffff;
-  --color-dark: #171717;
+:root {
+   --color-light: #ffffff;
+   --color-dark: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -88,4 +88,55 @@
   .flashcard-inner:not(.flipped) .flashcard-back {
     opacity: 0;
   }
+}
+
+/* Skeleton Loading Animations */
+
+/* Enhanced shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* Shimmer effect for skeleton elements */
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0px,
+    #e0e0e0 40px,
+    #f0f0f0 80px
+  );
+  background-size: 200px;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Dark mode shimmer effect */
+@media (prefers-color-scheme: dark) {
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      #374151 0px,
+      #4b5563 40px,
+      #374151 80px
+    );
+    background-size: 200px;
+  }
+}
+
+/* Alternative pulse animation for better performance on some devices */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-skeleton-pulse {
+  animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

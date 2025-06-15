@@ -2,6 +2,7 @@ import { useState, memo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import { DeckViewSkeleton } from "./skeletons/SkeletonComponents";
 
 interface DeckViewProps {
   deckId: Id<"decks">;
@@ -25,19 +26,7 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
 
   // Loading state
   if (deck === undefined || cards === undefined) {
-    return (
-      <div className="flex flex-col gap-8 max-w-6xl mx-auto">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="animate-pulse">
-              <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-48 mx-auto mb-4"></div>
-              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32 mx-auto"></div>
-            </div>
-            <p className="text-slate-600 dark:text-slate-400 mt-4">Loading deck...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <DeckViewSkeleton />;
   }
 
   // Deck not found
