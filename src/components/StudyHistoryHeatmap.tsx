@@ -81,6 +81,17 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
     setHoveredDay(null);
   };
 
+  /**
+   * Handle keyboard interactions on heatmap day square
+   */
+  const handleDayKeyDown = (day: HeatmapDay, event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setHoveredDay(day);
+      setTooltipPosition(calculateTooltipPosition(event.currentTarget));
+    }
+  };
+
   return (
     <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700">
       {/* Header */}
@@ -143,6 +154,7 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
                       onMouseLeave={handleDayMouseLeave}
                       onFocus={(e) => handleDayFocus(day, e)}
                       onBlur={handleDayBlur}
+                      onKeyDown={(e) => handleDayKeyDown(day, e)}
                       role="gridcell"
                       aria-label={formatTooltipContent(day)}
                       tabIndex={0}

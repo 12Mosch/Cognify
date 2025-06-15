@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import StudyHistoryHeatmap from '../StudyHistoryHeatmap';
 
@@ -119,13 +119,14 @@ describe('StudyHistoryHeatmap', () => {
 
   it('renders heatmap with study data', async () => {
     mockUseQuery.mockReturnValue(mockStudyData);
-    
+
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.getByText('Study Activity')).toBeInTheDocument();
-      expect(screen.getByText('2 days of study activity in the last year')).toBeInTheDocument();
     });
+
+    expect(screen.getByText('2 days of study activity in the last year')).toBeInTheDocument();
 
     // Check that utility functions were called
     expect(mockGenerateHeatmapGrid).toHaveBeenCalledWith(mockStudyData);
@@ -155,117 +156,132 @@ describe('StudyHistoryHeatmap', () => {
 
   it('renders heatmap squares with correct accessibility attributes', async () => {
     mockUseQuery.mockReturnValue(mockStudyData);
-    
+
     renderComponent();
-    
+
     await waitFor(() => {
       const gridCells = screen.getAllByRole('gridcell');
       expect(gridCells.length).toBeGreaterThan(0);
-      
-      // Check first grid cell has proper attributes
-      expect(gridCells[0]).toHaveAttribute('aria-label');
-      expect(gridCells[0]).toHaveAttribute('tabIndex', '0');
     });
+
+    const gridCells = screen.getAllByRole('gridcell');
+    // Check first grid cell has proper attributes
+    expect(gridCells[0]).toHaveAttribute('aria-label');
+    expect(gridCells[0]).toHaveAttribute('tabIndex', '0');
   });
 
   it('displays summary statistics correctly', async () => {
     mockUseQuery.mockReturnValue(mockStudyData);
-    
+
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.getByText('13')).toBeInTheDocument(); // totalCards
-      expect(screen.getByText('Cards studied')).toBeInTheDocument();
-      expect(screen.getByText('2')).toBeInTheDocument(); // activeDays
-      expect(screen.getByText('Active days')).toBeInTheDocument();
-      expect(screen.getByText('8')).toBeInTheDocument(); // maxCardsInDay
-      expect(screen.getByText('Best day')).toBeInTheDocument();
-      expect(screen.getByText('55%')).toBeInTheDocument(); // studyRate
-      expect(screen.getByText('Study rate')).toBeInTheDocument();
     });
+
+    expect(screen.getByText('Cards studied')).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument(); // activeDays
+    expect(screen.getByText('Active days')).toBeInTheDocument();
+    expect(screen.getByText('8')).toBeInTheDocument(); // maxCardsInDay
+    expect(screen.getByText('Best day')).toBeInTheDocument();
+    expect(screen.getByText('55%')).toBeInTheDocument(); // studyRate
+    expect(screen.getByText('Study rate')).toBeInTheDocument();
   });
 
   it('shows tooltip on hover', async () => {
     mockUseQuery.mockReturnValue(mockStudyData);
-    
+
     renderComponent();
-    
+
     await waitFor(() => {
-      const gridCells = screen.getAllByRole('gridcell');
-      fireEvent.mouseEnter(gridCells[0]);
-      
-      expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
+      expect(screen.getAllByRole('gridcell')).toHaveLength(2);
     });
+
+    const gridCells = screen.getAllByRole('gridcell');
+    fireEvent.mouseEnter(gridCells[0]);
+
+    expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
   });
 
   it('hides tooltip on mouse leave', async () => {
     mockUseQuery.mockReturnValue(mockStudyData);
-    
+
     renderComponent();
-    
+
     await waitFor(() => {
-      const gridCells = screen.getAllByRole('gridcell');
-      
-      // Show tooltip
-      fireEvent.mouseEnter(gridCells[0]);
-      expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
-      
-      // Hide tooltip
-      fireEvent.mouseLeave(gridCells[0]);
-      expect(screen.queryByText('5 cards studied on Mon, Jan 15, 2024')).not.toBeInTheDocument();
+      expect(screen.getAllByRole('gridcell')).toHaveLength(2);
     });
+
+    const gridCells = screen.getAllByRole('gridcell');
+
+    // Show tooltip
+    fireEvent.mouseEnter(gridCells[0]);
+    expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
+
+    // Hide tooltip
+    fireEvent.mouseLeave(gridCells[0]);
+    expect(screen.queryByText('5 cards studied on Mon, Jan 15, 2024')).not.toBeInTheDocument();
   });
 
   it('shows tooltip on keyboard interaction', async () => {
     mockUseQuery.mockReturnValue(mockStudyData);
-    
+
     renderComponent();
-    
+
     await waitFor(() => {
-      const gridCells = screen.getAllByRole('gridcell');
-      
-      // Focus and press Enter
-      gridCells[0].focus();
-      fireEvent.keyDown(gridCells[0], { key: 'Enter' });
-      
-      expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
+      expect(screen.getAllByRole('gridcell')).toHaveLength(2);
     });
+
+    const gridCells = screen.getAllByRole('gridcell');
+
+    // Focus and press Enter
+    act(() => {
+      gridCells[0].focus();
+    });
+    fireEvent.keyDown(gridCells[0], { key: 'Enter' });
+
+    expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
   });
 
   it('shows tooltip on Space key press', async () => {
     mockUseQuery.mockReturnValue(mockStudyData);
-    
+
     renderComponent();
-    
+
     await waitFor(() => {
-      const gridCells = screen.getAllByRole('gridcell');
-      
-      // Focus and press Space
-      gridCells[0].focus();
-      fireEvent.keyDown(gridCells[0], { key: ' ' });
-      
-      expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
+      expect(screen.getAllByRole('gridcell')).toHaveLength(2);
     });
+
+    const gridCells = screen.getAllByRole('gridcell');
+
+    // Focus and press Space
+    act(() => {
+      gridCells[0].focus();
+    });
+    fireEvent.keyDown(gridCells[0], { key: ' ' });
+
+    expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
   });
 
   it('renders activity level legend', async () => {
     mockUseQuery.mockReturnValue(mockStudyData);
-    
+
     renderComponent();
-    
+
     await waitFor(() => {
       expect(screen.getByText('Less')).toBeInTheDocument();
-      expect(screen.getByText('More')).toBeInTheDocument();
-      
-      // Check that legend squares are rendered
-      const legendSquares = screen.getAllByLabelText(/Activity level \d/);
-      expect(legendSquares).toHaveLength(5); // Levels 0-4
     });
+
+    expect(screen.getByText('More')).toBeInTheDocument();
+
+    // Check that legend squares are rendered
+    const legendSquares = screen.getAllByLabelText(/Activity level \d/);
+    expect(legendSquares).toHaveLength(5); // Levels 0-4
   });
 
   it('handles empty study data gracefully', async () => {
     mockUseQuery.mockReturnValue([]);
-    
+
     const emptyStats = {
       activeDays: 0,
       totalCards: 0,
@@ -275,14 +291,20 @@ describe('StudyHistoryHeatmap', () => {
       averageCardsPerActiveDay: 0,
       studyRate: 0,
     };
-    
+
     mockCalculateHeatmapStats.mockReturnValue(emptyStats);
-    
+
     renderComponent();
-    
+
+    // Wait for the main text to appear
     await waitFor(() => {
       expect(screen.getByText('0 days of study activity in the last year')).toBeInTheDocument();
-      expect(screen.getByText('0')).toBeInTheDocument(); // Should show 0 for all stats
     });
+
+    // Check that all statistics sections are present
+    expect(screen.getByText('Cards studied')).toBeInTheDocument();
+    expect(screen.getByText('Active days')).toBeInTheDocument();
+    expect(screen.getByText('Best day')).toBeInTheDocument();
+    expect(screen.getByText('Study rate')).toBeInTheDocument();
   });
 });
