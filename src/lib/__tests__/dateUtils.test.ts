@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import {
   formatNextReviewTime,
   isToday,
@@ -15,12 +15,13 @@ describe('dateUtils', () => {
 beforeEach(() => {
      // Mock Date.now() to return a consistent timestamp for testing
      // January 15, 2024, 12:00:00 PM UTC
-     vi.setSystemTime(new Date('2024-01-15T12:00:00.000Z'));
+     jest.useFakeTimers();
+     jest.setSystemTime(new Date('2024-01-15T12:00:00.000Z'));
    });
 
-  afterAll(() => {
+  afterEach(() => {
     // Restore real timers so other test files are unaffected
-    vi.useRealTimers();
+    jest.useRealTimers();
   });
 
   describe('formatNextReviewTime', () => {
