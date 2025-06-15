@@ -45,17 +45,16 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
 
-  // Fetch statistics data
-  const userStats = useQuery(api.statistics.getUserStatistics);
-  const spacedRepetitionInsights = useQuery(api.statistics.getSpacedRepetitionInsights);
-  const deckPerformance = useQuery(api.statistics.getDeckPerformanceComparison);
-  const decks = useQuery(api.decks.getDecksForUser);
+  // Fetch unified dashboard data
+  const dashboardData = useQuery(api.statistics.getDashboardData);
 
   // Loading state
-  if (userStats === undefined || spacedRepetitionInsights === undefined || 
-      deckPerformance === undefined || decks === undefined) {
+  if (dashboardData === undefined) {
     return <StatisticsDashboardSkeleton />;
   }
+
+  // Extract data from unified response
+  const { userStatistics: userStats, spacedRepetitionInsights, deckPerformance, cardDistribution } = dashboardData;
 
   const handleExportData = async (format: ExportFormat) => {
     setIsExporting(true);
@@ -199,7 +198,10 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
         />
 
         {/* Card Distribution Chart */}
-        <CardDistributionChart spacedRepetitionInsights={spacedRepetitionInsights} />
+        <CardDistributionChart
+          spacedRepetitionInsights={spacedRepetitionInsights}
+          cardDistribution={cardDistribution}
+        />
       </div>
 
       {/* Secondary Widgets */}

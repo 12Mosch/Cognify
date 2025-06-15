@@ -1,7 +1,5 @@
 import { memo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 
 interface SpacedRepetitionInsights {
   totalDueCards: number;
@@ -15,8 +13,18 @@ interface SpacedRepetitionInsights {
   averageInterval?: number;
 }
 
+interface CardDistribution {
+  newCards: number;
+  learningCards: number;
+  reviewCards: number;
+  dueCards: number;
+  masteredCards: number;
+  totalCards: number;
+}
+
 interface CardDistributionChartProps {
   spacedRepetitionInsights: SpacedRepetitionInsights;
+  cardDistribution: CardDistribution;
 }
 
 /**
@@ -30,29 +38,9 @@ interface CardDistributionChartProps {
  * - Responsive design
  */
 const CardDistributionChart = memo(function CardDistributionChart({
-  spacedRepetitionInsights
+  spacedRepetitionInsights,
+  cardDistribution
 }: CardDistributionChartProps) {
-  // Fetch detailed card distribution data from Convex
-  const cardDistribution = useQuery(api.statistics.getCardDistributionData);
-
-  // Show loading state while data is being fetched
-  if (cardDistribution === undefined) {
-    return (
-      <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
-            Card Distribution
-          </h3>
-          <div className="animate-pulse bg-slate-300 dark:bg-slate-600 h-4 w-20 rounded"></div>
-        </div>
-        <div className="h-64 flex items-center justify-center">
-          <div className="animate-pulse text-slate-500 dark:text-slate-400">
-            Loading distribution data...
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Use real data from Convex query
   const chartData = [

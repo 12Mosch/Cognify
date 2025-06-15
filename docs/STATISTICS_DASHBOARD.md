@@ -184,11 +184,15 @@ Access the statistics dashboard from the main dashboard by clicking the "Statist
 ## Performance Optimizations
 
 ### Database Efficiency
+- **Unified Dashboard Query**: Single `getDashboardData` query consolidates multiple statistics queries for better performance
 - Compound indexes for optimal query performance
 - Aggregated counts stored on parent documents
 - Efficient filtering using database-level operations
+- Atomic data updates ensuring UI consistency across dashboard components
 
 ### Frontend Optimizations
+- **Consolidated Data Fetching**: Single useQuery hook replaces multiple separate queries
+- **Simplified Loading States**: Single loading state instead of multiple conditional checks
 - Lazy loading of chart components
 - Skeleton loaders for smooth loading states
 - Memoized components to prevent unnecessary re-renders

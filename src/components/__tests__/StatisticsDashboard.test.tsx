@@ -16,8 +16,12 @@ jest.mock('../statistics/DeckPerformanceChart', () => {
 });
 
 jest.mock('../statistics/CardDistributionChart', () => {
-  return function MockCardDistributionChart() {
-    return <div data-testid="card-distribution-chart">Card Distribution Chart</div>;
+  return function MockCardDistributionChart({ spacedRepetitionInsights, cardDistribution }: any) {
+    return (
+      <div data-testid="card-distribution-chart">
+        Card Distribution Chart - {cardDistribution?.totalCards || 0} total cards
+      </div>
+    );
   };
 });
 
@@ -130,22 +134,36 @@ describe('StatisticsDashboard', () => {
     },
   ];
 
+  const mockCardDistribution = {
+    newCards: 8,
+    learningCards: 12,
+    reviewCards: 15,
+    dueCards: 5,
+    masteredCards: 10,
+    totalCards: 50,
+  };
+
+  const mockDashboardData = {
+    userStatistics: mockUserStats,
+    spacedRepetitionInsights: mockSpacedRepetitionInsights,
+    deckPerformance: mockDeckPerformance,
+    decks: mockDecks,
+    cardDistribution: mockCardDistribution,
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Setup mock query responses
+
+    // Setup mock query responses for unified dashboard query
     mockUseQuery.mockImplementation((query) => {
-      if (query.toString().includes('getUserStatistics')) {
-        return mockUserStats;
+      if (query.toString().includes('getDashboardData')) {
+        return mockDashboardData;
       }
-      if (query.toString().includes('getSpacedRepetitionInsights')) {
-        return mockSpacedRepetitionInsights;
+      if (query.toString().includes('getStudyActivityData')) {
+        return []; // Mock empty activity data for StudyActivityChart
       }
-      if (query.toString().includes('getDeckPerformanceComparison')) {
-        return mockDeckPerformance;
-      }
-      if (query.toString().includes('getDecksForUser')) {
-        return mockDecks;
+      if (query.toString().includes('getStudyActivityHeatmapData')) {
+        return []; // Mock empty heatmap data for StudyHistoryHeatmap
       }
       return undefined;
     });
@@ -206,8 +224,13 @@ describe('StatisticsDashboard', () => {
   });
 
   it('shows loading state when data is undefined', () => {
-    mockUseQuery.mockReturnValue(undefined);
-    
+    mockUseQuery.mockImplementation((query) => {
+      if (query.toString().includes('getDashboardData')) {
+        return undefined;
+      }
+      return [];
+    });
+
     renderWithConvex(<StatisticsDashboard onBack={mockOnBack} />);
 
     // Should show skeleton loader

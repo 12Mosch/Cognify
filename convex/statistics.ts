@@ -513,6 +513,293 @@ export const getStudyActivityData = query({
 });
 
 /**
+ * Unified dashboard data query that consolidates multiple statistics queries
+ * for better performance and atomic data updates
+ */
+export const getDashboardData = query({
+  args: {},
+  returns: v.object({
+    userStatistics: v.object({
+      totalDecks: v.number(),
+      totalCards: v.number(),
+      totalStudySessions: v.number(),
+      cardsStudiedToday: v.number(),
+      currentStreak: v.number(),
+      longestStreak: v.number(),
+      averageSessionDuration: v.optional(v.number()),
+      totalStudyTime: v.optional(v.number()),
+    }),
+    spacedRepetitionInsights: v.object({
+      totalDueCards: v.number(),
+      totalNewCards: v.number(),
+      cardsToReviewToday: v.number(),
+      upcomingReviews: v.array(v.object({
+        date: v.string(),
+        count: v.number(),
+      })),
+      retentionRate: v.optional(v.number()),
+      averageInterval: v.optional(v.number()),
+    }),
+    deckPerformance: v.array(v.object({
+      deckId: v.id("decks"),
+      deckName: v.string(),
+      totalCards: v.number(),
+      masteredCards: v.number(),
+      masteryPercentage: v.number(),
+      averageEaseFactor: v.optional(v.number()),
+      lastStudied: v.optional(v.number()),
+    })),
+    decks: v.array(v.object({
+      _id: v.id("decks"),
+      _creationTime: v.number(),
+      userId: v.string(),
+      name: v.string(),
+      description: v.string(),
+      cardCount: v.number(),
+    })),
+    cardDistribution: v.object({
+      newCards: v.number(),
+      learningCards: v.number(),
+      reviewCards: v.number(),
+      dueCards: v.number(),
+      masteredCards: v.number(),
+      totalCards: v.number(),
+    }),
+  }),
+  handler: async (ctx, _args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("User must be authenticated to access dashboard data");
+    }
+
+    // Get user's decks (used by multiple calculations)
+    const decks = await ctx.db
+      .query("decks")
+      .filter((q) => q.eq(q.field("userId"), identity.subject))
+      .order("desc")
+      .collect();
+
+    // Calculate user statistics
+    let totalCards = 0;
+    for (const deck of decks) {
+      totalCards += deck.cardCount || 0;
+    }
+
+    const allSessions = await ctx.db
+      .query("studySessions")
+      .withIndex("by_userId_and_date", (q) => q.eq("userId", identity.subject))
+      .collect();
+
+    const today = new Date().toISOString().split('T')[0];
+    const todaySessions = allSessions.filter(session => session.date === today);
+    const cardsStudiedToday = todaySessions.reduce((sum, session) => sum + session.cardsStudied, 0);
+
+    // Calculate streaks
+    const sessionsByDate = new Map<string, number>();
+    allSessions.forEach(session => {
+      const existing = sessionsByDate.get(session.date) || 0;
+      sessionsByDate.set(session.date, existing + session.cardsStudied);
+    });
+
+    const sortedDates = Array.from(sessionsByDate.keys()).sort().reverse();
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+
+    const todayDate = new Date();
+    const checkDate = new Date(todayDate);
+
+    // Calculate current streak
+    while (true) {
+      const dateStr = checkDate.toISOString().split('T')[0];
+      const cardsOnDate = sessionsByDate.get(dateStr) || 0;
+
+      if (cardsOnDate > 0) {
+        currentStreak++;
+      } else if (dateStr !== today) {
+        break;
+      }
+
+      checkDate.setDate(checkDate.getDate() - 1);
+      if (currentStreak > 100) break; // Safety limit
+    }
+
+    // Calculate longest streak
+    for (const date of sortedDates) {
+      const cardsOnDate = sessionsByDate.get(date) || 0;
+      if (cardsOnDate > 0) {
+        tempStreak++;
+        longestStreak = Math.max(longestStreak, tempStreak);
+      } else {
+        tempStreak = 0;
+      }
+    }
+
+    const totalStudyTime = allSessions.reduce((sum, session) => sum + (session.duration || 0), 0);
+    const averageSessionDuration = allSessions.length > 0 ? totalStudyTime / allSessions.length : undefined;
+
+    const userStatistics = {
+      totalDecks: decks.length,
+      totalCards,
+      totalStudySessions: allSessions.length,
+      cardsStudiedToday,
+      currentStreak,
+      longestStreak,
+      averageSessionDuration,
+      totalStudyTime: totalStudyTime > 0 ? totalStudyTime : undefined,
+    };
+
+    // Calculate spaced repetition insights
+    let totalDueCards = 0;
+    let totalNewCards = 0;
+    let totalInterval = 0;
+    let cardsWithInterval = 0;
+    const upcomingReviews: { [date: string]: number } = {};
+
+    const now = Date.now();
+
+    for (const deck of decks) {
+      const cards = await ctx.db
+        .query("cards")
+        .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
+        .collect();
+
+      for (const card of cards) {
+        if (!card.dueDate || card.dueDate <= now) {
+          if (card.repetition === 0 || !card.repetition) {
+            totalNewCards++;
+          } else {
+            totalDueCards++;
+          }
+        }
+
+        if (card.interval && card.interval > 0) {
+          totalInterval += card.interval;
+          cardsWithInterval++;
+        }
+
+        if (card.dueDate && card.dueDate > now) {
+          const dueDate = new Date(card.dueDate).toISOString().split('T')[0];
+          upcomingReviews[dueDate] = (upcomingReviews[dueDate] || 0) + 1;
+        }
+      }
+    }
+
+    const upcomingReviewsArray = Object.entries(upcomingReviews)
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, 14);
+
+    const averageInterval = cardsWithInterval > 0 ? totalInterval / cardsWithInterval : undefined;
+    const cardsToReviewToday = totalDueCards;
+
+    const spacedRepetitionInsights = {
+      totalDueCards,
+      totalNewCards,
+      cardsToReviewToday,
+      upcomingReviews: upcomingReviewsArray,
+      retentionRate: undefined, // Would need review history to calculate
+      averageInterval,
+    };
+
+    // Calculate deck performance
+    const deckPerformance = [];
+    for (const deck of decks) {
+      const cards = await ctx.db
+        .query("cards")
+        .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
+        .collect();
+
+      let masteredCards = 0;
+      let totalEaseFactor = 0;
+      let cardsWithEase = 0;
+
+      for (const card of cards) {
+        if (card.easeFactor && card.easeFactor >= 2.5 && card.interval && card.interval >= 21) {
+          masteredCards++;
+        }
+        if (card.easeFactor) {
+          totalEaseFactor += card.easeFactor;
+          cardsWithEase++;
+        }
+      }
+
+      const masteryPercentage = cards.length > 0 ? (masteredCards / cards.length) * 100 : 0;
+      const averageEaseFactor = cardsWithEase > 0 ? totalEaseFactor / cardsWithEase : undefined;
+
+      const lastSession = await ctx.db
+        .query("studySessions")
+        .withIndex("by_userId_and_deckId", (q) =>
+          q.eq("userId", identity.subject).eq("deckId", deck._id)
+        )
+        .order("desc")
+        .first();
+
+      const lastStudied = lastSession ? new Date(lastSession.date).getTime() : undefined;
+
+      deckPerformance.push({
+        deckId: deck._id,
+        deckName: deck.name,
+        totalCards: cards.length,
+        masteredCards,
+        masteryPercentage,
+        averageEaseFactor,
+        lastStudied,
+      });
+    }
+
+    // Calculate card distribution
+    let newCards = 0;
+    let learningCards = 0;
+    let reviewCards = 0;
+    let dueCards = 0;
+    let masteredCards = 0;
+    let totalCardsForDistribution = 0;
+
+    for (const deck of decks) {
+      const cards = await ctx.db
+        .query("cards")
+        .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
+        .collect();
+
+      totalCardsForDistribution += cards.length;
+
+      for (const card of cards) {
+        if (!card.repetition || card.repetition === 0) {
+          newCards++;
+        } else if (card.repetition < 3) {
+          learningCards++;
+        } else if (card.dueDate && card.dueDate <= now) {
+          dueCards++;
+        } else if (card.easeFactor && card.easeFactor >= 2.5 && card.interval && card.interval >= 21) {
+          masteredCards++;
+        } else {
+          reviewCards++;
+        }
+      }
+    }
+
+    const cardDistribution = {
+      newCards,
+      learningCards,
+      reviewCards,
+      dueCards,
+      masteredCards,
+      totalCards: totalCardsForDistribution,
+    };
+
+    return {
+      userStatistics,
+      spacedRepetitionInsights,
+      deckPerformance,
+      decks,
+      cardDistribution,
+    };
+  },
+});
+
+/**
  * Get detailed card distribution data for charts
  */
 export const getCardDistributionData = query({
