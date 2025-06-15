@@ -32,11 +32,14 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 
   // Define callback functions first (before any early returns)
   const handleNextCard = useCallback(() => {
-    if (cards && currentCardIndex < cards.length - 1) {
-      setCurrentCardIndex(currentCardIndex + 1);
-      setIsFlipped(false);
-    }
-  }, [cards, currentCardIndex]);
+    setCurrentCardIndex(prev => {
+      if (cards && prev < cards.length - 1) {
+        setIsFlipped(false);
+        return prev + 1;
+      }
+      return prev;
+    });
+  }, [cards]);
 
   // Handle finishing the study session
   const handleFinishSession = useCallback(() => {
@@ -44,15 +47,18 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
   }, []);
 
   const handlePreviousCard = useCallback(() => {
-    if (currentCardIndex > 0) {
-      setCurrentCardIndex(currentCardIndex - 1);
-      setIsFlipped(false);
-    }
-  }, [currentCardIndex]);
+    setCurrentCardIndex(prev => {
+      if (prev > 0) {
+        setIsFlipped(false);
+        return prev - 1;
+      }
+      return prev;
+    });
+  }, []);
 
   const handleFlipCard = useCallback(() => {
-    setIsFlipped(!isFlipped);
-  }, [isFlipped]);
+    setIsFlipped(prev => !prev);
+  }, []);
 
   // Reset analytics gate whenever we switch decks
   useEffect(() => {
@@ -99,7 +105,9 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
     return () => {
       document.removeEventListener('keydown', handleGlobalKeyDown);
     };
-  }, [showKeyboardHelp, handleFlipCard, handlePreviousCard, handleNextCard]);
+    // handleFlipCard, handlePreviousCard, handleNextCard are intentionally omitted - they're stabilized with useCallback([])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showKeyboardHelp]);
 
   // Track study session start when component mounts and deck is loaded
   useEffect(() => {

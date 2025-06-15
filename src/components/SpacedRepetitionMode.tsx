@@ -85,8 +85,8 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
    * Handle flipping the current card between front and back
    */
   const handleFlipCard = useCallback(() => {
-    setIsFlipped(!isFlipped);
-  }, [isFlipped]);
+    setIsFlipped(prev => !prev);
+  }, []);
 
   /**
    * Handle card review with quality rating
@@ -193,7 +193,9 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
     return () => {
       document.removeEventListener('keydown', handleGlobalKeyDown);
     };
-  }, [isFlipped, studyQueue.length, showKeyboardHelp, handleFlipCard, handleReview]);
+    // handleFlipCard is intentionally omitted - it's stabilized with useCallback([])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFlipped, studyQueue.length, showKeyboardHelp, handleReview]);
 
   /**
    * Handle keyboard shortcuts for flipping cards
@@ -384,7 +386,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
             <div className="flex-shrink-0 mt-6">
               {/* Show Answer button */}
               <button
-                onClick={handleFlipCard}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleFlipCard();
+                }}
                 className="bg-dark dark:bg-light text-light dark:text-dark text-lg px-8 py-4 rounded-md border-2 hover:opacity-80 transition-opacity font-medium pointer-events-auto"
                 aria-label="Show answer"
               >
@@ -416,7 +421,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <button
-                  onClick={() => { void handleReview(0); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void handleReview(0);
+                  }}
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-md font-medium transition-colors relative"
                   aria-label="Again - I didn't know this at all (Press 1)"
                 >
@@ -426,7 +434,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
                   </span>
                 </button>
                 <button
-                  onClick={() => { void handleReview(3); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void handleReview(3);
+                  }}
                   className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-md font-medium transition-colors relative"
                   aria-label="Hard - I knew this with difficulty (Press 2)"
                 >
@@ -436,7 +447,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
                   </span>
                 </button>
                 <button
-                  onClick={() => { void handleReview(4); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void handleReview(4);
+                  }}
                   className="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-md font-medium transition-colors relative"
                   aria-label="Good - I knew this well (Press 3)"
                 >
@@ -446,7 +460,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
                   </span>
                 </button>
                 <button
-                  onClick={() => { void handleReview(5); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void handleReview(5);
+                  }}
                   className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-md font-medium transition-colors relative"
                   aria-label="Easy - I knew this perfectly (Press 4)"
                 >
