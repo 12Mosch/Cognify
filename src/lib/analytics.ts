@@ -37,7 +37,9 @@ export type AnalyticsEvent =
   | 'deck_created'
   | 'card_created'
   | 'study_session_started'
-  | 'study_session_completed';
+  | 'study_session_completed'
+  | 'card_flipped'
+  | 'difficulty_rated';
 
 export interface AnalyticsEventData {
   user_signed_up: Record<string, never>; // No additional data needed
@@ -60,6 +62,25 @@ export interface AnalyticsEventData {
     cardsReviewed: number;
     studyMode: 'basic' | 'spaced-repetition';
     sessionDuration?: number;
+    // Enhanced session completion properties
+    averageTimePerCard?: number;
+    correctAnswers?: number;
+    incorrectAnswers?: number;
+    cardsSkipped?: number;
+    completionRate?: number; // percentage
+    focusTime?: number; // time actually spent studying vs idle
+  };
+  card_flipped: {
+    cardId: string;
+    deckId: string;
+    flipDirection: 'front_to_back' | 'back_to_front';
+    timeToFlip?: number; // milliseconds
+  };
+  difficulty_rated: {
+    cardId: string;
+    deckId: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+    previousDifficulty?: string;
   };
 }
 
@@ -145,7 +166,7 @@ export function trackStudySessionStarted(
 }
 
 /**
- * Track study session completion event
+ * Track study session completion event with enhanced metrics
  */
 export function trackStudySessionCompleted(
   posthog: ReturnType<typeof usePostHog> | null,
@@ -153,7 +174,15 @@ export function trackStudySessionCompleted(
   deckName: string | undefined,
   cardsReviewed: number,
   studyMode: 'basic' | 'spaced-repetition',
-  sessionDuration?: number
+  sessionDuration?: number,
+  enhancedMetrics?: {
+    averageTimePerCard?: number;
+    correctAnswers?: number;
+    incorrectAnswers?: number;
+    cardsSkipped?: number;
+    completionRate?: number;
+    focusTime?: number;
+  }
 ): void {
   trackEvent(posthog, 'study_session_completed', {
     deckId,
@@ -161,6 +190,43 @@ export function trackStudySessionCompleted(
     cardsReviewed,
     studyMode,
     sessionDuration,
+    ...enhancedMetrics,
+  });
+}
+
+/**
+ * Track card flip interaction
+ */
+export function trackCardFlipped(
+  posthog: ReturnType<typeof usePostHog> | null,
+  cardId: string,
+  deckId: string,
+  flipDirection: 'front_to_back' | 'back_to_front',
+  timeToFlip?: number
+): void {
+  trackEvent(posthog, 'card_flipped', {
+    cardId,
+    deckId,
+    flipDirection,
+    timeToFlip,
+  });
+}
+
+/**
+ * Track difficulty rating
+ */
+export function trackDifficultyRated(
+  posthog: ReturnType<typeof usePostHog> | null,
+  cardId: string,
+  deckId: string,
+  difficulty: 'easy' | 'medium' | 'hard',
+  previousDifficulty?: string
+): void {
+  trackEvent(posthog, 'difficulty_rated', {
+    cardId,
+    deckId,
+    difficulty,
+    previousDifficulty,
   });
 }
 
@@ -184,8 +250,28 @@ export function useAnalytics() {
       deckName: string | undefined,
       cardsReviewed: number,
       studyMode: 'basic' | 'spaced-repetition',
-      sessionDuration?: number
-    ) => trackStudySessionCompleted(posthog, deckId, deckName, cardsReviewed, studyMode, sessionDuration),
+      sessionDuration?: number,
+      enhancedMetrics?: {
+        averageTimePerCard?: number;
+        correctAnswers?: number;
+        incorrectAnswers?: number;
+        cardsSkipped?: number;
+        completionRate?: number;
+        focusTime?: number;
+      }
+    ) => trackStudySessionCompleted(posthog, deckId, deckName, cardsReviewed, studyMode, sessionDuration, enhancedMetrics),
+    trackCardFlipped: (
+      cardId: string,
+      deckId: string,
+      flipDirection: 'front_to_back' | 'back_to_front',
+      timeToFlip?: number
+    ) => trackCardFlipped(posthog, cardId, deckId, flipDirection, timeToFlip),
+    trackDifficultyRated: (
+      cardId: string,
+      deckId: string,
+      difficulty: 'easy' | 'medium' | 'hard',
+      previousDifficulty?: string
+    ) => trackDifficultyRated(posthog, cardId, deckId, difficulty, previousDifficulty),
   };
 }
 

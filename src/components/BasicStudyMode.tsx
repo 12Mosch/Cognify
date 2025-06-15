@@ -21,11 +21,12 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [sessionStartTime, setSessionStartTime] = useState(0);
+  const [flipStartTime, setFlipStartTime] = useState<number | null>(null);
 
   const deck = useQuery(api.decks.getDeckById, { deckId });
   const cards = useQuery(api.cards.getCardsForDeck, { deckId });
 
-  const { trackStudySessionStarted } = useAnalytics();
+  const { trackStudySessionStarted, trackCardFlipped } = useAnalytics();
 
   // Calculate cards reviewed based on current position (always accurate regardless of navigation)
   const cardsReviewed = currentCardIndex + 1;
@@ -35,6 +36,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
     setCurrentCardIndex(prev => {
       if (cards && prev < cards.length - 1) {
         setIsFlipped(false);
+        setFlipStartTime(Date.now()); // Reset flip timer for new card
         return prev + 1;
       }
       return prev;
@@ -50,6 +52,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
     setCurrentCardIndex(prev => {
       if (prev > 0) {
         setIsFlipped(false);
+        setFlipStartTime(Date.now()); // Reset flip timer for new card
         return prev - 1;
       }
       return prev;
@@ -58,9 +61,20 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 
   const handleFlipCard = useCallback(() => {
     // Don't flip if modal is open
-    if (showKeyboardHelp) return;
+    if (showKeyboardHelp || !cards) return;
+
+    const currentCard = cards[currentCardIndex];
+    if (!currentCard) return;
+
+    const flipDirection: 'front_to_back' | 'back_to_front' = isFlipped ? 'back_to_front' : 'front_to_back';
+    const timeToFlip = flipStartTime ? Date.now() - flipStartTime : undefined;
+
+    // Track the card flip event
+    trackCardFlipped(currentCard._id, deckId, flipDirection, timeToFlip);
+
     setIsFlipped(prev => !prev);
-  }, [showKeyboardHelp]);
+    setFlipStartTime(Date.now());
+  }, [showKeyboardHelp, cards, currentCardIndex, isFlipped, flipStartTime, trackCardFlipped, deckId]);
 
   // Reset analytics gate whenever we switch decks
   useEffect(() => {
@@ -69,6 +83,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
     setIsFlipped(false);
     setShowSummary(false);
     setSessionStartTime(0);
+    setFlipStartTime(null);
   }, [deckId]);
 
   // Global keyboard event listener for shortcuts
@@ -117,6 +132,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
       trackStudySessionStarted(deckId, deck.name, cards.length);
       setSessionStarted(true);
       setSessionStartTime(Date.now());
+      setFlipStartTime(Date.now()); // Initialize flip timer for first card
     }
   }, [deck, deckId, cards, trackStudySessionStarted, sessionStarted]);
 

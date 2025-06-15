@@ -14,6 +14,8 @@ const {
   trackCardCreated,
   trackStudySessionStarted,
   trackStudySessionCompleted,
+  trackCardFlipped,
+  trackDifficultyRated,
   useAnalytics,
   getEnvironmentMode,
 } = analytics;
@@ -278,6 +280,8 @@ describe("Analytics Utilities", () => {
       expect(analyticsHook).toHaveProperty('trackCardCreated');
       expect(analyticsHook).toHaveProperty('trackStudySessionStarted');
       expect(analyticsHook).toHaveProperty('trackStudySessionCompleted');
+      expect(analyticsHook).toHaveProperty('trackCardFlipped');
+      expect(analyticsHook).toHaveProperty('trackDifficultyRated');
     });
 
     it("should call tracking functions correctly", () => {
@@ -304,6 +308,76 @@ describe("Analytics Utilities", () => {
         cardsReviewed: 5,
         studyMode: "basic",
         sessionDuration: 120,
+      });
+    });
+  });
+
+  describe("trackCardFlipped", () => {
+    it("should call posthog.capture with card_flipped event and properties", () => {
+      trackCardFlipped(
+        mockPostHog as any,
+        "card-123",
+        "deck-456",
+        "front_to_back",
+        1500
+      );
+
+      expect(mockPostHog.capture).toHaveBeenCalledWith("card_flipped", {
+        cardId: "card-123",
+        deckId: "deck-456",
+        flipDirection: "front_to_back",
+        timeToFlip: 1500,
+      });
+    });
+
+    it("should work without timeToFlip", () => {
+      trackCardFlipped(
+        mockPostHog as any,
+        "card-789",
+        "deck-101",
+        "back_to_front"
+      );
+
+      expect(mockPostHog.capture).toHaveBeenCalledWith("card_flipped", {
+        cardId: "card-789",
+        deckId: "deck-101",
+        flipDirection: "back_to_front",
+        timeToFlip: undefined,
+      });
+    });
+  });
+
+  describe("trackDifficultyRated", () => {
+    it("should call posthog.capture with difficulty_rated event and properties", () => {
+      trackDifficultyRated(
+        mockPostHog as any,
+        "card-456",
+        "deck-789",
+        "easy",
+        "medium"
+      );
+
+      expect(mockPostHog.capture).toHaveBeenCalledWith("difficulty_rated", {
+        cardId: "card-456",
+        deckId: "deck-789",
+        difficulty: "easy",
+        previousDifficulty: "medium",
+      });
+    });
+
+    it("should work without previousDifficulty", () => {
+      trackDifficultyRated(
+        mockPostHog as any,
+        "card-101",
+        "deck-202",
+        "hard"
+      );
+
+      expect(mockPostHog.capture).toHaveBeenCalledWith("difficulty_rated", {
+        cardId: "card-101",
+        deckId: "deck-202",
+        difficulty: "hard",
+        previousDifficulty: undefined,
       });
     });
   });

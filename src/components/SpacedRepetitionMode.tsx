@@ -53,6 +53,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   const [showSummary, setShowSummary] = useState<boolean>(false);
   const [sessionStartTime, setSessionStartTime] = useState<number>(0);
   const [cardsReviewed, setCardsReviewed] = useState<number>(0);
+  const [flipStartTime, setFlipStartTime] = useState<number | null>(null);
 
   // Fetch deck and study queue using Convex queries
   const deck = useQuery(api.decks.getDeckById, { deckId });
@@ -66,7 +67,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   const reviewCard = useMutation(api.spacedRepetition.reviewCard);
   const initializeCard = useMutation(api.spacedRepetition.initializeCardForSpacedRepetition);
 
-  const { trackStudySessionStarted } = useAnalytics();
+  const { trackStudySessionStarted, trackCardFlipped, trackDifficultyRated } = useAnalytics();
 
   // Initialize study queue when data is loaded
   useEffect(() => {
@@ -77,6 +78,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
         trackStudySessionStarted(deckId, deck.name, studyQueueData.length);
         setSessionStarted(true);
         setSessionStartTime(Date.now());
+        setFlipStartTime(Date.now()); // Initialize flip timer for first card
       }
     }
   }, [studyQueueData, sessionStarted, deckId, deck, trackStudySessionStarted]);
@@ -85,8 +87,20 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
    * Handle flipping the current card between front and back
    */
   const handleFlipCard = useCallback(() => {
+    if (studyQueue.length === 0) return;
+
+    const currentCard = studyQueue[currentCardIndex];
+    if (!currentCard) return;
+
+    const flipDirection: 'front_to_back' | 'back_to_front' = isFlipped ? 'back_to_front' : 'front_to_back';
+    const timeToFlip = flipStartTime ? Date.now() - flipStartTime : undefined;
+
+    // Track the card flip event
+    trackCardFlipped(currentCard._id, deckId, flipDirection, timeToFlip);
+
     setIsFlipped(prev => !prev);
-  }, []);
+    setFlipStartTime(Date.now());
+  }, [studyQueue, currentCardIndex, isFlipped, flipStartTime, trackCardFlipped, deckId]);
 
   /**
    * Handle card review with quality rating
@@ -95,6 +109,20 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
     if (studyQueue.length === 0) return;
 
     const currentCard = studyQueue[currentCardIndex];
+
+    // Map quality numbers to difficulty labels for analytics
+    const getDifficultyFromQuality = (q: number): 'easy' | 'medium' | 'hard' => {
+      if (q === 0) return 'hard'; // Again
+      if (q === 3) return 'hard'; // Hard
+      if (q === 4) return 'medium'; // Good
+      if (q === 5) return 'easy'; // Easy
+      return 'medium'; // Default fallback
+    };
+
+    const difficulty = getDifficultyFromQuality(quality);
+
+    // Track difficulty rating
+    trackDifficultyRated(currentCard._id, deckId, difficulty);
 
     try {
       // Initialize card for spaced repetition if needed
@@ -120,8 +148,9 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
     } else {
       setCurrentCardIndex(nextIndex);
       setIsFlipped(false);
+      setFlipStartTime(Date.now()); // Reset flip timer for new card
     }
-  }, [studyQueue, currentCardIndex, initializeCard, reviewCard]);
+  }, [studyQueue, currentCardIndex, initializeCard, reviewCard, trackDifficultyRated, deckId]);
 
   /**
    * Reset session state to start a new study session
@@ -134,6 +163,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
     setShowSummary(false);
     setSessionStartTime(0);
     setCardsReviewed(0);
+    setFlipStartTime(null);
   }, []);
 
   /**

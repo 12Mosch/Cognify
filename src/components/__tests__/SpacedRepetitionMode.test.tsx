@@ -17,6 +17,8 @@ jest.mock('convex/react', () => ({
 jest.mock('../../lib/analytics', () => ({
   useAnalytics: () => ({
     trackStudySessionStarted: jest.fn(),
+    trackCardFlipped: jest.fn(),
+    trackDifficultyRated: jest.fn(),
   }),
 }));
 

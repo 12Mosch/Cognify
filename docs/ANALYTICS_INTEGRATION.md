@@ -24,12 +24,49 @@ PostHog analytics has been integrated to track key user events and provide insig
 
 ### 3. Study Session Start (`study_session_started`)
 - **When**: Triggered when a user starts a study session for a deck
-- **Location**: `src/components/StudySession.tsx`
-- **Implementation**: Tracked when the StudySession component mounts and deck data is loaded
+- **Location**: `src/components/BasicStudyMode.tsx`, `src/components/SpacedRepetitionMode.tsx`
+- **Implementation**: Tracked when the study components mount and deck data is loaded
 - **Properties**:
   - `deckId`: The ID of the deck being studied
   - `deckName`: The name of the deck (optional)
   - `cardCount`: The number of cards in the deck (optional)
+
+### 4. Study Session Completion (`study_session_completed`)
+- **When**: Triggered when a user completes a study session
+- **Location**: `src/components/PostSessionSummary.tsx`
+- **Implementation**: Tracked when the PostSessionSummary component mounts
+- **Properties**:
+  - `deckId`: The ID of the deck that was studied
+  - `deckName`: The name of the deck (optional)
+  - `cardsReviewed`: Number of cards reviewed in the session
+  - `studyMode`: The study mode used ('basic' or 'spaced-repetition')
+  - `sessionDuration`: Duration of the session in milliseconds (optional)
+  - `averageTimePerCard`: Average time spent per card in milliseconds (optional)
+  - `correctAnswers`: Number of correct answers (optional)
+  - `incorrectAnswers`: Number of incorrect answers (optional)
+  - `cardsSkipped`: Number of cards skipped (optional)
+  - `completionRate`: Completion rate as a percentage (optional)
+  - `focusTime`: Time actually spent studying vs idle in milliseconds (optional)
+
+### 5. Card Flip (`card_flipped`)
+- **When**: Triggered when a user flips a flashcard to see the answer or question
+- **Location**: `src/components/BasicStudyMode.tsx`, `src/components/SpacedRepetitionMode.tsx`
+- **Implementation**: Tracked in the `handleFlipCard` function with timing data
+- **Properties**:
+  - `cardId`: The ID of the card that was flipped
+  - `deckId`: The ID of the deck containing the card
+  - `flipDirection`: Direction of the flip ('front_to_back' or 'back_to_front')
+  - `timeToFlip`: Time taken to flip the card in milliseconds (optional)
+
+### 6. Difficulty Rating (`difficulty_rated`)
+- **When**: Triggered when a user rates the difficulty of a card in spaced repetition mode
+- **Location**: `src/components/SpacedRepetitionMode.tsx`
+- **Implementation**: Tracked in the `handleReview` function when quality ratings are given
+- **Properties**:
+  - `cardId`: The ID of the card that was rated
+  - `deckId`: The ID of the deck containing the card
+  - `difficulty`: The difficulty rating ('easy', 'medium', or 'hard')
+  - `previousDifficulty`: The previous difficulty rating for this card (optional)
 
 ## File Structure
 
@@ -112,10 +149,23 @@ For EU users, use `https://eu.posthog.com` as the host.
 import { useAnalytics } from '../lib/analytics';
 
 function MyComponent() {
-  const { trackDeckCreated, trackStudySessionStarted } = useAnalytics();
-  
+  const {
+    trackDeckCreated,
+    trackStudySessionStarted,
+    trackCardFlipped,
+    trackDifficultyRated
+  } = useAnalytics();
+
   const handleDeckCreated = (deckId: string, deckName: string) => {
     trackDeckCreated(deckId, deckName);
+  };
+
+  const handleCardFlip = (cardId: string, deckId: string) => {
+    trackCardFlipped(cardId, deckId, 'front_to_back', 1500);
+  };
+
+  const handleDifficultyRating = (cardId: string, deckId: string) => {
+    trackDifficultyRated(cardId, deckId, 'easy');
   };
 }
 ```
