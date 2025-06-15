@@ -88,6 +88,7 @@ The Statistics Dashboard provides comprehensive analytics and insights for the f
 src/components/
 ├── StatisticsDashboard.tsx              # Main dashboard component
 ├── statistics/
+│   ├── ChartWidget.tsx                  # Reusable chart container component
 │   ├── StatisticsOverviewCards.tsx      # Overview metrics cards
 │   ├── StudyActivityChart.tsx           # Time-series activity chart
 │   ├── DeckPerformanceChart.tsx         # Deck comparison chart
@@ -98,7 +99,9 @@ src/components/
 ├── skeletons/
 │   └── StatisticsSkeleton.tsx           # Loading state components
 └── __tests__/
-    └── StatisticsDashboard.test.tsx     # Unit tests
+    ├── StatisticsDashboard.test.tsx     # Unit tests
+    └── statistics/
+        └── ChartWidget.test.tsx         # ChartWidget unit tests
 
 convex/
 └── statistics.ts                        # Backend statistics queries
@@ -106,6 +109,41 @@ convex/
 docs/
 └── STATISTICS_DASHBOARD.md             # This documentation
 ```
+
+## Key Components
+
+### ChartWidget
+Reusable container component that eliminates code duplication across chart components:
+
+**Features:**
+- **Consistent Styling**: Standardized dark theme with slate colors and responsive design
+- **Flexible Structure**: Configurable title, subtitle, header actions, and footer content
+- **Customizable Height**: Adjustable chart container height (default: h-80)
+- **Accessibility**: Proper heading structure and semantic markup
+- **TypeScript Support**: Fully typed props with comprehensive interfaces
+
+**Usage Example:**
+```tsx
+<ChartWidget
+  title="Study Activity"
+  subtitle="Track your learning progress over time"
+  chartHeight="h-80"
+  headerActions={<button>Export</button>}
+  footer={<div>Summary stats...</div>}
+>
+  <ResponsiveContainer width="100%" height="100%">
+    <AreaChart data={data}>
+      // Chart content...
+    </AreaChart>
+  </ResponsiveContainer>
+</ChartWidget>
+```
+
+**Benefits:**
+- Eliminates 15-20 lines of duplicated code per chart component
+- Ensures consistent styling across all dashboard widgets
+- Centralizes widget styling for easier maintenance
+- Improves code maintainability and reduces styling inconsistencies
 
 ## Backend Queries
 

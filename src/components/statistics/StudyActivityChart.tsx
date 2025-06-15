@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import ChartWidget from "./ChartWidget";
 
 interface StudyActivityChartProps {
   dateRange: '7d' | '30d' | '90d' | 'all';
@@ -64,38 +65,57 @@ const StudyActivityChart = memo(function StudyActivityChart({ dateRange }: Study
     return null;
   };
 
-  return (
-    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-      {/* Chart Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-1">
-            Study Activity Over Time
-          </h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Track your learning consistency and progress patterns
-          </p>
+  // Prepare footer content
+  const footerContent = (
+    <>
+      {/* Chart Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+        <div className="text-center">
+          <div className="text-2xl font-bold text-blue-500 dark:text-blue-400">
+            {data.reduce((sum, day) => sum + day.cardsStudied, 0)}
+          </div>
+          <div className="text-sm text-slate-600 dark:text-slate-400">Total Cards</div>
         </div>
-        
-        {/* Chart Legend */}
-        <div className="flex items-center gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-400"></div>
-            <span className="text-slate-600 dark:text-slate-400">Cards Studied</span>
+        <div className="text-center">
+          <div className="text-2xl font-bold text-cyan-500 dark:text-cyan-400">
+            {data.reduce((sum, day) => sum + day.sessions, 0)}
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-cyan-400"></div>
-            <span className="text-slate-600 dark:text-slate-400">Sessions</span>
+          <div className="text-sm text-slate-600 dark:text-slate-400">Total Sessions</div>
+        </div>
+        <div className="text-center">
+          <div className="text-2xl font-bold text-green-500 dark:text-green-400">
+            {Math.round(data.reduce((sum, day) => sum + day.timeSpent, 0) / 60)}
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-400"></div>
-            <span className="text-slate-600 dark:text-slate-400">Time (min)</span>
-          </div>
+          <div className="text-sm text-slate-600 dark:text-slate-400">Total Minutes</div>
+        </div>
+      </div>
+    </>
+  );
+
+  return (
+    <ChartWidget
+      title="Study Activity Over Time"
+      subtitle="Track your learning consistency and progress patterns"
+      chartHeight="h-80"
+      footer={footerContent}
+    >
+      {/* Chart Legend */}
+      <div className="flex items-center gap-4 text-sm mb-6">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-blue-400"></div>
+          <span className="text-slate-600 dark:text-slate-400">Cards Studied</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-cyan-400"></div>
+          <span className="text-slate-600 dark:text-slate-400">Sessions</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-green-400"></div>
+          <span className="text-slate-600 dark:text-slate-400">Time (min)</span>
         </div>
       </div>
 
-      {/* Chart Container */}
-      <div className="h-80">
+      {/* Chart Content */}
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <defs>
@@ -168,30 +188,7 @@ const StudyActivityChart = memo(function StudyActivityChart({ dateRange }: Study
             />
           </AreaChart>
         </ResponsiveContainer>
-      </div>
-
-      {/* Chart Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-        <div className="text-center">
-          <div className="text-2xl font-bold text-blue-500 dark:text-blue-400">
-            {data.reduce((sum, day) => sum + day.cardsStudied, 0)}
-          </div>
-          <div className="text-sm text-slate-600 dark:text-slate-400">Total Cards</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-cyan-500 dark:text-cyan-400">
-            {data.reduce((sum, day) => sum + day.sessions, 0)}
-          </div>
-          <div className="text-sm text-slate-600 dark:text-slate-400">Total Sessions</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-green-500 dark:text-green-400">
-            {Math.round(data.reduce((sum, day) => sum + day.timeSpent, 0) / 60)}h
-          </div>
-          <div className="text-sm text-slate-600 dark:text-slate-400">Total Time</div>
-        </div>
-      </div>
-    </div>
+    </ChartWidget>
   );
 });
 

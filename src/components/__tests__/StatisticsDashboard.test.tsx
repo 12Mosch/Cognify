@@ -19,7 +19,7 @@ jest.mock('../statistics/CardDistributionChart', () => {
   return function MockCardDistributionChart({ spacedRepetitionInsights, cardDistribution }: any) {
     return (
       <div data-testid="card-distribution-chart">
-        Card Distribution Chart - {cardDistribution?.totalCards || 0} total cards
+        Card Distribution Chart - {cardDistribution?.totalCards || 0} total cards - {spacedRepetitionInsights?.totalDueCards || 0} due
       </div>
     );
   };

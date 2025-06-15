@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import ChartWidget from "./ChartWidget";
 
 interface DeckPerformance {
   deckId: string;
@@ -112,31 +113,21 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
     );
   }
 
-  return (
-    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-      {/* Chart Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-1">
-            Deck Performance
-          </h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Compare mastery progress across your decks
-          </p>
-        </div>
-        
-        {selectedDeckId && (
-          <button
-            onClick={() => onDeckSelect(null)}
-            className="px-3 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-          >
-            Clear Selection
-          </button>
-        )}
-      </div>
+  // Prepare header actions
+  const headerActions = selectedDeckId ? (
+    <button
+      onClick={() => onDeckSelect(null)}
+      className="px-3 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+    >
+      Clear Selection
+    </button>
+  ) : null;
 
+  // Prepare footer content
+  const footerContent = (
+    <>
       {/* Performance Legend */}
-      <div className="flex flex-wrap items-center gap-4 mb-6 text-xs">
+      <div className="flex flex-wrap items-center gap-4 text-xs mb-6">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded bg-red-500"></div>
           <span className="text-slate-600 dark:text-slate-400">Needs Work (&lt;40%)</span>
@@ -155,8 +146,62 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
         </div>
       </div>
 
-      {/* Chart Container */}
-      <div className="h-64">
+      {/* Selected Deck Details */}
+      {selectedDeckId && (
+        <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
+          {(() => {
+            const selectedDeck = deckPerformance.find(d => d.deckId === selectedDeckId);
+            if (!selectedDeck) return null;
+
+            return (
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-3">
+                  {selectedDeck.deckName}
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <div className="text-slate-600 dark:text-slate-400">Total Cards</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-200">
+                      {selectedDeck.totalCards}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-slate-600 dark:text-slate-400">Mastered</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-200">
+                      {selectedDeck.masteredCards}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-slate-600 dark:text-slate-400">Progress</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-200">
+                      {selectedDeck.masteryPercentage.toFixed(1)}%
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-slate-600 dark:text-slate-400">Avg. Ease</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-200">
+                      {selectedDeck.averageEaseFactor ? selectedDeck.averageEaseFactor.toFixed(2) : 'N/A'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+    </>
+  );
+
+  return (
+    <ChartWidget
+      title="Deck Performance"
+      subtitle="Compare mastery progress across your decks"
+      chartHeight="h-64"
+      headerActions={headerActions}
+      footer={footerContent}
+    >
+
+      {/* Chart Content */}
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
@@ -205,52 +250,7 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </div>
-
-      {/* Selected Deck Details */}
-      {selectedDeckId && (
-        <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-          {(() => {
-            const selectedDeck = deckPerformance.find(d => d.deckId === selectedDeckId);
-            if (!selectedDeck) return null;
-            
-            return (
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-3">
-                  {selectedDeck.deckName}
-                </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <div className="text-slate-600 dark:text-slate-400">Total Cards</div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200">
-                      {selectedDeck.totalCards}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-slate-600 dark:text-slate-400">Mastered</div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200">
-                      {selectedDeck.masteredCards}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-slate-600 dark:text-slate-400">Progress</div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200">
-                      {selectedDeck.masteryPercentage.toFixed(1)}%
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-slate-600 dark:text-slate-400">Avg. Ease</div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200">
-                      {selectedDeck.averageEaseFactor ? selectedDeck.averageEaseFactor.toFixed(2) : 'N/A'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-        </div>
-      )}
-    </div>
+    </ChartWidget>
   );
 });
 

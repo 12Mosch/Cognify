@@ -636,7 +636,7 @@ export const getDashboardData = query({
       }
     }
 
-    const totalStudyTime = allSessions.reduce((sum, session) => sum + (session.duration || 0), 0);
+    const totalStudyTime = allSessions.reduce((sum, session) => sum + (session.sessionDuration || 0), 0);
     const averageSessionDuration = allSessions.length > 0 ? totalStudyTime / allSessions.length : undefined;
 
     const userStatistics = {

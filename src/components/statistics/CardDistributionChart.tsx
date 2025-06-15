@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import ChartWidget from "./ChartWidget";
 
 interface SpacedRepetitionInsights {
   totalDueCards: number;
@@ -133,67 +134,30 @@ const CardDistributionChart = memo(function CardDistributionChart({
 
   if (cardDistribution.totalCards === 0) {
     return (
-      <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-        <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
-          Card Distribution
-        </h3>
-        <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-400">
+      <ChartWidget
+        title="Card Distribution"
+        subtitle="Overview of your cards across learning stages"
+        chartHeight="h-64"
+      >
+        <div className="flex items-center justify-center h-full text-slate-500 dark:text-slate-400">
           <div className="text-center">
             <div className="text-4xl mb-4">🃏</div>
             <p>No cards available</p>
             <p className="text-sm mt-2">Add some cards to see distribution</p>
           </div>
         </div>
-      </div>
+      </ChartWidget>
     );
   }
 
-  return (
-    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-      {/* Chart Header */}
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-1">
-          Card Distribution
-        </h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Overview of your cards across learning stages
-        </p>
-      </div>
-
-      {/* Chart Container */}
-      <div className="h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={CustomLabel}
-              outerRadius={80}
-              innerRadius={40}
-              fill="#8884d8"
-              dataKey="value"
-              stroke="none"
-            >
-              {chartData.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={entry.color}
-                  className="hover:opacity-80 transition-opacity cursor-pointer"
-                />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-
+  // Prepare footer content
+  const footerContent = (
+    <>
       {/* Legend */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {chartData.map((item, index) => (
           <div key={index} className="flex items-center gap-3">
-            <div 
+            <div
               className="w-4 h-4 rounded-full flex-shrink-0"
               style={{ backgroundColor: item.color }}
             ></div>
@@ -243,7 +207,42 @@ const CardDistributionChart = memo(function CardDistributionChart({
           </div>
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <ChartWidget
+      title="Card Distribution"
+      subtitle="Overview of your cards across learning stages"
+      chartHeight="h-64"
+      footer={footerContent}
+    >
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={CustomLabel}
+              outerRadius={80}
+              innerRadius={40}
+              fill="#8884d8"
+              dataKey="value"
+              stroke="none"
+            >
+              {chartData.map((entry, index) => (
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={entry.color}
+                  className="hover:opacity-80 transition-opacity cursor-pointer"
+                />
+              ))}
+            </Pie>
+            <Tooltip content={<CustomTooltip />} />
+          </PieChart>
+        </ResponsiveContainer>
+    </ChartWidget>
   );
 });
 
