@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAnalytics } from "../lib/analytics";
+import FocusLock from "react-focus-lock";
+import { useFocusManagement, useModalEffects } from "../hooks/useFocusManagement";
 
 interface CreateDeckFormProps {
   onSuccess?: () => void;
@@ -17,6 +19,10 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 
   const createDeck = useMutation(api.decks.createDeck);
   const { trackDeckCreated } = useAnalytics();
+
+  // Focus management hooks
+  const { firstFocusableElementRef, storeTriggerElement, restoreFocus } = useFocusManagement(showForm);
+  useModalEffects(showForm, handleCancel);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +63,9 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
         setShowForm(false);
         setError(null);
 
+        // Restore focus to trigger element
+        restoreFocus();
+
         // Call success callback
         onSuccess?.();
       } catch (err) {
@@ -70,18 +79,22 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
     void submitDeck();
   };
 
-  const handleCancel = () => {
+  function handleCancel() {
     setName("");
     setDescription("");
     setError(null);
     setShowForm(false);
+    restoreFocus();
     onCancel?.();
-  };
+  }
 
   if (!showForm) {
     return (
       <button
-        onClick={() => setShowForm(true)}
+        onClick={() => {
+          storeTriggerElement();
+          setShowForm(true);
+        }}
         className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
         aria-label="Create new deck"
       >
@@ -91,10 +104,27 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
   }
 
   return (
-    <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-      <h3 className="text-lg font-bold mb-4">Create New Deck</h3>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <>
+      {/* Modal Overlay */}
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4"
+        onClick={handleCancel}
+        aria-hidden="true"
+      />
+
+      {/* Modal Content */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <FocusLock>
+          <div
+            className="bg-slate-100 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 max-w-md w-full pointer-events-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-deck-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="create-deck-title" className="text-lg font-bold mb-4">Create New Deck</h3>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label 
             htmlFor="deck-name" 
@@ -103,6 +133,7 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
             Deck Name *
           </label>
           <input
+            ref={firstFocusableElementRef}
             id="deck-name"
             type="text"
             value={name}
@@ -170,8 +201,11 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
           >
             Cancel
           </button>
-        </div>
-      </form>
-    </div>
+            </div>
+            </form>
+          </div>
+        </FocusLock>
+      </div>
+    </>
   );
 }

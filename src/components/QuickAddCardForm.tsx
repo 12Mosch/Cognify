@@ -3,6 +3,8 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
+import FocusLock from "react-focus-lock";
+import { useFocusManagement, useModalEffects } from "../hooks/useFocusManagement";
 
 interface QuickAddCardFormProps {
   onSuccess?: () => void;
@@ -22,6 +24,10 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
   const decks = useQuery(api.decks.getDecksForUser);
   const addCard = useMutation(api.cards.addCardToDeck);
   const { trackCardCreated } = useAnalytics();
+
+  // Focus management hooks
+  const { firstFocusableElementRef, storeTriggerElement, restoreFocus } = useFocusManagement(showForm);
+  useModalEffects(showForm, handleCancel);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +69,9 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
         setError(null);
         setShowForm(false);
 
+        // Restore focus to trigger element
+        restoreFocus();
+
         // Call success callback
         onSuccess?.();
       } catch (err) {
@@ -75,14 +84,15 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
     void submitCard();
   };
 
-  const handleCancel = () => {
+  function handleCancel() {
     setSelectedDeckId(null);
     setFront("");
     setBack("");
     setError(null);
     setShowForm(false);
+    restoreFocus();
     onCancel?.();
-  };
+  }
 
   // Don't show button if no decks exist
   if (decks === undefined) {
@@ -96,7 +106,10 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
   if (!showForm) {
     return (
       <button
-        onClick={() => setShowForm(true)}
+        onClick={() => {
+          storeTriggerElement();
+          setShowForm(true);
+        }}
         className="bg-slate-600 dark:bg-slate-400 text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
         aria-label="Quick add card to existing deck"
       >
@@ -106,10 +119,27 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
   }
 
   return (
-    <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-      <h3 className="text-lg font-bold mb-4">Quick Add Card</h3>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <>
+      {/* Modal Overlay */}
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4"
+        onClick={handleCancel}
+        aria-hidden="true"
+      />
+
+      {/* Modal Content */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <FocusLock>
+          <div
+            className="bg-slate-100 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 max-w-md w-full pointer-events-auto max-h-[90vh] overflow-y-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="quick-add-card-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="quick-add-card-title" className="text-lg font-bold mb-4">Quick Add Card</h3>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
         {/* Deck Selection */}
         <div>
           <label 
@@ -119,6 +149,7 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
             Select Deck *
           </label>
           <select
+            ref={firstFocusableElementRef}
             id="deck-select"
             value={selectedDeckId || ""}
             onChange={(e) => setSelectedDeckId(e.target.value ? e.target.value as Id<"decks"> : null)}
@@ -209,8 +240,11 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
           >
             Cancel
           </button>
-        </div>
-      </form>
-    </div>
+            </div>
+            </form>
+          </div>
+        </FocusLock>
+      </div>
+    </>
   );
 }

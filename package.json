@@ -19,7 +19,8 @@
     "convex": "^1.23.0",
     "posthog-js": "^1.252.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-focus-lock": "^2.13.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
