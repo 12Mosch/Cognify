@@ -5,6 +5,7 @@ import { CreateDeckForm } from "./CreateDeckForm";
 import { QuickAddCardForm } from "./QuickAddCardForm";
 import { Id } from "../../convex/_generated/dataModel";
 import { DeckListSkeleton, GenericSkeleton } from "./skeletons/SkeletonComponents";
+import { toastHelpers } from "../lib/toast";
 
 // Lazy-loaded components for better performance
 const DeckView = lazy(() => import("./DeckView"));
@@ -97,15 +98,15 @@ export function Dashboard() {
     return <DeckListSkeleton />;
   }
 
-  // Error state (handled by Convex error boundaries, but we can add custom handling)
-  const handleCreateSuccess = () => {
+  // Success handlers with toast notifications
+  const handleCreateSuccess = (deckName?: string) => {
     // The query will automatically refetch due to Convex reactivity
-    console.log("Deck created successfully!");
+    toastHelpers.deckCreated(deckName);
   };
 
   const handleCardCreateSuccess = () => {
     // The query will automatically refetch due to Convex reactivity
-    console.log("Card created successfully!");
+    toastHelpers.cardCreated();
   };
 
   return (

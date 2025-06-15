@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAnalytics } from "../lib/analytics";
 import FocusLock from "react-focus-lock";
 import { useFocusManagement, useModalEffects } from "../hooks/useFocusManagement";
+import { showErrorToast } from "../lib/toast";
 
 interface CreateDeckFormProps {
-  onSuccess?: () => void;
+  onSuccess?: (deckName?: string) => void;
   onCancel?: () => void;
 }
 
@@ -21,8 +22,18 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
   const { trackDeckCreated } = useAnalytics();
 
   // Focus management hooks
-  const { firstFocusableElementRef, storeTriggerElement, restoreFocus } = useFocusManagement(showForm);
+  const { storeTriggerElement, restoreFocus } = useFocusManagement(showForm);
+  const firstInputRef = useRef<HTMLInputElement>(null);
   useModalEffects(showForm, handleCancel);
+
+  // Focus first input when form opens
+  useEffect(() => {
+    if (showForm && firstInputRef.current) {
+      setTimeout(() => {
+        firstInputRef.current?.focus();
+      }, 10);
+    }
+  }, [showForm]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +68,9 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
         // Track deck creation event
         trackDeckCreated(deckId, name.trim());
 
+        // Store deck name for success callback before resetting form
+        const deckName = name.trim();
+
         // Reset form
         setName("");
         setDescription("");
@@ -66,10 +80,20 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
         // Restore focus to trigger element
         restoreFocus();
 
-        // Call success callback
-        onSuccess?.();
+        // Call success callback with deck name
+        onSuccess?.(deckName);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to create deck");
+        const errorMessage = err instanceof Error ? err.message : "Failed to create deck";
+        setError(errorMessage);
+
+        // Show error toast for network/temporary failures
+        if (errorMessage.toLowerCase().includes('network') ||
+            errorMessage.toLowerCase().includes('connection') ||
+            errorMessage.toLowerCase().includes('timeout')) {
+          showErrorToast("Network error. Please check your connection and try again.");
+        } else {
+          showErrorToast("Failed to create deck. Please try again.");
+        }
       } finally {
         setIsSubmitting(false);
       }
@@ -133,7 +157,7 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
             Deck Name *
           </label>
           <input
-            ref={firstFocusableElementRef}
+            ref={firstInputRef}
             id="deck-name"
             type="text"
             value={name}

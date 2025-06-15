@@ -6,6 +6,7 @@ import {
   Unauthenticated,
 } from "convex/react";
 import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/clerk-react";
+import { Toaster } from "react-hot-toast";
 import { Dashboard } from "./components/Dashboard";
 import { useAnalytics, hasUserBeenTrackedForRegistration, markUserAsTrackedForRegistration } from "./lib/analytics";
 
@@ -44,6 +45,37 @@ export default function App() {
           <SignInForm />
         </Unauthenticated>
       </main>
+
+      {/* Toast notifications */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          // Default options for all toasts
+          duration: 4000,
+          style: {
+            borderRadius: '8px',
+            fontSize: '14px',
+            maxWidth: '400px',
+          },
+          // Success toasts
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#ffffff',
+            },
+          },
+          // Error toasts
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#ffffff',
+            },
+          },
+        }}
+        containerStyle={{
+          top: 80, // Account for header height
+        }}
+      />
     </>
   );
 }

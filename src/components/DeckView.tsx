@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { DeckViewSkeleton } from "./skeletons/SkeletonComponents";
+import { toastHelpers } from "../lib/toast";
 
 interface DeckViewProps {
   deckId: Id<"decks">;
@@ -86,7 +87,10 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
         <AddCardForm
           deckId={deckId}
           onCancel={() => setShowAddForm(false)}
-          onSuccess={() => setShowAddForm(false)}
+          onSuccess={() => {
+            setShowAddForm(false);
+            toastHelpers.cardCreated();
+          }}
         />
       )}
 
@@ -95,7 +99,10 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
         <EditCardForm
           card={editingCard}
           onCancel={() => setEditingCard(null)}
-          onSuccess={() => setEditingCard(null)}
+          onSuccess={() => {
+            setEditingCard(null);
+            toastHelpers.cardUpdated();
+          }}
         />
       )}
 

@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
 import FocusLock from "react-focus-lock";
 import { useFocusManagement, useModalEffects } from "../hooks/useFocusManagement";
+import { showErrorToast } from "../lib/toast";
 
 interface QuickAddCardFormProps {
   onSuccess?: () => void;
@@ -26,8 +27,18 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
   const { trackCardCreated } = useAnalytics();
 
   // Focus management hooks
-  const { firstFocusableElementRef, storeTriggerElement, restoreFocus } = useFocusManagement(showForm);
+  const { storeTriggerElement, restoreFocus } = useFocusManagement(showForm);
+  const firstSelectRef = useRef<HTMLSelectElement>(null);
   useModalEffects(showForm, handleCancel);
+
+  // Focus first select when form opens
+  useEffect(() => {
+    if (showForm && firstSelectRef.current) {
+      setTimeout(() => {
+        firstSelectRef.current?.focus();
+      }, 10);
+    }
+  }, [showForm]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +86,17 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
         // Call success callback
         onSuccess?.();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to add card");
+        const errorMessage = err instanceof Error ? err.message : "Failed to add card";
+        setError(errorMessage);
+
+        // Show error toast for network/temporary failures
+        if (errorMessage.toLowerCase().includes('network') ||
+            errorMessage.toLowerCase().includes('connection') ||
+            errorMessage.toLowerCase().includes('timeout')) {
+          showErrorToast("Network error. Please check your connection and try again.");
+        } else {
+          showErrorToast("Failed to add card. Please try again.");
+        }
       } finally {
         setIsSubmitting(false);
       }
@@ -149,7 +170,7 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
             Select Deck *
           </label>
           <select
-            ref={firstFocusableElementRef}
+            ref={firstSelectRef}
             id="deck-select"
             value={selectedDeckId || ""}
             onChange={(e) => setSelectedDeckId(e.target.value ? e.target.value as Id<"decks"> : null)}
