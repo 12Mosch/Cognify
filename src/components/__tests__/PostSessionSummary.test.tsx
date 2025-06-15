@@ -6,18 +6,28 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import PostSessionSummary from '../PostSessionSummary';
 import { Id } from '../../../convex/_generated/dataModel';
+import { useQuery, useMutation } from 'convex/react';
 
 // Mock Convex hooks
-const mockUseQuery = jest.fn();
 jest.mock('convex/react', () => ({
-  useQuery: mockUseQuery,
+  useQuery: jest.fn(),
+  useMutation: jest.fn(),
 }));
+
+const mockUseQuery = useQuery as jest.MockedFunction<typeof useQuery>;
+const mockUseMutation = useMutation as jest.MockedFunction<typeof useMutation>;
 
 // Mock analytics
 jest.mock('../../lib/analytics', () => ({
   useAnalytics: () => ({
     trackStudySessionCompleted: jest.fn(),
   }),
+}));
+
+// Mock dateUtils
+jest.mock('../../lib/dateUtils', () => ({
+  getUserTimeZone: jest.fn(() => 'America/New_York'),
+  getLocalDateString: jest.fn(() => '2024-01-15'),
 }));
 
 describe('PostSessionSummary', () => {
@@ -27,6 +37,7 @@ describe('PostSessionSummary', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+
     // Mock study queue stats
     mockUseQuery.mockReturnValue({
       dueCount: 5,
@@ -34,6 +45,13 @@ describe('PostSessionSummary', () => {
       totalStudyCards: 15,
       totalCardsInDeck: 25,
     });
+
+    // Mock useMutation to return a mock function with required properties
+    const mockRecordStudySession = jest.fn().mockResolvedValue(undefined);
+    Object.assign(mockRecordStudySession, {
+      withOptimisticUpdate: jest.fn(),
+    });
+    mockUseMutation.mockReturnValue(mockRecordStudySession as any);
   });
 
   it('renders session completion message with basic study mode', () => {
@@ -48,7 +66,9 @@ describe('PostSessionSummary', () => {
     );
 
     expect(screen.getByText('Session Complete!')).toBeInTheDocument();
-    expect(screen.getByText(/You reviewed 8 cards from Test Deck/)).toBeInTheDocument();
+    expect(screen.getByText((_content, element) => {
+      return element?.tagName === 'P' && element?.textContent?.includes('You reviewed 8 cards from Test Deck') || false;
+    })).toBeInTheDocument();
     expect(screen.getByText('Basic Study')).toBeInTheDocument();
   });
 
@@ -64,7 +84,9 @@ describe('PostSessionSummary', () => {
     );
 
     expect(screen.getByText('Session Complete!')).toBeInTheDocument();
-    expect(screen.getByText(/You reviewed 12 cards from Test Deck/)).toBeInTheDocument();
+    expect(screen.getByText((_content, element) => {
+      return element?.tagName === 'P' && element?.textContent?.includes('You reviewed 12 cards from Test Deck') || false;
+    })).toBeInTheDocument();
     expect(screen.getByText('Spaced Repetition')).toBeInTheDocument();
   });
 
@@ -114,7 +136,10 @@ describe('PostSessionSummary', () => {
       />
     );
 
-    expect(screen.getByText(/You reviewed 1 card from Test Deck/)).toBeInTheDocument();
+    // Check that it says "card" not "cards" for singular
+    expect(screen.getByText((_content, element) => {
+      return element?.tagName === 'P' && element?.textContent?.includes('You reviewed 1 card from Test Deck') || false;
+    })).toBeInTheDocument();
   });
 
   it('calls onReturnToDashboard when return button is clicked', () => {
