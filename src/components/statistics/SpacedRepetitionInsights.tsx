@@ -1,5 +1,7 @@
 import { memo } from "react";
 
+// Define type that matches the actual Convex query return structure
+// Manually defined to ensure proper optional property handling
 interface SpacedRepetitionInsights {
   totalDueCards: number;
   totalNewCards: number;

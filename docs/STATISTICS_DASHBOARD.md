@@ -4,6 +4,52 @@
 
 The Statistics Dashboard provides comprehensive analytics and insights for the flashcard learning app, offering users detailed visibility into their learning progress, performance metrics, and study patterns.
 
+## Type Safety Improvements
+
+### Interface Consolidation and Type Safety
+
+The statistics dashboard components have been refactored to use consolidated, well-defined TypeScript interfaces that match the actual Convex query return structures, improving type safety and maintainability.
+
+**Benefits:**
+- **Consistent Type Definitions**: Centralized interfaces that match actual query return shapes
+- **Improved Type Safety**: Proper handling of optional properties (`retentionRate?`, `averageInterval?`)
+- **Better Developer Experience**: Clear TypeScript intellisense and error detection
+- **Reduced Code Duplication**: Shared interfaces across related components
+
+**Implementation:**
+```typescript
+// Consolidated type definitions that match Convex query structures
+interface UserStats {
+  totalDecks: number;
+  totalCards: number;
+  totalStudySessions: number;
+  cardsStudiedToday: number;
+  currentStreak: number;
+  longestStreak: number;
+  averageSessionDuration?: number;
+  totalStudyTime?: number;
+}
+
+interface SpacedRepetitionInsights {
+  totalDueCards: number;
+  totalNewCards: number;
+  cardsToReviewToday: number;
+  upcomingReviews: Array<{
+    date: string;
+    count: number;
+  }>;
+  retentionRate?: number;
+  averageInterval?: number;
+}
+```
+
+**Refactored Components:**
+- `StatisticsOverviewCards.tsx` - Now uses consolidated `UserStats` and `SpacedRepetitionInsights` interfaces
+- `SpacedRepetitionInsights.tsx` - Now uses consolidated `SpacedRepetitionInsights` interface
+
+**Note on Type Inference:**
+While we initially attempted to use Convex's `FunctionReturnType` utility for automatic type inference, we discovered that the current implementation sets some optional properties (like `retentionRate`) to explicit `undefined` values, which causes TypeScript to infer them as `never` type instead of `number | undefined`. The manual interface approach provides better type safety and developer experience in this case.
+
 ## Features
 
 ### 📊 **Visual Design**

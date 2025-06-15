@@ -1,5 +1,7 @@
 import { memo } from "react";
 
+// Define types that match the actual Convex query return structure
+// These are manually defined to ensure proper optional property handling
 interface UserStats {
   totalDecks: number;
   totalCards: number;
@@ -93,7 +95,7 @@ export const StatisticsOverviewCards = memo(function StatisticsOverviewCards({
     },
     {
       title: "Average Interval",
-      value: spacedRepetitionInsights.averageInterval ? 
+      value: spacedRepetitionInsights.averageInterval ?
         `${spacedRepetitionInsights.averageInterval.toFixed(1)}d` : 'N/A',
       subtitle: "Between reviews",
       icon: "📅",
@@ -102,7 +104,7 @@ export const StatisticsOverviewCards = memo(function StatisticsOverviewCards({
     },
     {
       title: "Retention Rate",
-      value: spacedRepetitionInsights.retentionRate ? 
+      value: spacedRepetitionInsights.retentionRate ?
         `${spacedRepetitionInsights.retentionRate.toFixed(1)}%` : 'N/A',
       subtitle: "Success rate",
       icon: "🎯",
