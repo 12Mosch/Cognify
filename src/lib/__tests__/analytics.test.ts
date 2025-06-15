@@ -15,6 +15,7 @@ const {
   trackStudySessionStarted,
   trackStudySessionCompleted,
   useAnalytics,
+  getEnvironmentMode,
 } = analytics;
 
 // Mock PostHog React hook
@@ -68,6 +69,46 @@ afterEach(() => {
 });
 
 describe("Analytics Utilities", () => {
+  describe("getEnvironmentMode", () => {
+    const originalProcessEnv = process.env;
+
+    afterEach(() => {
+      // Restore original process.env
+      process.env = originalProcessEnv;
+    });
+
+    it("should return 'test' when NODE_ENV is test", () => {
+      process.env = { ...originalProcessEnv, NODE_ENV: 'test' };
+
+      expect(getEnvironmentMode()).toBe('test');
+    });
+
+    it("should return VITE_MODE when available", () => {
+      process.env = { ...originalProcessEnv, NODE_ENV: 'development', VITE_MODE: 'staging' };
+
+      expect(getEnvironmentMode()).toBe('staging');
+    });
+
+    it("should return NODE_ENV when VITE_MODE is not available", () => {
+      process.env = { ...originalProcessEnv, NODE_ENV: 'development' };
+      delete process.env.VITE_MODE;
+
+      expect(getEnvironmentMode()).toBe('development');
+    });
+
+    it("should return 'production' as fallback", () => {
+      process.env = {};
+
+      expect(getEnvironmentMode()).toBe('production');
+    });
+
+    it("should prioritize test environment over other settings", () => {
+      process.env = { ...originalProcessEnv, NODE_ENV: 'test', VITE_MODE: 'development' };
+
+      expect(getEnvironmentMode()).toBe('test');
+    });
+  });
+
   describe("trackEvent", () => {
     it("should call posthog.capture with correct parameters", () => {
       trackEvent(mockPostHog as any, "user_signed_up");

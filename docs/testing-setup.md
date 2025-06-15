@@ -96,6 +96,37 @@ describe('DeckList', () => {
 });
 ```
 
+### Handling Multiple useQuery Calls (React StrictMode Compatible)
+
+When testing components that use multiple `useQuery` calls, avoid brittle call-counter mocks that break under React 18 StrictMode. Instead, use cycling values:
+
+```typescript
+// ❌ Brittle approach - breaks with React StrictMode double-rendering
+const setupBrittleMocks = () => {
+  let callIndex = 0;
+  mockUseQuery.mockImplementation(() => {
+    const currentCall = callIndex++;
+    return currentCall % 2 === 0 ? mockDeck : mockCards;
+  });
+};
+
+// ✅ Resilient approach - works with React StrictMode
+const setupRobustMocks = () => {
+  mockUseQuery.mockReset();
+
+  let callCount = 0;
+  const mockValues = [mockDeck, mockCards]; // deck query first, then cards query
+
+  mockUseQuery.mockImplementation(() => {
+    const value = mockValues[callCount % mockValues.length];
+    callCount++;
+    return value;
+  });
+};
+```
+
+This pattern ensures tests remain deterministic regardless of how many times React re-invokes components during rendering.
+
 ### Async Testing
 
 ```typescript

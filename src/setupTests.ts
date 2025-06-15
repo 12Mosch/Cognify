@@ -43,24 +43,23 @@ Object.defineProperty(window, 'scrollTo', {
   value: jest.fn(),
 });
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+// Mock localStorage and sessionStorage with in-memory store
+const makeMemoryStorage = () => {
+  const store: Record<string, string> = {};
+  return {
+    getItem: jest.fn((k) => store[k] ?? null),
+    setItem: jest.fn((k, v) => { store[k] = String(v); }),
+    removeItem: jest.fn((k) => { delete store[k]; }),
+    clear: jest.fn(() => { Object.keys(store).forEach(k => delete store[k]); }),
+  };
 };
+
+const localStorageMock = makeMemoryStorage();
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 });
 
-// Mock sessionStorage
-const sessionStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
-};
+const sessionStorageMock = makeMemoryStorage();
 Object.defineProperty(window, 'sessionStorage', {
   value: sessionStorageMock,
 });

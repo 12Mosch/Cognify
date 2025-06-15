@@ -5,6 +5,10 @@ import {
   isTomorrow,
   getStartOfToday,
   getEndOfToday,
+  getStartOfTodayUTC,
+  getEndOfTodayUTC,
+  getStartOfTodayLocal,
+  getEndOfTodayLocal,
   formatSessionDuration,
   daysBetween,
   getUserTimeZone,
@@ -15,8 +19,11 @@ describe('dateUtils', () => {
   beforeEach(() => {
     // Mock Date.now() to return a consistent timestamp for testing
     // January 15, 2024, 12:00:00 PM UTC
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2024-01-15T12:00:00.000Z'));
+    jest.useFakeTimers({
+      now: new Date('2024-01-15T12:00:00.000Z'),
+      // Explicitly request modern timers – protects against config drift
+      legacyFakeTimers: false,
+    });
   });
 
   afterEach(() => {
@@ -71,46 +78,107 @@ describe('dateUtils', () => {
   });
 
   describe('isToday', () => {
-    it('returns true for timestamps on the same day', () => {
-      const sameDay = new Date('2024-01-15T08:30:00.000Z').getTime();
+    it('returns true for timestamps on the same local day', () => {
+      // Create a timestamp for the same local date but different time
+      const sameDay = new Date(2024, 0, 15, 8, 30, 0).getTime(); // January 15, 2024, 8:30 AM local
       expect(isToday(sameDay)).toBe(true);
     });
 
-    it('returns false for timestamps on different days', () => {
-      const yesterday = new Date('2024-01-14T23:59:59.999Z').getTime();
-      const tomorrow = new Date('2024-01-16T00:00:00.000Z').getTime();
+    it('returns false for timestamps on different local days', () => {
+      // Create timestamps for different local dates
+      const yesterday = new Date(2024, 0, 14, 23, 59, 59).getTime(); // January 14, 2024, 11:59 PM local
+      const tomorrow = new Date(2024, 0, 16, 0, 0, 0).getTime(); // January 16, 2024, 12:00 AM local
       expect(isToday(yesterday)).toBe(false);
       expect(isToday(tomorrow)).toBe(false);
     });
   });
 
   describe('isTomorrow', () => {
-    it('returns true for timestamps on the next day', () => {
-      const tomorrow = new Date('2024-01-16T08:30:00.000Z').getTime();
+    it('returns true for timestamps on the next local day', () => {
+      // Create a timestamp for tomorrow in local timezone
+      const tomorrow = new Date(2024, 0, 16, 8, 30, 0).getTime(); // January 16, 2024, 8:30 AM local
       expect(isTomorrow(tomorrow)).toBe(true);
     });
 
-    it('returns false for timestamps not on the next day', () => {
-      const today = new Date('2024-01-15T12:00:00.000Z').getTime();
-      const dayAfterTomorrow = new Date('2024-01-17T12:00:00.000Z').getTime();
+    it('returns false for timestamps not on the next local day', () => {
+      // Create timestamps for today and day after tomorrow in local timezone
+      const today = new Date(2024, 0, 15, 12, 0, 0).getTime(); // January 15, 2024, 12:00 PM local
+      const dayAfterTomorrow = new Date(2024, 0, 17, 12, 0, 0).getTime(); // January 17, 2024, 12:00 PM local
       expect(isTomorrow(today)).toBe(false);
       expect(isTomorrow(dayAfterTomorrow)).toBe(false);
     });
   });
 
-  describe('getStartOfToday', () => {
-    it('returns midnight of current day', () => {
+  describe('getStartOfToday (deprecated)', () => {
+    it('returns midnight of current day in UTC', () => {
       const startOfDay = getStartOfToday();
       const expected = new Date('2024-01-15T00:00:00.000Z').getTime();
       expect(startOfDay).toBe(expected);
     });
   });
 
-  describe('getEndOfToday', () => {
-    it('returns end of current day', () => {
+  describe('getEndOfToday (deprecated)', () => {
+    it('returns end of current day in UTC', () => {
       const endOfDay = getEndOfToday();
       const expected = new Date('2024-01-15T23:59:59.999Z').getTime();
       expect(endOfDay).toBe(expected);
+    });
+  });
+
+  describe('getStartOfTodayUTC', () => {
+    it('returns midnight of current day in UTC', () => {
+      const startOfDay = getStartOfTodayUTC();
+      const expected = new Date('2024-01-15T00:00:00.000Z').getTime();
+      expect(startOfDay).toBe(expected);
+    });
+  });
+
+  describe('getEndOfTodayUTC', () => {
+    it('returns end of current day in UTC', () => {
+      const endOfDay = getEndOfTodayUTC();
+      const expected = new Date('2024-01-15T23:59:59.999Z').getTime();
+      expect(endOfDay).toBe(expected);
+    });
+  });
+
+  describe('getStartOfTodayLocal', () => {
+    it('returns midnight of current day in user timezone', () => {
+      // Mock getUserTimeZone to return a specific timezone
+      const mockGetUserTimeZone = jest.fn().mockReturnValue('America/New_York');
+      jest.doMock('../dateUtils', () => ({
+        ...jest.requireActual('../dateUtils'),
+        getUserTimeZone: mockGetUserTimeZone,
+      }));
+
+      const startOfDay = getStartOfTodayLocal('America/New_York');
+
+      // For January 15, 2024 in EST (UTC-5), midnight would be 05:00 UTC
+      const expected = new Date('2024-01-15T05:00:00.000Z').getTime();
+      expect(startOfDay).toBe(expected);
+    });
+
+    it('uses user timezone when no timezone provided', () => {
+      // This test verifies the function works without throwing
+      const startOfDay = getStartOfTodayLocal();
+      expect(typeof startOfDay).toBe('number');
+      expect(startOfDay).toBeGreaterThan(0);
+    });
+  });
+
+  describe('getEndOfTodayLocal', () => {
+    it('returns end of current day in specified timezone', () => {
+      const endOfDay = getEndOfTodayLocal('America/New_York');
+      const startOfDay = getStartOfTodayLocal('America/New_York');
+
+      // End of day should be start of day + 24 hours - 1 millisecond
+      const expected = startOfDay + (24 * 60 * 60 * 1000) - 1;
+      expect(endOfDay).toBe(expected);
+    });
+
+    it('uses user timezone when no timezone provided', () => {
+      const endOfDay = getEndOfTodayLocal();
+      expect(typeof endOfDay).toBe('number');
+      expect(endOfDay).toBeGreaterThan(0);
     });
   });
 

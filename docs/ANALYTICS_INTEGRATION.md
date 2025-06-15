@@ -61,6 +61,12 @@ src/
 - Analytics failures don't break app functionality
 - Graceful degradation when PostHog is unavailable
 
+### Environment Detection
+- Safe environment mode detection without using `eval()` or `import.meta`
+- Avoids CSP (Content Security Policy) violations and minifier issues
+- Uses environment variables that work consistently across Vite and Node.js
+- Supports test, development, staging, and production environments
+
 ### Privacy Considerations
 - User registration tracking uses localStorage to prevent duplicates
 - No sensitive user data is tracked
@@ -80,9 +86,18 @@ Create a `.env.local` file with the following variables:
 # PostHog Configuration
 VITE_PUBLIC_POSTHOG_KEY=your_posthog_project_api_key_here
 VITE_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+
+# Optional: Environment mode override (Vite sets this automatically)
+VITE_MODE=development
 ```
 
 For EU users, use `https://eu.posthog.com` as the host.
+
+**Environment Detection Priority:**
+1. `NODE_ENV=test` → Always returns 'test' (for Jest testing)
+2. `VITE_MODE` → Used when available (set by Vite automatically)
+3. `NODE_ENV` → Fallback for Node.js environments
+4. `'production'` → Final fallback
 
 ### PostHog Setup
 1. Create a PostHog account at https://posthog.com

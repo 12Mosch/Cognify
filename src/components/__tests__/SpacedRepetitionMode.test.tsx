@@ -505,7 +505,7 @@ describe('SpacedRepetitionMode', () => {
     });
 
     // Press ? key
-    fireEvent.keyDown(document, { key: '?' });
+    fireEvent.keyDown(document, { key: '?', shiftKey: true });
 
     await waitFor(() => {
       expect(screen.getByText('Keyboard Shortcuts')).toBeInTheDocument();

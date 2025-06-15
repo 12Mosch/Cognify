@@ -7,23 +7,28 @@ import { usePostHog } from 'posthog-js/react';
 
 /**
  * Safely get the current environment mode
- * Handles both Vite (import.meta.env) and Node.js (process.env) environments
+ * Uses environment variables that work consistently across Vite and Node.js
+ * Avoids eval and import.meta access issues entirely
  */
-function getEnvironmentMode(): string {
-  // In test environment, return 'test'
+export function getEnvironmentMode(): string {
+  // Check for test environment first
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
     return 'test';
   }
 
-  // Try to access Vite's import.meta.env
-  try {
-    // Use eval to avoid syntax errors in Jest
-    const importMeta = eval('import.meta');
-    return importMeta?.env?.MODE || 'production';
-  } catch {
-    // Fallback to process.env for Node.js environments
-    return process.env.NODE_ENV || 'production';
+  // Use VITE_MODE if available (set by Vite automatically)
+  if (typeof process !== 'undefined' && process.env.VITE_MODE) {
+    return process.env.VITE_MODE;
   }
+
+  // Use NODE_ENV as fallback (works in both browser and Node.js after bundling)
+  if (typeof process !== 'undefined' && process.env.NODE_ENV) {
+    return process.env.NODE_ENV;
+  }
+
+  // Final fallback for browser environments where process might not be available
+  // In production builds, bundlers typically replace process.env references
+  return 'production';
 }
 
 // Define event types for better type safety

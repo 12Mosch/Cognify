@@ -26,10 +26,10 @@ const config = {
   },
 
   // Test file patterns
-  testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.(ts|tsx|js|jsx)',
-    '<rootDir>/src/**/*.(test|spec).(ts|tsx|js|jsx)',
-  ],
+testMatch: [
+  '<rootDir>/src/**/__tests__/**/*.[jt]s?(x)',
+  '<rootDir>/src/**/*.+(test|spec).[jt]s?(x)',
+],
 
   // Coverage configuration
   collectCoverage: false, // Enable with --coverage flag

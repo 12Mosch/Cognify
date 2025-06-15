@@ -123,10 +123,10 @@ describe('StudyHistoryHeatmap', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText('Study Activity')).toBeInTheDocument();
+      expect(screen.getByText('2 days of study activity in the last year')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('2 days of study activity in the last year')).toBeInTheDocument();
+    expect(screen.getByText('Study Activity')).toBeInTheDocument();
 
     // Check that utility functions were called
     expect(mockGenerateHeatmapGrid).toHaveBeenCalledWith(mockStudyData);
@@ -167,7 +167,7 @@ describe('StudyHistoryHeatmap', () => {
     const gridCells = screen.getAllByRole('gridcell');
     // Check first grid cell has proper attributes
     expect(gridCells[0]).toHaveAttribute('aria-label');
-    expect(gridCells[0]).toHaveAttribute('tabIndex', '0');
+    expect(gridCells[0]).toHaveAttribute('tabindex', '0');
   });
 
   it('displays summary statistics correctly', async () => {
@@ -240,7 +240,9 @@ describe('StudyHistoryHeatmap', () => {
     });
     fireEvent.keyDown(gridCells[0], { key: 'Enter' });
 
-    expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
+    });
   });
 
   it('shows tooltip on Space key press', async () => {
@@ -260,7 +262,9 @@ describe('StudyHistoryHeatmap', () => {
     });
     fireEvent.keyDown(gridCells[0], { key: ' ' });
 
-    expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('5 cards studied on Mon, Jan 15, 2024')).toBeInTheDocument();
+    });
   });
 
   it('renders activity level legend', async () => {

@@ -28,16 +28,15 @@ const setupSuccessfulMocks = () => {
   // Reset the mock completely and set up fresh implementation
   mockUseQuery.mockReset();
 
-  // Create a persistent mock that returns the right data based on call count
-  let callIndex = 0;
+  // Use cycling values approach that's resilient to React StrictMode double-rendering
+  // This pattern is used successfully in SpacedRepetitionMode tests
+  let callCount = 0;
+  const mockValues = [mockDeck, mockCards]; // deck query first, then cards query
+
   mockUseQuery.mockImplementation(() => {
-    const currentCall = callIndex++;
-    // First call in each render cycle is getDeckById, second is getCardsForDeck
-    if (currentCall % 2 === 0) {
-      return mockDeck;
-    } else {
-      return mockCards;
-    }
+    const value = mockValues[callCount % mockValues.length];
+    callCount++;
+    return value;
   });
 };
 

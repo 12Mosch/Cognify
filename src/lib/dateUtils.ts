@@ -99,52 +99,121 @@ export function formatNextReviewTime(timestamp: number): string {
 }
 
 /**
- * Check if a timestamp is today
+ * Check if a timestamp is today in the user's local timezone
  * @param timestamp - Unix timestamp in milliseconds
- * @returns true if the timestamp is today
+ * @returns true if the timestamp is today in local timezone
  */
 export function isToday(timestamp: number): boolean {
   const date = new Date(timestamp);
   const today = new Date();
 
-  return date.getUTCDate() === today.getUTCDate() &&
-         date.getUTCMonth() === today.getUTCMonth() &&
-         date.getUTCFullYear() === today.getUTCFullYear();
+  return date.getDate() === today.getDate() &&
+         date.getMonth() === today.getMonth() &&
+         date.getFullYear() === today.getFullYear();
 }
 
 /**
- * Check if a timestamp is tomorrow
+ * Check if a timestamp is tomorrow in the user's local timezone
  * @param timestamp - Unix timestamp in milliseconds
- * @returns true if the timestamp is tomorrow
+ * @returns true if the timestamp is tomorrow in local timezone
  */
 export function isTomorrow(timestamp: number): boolean {
   const date = new Date(timestamp);
   const tomorrow = new Date();
-  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-  return date.getUTCDate() === tomorrow.getUTCDate() &&
-         date.getUTCMonth() === tomorrow.getUTCMonth() &&
-         date.getUTCFullYear() === tomorrow.getUTCFullYear();
+  return date.getDate() === tomorrow.getDate() &&
+         date.getMonth() === tomorrow.getMonth() &&
+         date.getFullYear() === tomorrow.getFullYear();
 }
 
 /**
- * Get the start of today (midnight) as a timestamp
- * @returns Unix timestamp for the start of today
+ * Get the start of today (midnight) in UTC timezone as a timestamp
+ * @returns Unix timestamp for the start of today in UTC
+ * @deprecated Use getStartOfTodayLocal() for user's local timezone or rename usage to clarify UTC intent
  */
-export function getStartOfToday(): number {
+export function getStartOfTodayUTC(): number {
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
   return today.getTime();
 }
 
 /**
- * Get the end of today (23:59:59.999) as a timestamp
- * @returns Unix timestamp for the end of today
+ * Get the end of today (23:59:59.999) in UTC timezone as a timestamp
+ * @returns Unix timestamp for the end of today in UTC
+ * @deprecated Use getEndOfTodayLocal() for user's local timezone or rename usage to clarify UTC intent
  */
-export function getEndOfToday(): number {
+export function getEndOfTodayUTC(): number {
   const today = new Date();
   today.setUTCHours(23, 59, 59, 999);
   return today.getTime();
+}
+
+/**
+ * Get the start of today (midnight) in the user's local timezone as a timestamp
+ * @param timeZone - Optional IANA timezone identifier. If not provided, uses user's current timezone
+ * @returns Unix timestamp for the start of today in the specified timezone
+ */
+export function getStartOfTodayLocal(timeZone?: string): number {
+  const tz = timeZone || getUserTimeZone();
+  const localDateString = getLocalDateString(tz);
+
+  // Parse the local date string (YYYY-MM-DD format)
+  const [year, month, day] = localDateString.split('-').map(Number);
+
+  // Create a date for midnight in the user's local timezone
+  // We use a trick: create the date as if it were UTC, then adjust for timezone
+  const utcMidnight = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+
+  // Get the timezone offset for this specific date in the target timezone
+  const formatter = new Intl.DateTimeFormat('en', {
+    timeZone: tz,
+    timeZoneName: 'longOffset'
+  });
+
+  const offsetString = formatter.formatToParts(utcMidnight)
+    .find(part => part.type === 'timeZoneName')?.value || '+00:00';
+
+  // Parse the offset (e.g., "+05:00" or "-08:00")
+  const offsetMatch = offsetString.match(/([+-])(\d{2}):(\d{2})/);
+  if (!offsetMatch) {
+    // Fallback to UTC if we can't parse the offset
+    return utcMidnight.getTime();
+  }
+
+  const sign = offsetMatch[1] === '+' ? 1 : -1;
+  const offsetHours = parseInt(offsetMatch[2]);
+  const offsetMinutes = parseInt(offsetMatch[3]);
+  const offsetMs = sign * (offsetHours * 60 + offsetMinutes) * 60 * 1000;
+
+  // Subtract the offset to get the correct UTC timestamp for local midnight
+  return utcMidnight.getTime() - offsetMs;
+}
+
+/**
+ * Get the end of today (23:59:59.999) in the user's local timezone as a timestamp
+ * @param timeZone - Optional IANA timezone identifier. If not provided, uses user's current timezone
+ * @returns Unix timestamp for the end of today in the specified timezone
+ */
+export function getEndOfTodayLocal(timeZone?: string): number {
+  const startOfDay = getStartOfTodayLocal(timeZone);
+  // Add 24 hours minus 1 millisecond to get end of day
+  return startOfDay + (24 * 60 * 60 * 1000) - 1;
+}
+
+// Keep the old function names for backward compatibility but mark as deprecated
+/**
+ * @deprecated Use getStartOfTodayUTC() or getStartOfTodayLocal() instead
+ */
+export function getStartOfToday(): number {
+  return getStartOfTodayUTC();
+}
+
+/**
+ * @deprecated Use getEndOfTodayUTC() or getEndOfTodayLocal() instead
+ */
+export function getEndOfToday(): number {
+  return getEndOfTodayUTC();
 }
 
 /**

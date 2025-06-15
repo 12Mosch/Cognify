@@ -88,6 +88,40 @@ export function getLocalDateString(timeZone?: string): string {
 }
 ```
 
+### UTC vs Local Date Boundaries
+
+**Important**: The app now provides separate functions for UTC and local timezone date boundaries to prevent data bucketing issues:
+
+#### UTC Functions (for server-side operations)
+```typescript
+// Returns UTC midnight timestamps
+export function getStartOfTodayUTC(): number;
+export function getEndOfTodayUTC(): number;
+```
+
+#### Local Timezone Functions (for user-facing operations)
+```typescript
+// Returns local timezone midnight timestamps
+export function getStartOfTodayLocal(timeZone?: string): number;
+export function getEndOfTodayLocal(timeZone?: string): number;
+```
+
+#### Migration from Deprecated Functions
+The old `getStartOfToday()` and `getEndOfToday()` functions are deprecated because they returned UTC midnight but had misleading names. When migrating:
+
+- **For server operations**: Use `getStartOfTodayUTC()` / `getEndOfTodayUTC()`
+- **For user data bucketing**: Use `getStartOfTodayLocal()` / `getEndOfTodayLocal()`
+
+```typescript
+// ❌ PROBLEMATIC: UTC midnight for user in PST timezone
+const startOfDay = getStartOfToday(); // Returns 2024-01-15 00:00:00 UTC
+// User in PST sees this as 2024-01-14 16:00:00 PST - wrong day!
+
+// ✅ CORRECT: Local midnight for user in PST timezone
+const startOfDay = getStartOfTodayLocal('America/Los_Angeles');
+// Returns 2024-01-15 08:00:00 UTC (which is 2024-01-15 00:00:00 PST)
+```
+
 ### Frontend Integration
 
 Updated `PostSessionSummary.tsx` to pass timezone information:
