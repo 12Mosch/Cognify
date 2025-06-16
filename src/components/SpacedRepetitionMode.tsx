@@ -84,7 +84,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
   const { trackStudySessionStarted, posthog } = useAnalytics();
   const { trackEventBatched, hasConsent } = useAnalyticsEnhanced();
-  const { trackConvexMutation, trackStudySession } = useErrorMonitoring();
+  const { trackConvexMutation, trackStudySession, captureError, trackConvexQuery } = useErrorMonitoring();
 
   // Initialize study queue when data is loaded
   useEffect(() => {
@@ -210,27 +210,44 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
    * Handle flipping the current card between front and back
    */
   const handleFlipCard = useCallback(() => {
-    if (studyQueue.length === 0) return;
+    try {
+      if (studyQueue.length === 0) return;
 
-    const currentCard = studyQueue[currentCardIndex];
-    if (!currentCard) return;
+      const currentCard = studyQueue[currentCardIndex];
+      if (!currentCard) return;
 
-    const flipDirection: 'front_to_back' | 'back_to_front' = isFlipped ? 'back_to_front' : 'front_to_back';
-    const timeToFlip = flipStartTime ? Date.now() - flipStartTime : undefined;
+      const flipDirection: 'front_to_back' | 'back_to_front' = isFlipped ? 'back_to_front' : 'front_to_back';
+      const timeToFlip = flipStartTime ? Date.now() - flipStartTime : undefined;
 
-    // Track the card flip event with batching and feature flags
-    if (hasConsent) {
-      trackEventBatched('card_flipped', {
-        cardId: currentCard._id,
+      // Track the card flip event with batching and feature flags
+      if (hasConsent) {
+        trackEventBatched('card_flipped', {
+          cardId: currentCard._id,
+          deckId,
+          flipDirection,
+          timeToFlip,
+        }, ['new-study-algorithm', 'advanced-statistics']);
+      }
+
+      setIsFlipped(prev => !prev);
+      setFlipStartTime(Date.now());
+    } catch (error) {
+      // Track card flip error
+      captureError(error as Error, {
         deckId,
-        flipDirection,
-        timeToFlip,
-      }, ['new-study-algorithm', 'advanced-statistics']);
+        cardId: studyQueue[currentCardIndex]?._id,
+        component: 'SpacedRepetitionMode',
+        action: 'flip_card',
+        severity: 'low',
+        category: 'ui_error',
+        additionalData: {
+          currentCardIndex,
+          isFlipped,
+          studyQueueLength: studyQueue.length,
+        },
+      });
     }
-
-    setIsFlipped(prev => !prev);
-    setFlipStartTime(Date.now());
-  }, [studyQueue, currentCardIndex, isFlipped, flipStartTime, deckId, hasConsent, trackEventBatched]);
+  }, [studyQueue, currentCardIndex, isFlipped, flipStartTime, deckId, hasConsent, trackEventBatched, captureError]);
 
   /**
    * Handle card review with quality rating
@@ -413,6 +430,12 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
   // Error state - deck not found
   if (deck === null) {
+    // Track deck loading error
+    const deckError = new Error('Deck not found or access denied');
+    trackConvexQuery('getDeckById', deckError, {
+      deckId,
+    });
+
     return (
       <div className="flex flex-col gap-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-center py-12">
@@ -420,6 +443,35 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
             <h2 className="text-2xl font-bold mb-4">Deck Not Found</h2>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
               The deck you're looking for doesn't exist or you don't have access to it.
+            </p>
+            <button
+              onClick={onExit}
+              className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
+              aria-label="Return to dashboard"
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state - study queue failed to load
+  if (studyQueueData === null) {
+    // Track study queue loading error
+    const queueError = new Error('Failed to load study queue');
+    trackConvexQuery('getStudyQueue', queueError, {
+      deckId,
+    });
+
+    return (
+      <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Unable to Load Study Queue</h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
+              There was an error loading your study queue. Please try again.
             </p>
             <button
               onClick={onExit}

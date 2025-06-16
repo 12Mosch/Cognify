@@ -5,6 +5,9 @@ import { useAnalytics } from "../lib/analytics";
 import FocusLock from "react-focus-lock";
 import { useFocusManagement, useModalEffects } from "../hooks/useFocusManagement";
 import { showErrorToast } from "../lib/toast";
+import { useErrorMonitoring, withFormErrorMonitoring } from "../lib/errorMonitoring";
+import { useUser } from "@clerk/clerk-react";
+import { usePostHog } from "posthog-js/react";
 
 interface CreateDeckFormProps {
   onSuccess?: (deckName?: string) => void;
@@ -17,9 +20,16 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [submissionAttempt, setSubmissionAttempt] = useState(0);
 
+  const { user } = useUser();
+  const posthog = usePostHog();
   const createDeck = useMutation(api.decks.createDeck);
   const { trackDeckCreated } = useAnalytics();
+  const { captureError, trackConvexMutation } = useErrorMonitoring();
+
+  // Form error monitoring
+  const formErrorMonitor = withFormErrorMonitoring('create_deck', posthog);
 
   // Focus management hooks
   const { storeTriggerElement, restoreFocus } = useFocusManagement(showForm);
@@ -39,34 +49,69 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
     e.preventDefault();
     setError(null);
 
-    // Client-side validation
+    const currentAttempt = submissionAttempt + 1;
+    setSubmissionAttempt(currentAttempt);
+
+    // Client-side validation with error tracking
+    const validationErrors: Record<string, string[]> = {};
+
     if (!name.trim()) {
-      setError("Deck name is required");
-      return;
+      validationErrors.name = ["Deck name is required"];
     }
 
     if (name.length > 100) {
-      setError("Deck name cannot exceed 100 characters");
-      return;
+      validationErrors.name = [...(validationErrors.name || []), "Deck name cannot exceed 100 characters"];
     }
 
     if (description.length > 500) {
-      setError("Deck description cannot exceed 500 characters");
+      validationErrors.description = ["Deck description cannot exceed 500 characters"];
+    }
+
+    // Track validation errors if any
+    if (Object.keys(validationErrors).length > 0) {
+      const firstError = Object.values(validationErrors)[0][0];
+      setError(firstError);
+
+      formErrorMonitor.trackValidationErrors(validationErrors, {
+        userId: user?.id,
+        formData: { name, description },
+        attemptNumber: currentAttempt,
+      });
+
       return;
     }
 
     setIsSubmitting(true);
+    const startTime = Date.now();
 
     // Handle async operations without making the handler async
     const submitDeck = async () => {
       try {
-        const deckId = await createDeck({
-          name: name.trim(),
-          description: description.trim(),
-        });
+        const deckId = await formErrorMonitor.wrapSubmission(
+          async (formData) => {
+            try {
+              return await createDeck({
+                name: formData.name.trim(),
+                description: formData.description.trim(),
+              });
+            } catch (error) {
+              // Track Convex mutation errors
+              trackConvexMutation('createDeck', error as Error, {
+                userId: user?.id,
+                mutationArgs: { name: formData.name.trim(), description: formData.description.trim() },
+              });
+              throw error;
+            }
+          },
+          { name, description },
+          {
+            userId: user?.id,
+            submissionAttempt: currentAttempt,
+          }
+        );
 
         // Track deck creation event
-        trackDeckCreated(deckId, name.trim());
+        trackDeckCreated(deckId as string, name.trim());
 
         // Store deck name for success callback before resetting form
         const deckName = name.trim();
@@ -76,6 +121,7 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
         setDescription("");
         setShowForm(false);
         setError(null);
+        setSubmissionAttempt(0);
 
         // Restore focus to trigger element
         restoreFocus();
@@ -85,6 +131,23 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Failed to create deck";
         setError(errorMessage);
+
+        // Capture general form submission error
+        captureError(err as Error, {
+          userId: user?.id,
+          component: 'CreateDeckForm',
+          action: 'submit_form',
+          severity: 'medium',
+          category: 'ui_error',
+          tags: {
+            formName: 'create_deck',
+            submissionAttempt: String(currentAttempt),
+          },
+          additionalData: {
+            formData: { name: name.length, description: description.length }, // Don't log actual content for privacy
+            timeToSubmit: Date.now() - startTime,
+          },
+        });
 
         // Show error toast for all failures
         // Let the user see the specific error in the inline error display

@@ -6,6 +6,9 @@ import { useAnalytics } from "../lib/analytics";
 import FocusLock from "react-focus-lock";
 import { useFocusManagement, useModalEffects } from "../hooks/useFocusManagement";
 import { showErrorToast } from "../lib/toast";
+import { useErrorMonitoring, withFormErrorMonitoring } from "../lib/errorMonitoring";
+import { useUser } from "@clerk/clerk-react";
+import { usePostHog } from "posthog-js/react";
 
 interface QuickAddCardFormProps {
   onSuccess?: () => void;
@@ -21,15 +24,31 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [submissionAttempt, setSubmissionAttempt] = useState(0);
 
+  const { user } = useUser();
+  const posthog = usePostHog();
   const decks = useQuery(api.decks.getDecksForUser);
   const addCard = useMutation(api.cards.addCardToDeck);
   const { trackCardCreated } = useAnalytics();
+  const { captureError, trackConvexMutation, trackConvexQuery } = useErrorMonitoring();
+
+  // Form error monitoring
+  const formErrorMonitor = withFormErrorMonitoring('quick_add_card', posthog);
 
   // Focus management hooks
   const { storeTriggerElement, restoreFocus } = useFocusManagement(showForm);
   const firstSelectRef = useRef<HTMLSelectElement>(null);
   useModalEffects(showForm, handleCancel);
+
+  // Track query errors if they occur
+  if (decks === null) {
+    // Query failed - track the error
+    const queryError = new Error('Failed to load user decks for card creation');
+    trackConvexQuery('getDecksForUser', queryError, {
+      userId: user?.id,
+    });
+  }
 
   // Focus first select when form opens
   useEffect(() => {
@@ -44,18 +63,43 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
     e.preventDefault();
     setError(null);
 
+    const currentAttempt = submissionAttempt + 1;
+    setSubmissionAttempt(currentAttempt);
+
+    // Client-side validation with error tracking
+    const validationErrors: Record<string, string[]> = {};
+
     if (!selectedDeckId) {
-      setError("Please select a deck");
-      return;
+      validationErrors.deckId = ["Please select a deck"];
     }
 
-    if (!front.trim() || !back.trim()) {
-      setError("Both front and back content are required");
-      return;
+    if (!front.trim()) {
+      validationErrors.front = ["Front content is required"];
     }
 
-    if (front.length > 1000 || back.length > 1000) {
-      setError("Card content cannot exceed 1000 characters");
+    if (!back.trim()) {
+      validationErrors.back = ["Back content is required"];
+    }
+
+    if (front.length > 1000) {
+      validationErrors.front = [...(validationErrors.front || []), "Front content cannot exceed 1000 characters"];
+    }
+
+    if (back.length > 1000) {
+      validationErrors.back = [...(validationErrors.back || []), "Back content cannot exceed 1000 characters"];
+    }
+
+    // Track validation errors if any
+    if (Object.keys(validationErrors).length > 0) {
+      const firstError = Object.values(validationErrors)[0][0];
+      setError(firstError);
+
+      formErrorMonitor.trackValidationErrors(validationErrors, {
+        userId: user?.id,
+        formData: { selectedDeckId: selectedDeckId || '', front, back },
+        attemptNumber: currentAttempt,
+      });
+
       return;
     }
 
@@ -65,21 +109,45 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
       let shouldCloseForms = false;
 
       try {
-        const cardId = await addCard({
-          deckId: selectedDeckId,
-          front: front.trim(),
-          back: back.trim(),
-        });
+        const cardId = await formErrorMonitor.wrapSubmission(
+          async (formData) => {
+            try {
+              return await addCard({
+                deckId: formData.selectedDeckId as Id<"decks">,
+                front: formData.front.trim(),
+                back: formData.back.trim(),
+              });
+            } catch (error) {
+              // Track Convex mutation errors
+              trackConvexMutation('addCardToDeck', error as Error, {
+                userId: user?.id,
+                deckId: formData.selectedDeckId as string,
+                mutationArgs: {
+                  deckId: formData.selectedDeckId,
+                  front: formData.front.trim(),
+                  back: formData.back.trim()
+                },
+              });
+              throw error;
+            }
+          },
+          { selectedDeckId: selectedDeckId!, front, back },
+          {
+            userId: user?.id,
+            submissionAttempt: currentAttempt,
+          }
+        );
 
         // Track card creation event
         const selectedDeck = decks?.find(deck => deck._id === selectedDeckId);
-        trackCardCreated(cardId, selectedDeck?.name);
+        trackCardCreated(cardId as string, selectedDeck?.name);
 
         // Reset form
         setSelectedDeckId(null);
         setFront("");
         setBack("");
         setError(null);
+        setSubmissionAttempt(0);
         shouldCloseForms = true;
 
         // Call success callback
@@ -87,6 +155,27 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Failed to add card";
         setError(errorMessage);
+
+        // Capture general form submission error
+        captureError(err as Error, {
+          userId: user?.id,
+          deckId: selectedDeckId as string,
+          component: 'QuickAddCardForm',
+          action: 'submit_form',
+          severity: 'medium',
+          category: 'ui_error',
+          tags: {
+            formName: 'quick_add_card',
+            submissionAttempt: String(currentAttempt),
+          },
+          additionalData: {
+            formData: {
+              selectedDeckId: selectedDeckId as string,
+              frontLength: front.length,
+              backLength: back.length
+            }, // Don't log actual content for privacy
+          },
+        });
 
         // Show error toast for all failures
         // Let the user see the specific error in the inline error display

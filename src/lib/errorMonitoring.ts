@@ -193,6 +193,9 @@ export function useErrorMonitoring() {
       action?: string;
       severity?: 'low' | 'medium' | 'high' | 'critical';
       recoverable?: boolean;
+      category?: 'network_error' | 'validation_error' | 'authentication_error' | 'permission_error' | 'data_corruption' | 'performance_error' | 'ui_error' | 'integration_error' | 'unknown_error';
+      fingerprint?: string;
+      tags?: Record<string, string>;
       additionalData?: Record<string, any>;
     }
   ) => {

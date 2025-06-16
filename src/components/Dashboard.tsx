@@ -10,6 +10,8 @@ import PrivacySettings from "./PrivacySettings";
 import FeatureFlagDemo from "./FeatureFlagDemo";
 import StreakDisplay from "./StreakDisplay";
 import PrivacyBanner from "./PrivacyBanner";
+import { useErrorMonitoring } from "../lib/errorMonitoring";
+import { useUser } from "@clerk/clerk-react";
 
 // Lazy-loaded components for better performance
 const DeckView = lazy(() => import("./DeckView"));
@@ -59,8 +61,20 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
   const [showPrivacySettings, setShowPrivacySettings] = useState(false);
   const [showFeatureFlags, setShowFeatureFlags] = useState(false);
 
+  const { user } = useUser();
+  const { captureError, trackConvexQuery } = useErrorMonitoring();
+
   // Only fetch decks when we're in the main dashboard content
   const decks = useQuery(api.decks.getDecksForUser);
+
+  // Track query errors if they occur
+  if (decks === null) {
+    // Query failed - track the error
+    const queryError = new Error('Failed to load user decks');
+    trackConvexQuery('getDecksForUser', queryError, {
+      userId: user?.id,
+    });
+  }
 
   // If user is viewing a deck, show the DeckView component
   if (viewingDeckId) {
@@ -128,14 +142,37 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
 
   // Success handlers with toast notifications
   const handleCreateSuccess = (deckName?: string) => {
-    // The query will automatically refetch due to Convex reactivity
-    toastHelpers.deckCreated(deckName);
+    try {
+      // The query will automatically refetch due to Convex reactivity
+      toastHelpers.deckCreated(deckName);
+    } catch (error) {
+      captureError(error as Error, {
+        userId: user?.id,
+        component: 'Dashboard',
+        action: 'handle_deck_create_success',
+        severity: 'low',
+        category: 'ui_error',
+        additionalData: { deckName },
+      });
+    }
   };
 
   const handleCardCreateSuccess = () => {
-    // The query will automatically refetch due to Convex reactivity
-    toastHelpers.cardCreated();
+    try {
+      // The query will automatically refetch due to Convex reactivity
+      toastHelpers.cardCreated();
+    } catch (error) {
+      captureError(error as Error, {
+        userId: user?.id,
+        component: 'Dashboard',
+        action: 'handle_card_create_success',
+        severity: 'low',
+        category: 'ui_error',
+      });
+    }
   };
+
+
 
   return (
     <div className="flex flex-col gap-8 max-w-6xl mx-auto">

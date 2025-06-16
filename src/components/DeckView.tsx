@@ -3,7 +3,10 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { DeckViewSkeleton } from "./skeletons/SkeletonComponents";
-import { toastHelpers } from "../lib/toast";
+import { toastHelpers, showErrorToast, showSuccessToast } from "../lib/toast";
+import { useErrorMonitoring, withFormErrorMonitoring } from "../lib/errorMonitoring";
+import { useUser } from "@clerk/clerk-react";
+import { usePostHog } from "posthog-js/react";
 
 interface DeckViewProps {
   deckId: Id<"decks">;
@@ -22,8 +25,30 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCard, setEditingCard] = useState<Card | null>(null);
 
+  const { user } = useUser();
+  const { trackConvexQuery } = useErrorMonitoring();
+
   const deck = useQuery(api.decks.getDeckById, { deckId });
   const cards = useQuery(api.cards.getCardsForDeck, { deckId });
+
+  // Track query errors if they occur
+  if (deck === null) {
+    // Deck query failed - track the error
+    const deckError = new Error('Failed to load deck or access denied');
+    trackConvexQuery('getDeckById', deckError, {
+      userId: user?.id,
+      deckId,
+    });
+  }
+
+  if (cards === null) {
+    // Cards query failed - track the error
+    const cardsError = new Error('Failed to load cards for deck');
+    trackConvexQuery('getCardsForDeck', cardsError, {
+      userId: user?.id,
+      deckId,
+    });
+  }
 
   // Loading state
   if (deck === undefined || cards === undefined) {
@@ -147,20 +172,49 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const { user } = useUser();
+  const { trackConvexMutation, captureError } = useErrorMonitoring();
   const deleteCard = useMutation(api.cards.deleteCard);
 
   const handleDelete = async () => {
     try {
       await deleteCard({ cardId: card._id });
       setShowDeleteConfirm(false);
+      showSuccessToast("Card deleted successfully!");
     } catch (error) {
       console.error("Failed to delete card:", error);
+
+      // Track the deletion error
+      trackConvexMutation('deleteCard', error as Error, {
+        userId: user?.id,
+        deckId: card.deckId,
+        cardId: card._id,
+        mutationArgs: { cardId: card._id },
+      });
+
+      // Show error toast
+      showErrorToast("Failed to delete card. Please try again.");
     }
   };
 
   const handleFlipCard = () => {
-    setIsFlipped(!isFlipped);
+    try {
+      setIsFlipped(!isFlipped);
+    } catch (error) {
+      // Track card flip error
+      captureError(error as Error, {
+        userId: user?.id,
+        deckId: card.deckId,
+        cardId: card._id,
+        component: 'DeckView_CardItem',
+        action: 'flip_card',
+        severity: 'low',
+        category: 'ui_error',
+      });
+    }
   };
+
+  // This function is now defined above with error tracking
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.code === 'Space' || event.code === 'Enter') {
@@ -270,20 +324,51 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
   const [back, setBack] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submissionAttempt, setSubmissionAttempt] = useState(0);
 
+  const { user } = useUser();
+  const posthog = usePostHog();
+  const { trackConvexMutation, captureError } = useErrorMonitoring();
+  const formErrorMonitor = withFormErrorMonitoring('add_card_to_deck', posthog);
   const addCard = useMutation(api.cards.addCardToDeck);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!front.trim() || !back.trim()) {
-      setError("Both front and back content are required");
-      return;
+    const currentAttempt = submissionAttempt + 1;
+    setSubmissionAttempt(currentAttempt);
+
+    // Client-side validation with error tracking
+    const validationErrors: Record<string, string[]> = {};
+
+    if (!front.trim()) {
+      validationErrors.front = ["Front content is required"];
     }
 
-    if (front.length > 1000 || back.length > 1000) {
-      setError("Card content cannot exceed 1000 characters");
+    if (!back.trim()) {
+      validationErrors.back = ["Back content is required"];
+    }
+
+    if (front.length > 1000) {
+      validationErrors.front = [...(validationErrors.front || []), "Front content cannot exceed 1000 characters"];
+    }
+
+    if (back.length > 1000) {
+      validationErrors.back = [...(validationErrors.back || []), "Back content cannot exceed 1000 characters"];
+    }
+
+    // Track validation errors if any
+    if (Object.keys(validationErrors).length > 0) {
+      const firstError = Object.values(validationErrors)[0][0];
+      setError(firstError);
+
+      formErrorMonitor.trackValidationErrors(validationErrors, {
+        userId: user?.id,
+        formData: { front, back },
+        attemptNumber: currentAttempt,
+      });
+
       return;
     }
 
@@ -291,18 +376,56 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 
     const submitCard = async () => {
       try {
-        await addCard({
-          deckId,
-          front: front.trim(),
-          back: back.trim(),
-        });
+        await formErrorMonitor.wrapSubmission(
+          async (formData) => {
+            try {
+              return await addCard({
+                deckId,
+                front: formData.front.trim(),
+                back: formData.back.trim(),
+              });
+            } catch (error) {
+              // Track Convex mutation errors
+              trackConvexMutation('addCardToDeck', error as Error, {
+                userId: user?.id,
+                deckId,
+                mutationArgs: { deckId, front: formData.front.trim(), back: formData.back.trim() },
+              });
+              throw error;
+            }
+          },
+          { front, back },
+          {
+            userId: user?.id,
+            submissionAttempt: currentAttempt,
+          }
+        );
 
         setFront("");
         setBack("");
         setError(null);
+        setSubmissionAttempt(0);
         onSuccess();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to add card");
+        const errorMessage = err instanceof Error ? err.message : "Failed to add card";
+        setError(errorMessage);
+
+        // Capture general form submission error
+        captureError(err as Error, {
+          userId: user?.id,
+          deckId,
+          component: 'DeckView_AddCardForm',
+          action: 'submit_form',
+          severity: 'medium',
+          category: 'ui_error',
+          tags: {
+            formName: 'add_card_to_deck',
+            submissionAttempt: String(currentAttempt),
+          },
+          additionalData: {
+            formData: { frontLength: front.length, backLength: back.length }, // Don't log actual content for privacy
+          },
+        });
       } finally {
         setIsSubmitting(false);
       }
@@ -392,20 +515,51 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
   const [back, setBack] = useState(card.back);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submissionAttempt, setSubmissionAttempt] = useState(0);
 
+  const { user } = useUser();
+  const posthog = usePostHog();
+  const { trackConvexMutation, captureError } = useErrorMonitoring();
+  const formErrorMonitor = withFormErrorMonitoring('edit_card', posthog);
   const updateCard = useMutation(api.cards.updateCard);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!front.trim() || !back.trim()) {
-      setError("Both front and back content are required");
-      return;
+    const currentAttempt = submissionAttempt + 1;
+    setSubmissionAttempt(currentAttempt);
+
+    // Client-side validation with error tracking
+    const validationErrors: Record<string, string[]> = {};
+
+    if (!front.trim()) {
+      validationErrors.front = ["Front content is required"];
     }
 
-    if (front.length > 1000 || back.length > 1000) {
-      setError("Card content cannot exceed 1000 characters");
+    if (!back.trim()) {
+      validationErrors.back = ["Back content is required"];
+    }
+
+    if (front.length > 1000) {
+      validationErrors.front = [...(validationErrors.front || []), "Front content cannot exceed 1000 characters"];
+    }
+
+    if (back.length > 1000) {
+      validationErrors.back = [...(validationErrors.back || []), "Back content cannot exceed 1000 characters"];
+    }
+
+    // Track validation errors if any
+    if (Object.keys(validationErrors).length > 0) {
+      const firstError = Object.values(validationErrors)[0][0];
+      setError(firstError);
+
+      formErrorMonitor.trackValidationErrors(validationErrors, {
+        userId: user?.id,
+        formData: { front, back },
+        attemptNumber: currentAttempt,
+      });
+
       return;
     }
 
@@ -413,16 +567,56 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 
     const submitUpdate = async () => {
       try {
-        await updateCard({
-          cardId: card._id,
-          front: front.trim(),
-          back: back.trim(),
-        });
+        await formErrorMonitor.wrapSubmission(
+          async (formData) => {
+            try {
+              return await updateCard({
+                cardId: card._id,
+                front: formData.front.trim(),
+                back: formData.back.trim(),
+              });
+            } catch (error) {
+              // Track Convex mutation errors
+              trackConvexMutation('updateCard', error as Error, {
+                userId: user?.id,
+                deckId: card.deckId,
+                cardId: card._id,
+                mutationArgs: { cardId: card._id, front: formData.front.trim(), back: formData.back.trim() },
+              });
+              throw error;
+            }
+          },
+          { front, back },
+          {
+            userId: user?.id,
+            submissionAttempt: currentAttempt,
+          }
+        );
 
         setError(null);
+        setSubmissionAttempt(0);
         onSuccess();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update card");
+        const errorMessage = err instanceof Error ? err.message : "Failed to update card";
+        setError(errorMessage);
+
+        // Capture general form submission error
+        captureError(err as Error, {
+          userId: user?.id,
+          deckId: card.deckId,
+          cardId: card._id,
+          component: 'DeckView_EditCardForm',
+          action: 'submit_form',
+          severity: 'medium',
+          category: 'ui_error',
+          tags: {
+            formName: 'edit_card',
+            submissionAttempt: String(currentAttempt),
+          },
+          additionalData: {
+            formData: { frontLength: front.length, backLength: back.length }, // Don't log actual content for privacy
+          },
+        });
       } finally {
         setIsSubmitting(false);
       }
