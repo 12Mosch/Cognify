@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy, memo } from "react";
+import { useState, useEffect, Suspense, lazy, memo, forwardRef, useImperativeHandle } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { CreateDeckForm } from "./CreateDeckForm";
@@ -34,12 +34,31 @@ interface Deck {
   cardCount: number;
 }
 
-// Main Dashboard wrapper that handles statistics view routing
-export function Dashboard() {
+// Main Dashboard wrapper that handles all navigation state
+export const Dashboard = forwardRef<{ goHome: () => void }>(function Dashboard(_, ref) {
   const [showingStatistics, setShowingStatistics] = useState(false);
+  const [studyingDeckId, setStudyingDeckId] = useState<Id<"decks"> | null>(null);
+  const [studyMode, setStudyMode] = useState<'basic' | 'spaced-repetition' | null>(null);
+  const [selectingStudyMode, setSelectingStudyMode] = useState<Id<"decks"> | null>(null);
+  const [viewingDeckId, setViewingDeckId] = useState<Id<"decks"> | null>(null);
+  const [showPrivacySettings, setShowPrivacySettings] = useState(false);
+  const [showFeatureFlags, setShowFeatureFlags] = useState(false);
+
+  // Expose goHome method to parent component
+  useImperativeHandle(ref, () => ({
+    goHome: () => {
+      // Reset all navigation states to return to main dashboard
+      setShowingStatistics(false);
+      setStudyingDeckId(null);
+      setStudyMode(null);
+      setSelectingStudyMode(null);
+      setViewingDeckId(null);
+      setShowPrivacySettings(false);
+      setShowFeatureFlags(false);
+    }
+  }), []);
 
   // If user is viewing statistics, show the StatisticsDashboard component
-  // Early return to avoid unnecessary queries
   if (showingStatistics) {
     return (
       <Suspense fallback={<LoadingFallback type="default" />}>
@@ -47,38 +66,6 @@ export function Dashboard() {
       </Suspense>
     );
   }
-
-  // Render the main dashboard content
-  return <DashboardContent onShowStatistics={() => setShowingStatistics(true)} />;
-}
-
-// Separate component for the main dashboard content to avoid unnecessary queries
-function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }) {
-  const [studyingDeckId, setStudyingDeckId] = useState<Id<"decks"> | null>(null);
-  const [studyMode, setStudyMode] = useState<'basic' | 'spaced-repetition' | null>(null);
-  const [selectingStudyMode, setSelectingStudyMode] = useState<Id<"decks"> | null>(null);
-  const [viewingDeckId, setViewingDeckId] = useState<Id<"decks"> | null>(null);
-  const [showPrivacySettings, setShowPrivacySettings] = useState(false);
-  const [onSettingsClosedCallback, setOnSettingsClosedCallback] = useState<(() => void) | null>(null);
-  const [showFeatureFlags, setShowFeatureFlags] = useState(false);
-  const [errorTracked, setErrorTracked] = useState<{decks?: boolean}>({});
-
-  const { user } = useUser();
-  const { captureError, trackConvexQuery } = useErrorMonitoring();
-
-  // Only fetch decks when we're in the main dashboard content
-  const decks = useQuery(api.decks.getDecksForUser);
-
-  // Track decks loading errors (side effect)
-  useEffect(() => {
-    if (decks === null && !errorTracked.decks) {
-      const queryError = new Error('Failed to load user decks');
-      trackConvexQuery('getDecksForUser', queryError, {
-        userId: user?.id,
-      });
-      setErrorTracked(prev => ({ ...prev, decks: true }));
-    }
-  }, [decks, errorTracked.decks, trackConvexQuery, user?.id]);
 
   // If user is viewing a deck, show the DeckView component
   if (viewingDeckId) {
@@ -94,12 +81,11 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
 
   // If user is selecting a study mode, show the StudyModeSelector
   if (selectingStudyMode) {
-    const selectedDeck = decks?.find(deck => deck._id === selectingStudyMode);
     return (
       <Suspense fallback={<LoadingFallback type="default" />}>
         <StudyModeSelector
           deckId={selectingStudyMode}
-          deckName={selectedDeck?.name || "Unknown Deck"}
+          deckName="Deck" // We'll get the name in the component
           onSelectMode={(mode: 'basic' | 'spaced-repetition') => {
             setStudyMode(mode);
             setStudyingDeckId(selectingStudyMode);
@@ -138,6 +124,58 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
       );
     }
   }
+
+  // Render the main dashboard content
+  return (
+    <DashboardContent
+      onShowStatistics={() => setShowingStatistics(true)}
+      onStartStudy={setSelectingStudyMode}
+      onManageCards={setViewingDeckId}
+      showPrivacySettings={showPrivacySettings}
+      setShowPrivacySettings={setShowPrivacySettings}
+      showFeatureFlags={showFeatureFlags}
+      setShowFeatureFlags={setShowFeatureFlags}
+    />
+  );
+});
+
+// Separate component for the main dashboard content to avoid unnecessary queries
+function DashboardContent({
+  onShowStatistics,
+  onStartStudy,
+  onManageCards,
+  showPrivacySettings,
+  setShowPrivacySettings,
+  showFeatureFlags,
+  setShowFeatureFlags
+}: {
+  onShowStatistics: () => void;
+  onStartStudy: (deckId: Id<"decks">) => void;
+  onManageCards: (deckId: Id<"decks">) => void;
+  showPrivacySettings: boolean;
+  setShowPrivacySettings: (show: boolean) => void;
+  showFeatureFlags: boolean;
+  setShowFeatureFlags: (show: boolean) => void;
+}) {
+  const [onSettingsClosedCallback, setOnSettingsClosedCallback] = useState<(() => void) | null>(null);
+  const [errorTracked, setErrorTracked] = useState<{decks?: boolean}>({});
+
+  const { user } = useUser();
+  const { captureError, trackConvexQuery } = useErrorMonitoring();
+
+  // Only fetch decks when we're in the main dashboard content
+  const decks = useQuery(api.decks.getDecksForUser);
+
+  // Track decks loading errors (side effect)
+  useEffect(() => {
+    if (decks === null && !errorTracked.decks) {
+      const queryError = new Error('Failed to load user decks');
+      trackConvexQuery('getDecksForUser', queryError, {
+        userId: user?.id,
+      });
+      setErrorTracked(prev => ({ ...prev, decks: true }));
+    }
+  }, [decks, errorTracked.decks, trackConvexQuery, user?.id]);
 
   // Loading state
   if (decks === undefined) {
@@ -252,8 +290,8 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
             <DeckCard
               key={deck._id}
               deck={deck}
-              onStartStudy={() => setSelectingStudyMode(deck._id)}
-              onManageCards={() => setViewingDeckId(deck._id)}
+              onStartStudy={() => onStartStudy(deck._id)}
+              onManageCards={() => onManageCards(deck._id)}
             />
           ))}
         </div>

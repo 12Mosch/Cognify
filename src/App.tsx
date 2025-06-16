@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   Authenticated,
   Unauthenticated,
@@ -14,6 +14,7 @@ export default function App() {
   const { user, isLoaded } = useUser();
   const { trackUserSignUp } = useAnalytics();
   const { identifyUser } = useAnalyticsEnhanced();
+  const dashboardRef = useRef<{ goHome: () => void }>(null);
 
   // Track user registration when user first signs up
   useEffect(() => {
@@ -42,15 +43,29 @@ export default function App() {
     }
   }, [isLoaded, user, trackUserSignUp, identifyUser]);
 
+  // Handle clicking on the app title to go home
+  const handleGoHome = () => {
+    if (dashboardRef.current) {
+      dashboardRef.current.goHome();
+    }
+  };
+
   return (
     <>
       <header className="sticky top-0 z-10 bg-light dark:bg-dark p-4 border-b-2 border-slate-200 dark:border-slate-800 flex flex-row justify-between items-center">
-        <h1 className="text-xl font-bold">Flashcard App</h1>
+        <button
+          onClick={handleGoHome}
+          className="text-xl font-bold hover:text-slate-700 dark:hover:text-slate-300 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 rounded-md px-2 py-1"
+          aria-label="Go to main dashboard"
+          title="Go to main dashboard"
+        >
+          Flashcard App
+        </button>
         <UserButton />
       </header>
       <main className="p-8">
         <Authenticated>
-          <Dashboard />
+          <Dashboard ref={dashboardRef} />
         </Authenticated>
         <Unauthenticated>
           <SignInForm />
