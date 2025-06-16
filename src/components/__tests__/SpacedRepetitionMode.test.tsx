@@ -35,6 +35,20 @@ jest.mock('../../lib/analytics', () => ({
   trackStreakContinued: jest.fn(),
   trackStreakBroken: jest.fn(),
   trackStreakMilestone: jest.fn(),
+  hasAnalyticsConsent: jest.fn(() => true),
+}));
+
+// Mock error monitoring
+jest.mock('../../lib/errorMonitoring', () => ({
+  useErrorMonitoring: () => ({
+    captureError: jest.fn(),
+    trackConvexQuery: jest.fn(),
+    trackConvexMutation: jest.fn(),
+    trackAuth: jest.fn(),
+    trackCardLoading: jest.fn(),
+    trackStudySession: jest.fn(),
+    hasConsent: true,
+  }),
 }));
 
 // Mock PostSessionSummary component

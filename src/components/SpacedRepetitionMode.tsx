@@ -13,6 +13,7 @@ import {
   trackStreakBroken,
   trackStreakMilestone
 } from "../lib/analytics";
+import { useErrorMonitoring } from "../lib/errorMonitoring";
 import KeyboardShortcutsModal from "./KeyboardShortcutsModal";
 import HelpIcon from "./HelpIcon";
 import PostSessionSummary from "./PostSessionSummary";
@@ -64,7 +65,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   const [sessionStartTime, setSessionStartTime] = useState<number>(0);
   const [cardsReviewed, setCardsReviewed] = useState<number>(0);
   const [flipStartTime, setFlipStartTime] = useState<number | null>(null);
-  const [sessionId] = useState<string>(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  const [sessionId] = useState<string>(() => `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`);
   const [_lastCardReviewTime, setLastCardReviewTime] = useState<number>(0);
 
   // Fetch deck and study queue using Convex queries
@@ -83,6 +84,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
   const { trackStudySessionStarted, posthog } = useAnalytics();
   const { trackEventBatched, hasConsent } = useAnalyticsEnhanced();
+  const { trackConvexMutation, trackStudySession } = useErrorMonitoring();
 
   // Initialize study queue when data is loaded
   useEffect(() => {
@@ -190,8 +192,19 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       }
     } catch (error) {
       console.error('Error completing session:', error);
+      // Track study session error
+      trackStudySession(
+        deckId,
+        'session_end',
+        error as Error,
+        {
+          sessionId,
+          cardsReviewed: finalCardsReviewed,
+          studyMode: 'spaced-repetition',
+        }
+      );
     }
-  }, [deck, sessionStartTime, studyQueue.length, hasConsent, posthog, deckId, sessionId, recordStudySession, updateStreak]);
+  }, [deck, sessionStartTime, studyQueue.length, hasConsent, posthog, deckId, sessionId, recordStudySession, updateStreak, trackStudySession]);
 
   /**
    * Handle flipping the current card between front and back
@@ -257,6 +270,22 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       await reviewCard({ cardId: currentCard._id, quality });
     } catch (error) {
       console.error("Error reviewing card:", error);
+
+      // Track the specific error based on the operation
+      if (currentCard.repetition === undefined) {
+        trackConvexMutation('initializeCardForSpacedRepetition', error as Error, {
+          deckId,
+          cardId: currentCard._id,
+          mutationArgs: { cardId: currentCard._id },
+        });
+      } else {
+        trackConvexMutation('reviewCard', error as Error, {
+          deckId,
+          cardId: currentCard._id,
+          mutationArgs: { cardId: currentCard._id, quality },
+        });
+      }
+
       // Continue to next card even if there's an error
     }
 
@@ -288,7 +317,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       setIsFlipped(false);
       setFlipStartTime(Date.now()); // Reset flip timer for new card
     }
-  }, [studyQueue, currentCardIndex, initializeCard, reviewCard, deckId, hasConsent, trackEventBatched, cardsReviewed, posthog, sessionId, sessionStartTime, handleSessionCompletion]);
+  }, [studyQueue, currentCardIndex, initializeCard, reviewCard, deckId, hasConsent, trackEventBatched, cardsReviewed, posthog, sessionId, sessionStartTime, handleSessionCompletion, trackConvexMutation]);
 
   /**
    * Reset session state to start a new study session

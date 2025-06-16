@@ -76,7 +76,16 @@ export type AnalyticsEvent =
   | 'streak_milestone'
   | 'session_started'
   | 'cards_reviewed'
-  | 'session_completed';
+  | 'session_completed'
+  // Error tracking events
+  | 'error_boundary_triggered'
+  | 'convex_query_failed'
+  | 'convex_mutation_failed'
+  | 'authentication_error'
+  | 'card_loading_error'
+  | 'study_session_error'
+  | 'user_reported_error'
+  | 'async_operation_failed';
 
 export interface AnalyticsEventData {
   user_signed_up: Record<string, never>; // No additional data needed
@@ -168,6 +177,75 @@ export interface AnalyticsEventData {
     averageTimePerCard?: number;
     correctAnswers?: number;
     incorrectAnswers?: number;
+  };
+  // Error tracking event data
+  error_boundary_triggered: {
+    errorMessage: string;
+    errorStack?: string;
+    componentStack?: string;
+    userId?: string;
+    currentRoute?: string;
+    userAgent?: string;
+    timestamp: number;
+    errorBoundary: string; // Which error boundary caught it
+    recoverable?: boolean;
+  };
+  convex_query_failed: {
+    queryName: string;
+    errorMessage: string;
+    errorCode?: string;
+    userId?: string;
+    deckId?: string;
+    cardId?: string;
+    retryAttempt?: number;
+    queryArgs?: Record<string, any>;
+  };
+  convex_mutation_failed: {
+    mutationName: string;
+    errorMessage: string;
+    errorCode?: string;
+    userId?: string;
+    deckId?: string;
+    cardId?: string;
+    retryAttempt?: number;
+    mutationArgs?: Record<string, any>;
+  };
+  authentication_error: {
+    errorType: 'clerk_error' | 'convex_auth_error' | 'token_expired' | 'permission_denied';
+    errorMessage: string;
+    userId?: string;
+    attemptedAction?: string;
+    currentRoute?: string;
+  };
+  card_loading_error: {
+    deckId: string;
+    cardId?: string;
+    errorMessage: string;
+    studyMode?: 'basic' | 'spaced-repetition';
+    loadingStage: 'initial_load' | 'flip_animation' | 'content_render';
+  };
+  study_session_error: {
+    deckId: string;
+    sessionId?: string;
+    errorType: 'session_start' | 'card_transition' | 'progress_save' | 'session_end';
+    errorMessage: string;
+    cardsReviewed?: number;
+    studyMode?: 'basic' | 'spaced-repetition';
+  };
+  user_reported_error: {
+    errorDescription: string;
+    userEmail?: string;
+    currentRoute?: string;
+    reproductionSteps?: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    category?: 'ui_bug' | 'data_loss' | 'performance' | 'feature_request' | 'other';
+  };
+  async_operation_failed: {
+    operationType: string;
+    errorMessage: string;
+    operationContext?: Record<string, any>;
+    retryAttempt?: number;
+    timeoutDuration?: number;
   };
 }
 
@@ -446,6 +524,364 @@ export function trackSessionCompleted(
     sessionDuration,
     completionRate,
     ...enhancedMetrics,
+  });
+}
+
+/**
+ * Error Tracking Functions
+ * These functions provide comprehensive error tracking with context
+ */
+
+/**
+ * Get current app context for error reporting
+ */
+function getErrorContext(): {
+  userAgent?: string;
+  currentRoute?: string;
+  timestamp: number;
+  viewport?: string;
+} {
+  try {
+    return {
+      userAgent: navigator.userAgent,
+      currentRoute: window.location.pathname + window.location.search,
+      timestamp: Date.now(),
+      viewport: `${window.innerWidth}x${window.innerHeight}`,
+    };
+  } catch {
+    return {
+      timestamp: Date.now(),
+    };
+  }
+}
+
+
+
+/**
+ * Capture general errors with context
+ */
+export function captureError(
+  posthog: ReturnType<typeof usePostHog> | null,
+  error: Error,
+  context?: {
+    userId?: string;
+    deckId?: string;
+    cardId?: string;
+    component?: string;
+    action?: string;
+    severity?: 'low' | 'medium' | 'high' | 'critical';
+    recoverable?: boolean;
+    additionalData?: Record<string, any>;
+  }
+): void {
+  if (!posthog || !hasAnalyticsConsent()) {
+    console.error('Error captured (analytics disabled):', error, context);
+    return;
+  }
+
+  try {
+    const errorContext = getErrorContext();
+
+    // Use PostHog's built-in exception capture
+    posthog.captureException(error, {
+      ...context?.additionalData,
+      userId: context?.userId,
+      deckId: context?.deckId,
+      cardId: context?.cardId,
+      component: context?.component,
+      action: context?.action,
+      severity: context?.severity || 'medium',
+      recoverable: context?.recoverable ?? true,
+      ...errorContext,
+    });
+
+    // Log in development for debugging
+    if (getEnvironmentMode() === 'development') {
+      console.error('Error captured:', error, context);
+    }
+  } catch (captureError) {
+    console.error('Failed to capture error:', captureError);
+  }
+}
+
+/**
+ * Capture async operation failures
+ */
+export function captureAsyncError(
+  posthog: ReturnType<typeof usePostHog> | null,
+  operationType: string,
+  error: Error,
+  context?: {
+    operationContext?: Record<string, any>;
+    retryAttempt?: number;
+    timeoutDuration?: number;
+    userId?: string;
+  }
+): void {
+  trackEvent(posthog, 'async_operation_failed', {
+    operationType,
+    errorMessage: error.message,
+    operationContext: context?.operationContext,
+    retryAttempt: context?.retryAttempt,
+    timeoutDuration: context?.timeoutDuration,
+  });
+
+  // Also capture the full error
+  captureError(posthog, error, {
+    userId: context?.userId,
+    component: 'AsyncOperation',
+    action: operationType,
+    severity: 'medium',
+    additionalData: context?.operationContext,
+  });
+}
+
+/**
+ * Capture user-reported errors
+ */
+export function captureUserReportedError(
+  posthog: ReturnType<typeof usePostHog> | null,
+  errorDescription: string,
+  context?: {
+    userEmail?: string;
+    reproductionSteps?: string;
+    severity?: 'low' | 'medium' | 'high' | 'critical';
+    category?: 'ui_bug' | 'data_loss' | 'performance' | 'feature_request' | 'other';
+  }
+): void {
+  const errorContext = getErrorContext();
+
+  trackEvent(posthog, 'user_reported_error', {
+    errorDescription,
+    userEmail: context?.userEmail,
+    currentRoute: errorContext.currentRoute,
+    reproductionSteps: context?.reproductionSteps,
+    severity: context?.severity || 'medium',
+    category: context?.category || 'other',
+  });
+}
+
+/**
+ * Flashcard-specific error tracking functions
+ */
+
+/**
+ * Track Convex query failures
+ */
+export function trackConvexQueryError(
+  posthog: ReturnType<typeof usePostHog> | null,
+  queryName: string,
+  error: Error,
+  context?: {
+    userId?: string;
+    deckId?: string;
+    cardId?: string;
+    retryAttempt?: number;
+    queryArgs?: Record<string, any>;
+  }
+): void {
+  trackEvent(posthog, 'convex_query_failed', {
+    queryName,
+    errorMessage: error.message,
+    errorCode: (error as any).code,
+    userId: context?.userId,
+    deckId: context?.deckId,
+    cardId: context?.cardId,
+    retryAttempt: context?.retryAttempt,
+    queryArgs: context?.queryArgs,
+  });
+
+  // Also capture the full error
+  captureError(posthog, error, {
+    userId: context?.userId,
+    deckId: context?.deckId,
+    cardId: context?.cardId,
+    component: 'ConvexQuery',
+    action: queryName,
+    severity: 'high',
+    additionalData: context?.queryArgs,
+  });
+}
+
+/**
+ * Track Convex mutation failures
+ */
+export function trackConvexMutationError(
+  posthog: ReturnType<typeof usePostHog> | null,
+  mutationName: string,
+  error: Error,
+  context?: {
+    userId?: string;
+    deckId?: string;
+    cardId?: string;
+    retryAttempt?: number;
+    mutationArgs?: Record<string, any>;
+  }
+): void {
+  trackEvent(posthog, 'convex_mutation_failed', {
+    mutationName,
+    errorMessage: error.message,
+    errorCode: (error as any).code,
+    userId: context?.userId,
+    deckId: context?.deckId,
+    cardId: context?.cardId,
+    retryAttempt: context?.retryAttempt,
+    mutationArgs: context?.mutationArgs,
+  });
+
+  // Also capture the full error
+  captureError(posthog, error, {
+    userId: context?.userId,
+    deckId: context?.deckId,
+    cardId: context?.cardId,
+    component: 'ConvexMutation',
+    action: mutationName,
+    severity: 'critical', // Mutations are more critical than queries
+    additionalData: context?.mutationArgs,
+  });
+}
+
+/**
+ * Track authentication errors
+ */
+export function trackAuthenticationError(
+  posthog: ReturnType<typeof usePostHog> | null,
+  errorType: 'clerk_error' | 'convex_auth_error' | 'token_expired' | 'permission_denied',
+  error: Error,
+  context?: {
+    userId?: string;
+    attemptedAction?: string;
+  }
+): void {
+  const errorContext = getErrorContext();
+
+  trackEvent(posthog, 'authentication_error', {
+    errorType,
+    errorMessage: error.message,
+    userId: context?.userId,
+    attemptedAction: context?.attemptedAction,
+    currentRoute: errorContext.currentRoute,
+  });
+
+  // Also capture the full error
+  captureError(posthog, error, {
+    userId: context?.userId,
+    component: 'Authentication',
+    action: context?.attemptedAction || 'auth_check',
+    severity: 'high',
+    additionalData: { errorType },
+  });
+}
+
+/**
+ * Track card loading errors
+ */
+export function trackCardLoadingError(
+  posthog: ReturnType<typeof usePostHog> | null,
+  deckId: string,
+  error: Error,
+  context?: {
+    cardId?: string;
+    studyMode?: 'basic' | 'spaced-repetition';
+    loadingStage?: 'initial_load' | 'flip_animation' | 'content_render';
+  }
+): void {
+  trackEvent(posthog, 'card_loading_error', {
+    deckId,
+    cardId: context?.cardId,
+    errorMessage: error.message,
+    studyMode: context?.studyMode,
+    loadingStage: context?.loadingStage || 'initial_load',
+  });
+
+  // Also capture the full error
+  captureError(posthog, error, {
+    deckId,
+    cardId: context?.cardId,
+    component: 'CardLoader',
+    action: context?.loadingStage || 'load_card',
+    severity: 'medium',
+    additionalData: { studyMode: context?.studyMode },
+  });
+}
+
+/**
+ * Track study session errors
+ */
+export function trackStudySessionError(
+  posthog: ReturnType<typeof usePostHog> | null,
+  deckId: string,
+  errorType: 'session_start' | 'card_transition' | 'progress_save' | 'session_end',
+  error: Error,
+  context?: {
+    sessionId?: string;
+    cardsReviewed?: number;
+    studyMode?: 'basic' | 'spaced-repetition';
+  }
+): void {
+  trackEvent(posthog, 'study_session_error', {
+    deckId,
+    sessionId: context?.sessionId,
+    errorType,
+    errorMessage: error.message,
+    cardsReviewed: context?.cardsReviewed,
+    studyMode: context?.studyMode,
+  });
+
+  // Also capture the full error
+  captureError(posthog, error, {
+    deckId,
+    component: 'StudySession',
+    action: errorType,
+    severity: errorType === 'progress_save' ? 'critical' : 'high',
+    additionalData: {
+      sessionId: context?.sessionId,
+      cardsReviewed: context?.cardsReviewed,
+      studyMode: context?.studyMode,
+    },
+  });
+}
+
+/**
+ * Track error boundary triggers
+ */
+export function trackErrorBoundary(
+  posthog: ReturnType<typeof usePostHog> | null,
+  error: Error,
+  errorInfo: {
+    componentStack?: string;
+  },
+  context?: {
+    userId?: string;
+    errorBoundary?: string;
+    recoverable?: boolean;
+  }
+): void {
+  const errorContext = getErrorContext();
+
+  trackEvent(posthog, 'error_boundary_triggered', {
+    errorMessage: error.message,
+    errorStack: error.stack,
+    componentStack: errorInfo.componentStack,
+    userId: context?.userId,
+    currentRoute: errorContext.currentRoute,
+    userAgent: errorContext.userAgent,
+    timestamp: errorContext.timestamp,
+    errorBoundary: context?.errorBoundary || 'RootErrorBoundary',
+    recoverable: context?.recoverable ?? false,
+  });
+
+  // Also capture the full error
+  captureError(posthog, error, {
+    userId: context?.userId,
+    component: context?.errorBoundary || 'ErrorBoundary',
+    action: 'component_error',
+    severity: 'critical',
+    recoverable: context?.recoverable ?? false,
+    additionalData: {
+      componentStack: errorInfo.componentStack,
+      viewport: errorContext.viewport,
+    },
   });
 }
 
@@ -849,6 +1285,42 @@ export function useAnalytics() {
       difficulty: 'easy' | 'medium' | 'hard',
       previousDifficulty?: string
     ) => trackDifficultyRated(posthog, cardId, deckId, difficulty, previousDifficulty),
+    // Error tracking functions
+    captureError: (
+      error: Error,
+      context?: {
+        userId?: string;
+        deckId?: string;
+        cardId?: string;
+        component?: string;
+        action?: string;
+        severity?: 'low' | 'medium' | 'high' | 'critical';
+        recoverable?: boolean;
+        additionalData?: Record<string, any>;
+      }
+    ) => captureError(posthog, error, context),
+    trackConvexQueryError: (
+      queryName: string,
+      error: Error,
+      context?: {
+        userId?: string;
+        deckId?: string;
+        cardId?: string;
+        retryAttempt?: number;
+        queryArgs?: Record<string, any>;
+      }
+    ) => trackConvexQueryError(posthog, queryName, error, context),
+    trackConvexMutationError: (
+      mutationName: string,
+      error: Error,
+      context?: {
+        userId?: string;
+        deckId?: string;
+        cardId?: string;
+        retryAttempt?: number;
+        mutationArgs?: Record<string, any>;
+      }
+    ) => trackConvexMutationError(posthog, mutationName, error, context),
   };
 }
 

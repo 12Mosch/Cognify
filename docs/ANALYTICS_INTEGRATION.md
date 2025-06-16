@@ -46,6 +46,16 @@ PostHog analytics has been integrated with advanced features including event bat
 - Rich user properties for advanced analytics and targeting
 - Study persona classification for personalized experiences
 
+### Error Tracking & Monitoring
+- **Automatic Error Capture**: Enhanced React Error Boundary with PostHog integration
+- **Manual Error Reporting**: Type-safe error capture functions with rich context
+- **Convex Integration**: Specialized error tracking for Convex queries and mutations
+- **Authentication Errors**: Comprehensive Clerk and Convex auth error monitoring
+- **Study Session Errors**: Flashcard-specific error scenarios and recovery
+- **Error Recovery**: User-friendly error recovery mechanisms and fallback UI
+- **Context Enrichment**: Automatic error context with user, route, and app state
+- **Privacy Compliant**: All error tracking respects user consent preferences
+
 ## Tracked Events
 
 ### 1. User Registration (`user_signed_up`)
@@ -188,12 +198,115 @@ PostHog analytics has been integrated with advanced features including event bat
   - `correctAnswers`: Number of correct answers (optional)
   - `incorrectAnswers`: Number of incorrect answers (optional)
 
+## Error Tracking Events
+
+### 14. Error Boundary Triggered (`error_boundary_triggered`)
+- **When**: Triggered when a React Error Boundary catches an unhandled error
+- **Location**: `src/ErrorBoundary.tsx`
+- **Implementation**: Enhanced ErrorBoundary with PostHog integration and user-friendly recovery UI
+- **Properties**:
+  - `errorMessage`: The error message
+  - `errorStack`: Full error stack trace (optional)
+  - `componentStack`: React component stack trace (optional)
+  - `userId`: Current user ID (optional)
+  - `currentRoute`: Current page route
+  - `userAgent`: Browser user agent
+  - `timestamp`: Error occurrence timestamp
+  - `errorBoundary`: Name of the error boundary that caught the error
+  - `recoverable`: Whether the error is recoverable
+
+### 15. Convex Query Failed (`convex_query_failed`)
+- **When**: Triggered when a Convex query fails
+- **Location**: Throughout the app where Convex queries are used
+- **Implementation**: Specialized error tracking for Convex database operations
+- **Properties**:
+  - `queryName`: Name of the failed query
+  - `errorMessage`: Error message from Convex
+  - `errorCode`: Convex error code (optional)
+  - `userId`: Current user ID (optional)
+  - `deckId`: Related deck ID (optional)
+  - `cardId`: Related card ID (optional)
+  - `retryAttempt`: Retry attempt number (optional)
+  - `queryArgs`: Query arguments (optional)
+
+### 16. Convex Mutation Failed (`convex_mutation_failed`)
+- **When**: Triggered when a Convex mutation fails
+- **Location**: Throughout the app where Convex mutations are used
+- **Implementation**: Critical error tracking for data modification operations
+- **Properties**:
+  - `mutationName`: Name of the failed mutation
+  - `errorMessage`: Error message from Convex
+  - `errorCode`: Convex error code (optional)
+  - `userId`: Current user ID (optional)
+  - `deckId`: Related deck ID (optional)
+  - `cardId`: Related card ID (optional)
+  - `retryAttempt`: Retry attempt number (optional)
+  - `mutationArgs`: Mutation arguments (optional)
+
+### 17. Authentication Error (`authentication_error`)
+- **When**: Triggered when authentication-related errors occur
+- **Location**: Throughout the app where authentication is required
+- **Implementation**: Comprehensive auth error tracking for Clerk and Convex
+- **Properties**:
+  - `errorType`: Type of auth error ('clerk_error', 'convex_auth_error', 'token_expired', 'permission_denied')
+  - `errorMessage`: Error message
+  - `userId`: Current user ID (optional)
+  - `attemptedAction`: Action that triggered the error (optional)
+  - `currentRoute`: Current page route
+
+### 18. Card Loading Error (`card_loading_error`)
+- **When**: Triggered when flashcard loading fails
+- **Location**: Study mode components
+- **Implementation**: Specialized error tracking for card rendering and loading
+- **Properties**:
+  - `deckId`: ID of the deck containing the card
+  - `cardId`: ID of the failed card (optional)
+  - `errorMessage`: Error message
+  - `studyMode`: Current study mode (optional)
+  - `loadingStage`: Stage where loading failed ('initial_load', 'flip_animation', 'content_render')
+
+### 19. Study Session Error (`study_session_error`)
+- **When**: Triggered when study session operations fail
+- **Location**: Study mode components
+- **Implementation**: Critical error tracking for study session integrity
+- **Properties**:
+  - `deckId`: ID of the deck being studied
+  - `sessionId`: Unique session identifier (optional)
+  - `errorType`: Type of session error ('session_start', 'card_transition', 'progress_save', 'session_end')
+  - `errorMessage`: Error message
+  - `cardsReviewed`: Number of cards reviewed before error (optional)
+  - `studyMode`: Current study mode (optional)
+
+### 20. User Reported Error (`user_reported_error`)
+- **When**: Triggered when users manually report errors or issues
+- **Location**: Error reporting components or feedback forms
+- **Implementation**: Manual error reporting with user context
+- **Properties**:
+  - `errorDescription`: User's description of the error
+  - `userEmail`: User's email for follow-up (optional)
+  - `currentRoute`: Current page route
+  - `reproductionSteps`: Steps to reproduce the error (optional)
+  - `severity`: User-reported severity ('low', 'medium', 'high', 'critical')
+  - `category`: Error category ('ui_bug', 'data_loss', 'performance', 'feature_request', 'other')
+
+### 21. Async Operation Failed (`async_operation_failed`)
+- **When**: Triggered when async operations fail
+- **Location**: Throughout the app for async operations
+- **Implementation**: General async error tracking with retry context
+- **Properties**:
+  - `operationType`: Type of async operation
+  - `errorMessage`: Error message
+  - `operationContext`: Context data for the operation (optional)
+  - `retryAttempt`: Retry attempt number (optional)
+  - `timeoutDuration`: Timeout duration if applicable (optional)
+
 ## File Structure
 
 ```
 src/
 ├── lib/
 │   ├── analytics.ts              # Main analytics utility functions
+│   ├── errorMonitoring.ts        # Error monitoring utilities and hooks
 │   └── __tests__/
 │       └── analytics.test.ts     # Unit tests for analytics functions
 ├── App.tsx                       # User registration tracking
@@ -201,6 +314,7 @@ src/
 │   ├── CreateDeckForm.tsx        # Deck creation tracking
 │   ├── StudySession.tsx          # Study session tracking
 │   └── Dashboard.tsx             # Navigation to study sessions
+├── ErrorBoundary.tsx             # Enhanced error boundary with PostHog integration
 └── main.tsx                      # PostHog provider setup
 ```
 
@@ -585,3 +699,166 @@ In development mode, all analytics events are logged to the console for debuggin
 1. Make sure Jest is configured properly
 2. Check that mocks are set up correctly in test files
 3. Verify test environment has access to all required modules
+
+## Error Monitoring Usage
+
+### Using Error Monitoring Hooks
+
+#### Basic Error Monitoring
+```typescript
+import { useErrorMonitoring } from '../lib/errorMonitoring';
+
+function MyComponent() {
+  const { captureError, trackConvexQuery, trackConvexMutation } = useErrorMonitoring();
+
+  const handleAsyncOperation = async () => {
+    try {
+      const result = await someAsyncOperation();
+      return result;
+    } catch (error) {
+      captureError(error as Error, {
+        component: 'MyComponent',
+        action: 'async_operation',
+        severity: 'medium',
+        additionalData: { operationType: 'data_fetch' }
+      });
+      throw error;
+    }
+  };
+
+  const handleConvexQuery = async () => {
+    try {
+      const data = await convexQuery(api.decks.getDecksForUser);
+      return data;
+    } catch (error) {
+      trackConvexQuery('getDecksForUser', error as Error, {
+        userId: user?.id,
+        retryAttempt: 0,
+      });
+      throw error;
+    }
+  };
+}
+```
+
+#### Enhanced Error Boundary Usage
+```typescript
+import { ErrorBoundary } from '../ErrorBoundary';
+
+function App() {
+  return (
+    <ErrorBoundary
+      name="AppErrorBoundary"
+      fallback={(error, retry) => (
+        <div className="error-fallback">
+          <h2>Something went wrong</h2>
+          <p>{error.message}</p>
+          <button onClick={retry}>Try Again</button>
+        </div>
+      )}
+      onError={(error, errorInfo) => {
+        console.error('App error:', error, errorInfo);
+      }}
+    >
+      <MyApp />
+    </ErrorBoundary>
+  );
+}
+```
+
+#### Convex Error Handling
+```typescript
+import { useConvexQueryErrorHandler, useConvexMutationErrorHandler } from '../lib/errorMonitoring';
+import { useMutation, useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+
+function DeckComponent() {
+  const trackQueryError = useConvexQueryErrorHandler();
+  const trackMutationError = useConvexMutationErrorHandler();
+
+  // Enhanced query with error tracking
+  const decks = useQuery(api.decks.getDecksForUser, undefined, {
+    onError: (error) => {
+      trackQueryError('getDecksForUser', error, {
+        userId: user?.id,
+        retryAttempt: 0,
+      });
+    }
+  });
+
+  const createDeck = useMutation(api.decks.createDeck);
+
+  const handleCreateDeck = async (deckData: any) => {
+    try {
+      const result = await createDeck(deckData);
+      return result;
+    } catch (error) {
+      trackMutationError('createDeck', error as Error, {
+        userId: user?.id,
+        mutationArgs: deckData,
+        retryAttempt: 0,
+      });
+      throw error;
+    }
+  };
+}
+```
+
+### Error Recovery Utilities
+
+```typescript
+import { ErrorRecovery } from '../lib/errorMonitoring';
+
+function ErrorRecoveryComponent() {
+  const handleConvexError = async () => {
+    const recovered = await ErrorRecovery.recoverConvexConnection();
+    if (!recovered) {
+      // Show user-friendly error message
+    }
+  };
+
+  const handleAuthError = async () => {
+    const recovered = await ErrorRecovery.recoverAuthentication();
+    if (!recovered) {
+      // Redirect to error page
+    }
+  };
+
+  const handleStudySessionError = async (deckId: string) => {
+    const recovered = await ErrorRecovery.recoverStudySession(deckId);
+    if (recovered) {
+      // Restart study session
+    }
+  };
+}
+```
+
+## Error Monitoring Best Practices
+
+### 1. Error Context
+Always provide rich context when capturing errors:
+- User ID for user-specific debugging
+- Component name for error location tracking
+- Action being performed when error occurred
+- Relevant IDs (deckId, cardId, sessionId)
+- Additional data that might help debugging
+
+### 2. Error Severity
+Use appropriate severity levels:
+- **Critical**: Data loss, security issues, app crashes
+- **High**: Feature completely broken, auth failures
+- **Medium**: Feature partially broken, recoverable errors
+- **Low**: Minor UI issues, non-critical failures
+
+### 3. Privacy Compliance
+All error tracking respects user consent:
+- Errors are only sent to PostHog if analytics consent is granted
+- Sensitive data is automatically anonymized
+- Users can opt out of error tracking at any time
+
+### 4. Error Recovery
+Implement graceful error recovery:
+- Provide retry mechanisms for recoverable errors
+- Show user-friendly error messages
+- Offer alternative actions when possible
+- Clear error states and allow users to continue
