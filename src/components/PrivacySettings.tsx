@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePrivacyCompliantAnalytics, PrivacySettings as PrivacySettingsType, ConsentStatus } from '../lib/analytics';
 
 interface PrivacySettingsProps {
@@ -22,6 +22,11 @@ interface PrivacySettingsProps {
 export default function PrivacySettings({ isOpen, onClose }: PrivacySettingsProps) {
   const { privacySettings, grantConsent, revokeConsent } = usePrivacyCompliantAnalytics();
   const [localSettings, setLocalSettings] = useState<PrivacySettingsType>(privacySettings);
+
+  // Sync local state when external privacy settings change
+  useEffect(() => {
+    setLocalSettings(privacySettings);
+  }, [privacySettings]);
 
   if (!isOpen) return null;
 

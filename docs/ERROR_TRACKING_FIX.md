@@ -1,4 +1,4 @@
-# Error Tracking Event Storm Fix
+# Error Tracking Fixes
 
 ## Problem Description
 
@@ -96,3 +96,109 @@ When adding error tracking to components:
 5. ❌ **DON'T**: Track the same error multiple times
 
 This fix ensures that error tracking provides valuable insights without overwhelming the analytics system with duplicate events.
+
+---
+
+## Error Categorization Fix
+
+### Problem Description
+
+The `withAsyncErrorMonitoring` function in `src/lib/errorMonitoring.ts` was incorrectly categorizing ALL async operation failures as `performance_error`, regardless of the actual error type. This led to misleading analytics data where network errors, authentication errors, validation errors, and other error types were all being tagged as performance issues.
+
+### Root Cause
+
+In the `withAsyncErrorMonitoring` function, the error categorization was hardcoded:
+
+```typescript
+// ❌ WRONG: All errors categorized as performance_error
+captureError(context.posthog, error as Error, {
+  // ...other context
+  category: 'performance_error', // This was always performance_error!
+  // ...
+});
+```
+
+This meant that:
+- Network failures were tagged as performance errors
+- Authentication failures were tagged as performance errors
+- Validation errors were tagged as performance errors
+- Integration errors (Convex, Clerk) were tagged as performance errors
+
+### Solution
+
+Updated the error categorization logic to:
+
+1. **Use explicit category override** when provided
+2. **Auto-categorize using `categorizeError` helper** for proper error classification
+3. **Only use performance_error for actual timeout scenarios**
+
+```typescript
+// ✅ CORRECT: Proper error categorization
+let category: ErrorCategory;
+if (context.errorCategory) {
+  // Use explicit override if provided
+  category = context.errorCategory;
+} else if (context.timeoutMs && errorObj.message.includes('timed out')) {
+  // Only categorize as performance_error if it's actually a timeout
+  category = 'performance_error';
+} else {
+  // Use the categorizeError helper to properly categorize the error
+  category = categorizeError(errorObj);
+}
+```
+
+### Changes Made
+
+#### 1. Updated `withAsyncErrorMonitoring` function
+- Added optional `errorCategory` parameter to context for explicit overrides
+- Implemented proper error categorization logic using `categorizeError` helper
+- Only categorizes as `performance_error` for actual timeout scenarios
+
+#### 2. Updated `withRetryAndErrorMonitoring` function
+- Added `errorCategory` parameter to pass through category configuration
+
+#### 3. Added comprehensive tests
+- Created `src/lib/__tests__/errorMonitoring.test.ts` with 8 test cases
+- Tests verify proper categorization for different error types
+- Tests ensure explicit category overrides work correctly
+- Tests confirm that not all errors are categorized as performance errors
+
+### Error Categories
+
+The system now properly categorizes errors into:
+
+- **`network_error`**: Network timeouts, fetch failures, connection issues
+- **`authentication_error`**: Auth failures, token expiration, unauthorized access
+- **`permission_error`**: Access denied, forbidden operations
+- **`validation_error`**: Invalid input, required field errors
+- **`performance_error`**: Actual slow operations and timeouts
+- **`ui_error`**: React component errors, render failures
+- **`integration_error`**: Convex, Clerk, and other service failures
+- **`unknown_error`**: Unclassified errors
+
+### Benefits
+
+1. **Accurate analytics**: Error categories now reflect actual error types
+2. **Better debugging**: Developers can filter and analyze errors by actual cause
+3. **Improved monitoring**: Performance issues are distinguished from other error types
+4. **Configurable categorization**: Explicit category overrides when needed
+5. **Backward compatibility**: Existing code continues to work without changes
+
+### Usage Examples
+
+```typescript
+// Automatic categorization (recommended)
+await withAsyncErrorMonitoring(operation, {
+  operationType: 'fetchUserData',
+  posthog: posthog,
+});
+
+// Explicit category override when needed
+await withAsyncErrorMonitoring(operation, {
+  operationType: 'customOperation',
+  posthog: posthog,
+  errorCategory: 'validation_error', // Override automatic categorization
+});
+```
+
+This fix ensures that error analytics provide accurate insights into the actual types of failures occurring in the application.

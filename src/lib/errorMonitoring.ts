@@ -16,6 +16,8 @@ import {
   trackFormSubmissionError,
   trackPerformanceError,
   hasAnalyticsConsent,
+  categorizeError,
+  type ErrorCategory,
 } from './analytics';
 
 /**
@@ -261,6 +263,7 @@ export async function withAsyncErrorMonitoring<T>(
     retryAttempt?: number;
     timeoutMs?: number;
     performanceThreshold?: number;
+    errorCategory?: ErrorCategory; // Allow explicit category override
   }
 ): Promise<T> {
   const startTime = Date.now();
@@ -298,12 +301,26 @@ export async function withAsyncErrorMonitoring<T>(
     const duration = Date.now() - startTime;
 
     if (context.posthog && hasAnalyticsConsent()) {
-      captureError(context.posthog, error as Error, {
+      const errorObj = error as Error;
+
+      // Determine error category - use explicit override, auto-categorize, or fall back to performance for timeouts
+      let category: ErrorCategory;
+      if (context.errorCategory) {
+        category = context.errorCategory;
+      } else if (context.timeoutMs && errorObj.message.includes('timed out')) {
+        // Only categorize as performance_error if it's actually a timeout
+        category = 'performance_error';
+      } else {
+        // Use the categorizeError helper to properly categorize the error
+        category = categorizeError(errorObj);
+      }
+
+      captureError(context.posthog, errorObj, {
         ...context.errorContext,
         component: 'AsyncOperation',
         action: context.operationType,
         severity: 'medium',
-        category: 'performance_error',
+        category,
         tags: {
           operationType: context.operationType,
           retryAttempt: String(context.retryAttempt || 0),
@@ -339,6 +356,7 @@ export async function withRetryAndErrorMonitoring<T>(
     maxRetries?: number;
     retryDelay?: number;
     timeoutMs?: number;
+    errorCategory?: ErrorCategory; // Allow explicit category override
   }
 ): Promise<T> {
   const maxRetries = context.maxRetries ?? 3;
