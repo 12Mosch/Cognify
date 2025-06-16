@@ -6,7 +6,29 @@ import App from '../App';
 
 // Mock Clerk
 jest.mock('@clerk/clerk-react', () => {
-  const MockUserButton = ({ children }: { children?: React.ReactNode }) => (
+  // Helper function to generate test IDs from labels
+  const slugify = (text: string): string => {
+    return text
+      .toLowerCase()
+      .normalize('NFD') // Decompose diacritics
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .replace(/[^a-z0-9\s-]/g, '') // Remove non-alphanumeric chars except spaces and hyphens
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+  };
+
+  interface MockUserButtonComponent
+    extends React.FC<{ children?: React.ReactNode }> {
+    MenuItems: React.FC<{ children: React.ReactNode }>;
+    Action: React.FC<{
+      label: string;
+      onClick?: () => void;
+      labelIcon?: React.ReactNode;
+    }>;
+  }
+
+  const MockUserButton: MockUserButtonComponent = ({ children }) => (
     <div data-testid="user-button">
       User Button
       {children}
@@ -18,7 +40,7 @@ jest.mock('@clerk/clerk-react', () => {
   );
 
   MockUserButton.Action = ({ label, onClick }: { label: string; onClick?: () => void; labelIcon?: React.ReactNode }) => (
-    <div data-testid={`user-button-action-${label.toLowerCase().replace(/\s+/g, '-')}`} onClick={onClick}>
+    <div data-testid={`user-button-action-${slugify(label)}`} onClick={onClick}>
       {label}
     </div>
   );
