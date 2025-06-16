@@ -85,7 +85,11 @@ export type AnalyticsEvent =
   | 'card_loading_error'
   | 'study_session_error'
   | 'user_reported_error'
-  | 'async_operation_failed';
+  | 'async_operation_failed'
+  // Enhanced error tracking events
+  | 'form_validation_error'
+  | 'form_submission_error'
+  | 'performance_error';
 
 export interface AnalyticsEventData {
   user_signed_up: Record<string, never>; // No additional data needed
@@ -246,6 +250,36 @@ export interface AnalyticsEventData {
     operationContext?: Record<string, any>;
     retryAttempt?: number;
     timeoutDuration?: number;
+  };
+  // Enhanced error tracking event data
+  form_validation_error: {
+    formName: string;
+    errorCount: number;
+    totalErrors: number;
+    errorFields: string[];
+    validationErrors: string;
+    userId?: string;
+    attemptNumber: number;
+    formDataKeys: string[];
+  };
+  form_submission_error: {
+    formName: string;
+    errorMessage: string;
+    errorType: string;
+    userId?: string;
+    submissionAttempt: number;
+    timeToSubmit?: number;
+    formDataKeys: string[];
+  };
+  performance_error: {
+    operationType: string;
+    duration: number;
+    threshold: number;
+    userId?: string;
+    deckId?: string;
+    cardId?: string;
+    severity: 'medium' | 'high';
+    operationData?: Record<string, any>;
   };
 }
 
@@ -558,7 +592,113 @@ function getErrorContext(): {
 
 
 /**
- * Capture general errors with context
+ * Error rate limiting to prevent spam
+ */
+const errorRateLimit = new Map<string, { count: number; lastReset: number }>();
+const ERROR_RATE_LIMIT_WINDOW = 60000; // 1 minute
+const ERROR_RATE_LIMIT_MAX = 10; // Max 10 errors per minute per error type
+
+function shouldRateLimit(errorKey: string): boolean {
+  const now = Date.now();
+  const current = errorRateLimit.get(errorKey);
+
+  if (!current || now - current.lastReset > ERROR_RATE_LIMIT_WINDOW) {
+    errorRateLimit.set(errorKey, { count: 1, lastReset: now });
+    return false;
+  }
+
+  if (current.count >= ERROR_RATE_LIMIT_MAX) {
+    return true;
+  }
+
+  current.count++;
+  return false;
+}
+
+/**
+ * Enhanced error categorization
+ */
+export type ErrorCategory =
+  | 'network_error'
+  | 'validation_error'
+  | 'authentication_error'
+  | 'permission_error'
+  | 'data_corruption'
+  | 'performance_error'
+  | 'ui_error'
+  | 'integration_error'
+  | 'unknown_error';
+
+export function categorizeError(error: Error): ErrorCategory {
+  const message = error.message.toLowerCase();
+  const stack = error.stack?.toLowerCase() || '';
+
+  // Network errors
+  if (message.includes('network') || message.includes('fetch') || message.includes('timeout')) {
+    return 'network_error';
+  }
+
+  // Authentication errors
+  if (message.includes('auth') || message.includes('token') || message.includes('unauthorized')) {
+    return 'authentication_error';
+  }
+
+  // Permission errors
+  if (message.includes('permission') || message.includes('forbidden') || message.includes('access denied')) {
+    return 'permission_error';
+  }
+
+  // Validation errors
+  if (message.includes('validation') || message.includes('invalid') || message.includes('required')) {
+    return 'validation_error';
+  }
+
+  // Performance errors
+  if (message.includes('timeout') || message.includes('slow') || message.includes('performance')) {
+    return 'performance_error';
+  }
+
+  // UI errors
+  if (stack.includes('react') || stack.includes('component') || message.includes('render')) {
+    return 'ui_error';
+  }
+
+  // Integration errors (Convex, Clerk, etc.)
+  if (message.includes('convex') || message.includes('clerk') || stack.includes('convex')) {
+    return 'integration_error';
+  }
+
+  return 'unknown_error';
+}
+
+/**
+ * Enhanced error context with performance metrics
+ */
+function getEnhancedErrorContext() {
+  const baseContext = getErrorContext();
+
+  return {
+    ...baseContext,
+    // Performance metrics
+    memoryUsage: (performance as any).memory ? {
+      usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
+      totalJSHeapSize: (performance as any).memory.totalJSHeapSize,
+      jsHeapSizeLimit: (performance as any).memory.jsHeapSizeLimit,
+    } : undefined,
+    connectionType: (navigator as any).connection?.effectiveType || 'unknown',
+    // Browser state
+    isOnline: navigator.onLine,
+    cookiesEnabled: navigator.cookieEnabled,
+    // Viewport info
+    viewportWidth: window.innerWidth,
+    viewportHeight: window.innerHeight,
+    screenWidth: window.screen.width,
+    screenHeight: window.screen.height,
+  };
+}
+
+/**
+ * Capture general errors with enhanced context and categorization
  */
 export function captureError(
   posthog: ReturnType<typeof usePostHog> | null,
@@ -571,6 +711,9 @@ export function captureError(
     action?: string;
     severity?: 'low' | 'medium' | 'high' | 'critical';
     recoverable?: boolean;
+    category?: ErrorCategory;
+    fingerprint?: string; // For error grouping
+    tags?: Record<string, string>;
     additionalData?: Record<string, any>;
   }
 ): void {
@@ -580,24 +723,54 @@ export function captureError(
   }
 
   try {
-    const errorContext = getErrorContext();
+    // Auto-categorize error if not provided
+    const category = context?.category || categorizeError(error);
 
-    // Use PostHog's built-in exception capture
+    // Create error fingerprint for grouping
+    const fingerprint = context?.fingerprint || `${category}_${error.name}_${context?.component || 'unknown'}`;
+
+    // Rate limiting check
+    if (shouldRateLimit(fingerprint)) {
+      console.warn('Error rate limited:', fingerprint);
+      return;
+    }
+
+    const errorContext = getEnhancedErrorContext();
+
+    // Use PostHog's built-in exception capture with enhanced context
     posthog.captureException(error, {
-      ...context?.additionalData,
+      // Core error info
+      errorCategory: category,
+      errorFingerprint: fingerprint,
+      severity: context?.severity || 'medium',
+      recoverable: context?.recoverable ?? true,
+
+      // User and app context
       userId: context?.userId,
       deckId: context?.deckId,
       cardId: context?.cardId,
       component: context?.component,
       action: context?.action,
-      severity: context?.severity || 'medium',
-      recoverable: context?.recoverable ?? true,
+
+      // Tags for filtering
+      ...context?.tags,
+
+      // Enhanced context
       ...errorContext,
+
+      // Additional data
+      ...context?.additionalData,
     });
 
     // Log in development for debugging
     if (getEnvironmentMode() === 'development') {
-      console.error('Error captured:', error, context);
+      console.error('Error captured:', {
+        error,
+        category,
+        fingerprint,
+        context,
+        errorContext
+      });
     }
   } catch (captureError) {
     console.error('Failed to capture error:', captureError);
@@ -649,7 +822,7 @@ export function captureUserReportedError(
     category?: 'ui_bug' | 'data_loss' | 'performance' | 'feature_request' | 'other';
   }
 ): void {
-  const errorContext = getErrorContext();
+  const errorContext = getEnhancedErrorContext();
 
   trackEvent(posthog, 'user_reported_error', {
     errorDescription,
@@ -658,7 +831,134 @@ export function captureUserReportedError(
     reproductionSteps: context?.reproductionSteps,
     severity: context?.severity || 'medium',
     category: context?.category || 'other',
+    ...errorContext,
   });
+}
+
+/**
+ * Track form validation errors
+ */
+export function trackFormValidationError(
+  posthog: ReturnType<typeof usePostHog> | null,
+  formName: string,
+  validationErrors: Record<string, string[]>,
+  context?: {
+    userId?: string;
+    formData?: Record<string, any>;
+    attemptNumber?: number;
+  }
+): void {
+  if (!posthog || !hasAnalyticsConsent()) return;
+
+  const errorCount = Object.keys(validationErrors).length;
+  const totalErrors = Object.values(validationErrors).flat().length;
+
+  trackEvent(posthog, 'form_validation_error', {
+    formName,
+    errorCount,
+    totalErrors,
+    errorFields: Object.keys(validationErrors),
+    validationErrors: JSON.stringify(validationErrors),
+    userId: context?.userId,
+    attemptNumber: context?.attemptNumber || 1,
+    formDataKeys: context?.formData ? Object.keys(context.formData) : [],
+  });
+}
+
+/**
+ * Track form submission errors
+ */
+export function trackFormSubmissionError(
+  posthog: ReturnType<typeof usePostHog> | null,
+  formName: string,
+  error: Error,
+  context?: {
+    userId?: string;
+    formData?: Record<string, any>;
+    submissionAttempt?: number;
+    timeToSubmit?: number;
+  }
+): void {
+  if (!posthog || !hasAnalyticsConsent()) return;
+
+  trackEvent(posthog, 'form_submission_error', {
+    formName,
+    errorMessage: error.message,
+    errorType: error.name,
+    userId: context?.userId,
+    submissionAttempt: context?.submissionAttempt || 1,
+    timeToSubmit: context?.timeToSubmit,
+    formDataKeys: context?.formData ? Object.keys(context.formData) : [],
+  });
+
+  // Also capture the full error
+  captureError(posthog, error, {
+    userId: context?.userId,
+    component: 'FormSubmission',
+    action: `submit_${formName}`,
+    severity: 'medium',
+    category: 'validation_error',
+    tags: {
+      formName,
+      submissionAttempt: String(context?.submissionAttempt || 1),
+    },
+    additionalData: {
+      timeToSubmit: context?.timeToSubmit,
+      formDataKeys: context?.formData ? Object.keys(context.formData) : [],
+    },
+  });
+}
+
+/**
+ * Track performance errors and slow operations
+ */
+export function trackPerformanceError(
+  posthog: ReturnType<typeof usePostHog> | null,
+  operationType: string,
+  duration: number,
+  context?: {
+    userId?: string;
+    deckId?: string;
+    cardId?: string;
+    threshold?: number;
+    operationData?: Record<string, any>;
+  }
+): void {
+  if (!posthog || !hasAnalyticsConsent()) return;
+
+  const threshold = context?.threshold || 5000; // Default 5 second threshold
+  const isSlowOperation = duration > threshold;
+
+  if (isSlowOperation) {
+    trackEvent(posthog, 'performance_error', {
+      operationType,
+      duration,
+      threshold,
+      userId: context?.userId,
+      deckId: context?.deckId,
+      cardId: context?.cardId,
+      severity: duration > threshold * 2 ? 'high' : 'medium',
+      operationData: context?.operationData,
+    });
+
+    // Create a synthetic error for the slow operation
+    const performanceError = new Error(`Slow operation: ${operationType} took ${duration}ms`);
+    captureError(posthog, performanceError, {
+      userId: context?.userId,
+      deckId: context?.deckId,
+      cardId: context?.cardId,
+      component: 'PerformanceMonitor',
+      action: operationType,
+      severity: duration > threshold * 2 ? 'high' : 'medium',
+      category: 'performance_error',
+      tags: {
+        operationType,
+        duration: String(duration),
+        threshold: String(threshold),
+      },
+      additionalData: context?.operationData,
+    });
+  }
 }
 
 /**

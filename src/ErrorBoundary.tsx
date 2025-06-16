@@ -59,6 +59,39 @@ class ErrorBoundaryClass extends Component<
         // Get user context if available
         const userId = this.getUserId();
 
+        // Use PostHog's captureException directly for better error grouping
+        if (this.props.posthog) {
+          this.props.posthog.captureException(error, {
+            // Core error context
+            errorBoundary: this.props.name || 'ErrorBoundary',
+            componentStack: errorInfo.componentStack,
+            userId,
+            recoverable: this.isRecoverableError(error),
+            retryCount: this.state.retryCount,
+
+            // App state context
+            currentRoute: window.location.pathname + window.location.search,
+            userAgent: navigator.userAgent,
+            timestamp: Date.now(),
+            viewport: `${window.innerWidth}x${window.innerHeight}`,
+
+            // Error categorization
+            errorCategory: this.categorizeError(error),
+            errorSeverity: this.getErrorSeverity(error),
+
+            // Browser context
+            isOnline: navigator.onLine,
+            cookiesEnabled: navigator.cookieEnabled,
+
+            // Memory usage if available
+            memoryUsage: (performance as any).memory ? {
+              usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
+              totalJSHeapSize: (performance as any).memory.totalJSHeapSize,
+            } : undefined,
+          });
+        }
+
+        // Also track with our legacy system for consistency
         trackErrorBoundary(
           this.props.posthog,
           error,
@@ -86,7 +119,11 @@ class ErrorBoundaryClass extends Component<
     }
 
     // Log error for development
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('ErrorBoundary caught an error:', error, errorInfo);
+      console.error('Error category:', this.categorizeError(error));
+      console.error('Error severity:', this.getErrorSeverity(error));
+    }
   }
 
   private getUserId(): string | undefined {
@@ -126,6 +163,79 @@ class ErrorBoundaryClass extends Component<
     return recoverablePatterns.some(pattern =>
       errorMessage.includes(pattern) || errorStack.includes(pattern)
     );
+  }
+
+  private categorizeError(error: Error): string {
+    const message = error.message.toLowerCase();
+    const stack = error.stack?.toLowerCase() || '';
+
+    // Network errors
+    if (message.includes('network') || message.includes('fetch') || message.includes('timeout')) {
+      return 'network_error';
+    }
+
+    // Authentication errors
+    if (message.includes('auth') || message.includes('token') || message.includes('unauthorized')) {
+      return 'authentication_error';
+    }
+
+    // Permission errors
+    if (message.includes('permission') || message.includes('forbidden') || message.includes('access denied')) {
+      return 'permission_error';
+    }
+
+    // Validation errors
+    if (message.includes('validation') || message.includes('invalid') || message.includes('required')) {
+      return 'validation_error';
+    }
+
+    // Performance errors
+    if (message.includes('timeout') || message.includes('slow') || message.includes('performance')) {
+      return 'performance_error';
+    }
+
+    // UI errors
+    if (stack.includes('react') || stack.includes('component') || message.includes('render')) {
+      return 'ui_error';
+    }
+
+    // Integration errors (Convex, Clerk, etc.)
+    if (message.includes('convex') || message.includes('clerk') || stack.includes('convex')) {
+      return 'integration_error';
+    }
+
+    return 'unknown_error';
+  }
+
+  private getErrorSeverity(error: Error): 'low' | 'medium' | 'high' | 'critical' {
+    const message = error.message.toLowerCase();
+    const stack = error.stack?.toLowerCase() || '';
+
+    // Critical errors that break core functionality
+    if (message.includes('chunk load error') ||
+        message.includes('script error') ||
+        message.includes('out of memory') ||
+        stack.includes('convex') && message.includes('mutation')) {
+      return 'critical';
+    }
+
+    // High severity errors that significantly impact user experience
+    if (message.includes('auth') ||
+        message.includes('permission') ||
+        message.includes('network') ||
+        stack.includes('react') && message.includes('render')) {
+      return 'high';
+    }
+
+    // Medium severity errors that cause minor issues
+    if (message.includes('validation') ||
+        message.includes('timeout') ||
+        message.includes('fetch')) {
+      return 'medium';
+    }
+
+    // Default to low for unknown errors
+    return 'low';
   }
 
   private handleRetry = () => {

@@ -12,6 +12,9 @@ import {
   trackAuthenticationError,
   trackCardLoadingError,
   trackStudySessionError,
+  trackFormValidationError,
+  trackFormSubmissionError,
+  trackPerformanceError,
   hasAnalyticsConsent,
 } from './analytics';
 
@@ -115,6 +118,66 @@ export function useStudySessionErrorHandler() {
 }
 
 /**
+ * Hook for form validation error monitoring
+ */
+export function useFormValidationErrorHandler() {
+  const posthog = usePostHog();
+
+  return useCallback((
+    formName: string,
+    validationErrors: Record<string, string[]>,
+    context?: {
+      userId?: string;
+      formData?: Record<string, any>;
+      attemptNumber?: number;
+    }
+  ) => {
+    trackFormValidationError(posthog, formName, validationErrors, context);
+  }, [posthog]);
+}
+
+/**
+ * Hook for form submission error monitoring
+ */
+export function useFormSubmissionErrorHandler() {
+  const posthog = usePostHog();
+
+  return useCallback((
+    formName: string,
+    error: Error,
+    context?: {
+      userId?: string;
+      formData?: Record<string, any>;
+      submissionAttempt?: number;
+      timeToSubmit?: number;
+    }
+  ) => {
+    trackFormSubmissionError(posthog, formName, error, context);
+  }, [posthog]);
+}
+
+/**
+ * Hook for performance error monitoring
+ */
+export function usePerformanceErrorHandler() {
+  const posthog = usePostHog();
+
+  return useCallback((
+    operationType: string,
+    duration: number,
+    context?: {
+      userId?: string;
+      deckId?: string;
+      cardId?: string;
+      threshold?: number;
+      operationData?: Record<string, any>;
+    }
+  ) => {
+    trackPerformanceError(posthog, operationType, duration, context);
+  }, [posthog]);
+}
+
+/**
  * Comprehensive error monitoring hook
  */
 export function useErrorMonitoring() {
@@ -141,6 +204,9 @@ export function useErrorMonitoring() {
   const trackAuth = useAuthErrorHandler();
   const trackCardLoading = useCardLoadingErrorHandler();
   const trackStudySession = useStudySessionErrorHandler();
+  const trackFormValidation = useFormValidationErrorHandler();
+  const trackFormSubmission = useFormSubmissionErrorHandler();
+  const trackPerformance = usePerformanceErrorHandler();
 
   return {
     captureError: captureGenericError,
@@ -149,6 +215,9 @@ export function useErrorMonitoring() {
     trackAuth,
     trackCardLoading,
     trackStudySession,
+    trackFormValidation,
+    trackFormSubmission,
+    trackPerformance,
     hasConsent: hasAnalyticsConsent(),
   };
 }
@@ -173,7 +242,7 @@ export function createComponentErrorHandler(
 }
 
 /**
- * Async operation wrapper with error monitoring
+ * Enhanced async operation wrapper with error monitoring and performance tracking
  */
 export async function withAsyncErrorMonitoring<T>(
   operation: () => Promise<T>,
@@ -188,38 +257,64 @@ export async function withAsyncErrorMonitoring<T>(
     };
     retryAttempt?: number;
     timeoutMs?: number;
+    performanceThreshold?: number;
   }
 ): Promise<T> {
   const startTime = Date.now();
-  
+
   try {
+    let result: T;
+
     // Add timeout if specified
     if (context.timeoutMs) {
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error(`Operation timed out after ${context.timeoutMs}ms`)), context.timeoutMs);
       });
-      
-      return await Promise.race([operation(), timeoutPromise]);
+
+      result = await Promise.race([operation(), timeoutPromise]);
+    } else {
+      result = await operation();
     }
-    
-    return await operation();
+
+    const duration = Date.now() - startTime;
+
+    // Track performance if operation was slow
+    if (context.performanceThreshold && duration > context.performanceThreshold && context.posthog) {
+      trackPerformanceError(context.posthog, context.operationType, duration, {
+        ...context.errorContext,
+        threshold: context.performanceThreshold,
+        operationData: {
+          retryAttempt: context.retryAttempt,
+          timeoutMs: context.timeoutMs,
+        },
+      });
+    }
+
+    return result;
   } catch (error) {
     const duration = Date.now() - startTime;
-    
+
     if (context.posthog && hasAnalyticsConsent()) {
       captureError(context.posthog, error as Error, {
         ...context.errorContext,
         component: 'AsyncOperation',
         action: context.operationType,
         severity: 'medium',
+        category: 'performance_error',
+        tags: {
+          operationType: context.operationType,
+          retryAttempt: String(context.retryAttempt || 0),
+          duration: String(duration),
+        },
         additionalData: {
           retryAttempt: context.retryAttempt,
           duration,
           timeoutMs: context.timeoutMs,
+          performanceThreshold: context.performanceThreshold,
         },
       });
     }
-    
+
     throw error;
   }
 }
@@ -273,6 +368,86 @@ export async function withRetryAndErrorMonitoring<T>(
 }
 
 /**
+ * Form error monitoring wrapper
+ */
+export function withFormErrorMonitoring<T extends Record<string, any>>(
+  formName: string,
+  posthog?: ReturnType<typeof usePostHog> | null
+) {
+  return {
+    /**
+     * Track form validation errors
+     */
+    trackValidationErrors: (
+      validationErrors: Record<string, string[]>,
+      context?: {
+        userId?: string;
+        formData?: T;
+        attemptNumber?: number;
+      }
+    ) => {
+      if (posthog && hasAnalyticsConsent()) {
+        trackFormValidationError(posthog, formName, validationErrors, {
+          ...context,
+          formData: context?.formData as Record<string, any>,
+        });
+      }
+    },
+
+    /**
+     * Track form submission errors
+     */
+    trackSubmissionError: (
+      error: Error,
+      context?: {
+        userId?: string;
+        formData?: T;
+        submissionAttempt?: number;
+        timeToSubmit?: number;
+      }
+    ) => {
+      if (posthog && hasAnalyticsConsent()) {
+        trackFormSubmissionError(posthog, formName, error, {
+          ...context,
+          formData: context?.formData as Record<string, any>,
+        });
+      }
+    },
+
+    /**
+     * Wrap form submission with error monitoring
+     */
+    wrapSubmission: async <R>(
+      submitFn: (formData: T) => Promise<R>,
+      formData: T,
+      context?: {
+        userId?: string;
+        submissionAttempt?: number;
+      }
+    ): Promise<R> => {
+      const startTime = Date.now();
+
+      try {
+        const result = await submitFn(formData);
+        return result;
+      } catch (error) {
+        const timeToSubmit = Date.now() - startTime;
+
+        if (posthog && hasAnalyticsConsent()) {
+          trackFormSubmissionError(posthog, formName, error as Error, {
+            ...context,
+            formData: formData as Record<string, any>,
+            timeToSubmit,
+          });
+        }
+
+        throw error;
+      }
+    },
+  };
+}
+
+/**
  * Error recovery utilities
  */
 export const ErrorRecovery = {
@@ -297,7 +472,7 @@ export const ErrorRecovery = {
       // Clear any stale auth data
       localStorage.removeItem('clerk-user');
       sessionStorage.clear();
-      
+
       // Redirect to sign-in
       window.location.href = '/';
       return true;
@@ -312,11 +487,28 @@ export const ErrorRecovery = {
   async recoverStudySession(deckId: string): Promise<boolean> {
     try {
       // Clear any cached study session data
-      const sessionKeys = Object.keys(localStorage).filter(key => 
+      const sessionKeys = Object.keys(localStorage).filter(key =>
         key.includes('study_session') || key.includes(deckId)
       );
       sessionKeys.forEach(key => localStorage.removeItem(key));
-      
+
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  /**
+   * Attempt to recover from form submission errors
+   */
+  async recoverFormSubmission(formName: string): Promise<boolean> {
+    try {
+      // Clear any cached form data that might be corrupted
+      const formKeys = Object.keys(localStorage).filter(key =>
+        key.includes(`form_${formName}`) || key.includes(`draft_${formName}`)
+      );
+      formKeys.forEach(key => localStorage.removeItem(key));
+
       return true;
     } catch {
       return false;

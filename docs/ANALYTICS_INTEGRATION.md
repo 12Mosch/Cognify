@@ -766,6 +766,255 @@ function App() {
 }
 ```
 
+## Enhanced Error Tracking System
+
+The flashcard application now includes a comprehensive error tracking system that integrates with PostHog's `captureException` API for superior error monitoring and debugging capabilities.
+
+### Key Features
+
+#### 1. **PostHog captureException Integration**
+- Direct integration with PostHog's built-in exception capture
+- Enhanced error grouping and categorization
+- Automatic error fingerprinting for better organization
+- Rich context capture including user state, app state, and browser information
+
+#### 2. **Error Rate Limiting**
+- Prevents error spam with configurable rate limits (10 errors per minute per error type)
+- Protects against infinite error loops
+- Maintains system performance during error conditions
+
+#### 3. **Automatic Error Categorization**
+```typescript
+export type ErrorCategory =
+  | 'network_error'
+  | 'validation_error'
+  | 'authentication_error'
+  | 'permission_error'
+  | 'data_corruption'
+  | 'performance_error'
+  | 'ui_error'
+  | 'integration_error'
+  | 'unknown_error';
+```
+
+#### 4. **Enhanced Context Capture**
+- Memory usage metrics (when available)
+- Network connection type
+- Browser state (online status, cookies enabled)
+- Viewport and screen dimensions
+- Performance metrics
+- User session data
+
+#### 5. **Form Error Tracking**
+- Validation error tracking with field-level details
+- Form submission error monitoring
+- Time-to-submit metrics
+- Retry attempt tracking
+
+#### 6. **Performance Error Monitoring**
+- Automatic detection of slow operations
+- Configurable performance thresholds
+- Duration tracking and analysis
+- Operation-specific context capture
+
+### Usage Examples
+
+#### Enhanced Error Boundary with PostHog Integration
+```typescript
+// ErrorBoundary now automatically uses PostHog's captureException
+// with comprehensive context including:
+// - Error categorization
+// - Severity assessment
+// - Browser and app state
+// - Memory usage metrics
+// - User context
+
+<ErrorBoundary name="StudySessionBoundary">
+  <SpacedRepetitionMode deckId={deckId} onExit={onExit} />
+</ErrorBoundary>
+```
+
+#### Manual Error Capture with Enhanced Context
+```typescript
+import { useErrorMonitoring } from '../lib/errorMonitoring';
+
+function MyComponent() {
+  const { captureError } = useErrorMonitoring();
+
+  const handleError = (error: Error) => {
+    captureError(error, {
+      component: 'MyComponent',
+      action: 'user_action',
+      severity: 'medium',
+      category: 'ui_error',
+      tags: {
+        feature: 'flashcard_study',
+        userType: 'premium',
+      },
+      additionalData: {
+        cardId: 'card-123',
+        studyMode: 'spaced-repetition',
+      },
+    });
+  };
+}
+```
+
+#### Form Error Monitoring
+```typescript
+import { withFormErrorMonitoring } from '../lib/errorMonitoring';
+import { usePostHog } from 'posthog-js/react';
+
+function CreateDeckForm() {
+  const posthog = usePostHog();
+  const formErrorMonitor = withFormErrorMonitoring('create_deck', posthog);
+
+  const handleSubmit = async (formData: DeckFormData) => {
+    try {
+      await formErrorMonitor.wrapSubmission(
+        async (data) => {
+          return await createDeck(data);
+        },
+        formData,
+        { userId: user?.id, submissionAttempt: 1 }
+      );
+    } catch (error) {
+      // Error is automatically tracked
+      console.error('Form submission failed:', error);
+    }
+  };
+
+  const handleValidationErrors = (errors: Record<string, string[]>) => {
+    formErrorMonitor.trackValidationErrors(errors, {
+      userId: user?.id,
+      formData,
+      attemptNumber: 1,
+    });
+  };
+}
+```
+
+#### Performance Monitoring
+```typescript
+import { withAsyncErrorMonitoring } from '../lib/errorMonitoring';
+import { usePostHog } from 'posthog-js/react';
+
+function DataLoader() {
+  const posthog = usePostHog();
+
+  const loadData = async () => {
+    return await withAsyncErrorMonitoring(
+      async () => {
+        // Your async operation
+        return await fetchLargeDataset();
+      },
+      {
+        operationType: 'load_large_dataset',
+        posthog,
+        timeoutMs: 10000, // 10 second timeout
+        performanceThreshold: 3000, // Track if > 3 seconds
+        errorContext: {
+          userId: user?.id,
+          component: 'DataLoader',
+        },
+      }
+    );
+  };
+}
+```
+
+#### Convex Error Monitoring
+```typescript
+import { useErrorMonitoring } from '../lib/errorMonitoring';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+
+function StudyComponent() {
+  const { trackConvexMutation } = useErrorMonitoring();
+  const reviewCard = useMutation(api.spacedRepetition.reviewCard);
+
+  const handleReview = async (cardId: string, quality: number) => {
+    try {
+      await reviewCard({ cardId, quality });
+    } catch (error) {
+      trackConvexMutation('reviewCard', error as Error, {
+        userId: user?.id,
+        deckId: currentDeck?.id,
+        cardId,
+        mutationArgs: { cardId, quality },
+      });
+      throw error; // Re-throw for component handling
+    }
+  };
+}
+```
+
+### Privacy Compliance
+
+All error tracking respects the existing privacy consent system:
+
+```typescript
+// Error tracking only occurs when user has granted analytics consent
+if (hasAnalyticsConsent()) {
+  posthog.captureException(error, context);
+}
+
+// Graceful degradation when consent is not given
+if (!hasAnalyticsConsent()) {
+  console.error('Error captured (analytics disabled):', error, context);
+  return;
+}
+```
+
+#### GDPR/CCPA Compliance Features
+- Automatic consent checking before any error tracking
+- Graceful degradation when consent is denied
+- Error data anonymization options
+- User control over error data collection
+- Automatic data retention compliance
+
+### Error Recovery Mechanisms
+
+The system includes automatic error recovery utilities:
+
+```typescript
+import { ErrorRecovery } from '../lib/errorMonitoring';
+
+// Recover from Convex connection errors
+await ErrorRecovery.recoverConvexConnection();
+
+// Recover from authentication errors
+await ErrorRecovery.recoverAuthentication();
+
+// Recover from study session errors
+await ErrorRecovery.recoverStudySession(deckId);
+
+// Recover from form submission errors
+await ErrorRecovery.recoverFormSubmission(formName);
+```
+
+### Error Severity Classification
+
+Errors are automatically classified by severity:
+
+- **Critical**: Chunk load errors, out of memory, core mutations
+- **High**: Authentication, permissions, network, render errors
+- **Medium**: Validation, timeouts, fetch errors
+- **Low**: Unknown or minor errors
+
+### Error Fingerprinting
+
+Errors are automatically grouped using fingerprints:
+```typescript
+const fingerprint = `${category}_${error.name}_${component || 'unknown'}`;
+```
+
+This enables:
+- Better error grouping in PostHog
+- Duplicate error detection
+- Rate limiting by error type
+- Trend analysis
+
 #### Convex Error Handling
 ```typescript
 import { useConvexQueryErrorHandler, useConvexMutationErrorHandler } from '../lib/errorMonitoring';
