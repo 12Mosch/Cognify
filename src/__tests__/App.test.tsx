@@ -5,14 +5,33 @@ import { useQuery } from 'convex/react';
 import App from '../App';
 
 // Mock Clerk
-jest.mock('@clerk/clerk-react', () => ({
-  useUser: jest.fn(),
-  SignInButton: ({ children }: { children: React.ReactNode }) => <div data-testid="sign-in-button">{children}</div>,
-  SignUpButton: ({ children }: { children: React.ReactNode }) => <div data-testid="sign-up-button">{children}</div>,
-  UserButton: () => <div data-testid="user-button">User Button</div>,
-  Authenticated: ({ children }: { children: React.ReactNode }) => <div data-testid="authenticated">{children}</div>,
-  Unauthenticated: ({ children }: { children: React.ReactNode }) => <div data-testid="unauthenticated">{children}</div>,
-}));
+jest.mock('@clerk/clerk-react', () => {
+  const MockUserButton = ({ children }: { children?: React.ReactNode }) => (
+    <div data-testid="user-button">
+      User Button
+      {children}
+    </div>
+  );
+
+  MockUserButton.MenuItems = ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="user-button-menu-items">{children}</div>
+  );
+
+  MockUserButton.Action = ({ label, onClick }: { label: string; onClick?: () => void; labelIcon?: React.ReactNode }) => (
+    <div data-testid={`user-button-action-${label.toLowerCase().replace(/\s+/g, '-')}`} onClick={onClick}>
+      {label}
+    </div>
+  );
+
+  return {
+    useUser: jest.fn(),
+    SignInButton: ({ children }: { children: React.ReactNode }) => <div data-testid="sign-in-button">{children}</div>,
+    SignUpButton: ({ children }: { children: React.ReactNode }) => <div data-testid="sign-up-button">{children}</div>,
+    UserButton: MockUserButton,
+    Authenticated: ({ children }: { children: React.ReactNode }) => <div data-testid="authenticated">{children}</div>,
+    Unauthenticated: ({ children }: { children: React.ReactNode }) => <div data-testid="unauthenticated">{children}</div>,
+  };
+});
 
 // Mock Convex
 jest.mock('convex/react', () => ({
@@ -37,6 +56,18 @@ jest.mock('../components/Dashboard', () => ({
   })
 }));
 
+// Mock PrivacySettings component
+jest.mock('../components/PrivacySettings', () => {
+  return jest.fn(({ isOpen }) =>
+    isOpen ? <div data-testid="privacy-settings-modal">Privacy Settings</div> : null
+  );
+});
+
+// Mock FeatureFlagDemo component
+jest.mock('../components/FeatureFlagDemo', () => {
+  return jest.fn(() => <div data-testid="feature-flag-demo">Feature Flag Demo</div>);
+});
+
 // Mock analytics
 jest.mock('../lib/analytics', () => ({
   useAnalytics: () => ({
@@ -44,6 +75,15 @@ jest.mock('../lib/analytics', () => ({
   }),
   useAnalyticsEnhanced: () => ({
     identifyUser: jest.fn(),
+  }),
+  usePrivacyCompliantAnalytics: () => ({
+    privacySettings: {
+      analyticsConsent: 'pending',
+      functionalConsent: 'pending',
+      marketingConsent: 'pending',
+    },
+    grantConsent: jest.fn(),
+    revokeConsent: jest.fn(),
   }),
   hasUserBeenTrackedForRegistration: jest.fn(() => false),
   markUserAsTrackedForRegistration: jest.fn(),

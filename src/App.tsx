@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Authenticated,
   Unauthenticated,
@@ -9,12 +9,18 @@ import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/clerk-re
 import { Toaster } from "react-hot-toast";
 import { Dashboard } from "./components/Dashboard";
 import { useAnalytics, useAnalyticsEnhanced, hasUserBeenTrackedForRegistration, markUserAsTrackedForRegistration } from "./lib/analytics";
+import PrivacySettings from "./components/PrivacySettings";
+import FeatureFlagDemo from "./components/FeatureFlagDemo";
 
 export default function App() {
   const { user, isLoaded } = useUser();
   const { trackUserSignUp } = useAnalytics();
   const { identifyUser } = useAnalyticsEnhanced();
   const dashboardRef = useRef<{ goHome: () => void }>(null);
+
+  // State for Privacy Settings and Feature Flags modals
+  const [showPrivacySettings, setShowPrivacySettings] = useState(false);
+  const [showFeatureFlags, setShowFeatureFlags] = useState(false);
 
   // Track user registration when user first signs up
   useEffect(() => {
@@ -61,7 +67,30 @@ export default function App() {
         >
           Flashcard App
         </button>
-        <UserButton />
+        <UserButton>
+          <UserButton.MenuItems>
+            <UserButton.Action
+              label="Privacy Settings"
+              labelIcon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              }
+              onClick={() => setShowPrivacySettings(true)}
+            />
+            <UserButton.Action
+              label="Feature Flags"
+              labelIcon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 2H21l-3 6 3 6h-8.5l-1-2H5a2 2 0 00-2 2zm9-13.5V9" />
+                </svg>
+              }
+              onClick={() => setShowFeatureFlags(true)}
+            />
+            <UserButton.Action label="manageAccount" />
+            <UserButton.Action label="signOut" />
+          </UserButton.MenuItems>
+        </UserButton>
       </header>
       <main className="p-8">
         <Authenticated>
@@ -71,6 +100,35 @@ export default function App() {
           <SignInForm />
         </Unauthenticated>
       </main>
+
+      {/* Privacy Settings Modal */}
+      <PrivacySettings
+        isOpen={showPrivacySettings}
+        onClose={() => setShowPrivacySettings(false)}
+      />
+
+      {/* Feature Flags Modal */}
+      {showFeatureFlags && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+                Feature Flags
+              </h2>
+              <button
+                onClick={() => setShowFeatureFlags(false)}
+                className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                aria-label="Close feature flags"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <FeatureFlagDemo />
+          </div>
+        </div>
+      )}
 
       {/* Toast notifications */}
       <Toaster

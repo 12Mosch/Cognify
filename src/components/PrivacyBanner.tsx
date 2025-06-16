@@ -139,11 +139,16 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
   };
 
   const handleCustomize = () => {
-    // Don't mark banner as shown yet - wait until user makes a choice
-    // The banner will be hidden when the settings modal opens, but will
-    // reappear if the user closes the modal without making any consent decisions
-    setShowBanner(false);
-    onSettingsClick?.(handleSettingsClosed);
+    if (onSettingsClick) {
+      // Don't mark banner as shown yet - wait until user makes a choice
+      // The banner will be hidden when the settings modal opens, but will
+      // reappear if the user closes the modal without making any consent decisions
+      setShowBanner(false);
+      onSettingsClick(handleSettingsClosed);
+    } else {
+      // If no settings callback is provided, inform user to use account menu
+      alert('You can customize your privacy settings by clicking on your profile picture in the top-right corner and selecting "Privacy Settings".');
+    }
   };
 
   return (
