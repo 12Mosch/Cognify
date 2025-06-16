@@ -67,6 +67,29 @@ jest.mock('react-hot-toast', () => ({
   Toaster: () => <div data-testid="toaster" />,
 }));
 
+// Mock react-i18next
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: any) => {
+      // Return English translations for testing
+      const translations: Record<string, string> = {
+        'app.title': 'Flashcard App',
+        'app.goToMainDashboard': 'Go to main dashboard',
+        'navigation.settings': 'Settings',
+        'navigation.signOut': 'Sign Out',
+        'auth.welcome': `Welcome to ${options?.appName || 'Flashcard App'}`,
+        'auth.signInPrompt': 'Sign in to create and manage your flashcard decks',
+        'auth.signIn': 'Sign In',
+        'auth.signUp': 'Sign Up',
+      };
+      return translations[key] || key;
+    },
+    i18n: {
+      changeLanguage: jest.fn(),
+    },
+  }),
+}));
+
 // Mock Dashboard component
 jest.mock('../components/Dashboard', () => ({
   Dashboard: jest.fn().mockImplementation(({ ref }) => {

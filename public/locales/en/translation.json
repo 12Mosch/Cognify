@@ -1,0 +1,180 @@
+{
+  "app": {
+    "title": "Flashcard App",
+    "goToMainDashboard": "Go to main dashboard"
+  },
+  "navigation": {
+    "settings": "Settings",
+    "signOut": "Sign Out",
+    "selectLanguage": "Select language"
+  },
+  "auth": {
+    "welcome": "Welcome to {{appName}}",
+    "signInPrompt": "Sign in to create and manage your flashcard decks",
+    "signIn": "Sign In",
+    "signUp": "Sign Up"
+  },
+  "dashboard": {
+    "title": "My Flashcard Decks",
+    "subtitle": {
+      "empty": "Create your first deck to get started",
+      "withDecks": "{{count}} deck",
+      "withDecks_plural": "{{count}} decks"
+    },
+    "buttons": {
+      "showStatistics": "Show Statistics",
+      "quickAddCard": "Quick Add Card",
+      "createDeck": "Create Deck"
+    }
+  },
+  "deck": {
+    "cardCount": "{{count}} card",
+    "cardCount_plural": "{{count}} cards",
+    "studyNow": "Study Now",
+    "manageCards": "Manage Cards",
+    "dueCards": "{{count}} due",
+    "newCards": "{{count}} new",
+    "manageCardsAria": "Manage cards in {{deckName}} deck",
+    "studyAria": "Study {{deckName}} deck"
+  },
+  "emptyState": {
+    "title": "No decks yet",
+    "description": "Create your first flashcard deck to start learning. You can add cards, study, and track your progress.",
+    "getStarted": "Get started by creating your first deck!"
+  },
+  "study": {
+    "flip": "Flip",
+    "next": "Next",
+    "previous": "Previous",
+    "showAnswer": "Show Answer",
+    "difficulty": {
+      "again": "Again",
+      "hard": "Hard", 
+      "good": "Good",
+      "easy": "Easy"
+    },
+    "session": {
+      "completed": "Study Session Completed!",
+      "cardsReviewed": "Cards reviewed: {{count}}",
+      "returnToDashboard": "Return to Dashboard",
+      "allCaughtUp": "All Caught Up!",
+      "noCardsToReview": "No cards to review right now.",
+      "nextReview": "Next review in {{time}}"
+    },
+    "shortcuts": {
+      "title": "Keyboard Shortcuts",
+      "flip": "Flip card",
+      "next": "Next card",
+      "difficulty1": "Again (1)",
+      "difficulty2": "Hard (2)", 
+      "difficulty3": "Good (3)",
+      "difficulty4": "Easy (4)",
+      "help": "Show shortcuts"
+    }
+  },
+  "forms": {
+    "createDeck": {
+      "title": "Create New Deck",
+      "name": "Deck Name",
+      "namePlaceholder": "Enter deck name",
+      "description": "Description (optional)",
+      "descriptionPlaceholder": "Enter deck description",
+      "create": "Create Deck",
+      "cancel": "Cancel"
+    },
+    "quickAddCard": {
+      "title": "Quick Add Card",
+      "selectDeck": "Select Deck",
+      "selectDeckPlaceholder": "Choose a deck",
+      "front": "Front",
+      "frontPlaceholder": "Enter front of card",
+      "back": "Back", 
+      "backPlaceholder": "Enter back of card",
+      "add": "Add Card",
+      "cancel": "Cancel"
+    },
+    "validation": {
+      "required": "This field is required",
+      "deckNameRequired": "Deck name is required",
+      "frontRequired": "Front of card is required",
+      "backRequired": "Back of card is required"
+    }
+  },
+  "statistics": {
+    "title": "Statistics Dashboard",
+    "overview": {
+      "title": "Overview",
+      "totalDecks": "Total Decks",
+      "totalCards": "Total Cards", 
+      "cardsReviewed": "Cards Reviewed",
+      "studyStreak": "Study Streak"
+    },
+    "performance": {
+      "title": "Performance",
+      "accuracy": "Accuracy",
+      "averageTime": "Avg. Time per Card",
+      "sessionsCompleted": "Sessions Completed"
+    },
+    "activity": {
+      "title": "Study Activity",
+      "last7Days": "Last 7 Days",
+      "last30Days": "Last 30 Days"
+    }
+  },
+  "streak": {
+    "title": "Study Streak",
+    "days": "{{count}} day",
+    "days_plural": "{{count}} days",
+    "keepItUp": "Keep it up!",
+    "startToday": "Start your streak today!"
+  },
+  "privacy": {
+    "banner": {
+      "title": {
+        "eu": "Your Privacy Matters",
+        "ca": "Privacy Notice", 
+        "default": "Cookie Notice"
+      },
+      "message": {
+        "eu": "We use cookies and similar technologies to improve your experience, analyze usage, and provide personalized content. Under GDPR, we need your consent to process your personal data. You can withdraw consent at any time.",
+        "ca": "We collect and process personal information as described in our Privacy Policy. Under CCPA, you have the right to know what personal information we collect and to opt-out of its sale.",
+        "default": "We use cookies to enhance your experience and analyze site usage. By continuing to use our site, you agree to our use of cookies and data processing practices."
+      },
+      "buttons": {
+        "acceptAll": "Accept All",
+        "rejectAll": "Reject All",
+        "optOut": "Opt Out",
+        "customize": "Customize",
+        "processing": "Processing..."
+      }
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "notFound": "The requested resource was not found.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "validation": "Please check your input and try again."
+  },
+  "notifications": {
+    "deckCreated": "Deck created successfully!",
+    "cardAdded": "Card added successfully!",
+    "settingsSaved": "Settings saved successfully!",
+    "studySessionCompleted": "Study session completed!"
+  }
+}

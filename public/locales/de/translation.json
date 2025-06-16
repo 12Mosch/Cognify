@@ -1,0 +1,180 @@
+{
+  "app": {
+    "title": "Karteikarten-App",
+    "goToMainDashboard": "Zum Hauptdashboard gehen"
+  },
+  "navigation": {
+    "settings": "Einstellungen",
+    "signOut": "Abmelden",
+    "selectLanguage": "Sprache auswählen"
+  },
+  "auth": {
+    "welcome": "Willkommen bei {{appName}}",
+    "signInPrompt": "Melden Sie sich an, um Ihre Karteikarten-Stapel zu erstellen und zu verwalten",
+    "signIn": "Anmelden",
+    "signUp": "Registrieren"
+  },
+  "dashboard": {
+    "title": "Meine Karteikarten-Stapel",
+    "subtitle": {
+      "empty": "Erstellen Sie Ihren ersten Stapel, um zu beginnen",
+      "withDecks": "{{count}} Stapel",
+      "withDecks_plural": "{{count}} Stapel"
+    },
+    "buttons": {
+      "showStatistics": "Statistiken anzeigen",
+      "quickAddCard": "Karte schnell hinzufügen",
+      "createDeck": "Stapel erstellen"
+    }
+  },
+  "deck": {
+    "cardCount": "{{count}} Karte",
+    "cardCount_plural": "{{count}} Karten",
+    "studyNow": "Jetzt lernen",
+    "manageCards": "Karten verwalten",
+    "dueCards": "{{count}} fällig",
+    "newCards": "{{count}} neu",
+    "manageCardsAria": "Karten in {{deckName}} Stapel verwalten",
+    "studyAria": "{{deckName}} Stapel lernen"
+  },
+  "emptyState": {
+    "title": "Noch keine Stapel",
+    "description": "Erstellen Sie Ihren ersten Karteikarten-Stapel, um mit dem Lernen zu beginnen. Sie können Karten hinzufügen, lernen und Ihren Fortschritt verfolgen.",
+    "getStarted": "Beginnen Sie mit der Erstellung Ihres ersten Stapels!"
+  },
+  "study": {
+    "flip": "Umdrehen",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "showAnswer": "Antwort zeigen",
+    "difficulty": {
+      "again": "Nochmal",
+      "hard": "Schwer",
+      "good": "Gut",
+      "easy": "Einfach"
+    },
+    "session": {
+      "completed": "Lernsitzung abgeschlossen!",
+      "cardsReviewed": "Karten wiederholt: {{count}}",
+      "returnToDashboard": "Zum Dashboard zurückkehren",
+      "allCaughtUp": "Alles erledigt!",
+      "noCardsToReview": "Keine Karten zum Wiederholen verfügbar.",
+      "nextReview": "Nächste Wiederholung in {{time}}"
+    },
+    "shortcuts": {
+      "title": "Tastenkürzel",
+      "flip": "Karte umdrehen",
+      "next": "Nächste Karte",
+      "difficulty1": "Nochmal (1)",
+      "difficulty2": "Schwer (2)",
+      "difficulty3": "Gut (3)",
+      "difficulty4": "Einfach (4)",
+      "help": "Tastenkürzel anzeigen"
+    }
+  },
+  "forms": {
+    "createDeck": {
+      "title": "Neuen Stapel erstellen",
+      "name": "Stapelname",
+      "namePlaceholder": "Stapelname eingeben",
+      "description": "Beschreibung (optional)",
+      "descriptionPlaceholder": "Stapelbeschreibung eingeben",
+      "create": "Stapel erstellen",
+      "cancel": "Abbrechen"
+    },
+    "quickAddCard": {
+      "title": "Karte schnell hinzufügen",
+      "selectDeck": "Stapel auswählen",
+      "selectDeckPlaceholder": "Einen Stapel wählen",
+      "front": "Vorderseite",
+      "frontPlaceholder": "Vorderseite der Karte eingeben",
+      "back": "Rückseite",
+      "backPlaceholder": "Rückseite der Karte eingeben",
+      "add": "Karte hinzufügen",
+      "cancel": "Abbrechen"
+    },
+    "validation": {
+      "required": "Dieses Feld ist erforderlich",
+      "deckNameRequired": "Stapelname ist erforderlich",
+      "frontRequired": "Vorderseite der Karte ist erforderlich",
+      "backRequired": "Rückseite der Karte ist erforderlich"
+    }
+  },
+  "statistics": {
+    "title": "Statistik-Dashboard",
+    "overview": {
+      "title": "Übersicht",
+      "totalDecks": "Stapel gesamt",
+      "totalCards": "Karten gesamt",
+      "cardsReviewed": "Karten wiederholt",
+      "studyStreak": "Lernserie"
+    },
+    "performance": {
+      "title": "Leistung",
+      "accuracy": "Genauigkeit",
+      "averageTime": "Ø Zeit pro Karte",
+      "sessionsCompleted": "Sitzungen abgeschlossen"
+    },
+    "activity": {
+      "title": "Lernaktivität",
+      "last7Days": "Letzte 7 Tage",
+      "last30Days": "Letzte 30 Tage"
+    }
+  },
+  "streak": {
+    "title": "Lernserie",
+    "days": "{{count}} Tag",
+    "days_plural": "{{count}} Tage",
+    "keepItUp": "Weiter so!",
+    "startToday": "Beginnen Sie heute Ihre Serie!"
+  },
+  "privacy": {
+    "banner": {
+      "title": {
+        "eu": "Ihre Privatsphäre ist wichtig",
+        "ca": "Datenschutzhinweis",
+        "default": "Cookie-Hinweis"
+      },
+      "message": {
+        "eu": "Wir verwenden Cookies und ähnliche Technologien, um Ihre Erfahrung zu verbessern, die Nutzung zu analysieren und personalisierte Inhalte bereitzustellen. Unter der DSGVO benötigen wir Ihre Einwilligung zur Verarbeitung Ihrer personenbezogenen Daten. Sie können die Einwilligung jederzeit widerrufen.",
+        "ca": "Wir sammeln und verarbeiten personenbezogene Daten wie in unserer Datenschutzrichtlinie beschrieben. Unter dem CCPA haben Sie das Recht zu erfahren, welche personenbezogenen Daten wir sammeln und dem Verkauf zu widersprechen.",
+        "default": "Wir verwenden Cookies, um Ihre Erfahrung zu verbessern und die Website-Nutzung zu analysieren. Durch die weitere Nutzung unserer Website stimmen Sie der Verwendung von Cookies und Datenverarbeitungspraktiken zu."
+      },
+      "buttons": {
+        "acceptAll": "Alle akzeptieren",
+        "rejectAll": "Alle ablehnen",
+        "optOut": "Ablehnen",
+        "customize": "Anpassen",
+        "processing": "Verarbeitung..."
+      }
+    }
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "close": "Schließen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "errors": {
+    "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+    "network": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+    "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
+    "unauthorized": "Sie sind nicht berechtigt, diese Aktion auszuführen.",
+    "validation": "Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut."
+  },
+  "notifications": {
+    "deckCreated": "Stapel erfolgreich erstellt!",
+    "cardAdded": "Karte erfolgreich hinzugefügt!",
+    "settingsSaved": "Einstellungen erfolgreich gespeichert!",
+    "studySessionCompleted": "Lernsitzung abgeschlossen!"
+  }
+}

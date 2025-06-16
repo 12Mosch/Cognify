@@ -7,12 +7,15 @@ import {
 } from "convex/react";
 import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/clerk-react";
 import { Toaster } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { Dashboard } from "./components/Dashboard";
 import { useAnalytics, useAnalyticsEnhanced, hasUserBeenTrackedForRegistration, markUserAsTrackedForRegistration } from "./lib/analytics";
 import SettingsModal from "./components/SettingsModal";
+import LanguageSwitcher from "./components/LanguageSwitcher";
 
 export default function App() {
   const { user, isLoaded } = useUser();
+  const { t } = useTranslation();
   const { trackUserSignUp } = useAnalytics();
   const { identifyUser } = useAnalyticsEnhanced();
   const dashboardRef = useRef<{ goHome: () => void }>(null);
@@ -60,15 +63,17 @@ export default function App() {
         <button
           onClick={handleGoHome}
           className="text-xl font-bold hover:text-slate-700 dark:hover:text-slate-300 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 rounded-md px-2 py-1"
-          aria-label="Go to main dashboard"
-          title="Go to main dashboard"
+          aria-label={t('app.goToMainDashboard')}
+          title={t('app.goToMainDashboard')}
         >
-          Flashcard App
+          {t('app.title')}
         </button>
-        <UserButton>
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher />
+          <UserButton>
           <UserButton.MenuItems>
             <UserButton.Action
-              label="Settings"
+              label={t('navigation.settings')}
               labelIcon={
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -80,6 +85,7 @@ export default function App() {
             <UserButton.Action label="signOut" />
           </UserButton.MenuItems>
         </UserButton>
+        </div>
       </header>
       <main className="p-8">
         <Authenticated>
@@ -131,23 +137,25 @@ export default function App() {
 }
 
 function SignInForm() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-8 w-96 mx-auto text-center">
       <div>
-        <h2 className="text-2xl font-bold mb-4">Welcome to Flashcard App</h2>
+        <h2 className="text-2xl font-bold mb-4">{t('auth.welcome', { appName: t('app.title') })}</h2>
         <p className="text-slate-600 dark:text-slate-400">
-          Sign in to create and manage your flashcard decks
+          {t('auth.signInPrompt')}
         </p>
       </div>
       <div className="flex flex-col gap-4">
         <SignInButton mode="modal">
           <button className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium">
-            Sign In
+            {t('auth.signIn')}
           </button>
         </SignInButton>
         <SignUpButton mode="modal">
           <button className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-6 py-3 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity font-medium">
-            Sign Up
+            {t('auth.signUp')}
           </button>
         </SignUpButton>
       </div>

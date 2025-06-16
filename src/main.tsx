@@ -7,6 +7,7 @@ import { PostHogProvider } from "posthog-js/react";
 import "./index.css";
 import App from "./App.tsx";
 import { ErrorBoundary } from "./ErrorBoundary.tsx";
+import "./i18n";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 

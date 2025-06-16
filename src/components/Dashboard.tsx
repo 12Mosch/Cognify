@@ -1,5 +1,6 @@
 import { useState, useEffect, Suspense, lazy, memo, forwardRef, useImperativeHandle } from "react";
 import { useQuery } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { CreateDeckForm } from "./CreateDeckForm";
 import { QuickAddCardForm } from "./QuickAddCardForm";
@@ -140,6 +141,7 @@ function DashboardContent({
   onManageCards: (deckId: Id<"decks">) => void;
 }) {
   const [errorTracked, setErrorTracked] = useState<{decks?: boolean}>({});
+  const { t } = useTranslation();
 
   const { user } = useUser();
   const { captureError, trackConvexQuery } = useErrorMonitoring();
@@ -202,11 +204,11 @@ function DashboardContent({
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">My Flashcard Decks</h1>
+          <h1 className="text-3xl font-bold">{t('dashboard.title')}</h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
             {decks.length === 0
-              ? "Create your first deck to get started"
-              : `${decks.length} deck${decks.length === 1 ? '' : 's'}`
+              ? t('dashboard.subtitle.empty')
+              : t('dashboard.subtitle.withDecks', { count: decks.length })
             }
           </p>
         </div>
@@ -257,6 +259,8 @@ function DashboardContent({
 }
 
 const EmptyState = memo(function EmptyState() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4">
       <div className="text-center max-w-md">
@@ -276,12 +280,12 @@ const EmptyState = memo(function EmptyState() {
             />
           </svg>
         </div>
-        <h3 className="text-xl font-semibold mb-2">No decks yet</h3>
+        <h3 className="text-xl font-semibold mb-2">{t('emptyState.title')}</h3>
         <p className="text-slate-600 dark:text-slate-400 mb-6">
-          Create your first flashcard deck to start learning. You can add cards, study, and track your progress.
+          {t('emptyState.description')}
         </p>
         <div className="text-sm text-slate-500 dark:text-slate-400">
-          Click "Create New Deck" above to get started
+          {t('emptyState.getStarted')}
         </div>
       </div>
     </div>
@@ -290,6 +294,7 @@ const EmptyState = memo(function EmptyState() {
 
 const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: { deck: Deck; onStartStudy: () => void; onManageCards: () => void }) {
   // No longer need to query cards - we have the count directly from the deck
+  const { t } = useTranslation();
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString(undefined, {
@@ -323,21 +328,21 @@ const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: {
           
           <div className="flex items-center gap-2">
             <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
-              {`${deck.cardCount} card${deck.cardCount === 1 ? '' : 's'}`}
+              {t('deck.cardCount', { count: deck.cardCount })}
             </span>
             <button
               onClick={onManageCards}
               className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1 rounded hover:opacity-80 transition-opacity font-medium"
-              aria-label={`Manage cards in ${deck.name} deck`}
+              aria-label={t('deck.manageCardsAria', { deckName: deck.name })}
             >
-              Manage
+              {t('deck.manageCards')}
             </button>
             <button
               onClick={onStartStudy}
               className="text-xs bg-dark dark:bg-light text-light dark:text-dark px-3 py-1 rounded hover:opacity-80 transition-opacity font-medium"
-              aria-label={`Study ${deck.name} deck`}
+              aria-label={t('deck.studyAria', { deckName: deck.name })}
             >
-              Study
+              {t('deck.studyNow')}
             </button>
           </div>
         </div>
