@@ -9,7 +9,7 @@ import {
 } from '../lib/analytics';
 
 interface PrivacyBannerProps {
-  onSettingsClick?: () => void;
+  onSettingsClick?: (onSettingsClosed?: () => void) => void;
 }
 
 /**
@@ -27,6 +27,14 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
   useEffect(() => {
     setShowBanner(shouldShowPrivacyBanner());
   }, []);
+
+  // Re-check if banner should show when settings modal closes
+  const handleSettingsClosed = () => {
+    // Add a small delay to ensure any privacy settings changes have been processed
+    setTimeout(() => {
+      setShowBanner(shouldShowPrivacyBanner());
+    }, 100);
+  };
 
   if (!showBanner) {
     return null;
@@ -46,7 +54,8 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
         functionalConsent: 'granted',
         marketingConsent: 'granted',
         gdpr: {
-          ...settings.gdpr!,
+          dataRetentionPeriod: 365, // Default retention period
+          ...settings.gdpr ?? {},
           consentGiven: true,
           consentDate: new Date().toISOString(),
           dataProcessingPurposes: {
@@ -59,7 +68,7 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
           anonymizeData: false,
         },
         ccpa: {
-          ...settings.ccpa!,
+          ...settings.ccpa ?? {},
           doNotSell: false,
           dataCategories: {
             personalInfo: true,
@@ -92,7 +101,8 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
         functionalConsent: 'denied',
         marketingConsent: 'denied',
         gdpr: {
-          ...settings.gdpr!,
+          dataRetentionPeriod: 365, // Default retention period
+          ...settings.gdpr ?? {},
           consentGiven: false,
           dataProcessingPurposes: {
             analytics: false,
@@ -104,7 +114,7 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
           anonymizeData: true,
         },
         ccpa: {
-          ...settings.ccpa!,
+          ...settings.ccpa ?? {},
           doNotSell: true,
           optOutDate: new Date().toISOString(),
           dataCategories: {
@@ -129,9 +139,11 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
   };
 
   const handleCustomize = () => {
-    markPrivacyBannerShown();
+    // Don't mark banner as shown yet - wait until user makes a choice
+    // The banner will be hidden when the settings modal opens, but will
+    // reappear if the user closes the modal without making any consent decisions
     setShowBanner(false);
-    onSettingsClick?.();
+    onSettingsClick?.(handleSettingsClosed);
   };
 
   return (

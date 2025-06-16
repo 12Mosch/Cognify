@@ -45,7 +45,7 @@ export const getCurrentStreak = query({
       lastStudyDate: streak.lastStudyDate,
       streakStartDate: streak.streakStartDate,
       totalStudyDays: streak.totalStudyDays,
-      milestonesReached: streak.milestonesReached,
+      milestonesReached: streak.milestonesReached || [],
       lastMilestone: streak.lastMilestone,
     };
   },
@@ -53,11 +53,15 @@ export const getCurrentStreak = query({
 
 /**
  * Update study streak when user completes a study session
+ *
+ * Note: Streak continuity is calculated using local dates (studyDate parameter).
+ * The timezone parameter is stored for metadata purposes but does not affect
+ * the actual streak calculation logic, which works purely with YYYY-MM-DD dates.
  */
 export const updateStreak = mutation({
   args: {
-    studyDate: v.string(),    // YYYY-MM-DD format
-    timezone: v.string(),     // IANA timezone identifier
+    studyDate: v.string(),    // YYYY-MM-DD format (user's local date)
+    timezone: v.string(),     // IANA timezone identifier (for metadata/storage)
   },
   returns: v.object({
     currentStreak: v.number(),
@@ -125,7 +129,7 @@ export const updateStreak = mutation({
       // Continuing streak
       newCurrentStreak = existingStreak.currentStreak + 1;
       newLongestStreak = Math.max(existingStreak.longestStreak, newCurrentStreak);
-      newStreakStartDate = existingStreak.streakStartDate;
+      newStreakStartDate = existingStreak.streakStartDate || today; // Fallback to today if undefined
       streakEvent = "continued";
     } else {
       // Streak broken, starting new one
@@ -137,7 +141,7 @@ export const updateStreak = mutation({
 
     // Check for new milestones
     const milestones = [7, 30, 50, 100, 200, 365];
-    const newMilestones = [...existingStreak.milestonesReached];
+    const newMilestones = [...(existingStreak.milestonesReached || [])];
     let isNewMilestone = false;
     let milestone: number | undefined;
 
@@ -207,11 +211,22 @@ export const getStreakLeaderboard = query({
 
 /**
  * Helper function to get yesterday's date in YYYY-MM-DD format
+ * Timezone-safe implementation that avoids UTC conversion issues
  */
 function getYesterday(dateStr: string): string {
-  const date = new Date(dateStr);
+  // Parse YYYY-MM-DD directly without timezone assumptions
+  const [year, month, day] = dateStr.split('-').map(Number);
+
+  // Create date object in local timezone, then subtract one day
+  const date = new Date(year, month - 1, day); // month is 0-indexed
   date.setDate(date.getDate() - 1);
-  return date.toISOString().split('T')[0];
+
+  // Format back to YYYY-MM-DD without UTC conversion
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0'); // month is 0-indexed
+  const dd = String(date.getDate()).padStart(2, '0');
+
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 /**
@@ -240,7 +255,7 @@ export const getStreakStats = query({
     const activeStreaks = allStreaks.filter(s => s.currentStreak > 0);
     const totalCurrentStreak = activeStreaks.reduce((sum, s) => sum + s.currentStreak, 0);
     const longestActiveStreak = Math.max(...activeStreaks.map(s => s.currentStreak), 0);
-    const totalMilestonesReached = allStreaks.reduce((sum, s) => sum + s.milestonesReached.length, 0);
+    const totalMilestonesReached = allStreaks.reduce((sum, s) => sum + (s.milestonesReached || []).length, 0);
 
     return {
       totalActiveStreaks: activeStreaks.length,

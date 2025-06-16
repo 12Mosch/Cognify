@@ -42,13 +42,15 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
   useModalEffects(showForm, handleCancel);
 
   // Track query errors if they occur
-  if (decks === null) {
-    // Query failed - track the error
-    const queryError = new Error('Failed to load user decks for card creation');
-    trackConvexQuery('getDecksForUser', queryError, {
-      userId: user?.id,
-    });
-  }
+  useEffect(() => {
+    if (decks === null) {
+      // Query failed - track the error
+      const queryError = new Error('Failed to load user decks for card creation');
+      trackConvexQuery('getDecksForUser', queryError, {
+        userId: user?.id,
+      });
+    }
+  }, [decks, trackConvexQuery, user?.id]);
 
   // Focus first select when form opens
   useEffect(() => {
@@ -96,7 +98,7 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
 
       formErrorMonitor.trackValidationErrors(validationErrors, {
         userId: user?.id,
-        formData: { selectedDeckId: selectedDeckId || '', front, back },
+        formData: { selectedDeckId, frontLength: front.length, backLength: back.length },
         attemptNumber: currentAttempt,
       });
 

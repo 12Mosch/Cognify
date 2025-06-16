@@ -19,7 +19,7 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
   if (streakData === undefined) {
     return (
       <div className={`bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-6 ${className}`}>
-        <div className="animate-pulse">
+        <div className="animate-pulse" data-testid="streak-loading">
           <div className="h-6 bg-orange-200 dark:bg-orange-700 rounded w-32 mb-4"></div>
           <div className="h-12 bg-orange-200 dark:bg-orange-700 rounded w-20 mb-2"></div>
           <div className="h-4 bg-orange-200 dark:bg-orange-700 rounded w-48"></div>
@@ -28,7 +28,17 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
     );
   }
 
-  const { currentStreak, longestStreak, totalStudyDays, milestonesReached, lastMilestone } = streakData;
+  // Handle null response to avoid crash - user has no streak yet
+  // Treat as zero-streak baseline if streakData is null
+  const safeStreakData = streakData ?? {
+    currentStreak: 0,
+    longestStreak: 0,
+    totalStudyDays: 0,
+    milestonesReached: [],
+    lastMilestone: null
+  };
+
+  const { currentStreak, longestStreak, totalStudyDays, milestonesReached, lastMilestone } = safeStreakData;
 
   // Determine streak status and styling
   const getStreakStatus = () => {
@@ -90,9 +100,10 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
   };
 
   return (
-    <div 
+    <div
       className={`bg-gradient-to-r ${status.bgColor} border ${status.borderColor} rounded-lg p-6 cursor-pointer hover:shadow-md transition-shadow ${className}`}
       onClick={handleStreakClick}
+      data-testid="streak-display"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -108,7 +119,7 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 
       {/* Current streak display */}
       <div className="text-center mb-4">
-        <div className={`text-4xl font-bold ${status.streakColor} mb-1`}>
+        <div className={`text-4xl font-bold ${status.streakColor} mb-1`} data-testid="current-streak">
           {currentStreak}
         </div>
         <div className={`text-sm font-medium ${status.textColor}`}>
@@ -172,7 +183,7 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
             Milestones Achieved
           </div>
           <div className="flex flex-wrap gap-1">
-            {milestonesReached.map((milestone) => (
+            {milestonesReached.map((milestone: number) => (
               <span
                 key={milestone}
                 className="inline-flex items-center px-2 py-1 text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-full"

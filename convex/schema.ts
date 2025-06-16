@@ -50,14 +50,14 @@ export default defineSchema({
     userId: v.string(),           // ID of the user
     currentStreak: v.number(),    // Current consecutive days of study
     longestStreak: v.number(),    // Longest streak ever achieved
-    lastStudyDate: v.string(),    // Last date user studied (YYYY-MM-DD format)
-    streakStartDate: v.string(),  // Date when current streak started (YYYY-MM-DD format)
+    lastStudyDate: v.optional(v.string()),    // Last date user studied (YYYY-MM-DD format) - optional for new users
+    streakStartDate: v.optional(v.string()),  // Date when current streak started (YYYY-MM-DD format) - optional for new users
     timezone: v.string(),         // User's IANA timezone identifier
     // Milestone tracking
-    milestonesReached: v.array(v.number()), // Array of milestone numbers reached (e.g., [7, 30, 100])
+    milestonesReached: v.optional(v.array(v.number())), // Array of milestone numbers reached (e.g., [7, 30, 100]) - defaults to []
     lastMilestone: v.optional(v.number()),  // Last milestone reached
     // Metadata
-    lastUpdated: v.string(),      // ISO 8601 timestamp of last update
+    lastUpdated: v.optional(v.string()),      // ISO 8601 timestamp of last update - optional for new users
     totalStudyDays: v.number(),   // Total number of days user has studied (not necessarily consecutive)
   }).index("by_userId", ["userId"])                             // Index for efficient user streak queries
     .index("by_currentStreak", ["currentStreak"])               // Index for leaderboard queries

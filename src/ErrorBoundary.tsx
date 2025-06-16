@@ -59,9 +59,13 @@ class ErrorBoundaryClass extends Component<
         // Get user context if available
         const userId = this.getUserId();
 
-        // Use PostHog's captureException directly for better error grouping
+        // Use PostHog's capture method for error tracking
         if (this.props.posthog) {
-          this.props.posthog.captureException(error, {
+          this.props.posthog.capture('error_boundary_triggered', {
+            // PostHog exception format
+            $exception: error.message,
+            $stacktrace: error.stack,
+
             // Core error context
             errorBoundary: this.props.name || 'ErrorBoundary',
             componentStack: errorInfo.componentStack,
@@ -84,7 +88,7 @@ class ErrorBoundaryClass extends Component<
             cookiesEnabled: navigator.cookieEnabled,
 
             // Memory usage if available
-            memoryUsage: (performance as any).memory ? {
+            memoryUsage: 'memory' in performance ? {
               usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
               totalJSHeapSize: (performance as any).memory.totalJSHeapSize,
             } : undefined,

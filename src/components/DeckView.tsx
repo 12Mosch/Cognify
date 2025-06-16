@@ -1,4 +1,4 @@
-import { useState, memo } from "react";
+import { useState, useEffect, memo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
@@ -24,6 +24,7 @@ interface Card {
 function DeckView({ deckId, onBack }: DeckViewProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCard, setEditingCard] = useState<Card | null>(null);
+  const [errorTracked, setErrorTracked] = useState<{deck?: boolean, cards?: boolean}>({});
 
   const { user } = useUser();
   const { trackConvexQuery } = useErrorMonitoring();
@@ -31,24 +32,34 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
   const deck = useQuery(api.decks.getDeckById, { deckId });
   const cards = useQuery(api.cards.getCardsForDeck, { deckId });
 
-  // Track query errors if they occur
-  if (deck === null) {
-    // Deck query failed - track the error
-    const deckError = new Error('Failed to load deck or access denied');
-    trackConvexQuery('getDeckById', deckError, {
-      userId: user?.id,
-      deckId,
-    });
-  }
+  // Track deck loading errors (side effect)
+  useEffect(() => {
+    if (deck === null && !errorTracked.deck) {
+      const deckError = new Error('Failed to load deck or access denied');
+      trackConvexQuery('getDeckById', deckError, {
+        userId: user?.id,
+        deckId,
+      });
+      setErrorTracked(prev => ({ ...prev, deck: true }));
+    }
+  }, [deck, errorTracked.deck, trackConvexQuery, user?.id, deckId]);
 
-  if (cards === null) {
-    // Cards query failed - track the error
-    const cardsError = new Error('Failed to load cards for deck');
-    trackConvexQuery('getCardsForDeck', cardsError, {
-      userId: user?.id,
-      deckId,
-    });
-  }
+  // Track cards loading errors (side effect)
+  useEffect(() => {
+    if (cards === null && !errorTracked.cards) {
+      const cardsError = new Error('Failed to load cards for deck');
+      trackConvexQuery('getCardsForDeck', cardsError, {
+        userId: user?.id,
+        deckId,
+      });
+      setErrorTracked(prev => ({ ...prev, cards: true }));
+    }
+  }, [cards, errorTracked.cards, trackConvexQuery, user?.id, deckId]);
+
+  // Reset error tracking when deckId changes
+  useEffect(() => {
+    setErrorTracked({});
+  }, [deckId]);
 
   // Loading state
   if (deck === undefined || cards === undefined) {

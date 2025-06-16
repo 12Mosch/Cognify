@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy, memo } from "react";
+import { useState, useEffect, Suspense, lazy, memo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { CreateDeckForm } from "./CreateDeckForm";
@@ -59,7 +59,9 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
   const [selectingStudyMode, setSelectingStudyMode] = useState<Id<"decks"> | null>(null);
   const [viewingDeckId, setViewingDeckId] = useState<Id<"decks"> | null>(null);
   const [showPrivacySettings, setShowPrivacySettings] = useState(false);
+  const [onSettingsClosedCallback, setOnSettingsClosedCallback] = useState<(() => void) | null>(null);
   const [showFeatureFlags, setShowFeatureFlags] = useState(false);
+  const [errorTracked, setErrorTracked] = useState<{decks?: boolean}>({});
 
   const { user } = useUser();
   const { captureError, trackConvexQuery } = useErrorMonitoring();
@@ -67,14 +69,16 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
   // Only fetch decks when we're in the main dashboard content
   const decks = useQuery(api.decks.getDecksForUser);
 
-  // Track query errors if they occur
-  if (decks === null) {
-    // Query failed - track the error
-    const queryError = new Error('Failed to load user decks');
-    trackConvexQuery('getDecksForUser', queryError, {
-      userId: user?.id,
-    });
-  }
+  // Track decks loading errors (side effect)
+  useEffect(() => {
+    if (decks === null && !errorTracked.decks) {
+      const queryError = new Error('Failed to load user decks');
+      trackConvexQuery('getDecksForUser', queryError, {
+        userId: user?.id,
+      });
+      setErrorTracked(prev => ({ ...prev, decks: true }));
+    }
+  }, [decks, errorTracked.decks, trackConvexQuery, user?.id]);
 
   // If user is viewing a deck, show the DeckView component
   if (viewingDeckId) {
@@ -256,12 +260,24 @@ function DashboardContent({ onShowStatistics }: { onShowStatistics: () => void }
       )}
 
       {/* Privacy Banner */}
-      <PrivacyBanner onSettingsClick={() => setShowPrivacySettings(true)} />
+      <PrivacyBanner
+        onSettingsClick={(onSettingsClosed) => {
+          setShowPrivacySettings(true);
+          setOnSettingsClosedCallback(() => onSettingsClosed);
+        }}
+      />
 
       {/* Privacy Settings Modal */}
       <PrivacySettings
         isOpen={showPrivacySettings}
-        onClose={() => setShowPrivacySettings(false)}
+        onClose={() => {
+          setShowPrivacySettings(false);
+          // Call the callback to re-check banner visibility
+          if (onSettingsClosedCallback) {
+            onSettingsClosedCallback();
+            setOnSettingsClosedCallback(null);
+          }
+        }}
       />
 
       {/* Feature Flags Demo */}

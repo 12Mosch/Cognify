@@ -17,6 +17,9 @@ PostHog analytics has been integrated with advanced features including event bat
 - PostHog feature flags with automatic tracking of flag interactions
 - Feature flag context included in analytics events
 - Support for A/B testing and gradual feature rollouts
+- **Best Practice**: Use `isFeatureEnabled()` instead of `getFeatureFlag()` to avoid truthy-string traps
+  - `getFeatureFlag()` can return strings like 'control' which evaluate to truthy even when disabled
+  - `isFeatureEnabled()` guarantees boolean values and caches results
 
 ### Privacy Compliance
 - **GDPR Compliance**: Full European data protection regulation compliance
@@ -576,6 +579,30 @@ function MyComponent() {
   const handleFeatureUsage = (flagKey: string) => {
     trackFeatureFlag(flagKey, 'enabled');
   };
+}
+```
+
+#### Feature Flag Best Practices
+```typescript
+import { usePostHog } from 'posthog-js/react';
+
+function FeatureComponent() {
+  const posthog = usePostHog();
+
+  // ✅ CORRECT: Use isFeatureEnabled() for boolean checks
+  const newAlgorithmEnabled = posthog?.isFeatureEnabled('new-study-algorithm');
+
+  // ❌ AVOID: getFeatureFlag() can return truthy strings like 'control'
+  // const newAlgorithmEnabled = posthog?.getFeatureFlag('new-study-algorithm');
+
+  return (
+    <div>
+      {newAlgorithmEnabled && (
+        <div>Enhanced algorithm is available!</div>
+      )}
+    </div>
+  );
+}
 
   const handleUserSignup = (userId: string, userProps: any) => {
     identifyUser(userId, userProps);
@@ -713,6 +740,18 @@ function App() {
     </div>
   );
 }
+```
+
+#### Privacy Banner Safety Features
+The PrivacyBanner component includes robust error handling and UX improvements:
+
+- **Safe Property Access**: Uses nullish coalescing (`??`) instead of non-null assertions (`!`) when accessing GDPR/CCPA settings
+- **Default Values**: Provides sensible defaults (365-day retention period) for required properties
+- **Graceful Degradation**: Continues to function even if `getEnhancedPrivacySettings()` returns incomplete data
+- **Type Safety**: Maintains full TypeScript type safety while preventing runtime crashes
+- **Smart Banner Persistence**: Only marks the banner as "shown" when users make an explicit consent choice (Accept/Reject), not when they click "Customize"
+- **Re-appearance Logic**: Banner reappears if users open the settings modal but close it without making any consent decisions
+- **Callback System**: Uses a callback mechanism to re-check banner visibility when the settings modal closes
 ```
 
 ### Direct Function Usage

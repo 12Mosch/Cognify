@@ -199,6 +199,59 @@ The implementation is backward compatible:
 - New sessions get timezone information
 - Queries work with both old and new data
 
+## Streak Calculation Fix
+
+### Problem with getYesterday Function
+
+The `getYesterday` function in `convex/streaks.ts` had a timezone-unsafe implementation:
+
+```typescript
+// ❌ PROBLEMATIC: Timezone-unsafe implementation
+function getYesterday(dateStr: string): string {
+  const date = new Date(dateStr);  // Assumes local timezone
+  date.setDate(date.getDate() - 1);
+  return date.toISOString().split('T')[0];  // Converts to UTC
+}
+```
+
+**Issues:**
+- Parsing "YYYY-MM-DD" via `new Date()` assumes local timezone
+- `toISOString()` converts to UTC, causing off-by-one errors for users west of GMT
+- Users in PST could have streak calculations broken due to date shifting
+
+### Solution Implemented
+
+```typescript
+// ✅ CORRECT: Timezone-safe implementation
+function getYesterday(dateStr: string): string {
+  // Parse YYYY-MM-DD directly without timezone assumptions
+  const [year, month, day] = dateStr.split('-').map(Number);
+
+  // Create date object in local timezone, then subtract one day
+  const date = new Date(year, month - 1, day); // month is 0-indexed
+  date.setDate(date.getDate() - 1);
+
+  // Format back to YYYY-MM-DD without UTC conversion
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0'); // month is 0-indexed
+  const dd = String(date.getDate()).padStart(2, '0');
+
+  return `${yyyy}-${mm}-${dd}`;
+}
+```
+
+**Benefits:**
+- No timezone assumptions during parsing
+- No UTC conversion that could shift dates
+- Consistent behavior across all timezones
+- Proper streak calculation for international users
+
+**Note on Timezone Parameter:**
+The `updateStreak` mutation still accepts a `timezone` parameter, but this is used only for metadata/storage purposes. The actual streak continuity calculation works purely with the local date strings (YYYY-MM-DD format) passed in the `studyDate` parameter. This design ensures that:
+- Streak logic is simple and timezone-agnostic
+- Date comparisons work consistently across all timezones
+- Timezone information is preserved for future analytics needs
+
 ## Future Enhancements
 
 1. **Timezone Conversion**: Use stored timezone data for historical conversions
@@ -213,3 +266,11 @@ The implementation is backward compatible:
 3. Use IANA timezone identifiers
 4. Test across multiple timezones
 5. Consider daylight saving time transitions
+
+## Files Modified
+
+- `src/lib/dateUtils.ts`: Core timezone utility functions
+- `convex/streaks.ts`: Fixed timezone-unsafe getYesterday function
+- `convex/studySessions.ts`: Updated to store timezone information
+- `src/components/PostSessionSummary.tsx`: Updated to pass timezone data
+- `docs/TIMEZONE_HANDLING.md`: This comprehensive documentation

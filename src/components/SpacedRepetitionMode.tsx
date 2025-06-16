@@ -67,6 +67,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   const [flipStartTime, setFlipStartTime] = useState<number | null>(null);
   const [sessionId] = useState<string>(() => `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`);
   const [_lastCardReviewTime, setLastCardReviewTime] = useState<number>(0);
+  const [errorTracked, setErrorTracked] = useState<{deck?: boolean, studyQueue?: boolean}>({});
 
   // Fetch deck and study queue using Convex queries
   const deck = useQuery(api.decks.getDeckById, { deckId });
@@ -114,6 +115,28 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       }
     }
   }, [studyQueueData, sessionStarted, deckId, deck, trackStudySessionStarted, hasConsent, posthog, sessionId]);
+
+  // Track deck loading errors (side effect)
+  useEffect(() => {
+    if (deck === null && !errorTracked.deck) {
+      const deckError = new Error('Deck not found or access denied');
+      trackConvexQuery('getDeckById', deckError, {
+        deckId,
+      });
+      setErrorTracked(prev => ({ ...prev, deck: true }));
+    }
+  }, [deck, errorTracked.deck, trackConvexQuery, deckId]);
+
+  // Track study queue loading errors (side effect)
+  useEffect(() => {
+    if (studyQueueData === null && !errorTracked.studyQueue) {
+      const queueError = new Error('Failed to load study queue');
+      trackConvexQuery('getStudyQueue', queueError, {
+        deckId,
+      });
+      setErrorTracked(prev => ({ ...prev, studyQueue: true }));
+    }
+  }, [studyQueueData, errorTracked.studyQueue, trackConvexQuery, deckId]);
 
   /**
    * Handle session completion with analytics and streak tracking
@@ -361,6 +384,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   // Reset state when deck changes
   useEffect(() => {
     resetSessionState();
+    setErrorTracked({}); // Reset error tracking state
   }, [deckId, resetSessionState]);
 
   // Global keyboard event listener for shortcuts
@@ -430,12 +454,6 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
   // Error state - deck not found
   if (deck === null) {
-    // Track deck loading error
-    const deckError = new Error('Deck not found or access denied');
-    trackConvexQuery('getDeckById', deckError, {
-      deckId,
-    });
-
     return (
       <div className="flex flex-col gap-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-center py-12">
@@ -459,12 +477,6 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
   // Error state - study queue failed to load
   if (studyQueueData === null) {
-    // Track study queue loading error
-    const queueError = new Error('Failed to load study queue');
-    trackConvexQuery('getStudyQueue', queueError, {
-      deckId,
-    });
-
     return (
       <div className="flex flex-col gap-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-center py-12">

@@ -18,14 +18,17 @@ export default function FeatureFlagDemo() {
   const posthog = usePostHog();
   const { trackFeatureFlag } = useAnalyticsEnhanced();
 
-  // Check feature flags
-  const newStudyAlgorithm = posthog?.getFeatureFlag('new-study-algorithm');
-  const darkModeToggle = posthog?.getFeatureFlag('dark-mode-toggle');
-  const advancedStatistics = posthog?.getFeatureFlag('advanced-statistics');
-  const socialSharing = posthog?.getFeatureFlag('social-sharing');
+  // Check feature flags - use isFeatureEnabled() to avoid truthy-string traps
+  // getFeatureFlag() can return strings like 'control' which evaluate to truthy
+  // even when the feature should be disabled. isFeatureEnabled() guarantees boolean.
+  const newStudyAlgorithm = posthog?.isFeatureEnabled('new-study-algorithm');
+  const darkModeToggle = posthog?.isFeatureEnabled('dark-mode-toggle');
+  const advancedStatistics = posthog?.isFeatureEnabled('advanced-statistics');
+  const socialSharing = posthog?.isFeatureEnabled('social-sharing');
 
-  const handleFeatureClick = (flagKey: string, variant?: string) => {
-    trackFeatureFlag(flagKey, variant);
+  const handleFeatureClick = (flagKey: string, isEnabled: boolean) => {
+    // For isFeatureEnabled(), we pass the boolean state as the variant
+    trackFeatureFlag(flagKey, isEnabled ? 'enabled' : 'disabled');
   };
 
   return (
@@ -45,7 +48,7 @@ export default function FeatureFlagDemo() {
               You have access to our experimental spaced repetition improvements!
             </p>
             <button
-              onClick={() => handleFeatureClick('new-study-algorithm', String(newStudyAlgorithm))}
+              onClick={() => handleFeatureClick('new-study-algorithm', !!newStudyAlgorithm)}
               className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors"
             >
               Try Enhanced Algorithm
@@ -63,7 +66,7 @@ export default function FeatureFlagDemo() {
               Advanced dark mode customization is available.
             </p>
             <button
-              onClick={() => handleFeatureClick('dark-mode-toggle', String(darkModeToggle))}
+              onClick={() => handleFeatureClick('dark-mode-toggle', !!darkModeToggle)}
               className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm transition-colors"
             >
               Customize Theme
@@ -81,7 +84,7 @@ export default function FeatureFlagDemo() {
               Detailed learning insights and progress tracking available.
             </p>
             <button
-              onClick={() => handleFeatureClick('advanced-statistics', String(advancedStatistics))}
+              onClick={() => handleFeatureClick('advanced-statistics', !!advancedStatistics)}
               className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors"
             >
               View Analytics
@@ -99,7 +102,7 @@ export default function FeatureFlagDemo() {
               Share your study progress and compete with friends.
             </p>
             <button
-              onClick={() => handleFeatureClick('social-sharing', String(socialSharing))}
+              onClick={() => handleFeatureClick('social-sharing', !!socialSharing)}
               className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm transition-colors"
             >
               Share Progress

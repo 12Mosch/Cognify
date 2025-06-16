@@ -74,7 +74,7 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 
       formErrorMonitor.trackValidationErrors(validationErrors, {
         userId: user?.id,
-        formData: { name, description },
+        formData: { nameLength: name.length, descriptionLength: description.length },
         attemptNumber: currentAttempt,
       });
 
@@ -98,7 +98,10 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
               // Track Convex mutation errors
               trackConvexMutation('createDeck', error as Error, {
                 userId: user?.id,
-                mutationArgs: { name: formData.name.trim(), description: formData.description.trim() },
+                mutationArgs: {
+                  nameLength: formData.name.trim().length,
+                  descriptionLength: formData.description.trim().length
+                },
               });
               throw error;
             }
