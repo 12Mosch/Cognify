@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePrivacyCompliantAnalytics, PrivacySettings as PrivacySettingsType, ConsentStatus } from '../lib/analytics';
 
 interface PrivacySettingsProps {
@@ -23,11 +23,92 @@ interface PrivacySettingsProps {
 export default function PrivacySettings({ isOpen, onClose, embedded = false }: PrivacySettingsProps) {
   const { privacySettings, grantConsent, revokeConsent } = usePrivacyCompliantAnalytics();
   const [localSettings, setLocalSettings] = useState<PrivacySettingsType>(privacySettings);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousActiveElementRef = useRef<HTMLElement | null>(null);
 
   // Sync local state when external privacy settings change
   useEffect(() => {
     setLocalSettings(privacySettings);
   }, [privacySettings]);
+
+  // Handle ESC key and focus management for standalone modal
+  useEffect(() => {
+    if (embedded || !isOpen) return;
+
+    // Store the previously focused element
+    previousActiveElementRef.current = document.activeElement as HTMLElement;
+
+    // Handle ESC key to close modal
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    // Focus trap implementation
+    const handleFocusTrap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      const modal = modalRef.current;
+      if (!modal) return;
+
+      const focusableElements = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+      if (e.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        // Tab
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleFocusTrap);
+
+    // Focus the first focusable element in the modal
+    setTimeout(() => {
+      const modal = modalRef.current;
+      if (modal) {
+        const firstFocusable = modal.querySelector(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        ) as HTMLElement;
+        if (firstFocusable) {
+          firstFocusable.focus();
+        }
+      }
+    }, 0);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleFocusTrap);
+
+      // Restore focus to the previously focused element
+      if (previousActiveElementRef.current) {
+        previousActiveElementRef.current.focus();
+      }
+    };
+  }, [isOpen, onClose, embedded]);
+
+  // Prevent background scroll while modal is open (only for standalone modal)
+  useEffect(() => {
+    if (!embedded && isOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
+    }
+  }, [isOpen, embedded]);
 
   if (!isOpen && !embedded) return null;
 
@@ -143,11 +224,22 @@ export default function PrivacySettings({ isOpen, onClose, embedded = false }: P
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="privacy-settings-modal-title"
+    >
+      <div
+        ref={modalRef}
+        className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+          <h2
+            id="privacy-settings-modal-title"
+            className="text-2xl font-bold text-slate-900 dark:text-slate-100"
+          >
             Privacy Settings
           </h2>
           <button

@@ -120,10 +120,55 @@ The settings modal is managed at the App level with a single state variable, sim
 
 ## Accessibility
 
-- All menu items include proper ARIA labels
-- Icons are provided for visual clarity
-- Keyboard navigation is supported through Clerk's built-in functionality
-- Focus management is handled by Clerk's UserButton component
+### WCAG 2.1 Compliance
+The settings modal implementation follows WCAG 2.1 guidelines for accessibility:
+
+#### Focus Management
+- **Focus Trapping**: Tab navigation is trapped within the modal
+- **Initial Focus**: First focusable element receives focus when modal opens
+- **Focus Restoration**: Focus returns to triggering element when modal closes
+- **Keyboard Navigation**: Tab and Shift+Tab cycle through focusable elements
+
+#### Keyboard Support
+- **ESC Key**: Closes modal from anywhere within the modal
+- **Tab Navigation**: Proper focus order through all interactive elements
+- **Enter/Space**: Activates buttons and interactive elements
+
+#### ARIA Attributes
+- **role="dialog"**: Identifies the modal as a dialog
+- **aria-modal="true"**: Indicates modal behavior to screen readers
+- **aria-labelledby**: Links modal to its title for screen reader context
+- **Proper Headings**: Hierarchical heading structure for navigation
+
+#### Visual Accessibility
+- **Background Scroll Prevention**: Body scroll is disabled when modal is open
+- **High Contrast**: Clear visual hierarchy with proper color contrast
+- **Focus Indicators**: Visible focus indicators for keyboard navigation
+- **Responsive Design**: Works across different screen sizes and zoom levels
+
+### Implementation Details
+```tsx
+// Focus trap and ESC key handling
+useEffect(() => {
+  if (!isOpen) return;
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') onClose();
+  };
+
+  const handleFocusTrap = (e: KeyboardEvent) => {
+    // Focus trap implementation
+  };
+
+  document.addEventListener('keydown', handleKeyDown);
+  document.addEventListener('keydown', handleFocusTrap);
+
+  return () => {
+    document.removeEventListener('keydown', handleKeyDown);
+    document.removeEventListener('keydown', handleFocusTrap);
+  };
+}, [isOpen, onClose]);
+```
 
 ## Future Considerations
 
