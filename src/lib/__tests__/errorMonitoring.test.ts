@@ -9,7 +9,7 @@ import { categorizeError } from '../analytics';
 const mockPostHog = {
   captureException: jest.fn(),
   capture: jest.fn(),
-};
+} as any;
 
 // Mock analytics consent
 jest.mock('../analytics', () => ({
@@ -27,14 +27,14 @@ describe('withAsyncErrorMonitoring', () => {
     const networkError = new Error('Network request failed');
     const operation = jest.fn().mockRejectedValue(networkError);
 
-    const { captureError } = require('../analytics');
+    const { captureError } = jest.requireMock('../analytics');
 
     try {
       await withAsyncErrorMonitoring(operation, {
         operationType: 'test_operation',
         posthog: mockPostHog,
       });
-    } catch (error) {
+    } catch {
       // Expected to throw
     }
 
@@ -51,14 +51,14 @@ describe('withAsyncErrorMonitoring', () => {
     const authError = new Error('Unauthorized access token expired');
     const operation = jest.fn().mockRejectedValue(authError);
 
-    const { captureError } = require('../analytics');
+    const { captureError } = jest.requireMock('../analytics');
 
     try {
       await withAsyncErrorMonitoring(operation, {
         operationType: 'test_operation',
         posthog: mockPostHog,
       });
-    } catch (error) {
+    } catch {
       // Expected to throw
     }
 
@@ -75,7 +75,7 @@ describe('withAsyncErrorMonitoring', () => {
     const timeoutError = new Error('Operation timed out after 5000ms');
     const operation = jest.fn().mockRejectedValue(timeoutError);
 
-    const { captureError } = require('../analytics');
+    const { captureError } = jest.requireMock('../analytics');
 
     try {
       await withAsyncErrorMonitoring(operation, {
@@ -83,7 +83,7 @@ describe('withAsyncErrorMonitoring', () => {
         posthog: mockPostHog,
         timeoutMs: 5000,
       });
-    } catch (error) {
+    } catch {
       // Expected to throw
     }
 
@@ -100,7 +100,7 @@ describe('withAsyncErrorMonitoring', () => {
     const genericError = new Error('Something went wrong');
     const operation = jest.fn().mockRejectedValue(genericError);
 
-    const { captureError } = require('../analytics');
+    const { captureError } = jest.requireMock('../analytics');
 
     try {
       await withAsyncErrorMonitoring(operation, {
@@ -108,7 +108,7 @@ describe('withAsyncErrorMonitoring', () => {
         posthog: mockPostHog,
         errorCategory: 'validation_error',
       });
-    } catch (error) {
+    } catch {
       // Expected to throw
     }
 
@@ -125,14 +125,14 @@ describe('withAsyncErrorMonitoring', () => {
     const convexError = new Error('Convex mutation failed');
     const operation = jest.fn().mockRejectedValue(convexError);
 
-    const { captureError } = require('../analytics');
+    const { captureError } = jest.requireMock('../analytics');
 
     try {
       await withAsyncErrorMonitoring(operation, {
         operationType: 'test_operation',
         posthog: mockPostHog,
       });
-    } catch (error) {
+    } catch {
       // Expected to throw
     }
 
@@ -149,14 +149,14 @@ describe('withAsyncErrorMonitoring', () => {
     const unknownError = new Error('Some random error');
     const operation = jest.fn().mockRejectedValue(unknownError);
 
-    const { captureError } = require('../analytics');
+    const { captureError } = jest.requireMock('../analytics');
 
     try {
       await withAsyncErrorMonitoring(operation, {
         operationType: 'test_operation',
         posthog: mockPostHog,
       });
-    } catch (error) {
+    } catch {
       // Expected to throw
     }
 
@@ -173,14 +173,14 @@ describe('withAsyncErrorMonitoring', () => {
     const validationError = new Error('Invalid input provided');
     const operation = jest.fn().mockRejectedValue(validationError);
 
-    const { captureError } = require('../analytics');
+    const { captureError } = jest.requireMock('../analytics');
 
     try {
       await withAsyncErrorMonitoring(operation, {
         operationType: 'test_operation',
         posthog: mockPostHog,
       });
-    } catch (error) {
+    } catch {
       // Expected to throw
     }
 
