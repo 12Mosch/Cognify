@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { usePostHog } from 'posthog-js/react';
-import { 
-  shouldShowPrivacyBanner, 
-  markPrivacyBannerShown, 
-  getEnhancedPrivacySettings, 
+import {
+  shouldShowPrivacyBanner,
+  markPrivacyBannerShown,
+  getEnhancedPrivacySettings,
   setEnhancedPrivacySettings,
-  type EnhancedPrivacySettings 
+  type EnhancedPrivacySettings
 } from '../lib/analytics';
+import { showInfoToast } from '../lib/toast';
 
 interface PrivacyBannerProps {
   onSettingsClick?: (onSettingsClosed?: () => void) => void;
@@ -147,7 +148,7 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
       onSettingsClick(handleSettingsClosed);
     } else {
       // If no settings callback is provided, inform user to use account menu
-      alert('You can customize your privacy settings by clicking on your profile picture in the top-right corner and selecting "Privacy Settings".');
+      showInfoToast('Customize privacy settings from the profile menu.');
     }
   };
 
