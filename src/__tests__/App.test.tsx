@@ -56,16 +56,11 @@ jest.mock('../components/Dashboard', () => ({
   })
 }));
 
-// Mock PrivacySettings component
-jest.mock('../components/PrivacySettings', () => {
+// Mock SettingsModal component
+jest.mock('../components/SettingsModal', () => {
   return jest.fn(({ isOpen }) =>
-    isOpen ? <div data-testid="privacy-settings-modal">Privacy Settings</div> : null
+    isOpen ? <div data-testid="settings-modal">Settings Modal</div> : null
   );
-});
-
-// Mock FeatureFlagDemo component
-jest.mock('../components/FeatureFlagDemo', () => {
-  return jest.fn(() => <div data-testid="feature-flag-demo">Feature Flag Demo</div>);
 });
 
 // Mock analytics

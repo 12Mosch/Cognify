@@ -4,6 +4,7 @@ import { usePrivacyCompliantAnalytics, PrivacySettings as PrivacySettingsType, C
 interface PrivacySettingsProps {
   isOpen: boolean;
   onClose: () => void;
+  embedded?: boolean;
 }
 
 /**
@@ -19,7 +20,7 @@ interface PrivacySettingsProps {
  * - Accessible modal with proper focus management
  * - Dark theme support
  */
-export default function PrivacySettings({ isOpen, onClose }: PrivacySettingsProps) {
+export default function PrivacySettings({ isOpen, onClose, embedded = false }: PrivacySettingsProps) {
   const { privacySettings, grantConsent, revokeConsent } = usePrivacyCompliantAnalytics();
   const [localSettings, setLocalSettings] = useState<PrivacySettingsType>(privacySettings);
 
@@ -28,7 +29,7 @@ export default function PrivacySettings({ isOpen, onClose }: PrivacySettingsProp
     setLocalSettings(privacySettings);
   }, [privacySettings]);
 
-  if (!isOpen) return null;
+  if (!isOpen && !embedded) return null;
 
   const handleConsentChange = (type: keyof PrivacySettingsType, status: ConsentStatus) => {
     const newSettings = { ...localSettings, [type]: status };
@@ -91,6 +92,56 @@ export default function PrivacySettings({ isOpen, onClose }: PrivacySettingsProp
     </div>
   );
 
+  const content = (
+    <div className={embedded ? "" : "p-6"}>
+      <p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+        We respect your privacy and want to be transparent about how we collect and use your data.
+        You can control what information we collect by adjusting the settings below.
+      </p>
+
+      <div className="space-y-6">
+        <ConsentToggle
+          type="analyticsConsent"
+          title="Analytics & Performance"
+          description="Helps us understand how you use the app, which features are most popular, and how we can improve your learning experience. This includes tracking study sessions, card interactions, and performance metrics."
+        />
+
+        <ConsentToggle
+          type="functionalConsent"
+          title="Functional & Preferences"
+          description="Allows us to remember your preferences, settings, and provide personalized features like study recommendations and progress tracking. This data stays on your device and in your account."
+        />
+
+        <ConsentToggle
+          type="marketingConsent"
+          title="Marketing & Communications"
+          description="Enables us to send you updates about new features, study tips, and educational content that might interest you. You can unsubscribe at any time."
+        />
+      </div>
+
+      {!embedded && (
+        <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+          <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+            <div className="text-sm text-slate-500 dark:text-slate-400">
+              <p>Changes take effect immediately.</p>
+              <p>You can update these settings anytime.</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition-colors font-medium"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  if (embedded) {
+    return content;
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -109,50 +160,7 @@ export default function PrivacySettings({ isOpen, onClose }: PrivacySettingsProp
             </svg>
           </button>
         </div>
-
-        {/* Content */}
-        <div className="p-6">
-          <p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
-            We respect your privacy and want to be transparent about how we collect and use your data. 
-            You can control what information we collect by adjusting the settings below.
-          </p>
-
-          <div className="space-y-6">
-            <ConsentToggle
-              type="analyticsConsent"
-              title="Analytics & Performance"
-              description="Helps us understand how you use the app, which features are most popular, and how we can improve your learning experience. This includes tracking study sessions, card interactions, and performance metrics."
-            />
-
-            <ConsentToggle
-              type="functionalConsent"
-              title="Functional & Preferences"
-              description="Allows us to remember your preferences, settings, and provide personalized features like study recommendations and progress tracking. This data stays on your device and in your account."
-            />
-
-            <ConsentToggle
-              type="marketingConsent"
-              title="Marketing & Communications"
-              description="Enables us to send you updates about new features, study tips, and educational content that might interest you. You can unsubscribe at any time."
-            />
-          </div>
-
-          {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
-            <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
-              <div className="text-sm text-slate-500 dark:text-slate-400">
-                <p>Changes take effect immediately.</p>
-                <p>You can update these settings anytime.</p>
-              </div>
-              <button
-                onClick={onClose}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition-colors font-medium"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
+        {content}
       </div>
     </div>
   );
