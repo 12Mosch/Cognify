@@ -25,6 +25,8 @@ const {
   identifyUserWithCohorts,
   getWeekOfYear,
   getUserStudyPersona,
+  anonymizeUserData,
+  anonymizeUserDataSync,
 } = analytics;
 
 // Mock PostHog React hook
@@ -555,6 +557,115 @@ describe("Analytics Utilities", () => {
           studyPersona: 'exam_focused',
           engagementTier: 'new_user',
         }));
+      });
+    });
+
+    describe("anonymizeUserData", () => {
+      beforeEach(() => {
+        // Mock crypto.subtle for testing
+        Object.defineProperty(global, 'crypto', {
+          value: {
+            subtle: {
+              digest: jest.fn().mockResolvedValue(new ArrayBuffer(32)),
+            },
+          },
+          writable: true,
+        });
+
+        // Mock TextEncoder
+        global.TextEncoder = jest.fn().mockImplementation(() => ({
+          encode: jest.fn().mockReturnValue(new Uint8Array([1, 2, 3, 4])),
+        }));
+      });
+
+      it("should anonymize sensitive fields when anonymization is enabled", async () => {
+        localStorageMock.getItem.mockReturnValue(JSON.stringify({
+          analyticsConsent: 'granted',
+          gdpr: {
+            anonymizeData: true,
+          },
+        }));
+
+        const testData = {
+          email: 'test@example.com',
+          name: 'John Doe',
+          age: 30,
+          userId: 'user-123',
+          otherField: 'not sensitive',
+        };
+
+        const result = await anonymizeUserData(testData);
+
+        expect(result.email).toMatch(/^anon_[a-f0-9]{8}$/);
+        expect(result.name).toMatch(/^anon_[a-f0-9]{8}$/);
+        expect(result.userId).toMatch(/^anon_[a-f0-9]{8}$/);
+        expect(result.age).toBe(30); // Non-sensitive field unchanged
+        expect(result.otherField).toBe('not sensitive'); // Non-sensitive field unchanged
+      });
+
+      it("should not anonymize data when anonymization is disabled", async () => {
+        localStorageMock.getItem.mockReturnValue(JSON.stringify({
+          analyticsConsent: 'granted',
+          gdpr: {
+            anonymizeData: false,
+          },
+        }));
+
+        const testData = {
+          email: 'test@example.com',
+          name: 'John Doe',
+          userId: 'user-123',
+        };
+
+        const result = await anonymizeUserData(testData);
+
+        expect(result).toEqual(testData); // Data should be unchanged
+      });
+    });
+
+    describe("anonymizeUserDataSync", () => {
+      it("should anonymize sensitive fields synchronously", () => {
+        localStorageMock.getItem.mockReturnValue(JSON.stringify({
+          analyticsConsent: 'granted',
+          gdpr: {
+            anonymizeData: true,
+          },
+        }));
+
+        const testData = {
+          email: 'test@example.com',
+          name: 'John Doe',
+          age: 30,
+          userId: 'user-123',
+          otherField: 'not sensitive',
+        };
+
+        const result = anonymizeUserDataSync(testData);
+
+        expect(result.email).toMatch(/^anon_[a-f0-9]+$/);
+        expect(result.name).toMatch(/^anon_[a-f0-9]+$/);
+        expect(result.userId).toMatch(/^anon_[a-f0-9]+$/);
+        expect(result.age).toBe(30); // Non-sensitive field unchanged
+        expect(result.otherField).toBe('not sensitive'); // Non-sensitive field unchanged
+      });
+
+      it("should not anonymize data when anonymization is disabled", () => {
+        localStorageMock.getItem.mockReturnValue(JSON.stringify({
+          analyticsConsent: 'granted',
+          gdpr: {
+            anonymizeData: false,
+          },
+        }));
+
+        const testData = {
+          email: 'test@example.com',
+          name: 'John Doe',
+          userId: 'user-123',
+        };
+
+        const result = anonymizeUserDataSync(testData);
+
+        expect(result).toEqual(testData); // Data should be unchanged
       });
     });
   });

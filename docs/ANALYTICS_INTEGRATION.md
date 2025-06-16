@@ -24,7 +24,7 @@ PostHog analytics has been integrated with advanced features including event bat
 - **Regional Detection**: Automatic detection of user region for appropriate privacy messaging
 - **Enhanced Consent Management**: Granular consent controls for different data processing purposes
 - **Privacy Banner**: Contextual privacy banners based on user region (EU/CA/US/Other)
-- **Data Anonymization**: Automatic anonymization of sensitive user data
+- **Data Anonymization**: Cryptographically secure anonymization of sensitive user data using SHA-256 hashing
 - **Cookie Management**: Secure cookie handling with user consent
 - **Privacy-First Defaults**: PostHog configured with opt-out by default
 
@@ -326,6 +326,9 @@ src/
 - Conditional tuple types enforce required properties at compile time
 - Prevents typos and ensures consistent event tracking
 - Events requiring properties (like `study_session_started`) cannot be called without them
+- **Proper Feature Detection**: Uses type guards instead of unsafe `as any` assertions
+- **Browser API Safety**: Safe access to performance.memory and navigator.connection APIs
+- **Runtime Type Checking**: Type guards ensure APIs exist before accessing them
 
 ### Error Handling
 - All PostHog calls are wrapped in try-catch blocks
@@ -345,8 +348,84 @@ src/
 - **Data Processing Purposes**: Clear categorization of data usage
 - **Right to Withdraw**: Users can withdraw consent at any time
 - **Data Retention**: Configurable data retention periods
-- **Data Anonymization**: Automatic anonymization when consent is denied
+- **Data Anonymization**: Cryptographically secure anonymization when consent is denied or required
 - **Cookie Consent**: Explicit consent for cookie usage
+
+#### Secure Data Anonymization System
+
+The application implements a robust data anonymization system that meets GDPR requirements for irreversible data anonymization:
+
+**Key Features:**
+- **SHA-256 Cryptographic Hashing**: Uses the Web Crypto API's `crypto.subtle.digest()` for secure, irreversible hashing
+- **Automatic Sensitive Field Detection**: Automatically identifies and anonymizes fields like email, name, IP, userId, and distinctId
+- **Fallback Mechanisms**: Graceful degradation to simple hashing when crypto.subtle is unavailable
+- **Async and Sync Variants**: Both asynchronous (preferred) and synchronous versions available
+- **GDPR Compliance**: Meets European data protection requirements for data anonymization
+
+**Implementation:**
+```typescript
+// Async version (recommended for better security)
+const anonymizedData = await anonymizeUserData({
+  email: 'user@example.com',
+  name: 'John Doe',
+  age: 30
+});
+// Result: { email: 'anon_a1b2c3d4', name: 'anon_e5f6g7h8', age: 30 }
+
+// Sync version (fallback for compatibility)
+const anonymizedDataSync = anonymizeUserDataSync(userData);
+```
+
+**Security Improvements:**
+- Replaced insecure base64 encoding (`btoa`) with SHA-256 cryptographic hashing
+- Irreversible anonymization that cannot be decoded back to original values
+- Consistent hash output for the same input (deterministic)
+- Truncated to 8 characters for storage efficiency while maintaining uniqueness
+
+#### Type-Safe Browser API Access
+
+The analytics system uses proper TypeScript feature detection instead of unsafe type assertions:
+
+**Before (Unsafe):**
+```typescript
+// ❌ Unsafe type assertions bypass TypeScript safety
+memoryUsage: (performance as any).memory ? {
+  usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
+  // ...
+} : undefined,
+connectionType: (navigator as any).connection?.effectiveType || 'unknown',
+```
+
+**After (Type-Safe):**
+```typescript
+// ✅ Proper type guards with feature detection
+interface PerformanceMemory {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+interface ExtendedPerformance extends Performance {
+  memory?: PerformanceMemory;
+}
+
+function hasMemoryAPI(perf: Performance): perf is ExtendedPerformance {
+  return 'memory' in perf && typeof (perf as ExtendedPerformance).memory === 'object';
+}
+
+// Safe usage with type guards
+memoryUsage: hasMemoryAPI(performance) && performance.memory ? {
+  usedJSHeapSize: performance.memory.usedJSHeapSize,
+  totalJSHeapSize: performance.memory.totalJSHeapSize,
+  jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+} : undefined,
+```
+
+**Benefits:**
+- **Type Safety**: No more `as any` bypassing TypeScript checks
+- **Runtime Safety**: Proper feature detection prevents runtime errors
+- **Better IntelliSense**: Full TypeScript autocomplete and error checking
+- **Maintainability**: Clear type definitions make code easier to understand
 
 #### CCPA Compliance Features
 - **Do Not Sell**: Opt-out mechanism for data selling

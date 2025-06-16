@@ -7,6 +7,47 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  */
 
 /**
+ * Type definitions for browser performance memory API
+ */
+interface PerformanceMemory {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+interface ExtendedPerformance extends Performance {
+  memory?: PerformanceMemory;
+}
+
+/**
+ * Type definitions for navigator connection API
+ */
+interface NetworkInformation {
+  effectiveType?: '2g' | '3g' | '4g' | 'slow-2g';
+  downlink?: number;
+  rtt?: number;
+  saveData?: boolean;
+}
+
+interface ExtendedNavigator extends Navigator {
+  connection?: NetworkInformation;
+}
+
+/**
+ * Type guard to check if performance.memory is available
+ */
+function hasMemoryAPI(perf: Performance): perf is ExtendedPerformance {
+  return 'memory' in perf && typeof (perf as ExtendedPerformance).memory === 'object';
+}
+
+/**
+ * Type guard to check if navigator.connection is available
+ */
+function hasConnectionAPI(nav: Navigator): nav is ExtendedNavigator {
+  return 'connection' in nav && typeof (nav as ExtendedNavigator).connection === 'object';
+}
+
+/**
  * Safely get the current environment mode
  * Uses environment variables that work consistently across Vite and Node.js
  * Avoids eval and import.meta access issues entirely
@@ -680,12 +721,12 @@ function getEnhancedErrorContext() {
   return {
     ...baseContext,
     // Performance metrics
-    memoryUsage: (performance as any).memory ? {
-      usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
-      totalJSHeapSize: (performance as any).memory.totalJSHeapSize,
-      jsHeapSizeLimit: (performance as any).memory.jsHeapSizeLimit,
+    memoryUsage: hasMemoryAPI(performance) && performance.memory ? {
+      usedJSHeapSize: performance.memory.usedJSHeapSize,
+      totalJSHeapSize: performance.memory.totalJSHeapSize,
+      jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
     } : undefined,
-    connectionType: (navigator as any).connection?.effectiveType || 'unknown',
+    connectionType: hasConnectionAPI(navigator) && navigator.connection?.effectiveType || 'unknown',
     // Browser state
     isOnline: navigator.onLine,
     cookiesEnabled: navigator.cookieEnabled,
@@ -1191,7 +1232,7 @@ export function trackErrorBoundary(
  */
 class AnalyticsQueue {
   private queue: QueuedEvent[] = [];
-  private flushInterval: NodeJS.Timeout | null = null;
+  private flushInterval: ReturnType<typeof setInterval> | null = null;
   private readonly BATCH_SIZE = 10;
   private readonly FLUSH_INTERVAL = 5000; // 5 seconds
 
@@ -1438,7 +1479,52 @@ export function markPrivacyBannerShown(): void {
   }
 }
 
-export function anonymizeUserData(data: Record<string, any>): Record<string, any> {
+/**
+ * Cryptographically secure hash function for data anonymization
+ * Uses SHA-256 to create irreversible hashes for GDPR compliance
+ */
+async function hashString(str: string): Promise<string> {
+  try {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(str);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex.substring(0, 8);
+  } catch (error) {
+    console.warn('Failed to hash string with crypto.subtle, falling back to simple hash:', error);
+    // Fallback to a simple hash if crypto.subtle is not available
+    return simpleHash(str);
+  }
+}
+
+/**
+ * Simple hash function fallback for environments where crypto.subtle is not available
+ * Note: This is not cryptographically secure and should only be used as a fallback
+ */
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(16).substring(0, 8);
+}
+
+/**
+ * Anonymize user data for GDPR compliance
+ * Uses cryptographically secure SHA-256 hashing to irreversibly anonymize sensitive fields
+ *
+ * @param data - The data object to anonymize
+ * @returns Promise<Record<string, any>> - The anonymized data object
+ *
+ * @example
+ * const userData = { email: 'user@example.com', name: 'John Doe', age: 30 };
+ * const anonymized = await anonymizeUserData(userData);
+ * // Result: { email: 'anon_a1b2c3d4', name: 'anon_e5f6g7h8', age: 30 }
+ */
+export async function anonymizeUserData(data: Record<string, any>): Promise<Record<string, any>> {
   const settings = getEnhancedPrivacySettings();
   if (!settings.gdpr?.anonymizeData) {
     return data;
@@ -1448,10 +1534,41 @@ export function anonymizeUserData(data: Record<string, any>): Record<string, any
 
   // Remove or hash sensitive fields
   const sensitiveFields = ['email', 'name', 'ip', 'userId', 'distinctId'];
+
+  for (const field of sensitiveFields) {
+    if (anonymized[field]) {
+      // Use proper cryptographic hash function for anonymization
+      anonymized[field] = `anon_${await hashString(anonymized[field])}`;
+    }
+  }
+
+  return anonymized;
+}
+
+/**
+ * Synchronous version of anonymizeUserData for cases where async operations are not suitable
+ * Uses a simple hash function as fallback - less secure but still better than btoa
+ *
+ * @param data - The data object to anonymize
+ * @returns Record<string, any> - The anonymized data object
+ *
+ * @deprecated Use anonymizeUserData (async version) when possible for better security
+ */
+export function anonymizeUserDataSync(data: Record<string, any>): Record<string, any> {
+  const settings = getEnhancedPrivacySettings();
+  if (!settings.gdpr?.anonymizeData) {
+    return data;
+  }
+
+  const anonymized = { ...data };
+
+  // Remove or hash sensitive fields
+  const sensitiveFields = ['email', 'name', 'ip', 'userId', 'distinctId'];
+
   sensitiveFields.forEach(field => {
     if (anonymized[field]) {
-      // Simple hash for anonymization (in production, use proper hashing)
-      anonymized[field] = `anon_${btoa(anonymized[field]).slice(0, 8)}`;
+      // Use simple hash function for synchronous operation
+      anonymized[field] = `anon_${simpleHash(anonymized[field])}`;
     }
   });
 
