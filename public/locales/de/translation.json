@@ -183,6 +183,188 @@
       "title": "Lernaktivität",
       "last7Days": "Letzte 7 Tage",
       "last30Days": "Letzte 30 Tage"
+    },
+    "cards": {
+      "totalDecks": "Stapel gesamt",
+      "totalCards": "Karten gesamt",
+      "dueToday": "Heute fällig",
+      "currentStreak": "Aktuelle Serie",
+      "newCards": "Neue Karten",
+      "studySessions": "Lernsitzungen",
+      "averageInterval": "Durchschnittliches Intervall",
+      "retentionRate": "Behaltensrate",
+      "learningCollections": "Lernsammlungen",
+      "flashcardsCreated": "Karteikarten erstellt",
+      "cardsToReview": "Karten zu wiederholen",
+      "bestDays": "Beste: {{count}} Tage",
+      "readyToLearn": "Bereit zum Lernen",
+      "totalCompleted": "Gesamt abgeschlossen",
+      "betweenReviews": "Zwischen Wiederholungen",
+      "successRate": "Erfolgsrate",
+      "day": "Tag",
+      "days": "Tage"
+    },
+    "charts": {
+      "studyActivity": {
+        "title": "Lernaktivität über Zeit",
+        "subtitle": "Verfolgen Sie Ihre Lernkonsistenz und Fortschrittsmuster",
+        "cardsStudied": "Gelernte Karten",
+        "sessions": "Sitzungen",
+        "timeMinutes": "Zeit (Min)",
+        "totalCards": "Gelernte Karten gesamt: {{count}}",
+        "totalSessions": "Sitzungen gesamt: {{count}}",
+        "totalTime": "Gesamtzeit: {{hours}}h {{minutes}}m",
+        "noData": "Keine Lernaktivitätsdaten für den ausgewählten Zeitraum verfügbar."
+      },
+      "deckPerformance": {
+        "title": "Stapel-Leistungsvergleich",
+        "subtitle": "Vergleichen Sie Beherrschungsgrade zwischen Ihren Stapeln",
+        "masteryPercentage": "Beherrschung %",
+        "deckName": "Stapelname",
+        "totalCards": "Karten gesamt",
+        "masteredCards": "Beherrschte Karten",
+        "averageEase": "Durchschnittliche Leichtigkeit",
+        "lastStudied": "Zuletzt gelernt",
+        "clickToSelect": "Klicken zum Auswählen/Abwählen des Stapels",
+        "noData": "Keine Stapel-Leistungsdaten verfügbar."
+      },
+      "cardDistribution": {
+        "title": "Kartenverteilung",
+        "subtitle": "Überblick über Ihre Karten in verschiedenen Lernphasen",
+        "newCards": "Neue Karten",
+        "learning": "Lernen",
+        "review": "Wiederholung",
+        "due": "Fällig",
+        "mastered": "Beherrscht",
+        "neverStudied": "Nie gelernte Karten",
+        "beingLearned": "Karten im Lernprozess",
+        "inReviewCycle": "Karten im Wiederholungszyklus",
+        "dueForReview": "Zur Wiederholung fällige Karten",
+        "wellLearned": "Gut gelernte Karten",
+        "totalCardsInStage": "{{count}} Karten in {{stage}}-Phase",
+        "percentageOfTotal": "{{percentage}}% aller Karten",
+        "noData": "Keine Karten verfügbar"
+      }
+    },
+    "widgets": {
+      "upcomingReviews": {
+        "title": "Anstehende Wiederholungen",
+        "today": "Heute",
+        "tomorrow": "Morgen",
+        "allCaughtUp": "Alles erledigt!",
+        "noReviewsScheduled": "Keine Wiederholungen für die nächste Woche geplant",
+        "moreReviewsScheduled": "+{{count}} weitere Wiederholungen geplant",
+        "totalCards": "Karten gesamt",
+        "reviewDays": "Wiederholungstage",
+        "card": "Karte",
+        "cards": "Karten"
+      },
+      "learningStreak": {
+        "title": "Lernserie",
+        "messages": {
+          "start": "Beginnen Sie Ihre Lernreise!",
+          "greatStart": "Großartiger Start! Weiter so!",
+          "buildingMomentum": "Schwung aufbauen!",
+          "onFire": "Sie sind in Fahrt! 🔥",
+          "incredibleDedication": "Unglaubliche Hingabe!",
+          "legendaryLearner": "Legendärer Lerner! 🏆"
+        },
+        "milestones": {
+          "daysToReach": "{{count}} Tage bis zum {{milestone}}-Tage-Meilenstein",
+          "progressTo": "Fortschritt zu {{milestone}} Tagen"
+        },
+        "current": "Aktuell",
+        "best": "Beste",
+        "achievements": {
+          "weeklyWarrior": "Wöchentlicher Krieger!",
+          "monthlyMaster": "Monatlicher Meister!",
+          "centuryClub": "Jahrhundert-Club!",
+          "yearLongLearner": "Jahrelanger Lerner!",
+          "keepUpConsistency": "Behalten Sie diese erstaunliche Beständigkeit bei!"
+        }
+      },
+      "spacedRepetition": {
+        "title": "Algorithmus-Einblicke",
+        "retentionRate": "Behaltensrate",
+        "averageInterval": "Durchschnittliches Intervall",
+        "newVsReviewBalance": "Neue vs. Wiederholungs-Balance",
+        "newCards": "Neue Karten",
+        "dueCards": "Fällige Karten",
+        "reviewDays": "Wiederholungstage",
+        "dueToday": "Heute fällig",
+        "timeBetweenReviews": "Zeit zwischen Wiederholungen",
+        "retentionMessages": {
+          "noData": "Noch keine Daten",
+          "excellent": "Ausgezeichnete Behaltensrate!",
+          "good": "Gute Behaltensrate",
+          "fair": "Angemessene Behaltensrate",
+          "needsImprovement": "Verbesserung erforderlich"
+        },
+        "intervalEfficiency": {
+          "unknown": "Unbekannt",
+          "excellent": "Ausgezeichnet",
+          "good": "Gut",
+          "fair": "Angemessen",
+          "learning": "Lernen"
+        },
+        "algorithmTip": "Algorithmus-Tipp",
+        "tips": {
+          "improveRetention": "Erwägen Sie häufigere Kartenwiederholungen zur Verbesserung der Behaltensrate.",
+          "frequentReviews": "Ihre Karten werden häufig wiederholt - großartig für das Lernen neuen Materials!",
+          "balanceDueCards": "Konzentrieren Sie sich darauf, fällige Karten zu bearbeiten, bevor Sie neue hinzufügen, für bessere Balance.",
+          "workingWell": "Ihr Spaced-Repetition-System funktioniert gut! Behalten Sie das konsequente Üben bei."
+        },
+        "balancePercentage": "{{newPercentage}}% neue Karten, {{reviewPercentage}}% Wiederholungen"
+      }
+    },
+    "heatmap": {
+      "title": "Lernaktivität",
+      "subtitle": "{{count}} Tage Lernaktivität im letzten Jahr",
+      "legend": {
+        "less": "Weniger",
+        "more": "Mehr"
+      },
+      "stats": {
+        "cardsStudied": "Gelernte Karten",
+        "activeDays": "Aktive Tage",
+        "bestDay": "Bester Tag",
+        "studyRate": "Lernrate"
+      }
+    },
+    "loading": {
+      "dashboard": "Statistik-Dashboard wird geladen",
+      "chartTitle": "{{title}} wird geladen..."
+    },
+    "table": {
+      "deckPerformance": {
+        "title": "Stapel-Leistungsübersicht",
+        "headers": {
+          "deck": "Stapel",
+          "cards": "Karten",
+          "mastered": "Beherrscht",
+          "progress": "Fortschritt",
+          "avgEase": "Ø Leichtigkeit"
+        }
+      }
+    },
+    "dashboard": {
+      "title": "Lernanalyse",
+      "subtitle": "Umfassende Einblicke in Ihren Karteikarten-Lernfortschritt",
+      "backToDashboard": "Zurück zum Dashboard",
+      "dateRange": {
+        "last7Days": "Letzte 7 Tage",
+        "last30Days": "Letzte 30 Tage",
+        "last90Days": "Letzte 90 Tage",
+        "allTime": "Alle Zeit"
+      },
+      "export": {
+        "exportData": "Daten exportieren",
+        "exporting": "Exportiere...",
+        "exportAsCSV": "Als CSV exportieren",
+        "exportAsJSON": "Als JSON exportieren",
+        "exportSuccess": "Statistiken als {{format}} exportiert",
+        "exportError": "Fehler beim Exportieren der Statistiken"
+      }
     }
   },
   "streak": {

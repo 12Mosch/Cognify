@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface LearningStreakWidgetProps {
   currentStreak: number;
@@ -19,13 +20,15 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
   currentStreak,
   longestStreak
 }: LearningStreakWidgetProps) {
+  const { t } = useTranslation();
+
   const getStreakMessage = (streak: number) => {
-    if (streak === 0) return "Start your learning journey!";
-    if (streak === 1) return "Great start! Keep it up!";
-    if (streak < 7) return "Building momentum!";
-    if (streak < 30) return "You're on fire! 🔥";
-    if (streak < 100) return "Incredible dedication!";
-    return "Legendary learner! 🏆";
+    if (streak === 0) return t('statistics.widgets.learningStreak.messages.start');
+    if (streak === 1) return t('statistics.widgets.learningStreak.messages.greatStart');
+    if (streak < 7) return t('statistics.widgets.learningStreak.messages.buildingMomentum');
+    if (streak < 30) return t('statistics.widgets.learningStreak.messages.onFire');
+    if (streak < 100) return t('statistics.widgets.learningStreak.messages.incredibleDedication');
+    return t('statistics.widgets.learningStreak.messages.legendaryLearner');
   };
 
   const getStreakColor = (streak: number) => {
@@ -61,7 +64,7 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
       {/* Widget Header */}
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
-          Learning Streak
+          {t('statistics.widgets.learningStreak.title')}
         </h3>
         <span className="text-2xl" role="img" aria-label="Streak">
           {getStreakIcon(currentStreak)}
@@ -104,7 +107,7 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
                 {currentStreak}
               </div>
               <div className="text-xs text-slate-500 dark:text-slate-400">
-                {currentStreak === 1 ? 'day' : 'days'}
+                {currentStreak === 1 ? t('statistics.cards.day') : t('statistics.cards.days')}
               </div>
             </div>
           </div>
@@ -118,7 +121,7 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
         </p>
         {currentStreak > 0 && currentStreak < nextMilestone && (
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            {nextMilestone - currentStreak} days to reach {nextMilestone}-day milestone
+            {t('statistics.widgets.learningStreak.milestones.daysToReach', { count: nextMilestone - currentStreak, milestone: nextMilestone })}
           </p>
         )}
       </div>
@@ -129,13 +132,13 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
           <div className={`text-xl font-bold ${getStreakColor(currentStreak)}`}>
             {currentStreak}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400">Current</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400">{t('statistics.widgets.learningStreak.current')}</div>
         </div>
         <div className="text-center p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
           <div className="text-xl font-bold text-purple-500 dark:text-purple-400">
             {longestStreak}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400">Best</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400">{t('statistics.widgets.learningStreak.best')}</div>
         </div>
       </div>
 
@@ -143,7 +146,7 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
       {currentStreak > 0 && currentStreak < nextMilestone && (
         <div className="mt-6">
           <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mb-2">
-            <span>Progress to {nextMilestone} days</span>
+            <span>{t('statistics.widgets.learningStreak.milestones.progressTo', { milestone: nextMilestone })}</span>
             <span>{progressPercentage.toFixed(0)}%</span>
           </div>
           <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
@@ -167,13 +170,13 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
             <span className="text-lg">🏆</span>
             <div>
               <div className="text-sm font-semibold text-purple-700 dark:text-purple-300">
-                {currentStreak >= 365 ? 'Year-Long Learner!' :
-                 currentStreak >= 100 ? 'Century Club!' :
-                 currentStreak >= 30 ? 'Monthly Master!' :
-                 'Weekly Warrior!'}
+                {currentStreak >= 365 ? t('statistics.widgets.learningStreak.achievements.yearLongLearner') :
+                 currentStreak >= 100 ? t('statistics.widgets.learningStreak.achievements.centuryClub') :
+                 currentStreak >= 30 ? t('statistics.widgets.learningStreak.achievements.monthlyMaster') :
+                 t('statistics.widgets.learningStreak.achievements.weeklyWarrior')}
               </div>
               <div className="text-xs text-purple-600 dark:text-purple-400">
-                Keep up the amazing consistency!
+                {t('statistics.widgets.learningStreak.achievements.keepUpConsistency')}
               </div>
             </div>
           </div>

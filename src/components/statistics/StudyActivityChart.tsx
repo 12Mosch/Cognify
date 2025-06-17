@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 import { useQuery } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../../convex/_generated/api";
 import ChartWidget from "./ChartWidget";
 
@@ -20,6 +21,8 @@ interface StudyActivityChartProps {
  * - Multiple metrics (cards studied, sessions, time spent)
  */
 const StudyActivityChart = memo(function StudyActivityChart({ dateRange }: StudyActivityChartProps) {
+  const { t } = useTranslation();
+
   // Fetch real study activity data from Convex
   const data = useQuery(api.statistics.getStudyActivityData, { dateRange });
 
@@ -29,13 +32,13 @@ const StudyActivityChart = memo(function StudyActivityChart({ dateRange }: Study
       <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
-            Study Activity
+            {t('statistics.charts.studyActivity.title')}
           </h3>
           <div className="animate-pulse bg-slate-300 dark:bg-slate-600 h-4 w-20 rounded"></div>
         </div>
         <div className="h-64 flex items-center justify-center">
           <div className="animate-pulse text-slate-500 dark:text-slate-400">
-            Loading activity data...
+            {t('statistics.loading.chartTitle', { title: t('statistics.charts.studyActivity.title') })}
           </div>
         </div>
       </div>
@@ -66,27 +69,39 @@ const StudyActivityChart = memo(function StudyActivityChart({ dateRange }: Study
   };
 
   // Prepare footer content
+  const totalCards = data.reduce((sum, day) => sum + day.cardsStudied, 0);
+  const totalSessions = data.reduce((sum, day) => sum + day.sessions, 0);
+  const totalTimeMinutes = Math.round(data.reduce((sum, day) => sum + day.timeSpent, 0));
+  const totalTimeHours = Math.floor(totalTimeMinutes / 60);
+  const remainingMinutes = totalTimeMinutes % 60;
+
   const footerContent = (
     <>
       {/* Chart Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-slate-200 dark:border-slate-700">
         <div className="text-center">
           <div className="text-2xl font-bold text-blue-500 dark:text-blue-400">
-            {data.reduce((sum, day) => sum + day.cardsStudied, 0)}
+            {totalCards}
           </div>
-          <div className="text-sm text-slate-600 dark:text-slate-400">Total Cards</div>
+          <div className="text-sm text-slate-600 dark:text-slate-400">
+            {t('statistics.charts.studyActivity.totalCards', { count: totalCards })}
+          </div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-cyan-500 dark:text-cyan-400">
-            {data.reduce((sum, day) => sum + day.sessions, 0)}
+            {totalSessions}
           </div>
-          <div className="text-sm text-slate-600 dark:text-slate-400">Total Sessions</div>
+          <div className="text-sm text-slate-600 dark:text-slate-400">
+            {t('statistics.charts.studyActivity.totalSessions', { count: totalSessions })}
+          </div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-green-500 dark:text-green-400">
-            {Math.round(data.reduce((sum, day) => sum + day.timeSpent, 0) / 60)}
+            {totalTimeHours}h {remainingMinutes}m
           </div>
-          <div className="text-sm text-slate-600 dark:text-slate-400">Total Minutes</div>
+          <div className="text-sm text-slate-600 dark:text-slate-400">
+            {t('statistics.charts.studyActivity.totalTime', { hours: totalTimeHours, minutes: remainingMinutes })}
+          </div>
         </div>
       </div>
     </>
@@ -94,8 +109,8 @@ const StudyActivityChart = memo(function StudyActivityChart({ dateRange }: Study
 
   return (
     <ChartWidget
-      title="Study Activity Over Time"
-      subtitle="Track your learning consistency and progress patterns"
+      title={t('statistics.charts.studyActivity.title')}
+      subtitle={t('statistics.charts.studyActivity.subtitle')}
       chartHeight="h-80"
       footer={footerContent}
     >
@@ -103,15 +118,15 @@ const StudyActivityChart = memo(function StudyActivityChart({ dateRange }: Study
       <div className="flex items-center gap-4 text-sm mb-6">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-blue-400"></div>
-          <span className="text-slate-600 dark:text-slate-400">Cards Studied</span>
+          <span className="text-slate-600 dark:text-slate-400">{t('statistics.charts.studyActivity.cardsStudied')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-cyan-400"></div>
-          <span className="text-slate-600 dark:text-slate-400">Sessions</span>
+          <span className="text-slate-600 dark:text-slate-400">{t('statistics.charts.studyActivity.sessions')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-green-400"></div>
-          <span className="text-slate-600 dark:text-slate-400">Time (min)</span>
+          <span className="text-slate-600 dark:text-slate-400">{t('statistics.charts.studyActivity.timeMinutes')}</span>
         </div>
       </div>
 
@@ -163,9 +178,9 @@ const StudyActivityChart = memo(function StudyActivityChart({ dateRange }: Study
               stroke="#60a5fa"
               strokeWidth={2}
               fill="url(#cardsGradient)"
-              name="Cards Studied"
+              name={t('statistics.charts.studyActivity.cardsStudied')}
             />
-            
+
             {/* Lines for additional metrics */}
             <Line
               type="monotone"
@@ -174,9 +189,9 @@ const StudyActivityChart = memo(function StudyActivityChart({ dateRange }: Study
               strokeWidth={2}
               dot={{ fill: '#22d3ee', strokeWidth: 2, r: 4 }}
               activeDot={{ r: 6, stroke: '#22d3ee', strokeWidth: 2, fill: '#ffffff' }}
-              name="Sessions"
+              name={t('statistics.charts.studyActivity.sessions')}
             />
-            
+
             <Line
               type="monotone"
               dataKey="timeSpent"
@@ -184,7 +199,7 @@ const StudyActivityChart = memo(function StudyActivityChart({ dateRange }: Study
               strokeWidth={2}
               dot={{ fill: '#4ade80', strokeWidth: 2, r: 4 }}
               activeDot={{ r: 6, stroke: '#4ade80', strokeWidth: 2, fill: '#ffffff' }}
-              name="Time Spent"
+              name={t('statistics.charts.studyActivity.timeMinutes')}
             />
           </AreaChart>
         </ResponsiveContainer>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { StatisticsDashboardSkeleton } from "./skeletons/StatisticsSkeleton";
 import { StatisticsOverviewCards } from "./statistics/StatisticsOverviewCards";
@@ -41,6 +42,7 @@ interface StatisticsDashboardProps {
 type DateRange = '7d' | '30d' | '90d' | 'all';
 
 export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps) {
+  const { t } = useTranslation();
   const [dateRange, setDateRange] = useState<DateRange>('30d');
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -139,10 +141,10 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
       // Use the utility function to handle the export
       exportStatisticsData(exportData, format);
 
-      toastHelpers.success(`Statistics exported as ${format.toUpperCase()}`);
+      toastHelpers.success(t('statistics.dashboard.export.exportSuccess', { format: format.toUpperCase() }));
     } catch (error) {
       console.error('Export failed:', error);
-      toastHelpers.error('Failed to export statistics');
+      toastHelpers.error(t('statistics.dashboard.export.exportError'));
     } finally {
       setIsExporting(false);
     }
@@ -157,18 +159,18 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
             <button
               onClick={onBack}
               className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              aria-label="Back to dashboard"
+              aria-label={t('statistics.dashboard.backToDashboard')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              Learning Analytics
+              {t('statistics.dashboard.title')}
             </h1>
           </div>
           <p className="text-slate-600 dark:text-slate-400">
-            Comprehensive insights into your flashcard learning progress
+            {t('statistics.dashboard.subtitle')}
           </p>
         </div>
         
@@ -180,10 +182,10 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
             onChange={(e) => setDateRange(e.target.value as DateRange)}
             className="px-4 py-2 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:border-blue-400 dark:focus:border-blue-400 transition-colors"
           >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all">All time</option>
+            <option value="7d">{t('statistics.dashboard.dateRange.last7Days')}</option>
+            <option value="30d">{t('statistics.dashboard.dateRange.last30Days')}</option>
+            <option value="90d">{t('statistics.dashboard.dateRange.last90Days')}</option>
+            <option value="all">{t('statistics.dashboard.dateRange.allTime')}</option>
           </select>
 
           {/* Export Dropdown */}
@@ -199,10 +201,10 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
               className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors cursor-pointer"
             >
               <option value="">
-                {isExporting ? 'Exporting...' : 'Export Data'}
+                {isExporting ? t('statistics.dashboard.export.exporting') : t('statistics.dashboard.export.exportData')}
               </option>
-              <option value="csv">Export as CSV</option>
-              <option value="json">Export as JSON</option>
+              <option value="csv">{t('statistics.dashboard.export.exportAsCSV')}</option>
+              <option value="json">{t('statistics.dashboard.export.exportAsJSON')}</option>
             </select>
           </div>
         </div>
@@ -260,17 +262,17 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
       {deckPerformance.length > 0 && (
         <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
           <h3 className="text-xl font-semibold mb-6 text-slate-800 dark:text-slate-200">
-            Deck Performance Overview
+            {t('statistics.table.deckPerformance.title')}
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-700">
-                  <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">Deck</th>
-                  <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">Cards</th>
-                  <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">Mastered</th>
-                  <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">Progress</th>
-                  <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">Avg. Ease</th>
+                  <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t('statistics.table.deckPerformance.headers.deck')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t('statistics.table.deckPerformance.headers.cards')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t('statistics.table.deckPerformance.headers.mastered')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t('statistics.table.deckPerformance.headers.progress')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t('statistics.table.deckPerformance.headers.avgEase')}</th>
                 </tr>
               </thead>
               <tbody>

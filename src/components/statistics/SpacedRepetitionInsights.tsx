@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 // Define type that matches the actual Convex query return structure
 // Manually defined to ensure proper optional property handling
@@ -31,6 +32,8 @@ interface SpacedRepetitionInsightsProps {
 const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
   insights
 }: SpacedRepetitionInsightsProps) {
+  const { t } = useTranslation();
+
   const getRetentionColor = (rate?: number) => {
     if (!rate) return "text-slate-400";
     if (rate >= 90) return "text-green-500";
@@ -40,19 +43,19 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
   };
 
   const getRetentionMessage = (rate?: number) => {
-    if (!rate) return "No data yet";
-    if (rate >= 90) return "Excellent retention!";
-    if (rate >= 80) return "Good retention";
-    if (rate >= 70) return "Fair retention";
-    return "Needs improvement";
+    if (!rate) return t('statistics.widgets.spacedRepetition.retentionMessages.noData');
+    if (rate >= 90) return t('statistics.widgets.spacedRepetition.retentionMessages.excellent');
+    if (rate >= 80) return t('statistics.widgets.spacedRepetition.retentionMessages.good');
+    if (rate >= 70) return t('statistics.widgets.spacedRepetition.retentionMessages.fair');
+    return t('statistics.widgets.spacedRepetition.retentionMessages.needsImprovement');
   };
 
   const getIntervalEfficiency = (interval?: number) => {
-    if (!interval) return { level: "Unknown", color: "text-slate-400" };
-    if (interval >= 30) return { level: "Excellent", color: "text-green-500" };
-    if (interval >= 14) return { level: "Good", color: "text-blue-500" };
-    if (interval >= 7) return { level: "Fair", color: "text-yellow-500" };
-    return { level: "Learning", color: "text-orange-500" };
+    if (!interval) return { level: t('statistics.widgets.spacedRepetition.intervalEfficiency.unknown'), color: "text-slate-400" };
+    if (interval >= 30) return { level: t('statistics.widgets.spacedRepetition.intervalEfficiency.excellent'), color: "text-green-500" };
+    if (interval >= 14) return { level: t('statistics.widgets.spacedRepetition.intervalEfficiency.good'), color: "text-blue-500" };
+    if (interval >= 7) return { level: t('statistics.widgets.spacedRepetition.intervalEfficiency.fair'), color: "text-yellow-500" };
+    return { level: t('statistics.widgets.spacedRepetition.intervalEfficiency.learning'), color: "text-orange-500" };
   };
 
   const intervalEfficiency = getIntervalEfficiency(insights.averageInterval);
@@ -65,7 +68,7 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
       {/* Widget Header */}
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
-          Algorithm Insights
+          {t('statistics.widgets.spacedRepetition.title')}
         </h3>
         <span className="text-2xl" role="img" aria-label="Brain">
           🧠
@@ -78,7 +81,7 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
         <div className="p-4 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-              Retention Rate
+              {t('statistics.widgets.spacedRepetition.retentionRate')}
             </span>
             <span className="text-lg">🎯</span>
           </div>
@@ -111,7 +114,7 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
         <div className="p-4 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-              Average Interval
+              {t('statistics.widgets.spacedRepetition.averageInterval')}
             </span>
             <span className="text-lg">⏱️</span>
           </div>
@@ -124,7 +127,7 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
                 {intervalEfficiency.level}
               </div>
               <div className="text-xs text-slate-500 dark:text-slate-400">
-                Time between reviews
+                {t('statistics.widgets.spacedRepetition.timeBetweenReviews')}
               </div>
             </div>
           </div>
@@ -134,17 +137,17 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
         <div className="p-4 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-              New vs Review Balance
+              {t('statistics.widgets.spacedRepetition.newVsReviewBalance')}
             </span>
             <span className="text-lg">⚖️</span>
           </div>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-blue-600 dark:text-blue-400">New Cards</span>
+              <span className="text-blue-600 dark:text-blue-400">{t('statistics.widgets.spacedRepetition.newCards')}</span>
               <span className="font-semibold">{insights.totalNewCards}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-red-600 dark:text-red-400">Due Cards</span>
+              <span className="text-red-600 dark:text-red-400">{t('statistics.widgets.spacedRepetition.dueCards')}</span>
               <span className="font-semibold">{insights.totalDueCards}</span>
             </div>
             <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2 mt-2">
@@ -156,7 +159,10 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
               </div>
             </div>
             <div className="text-xs text-slate-500 dark:text-slate-400 text-center">
-              {workloadBalance.toFixed(0)}% new cards, {(100 - workloadBalance).toFixed(0)}% reviews
+              {t('statistics.widgets.spacedRepetition.balancePercentage', {
+                newPercentage: workloadBalance.toFixed(0),
+                reviewPercentage: (100 - workloadBalance).toFixed(0)
+              })}
             </div>
           </div>
         </div>
@@ -168,16 +174,16 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
           <span className="text-lg mt-0.5">💡</span>
           <div>
             <div className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">
-              Algorithm Tip
+              {t('statistics.widgets.spacedRepetition.algorithmTip')}
             </div>
             <div className="text-xs text-blue-600 dark:text-blue-400">
-              {insights.retentionRate && insights.retentionRate < 80 ? 
-                "Consider reviewing cards more frequently to improve retention." :
+              {insights.retentionRate && insights.retentionRate < 80 ?
+                t('statistics.widgets.spacedRepetition.tips.improveRetention') :
                 insights.averageInterval && insights.averageInterval < 7 ?
-                "Your cards are being reviewed frequently - great for learning new material!" :
+                t('statistics.widgets.spacedRepetition.tips.frequentReviews') :
                 insights.totalDueCards > insights.totalNewCards * 2 ?
-                "Focus on clearing due cards before adding new ones for better balance." :
-                "Your spaced repetition is working well! Keep up the consistent practice."
+                t('statistics.widgets.spacedRepetition.tips.balanceDueCards') :
+                t('statistics.widgets.spacedRepetition.tips.workingWell')
               }
             </div>
           </div>
@@ -190,13 +196,13 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
           <div className="text-lg font-bold text-cyan-500 dark:text-cyan-400">
             {insights.upcomingReviews.length}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400">Review Days</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400">{t('statistics.widgets.spacedRepetition.reviewDays')}</div>
         </div>
         <div className="text-center">
           <div className="text-lg font-bold text-purple-500 dark:text-purple-400">
             {insights.cardsToReviewToday}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400">Due Today</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400">{t('statistics.widgets.spacedRepetition.dueToday')}</div>
         </div>
       </div>
     </div>

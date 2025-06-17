@@ -1,11 +1,14 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 /**
  * Skeleton loader for the main statistics dashboard
  */
 export const StatisticsDashboardSkeleton = memo(function StatisticsDashboardSkeleton() {
+  const { t } = useTranslation();
+
   return (
-    <div className="flex flex-col gap-8 max-w-7xl mx-auto" role="status" aria-busy="true" aria-label="Loading statistics dashboard">
+    <div className="flex flex-col gap-8 max-w-7xl mx-auto" role="status" aria-busy="true" aria-label={t('statistics.loading.dashboard')}>
       {/* Header Skeleton */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -77,6 +80,8 @@ interface ChartSkeletonProps {
 }
 
 export const ChartSkeleton = memo(function ChartSkeleton({ height, title }: ChartSkeletonProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
       {/* Chart Title */}
@@ -84,11 +89,11 @@ export const ChartSkeleton = memo(function ChartSkeleton({ height, title }: Char
         <div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
         <div className="h-8 w-20 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
       </div>
-      
+
       {/* Chart Area */}
       <div className={`${height} bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse flex items-center justify-center`}>
         <div className="text-slate-400 dark:text-slate-500 text-sm">
-          Loading {title}...
+          {t('statistics.loading.chartTitle', { title })}
         </div>
       </div>
       

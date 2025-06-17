@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface UpcomingReview {
   date: string;
@@ -22,17 +23,19 @@ interface UpcomingReviewsWidgetProps {
 const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
   upcomingReviews
 }: UpcomingReviewsWidgetProps) {
+  const { t } = useTranslation();
+
   const formatDate = (dateString: string) => {
     const date = new Date(`${dateString}T00:00:00Z`); // ISO-8601 UTC midnight
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     const isToday = date.toDateString() === today.toDateString();
     const isTomorrow = date.toDateString() === tomorrow.toDateString();
-    
-    if (isToday) return "Today";
-    if (isTomorrow) return "Tomorrow";
+
+    if (isToday) return t('statistics.widgets.upcomingReviews.today');
+    if (isTomorrow) return t('statistics.widgets.upcomingReviews.tomorrow');
     
     const daysDiff = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     
@@ -70,7 +73,7 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
       {/* Widget Header */}
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
-          Upcoming Reviews
+          {t('statistics.widgets.upcomingReviews.title')}
         </h3>
         <span className="text-2xl" role="img" aria-label="Calendar">
           📅
@@ -81,9 +84,9 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
       {upcomingReviews.length === 0 ? (
         <div className="text-center py-8">
           <div className="text-4xl mb-4">🎉</div>
-          <p className="text-slate-600 dark:text-slate-400 mb-2">All caught up!</p>
+          <p className="text-slate-600 dark:text-slate-400 mb-2">{t('statistics.widgets.upcomingReviews.allCaughtUp')}</p>
           <p className="text-sm text-slate-500 dark:text-slate-500">
-            No reviews scheduled for the next week
+            {t('statistics.widgets.upcomingReviews.noReviewsScheduled')}
           </p>
         </div>
       ) : (
@@ -123,7 +126,7 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
                   {review.count}
                 </div>
                 <div className="text-xs text-slate-500 dark:text-slate-400">
-                  {review.count === 1 ? 'card' : 'cards'}
+                  {review.count === 1 ? t('statistics.widgets.upcomingReviews.card') : t('statistics.widgets.upcomingReviews.cards')}
                 </div>
               </div>
             </div>
@@ -133,7 +136,7 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
           {upcomingReviews.length > 7 && (
             <div className="text-center pt-3">
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                +{upcomingReviews.length - 7} more reviews scheduled
+                {t('statistics.widgets.upcomingReviews.moreReviewsScheduled', { count: upcomingReviews.length - 7 })}
               </p>
             </div>
           )}
@@ -148,13 +151,13 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
               <div className="text-lg font-bold text-blue-500 dark:text-blue-400">
                 {upcomingReviews.reduce((sum, review) => sum + review.count, 0)}
               </div>
-              <div className="text-xs text-slate-600 dark:text-slate-400">Total Cards</div>
+              <div className="text-xs text-slate-600 dark:text-slate-400">{t('statistics.widgets.upcomingReviews.totalCards')}</div>
             </div>
             <div>
               <div className="text-lg font-bold text-purple-500 dark:text-purple-400">
                 {upcomingReviews.length}
               </div>
-              <div className="text-xs text-slate-600 dark:text-slate-400">Review Days</div>
+              <div className="text-xs text-slate-600 dark:text-slate-400">{t('statistics.widgets.upcomingReviews.reviewDays')}</div>
             </div>
           </div>
         </div>

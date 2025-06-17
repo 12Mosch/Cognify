@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { useTranslation } from "react-i18next";
 import ChartWidget from "./ChartWidget";
 
 interface SpacedRepetitionInsights {
@@ -42,38 +43,39 @@ const CardDistributionChart = memo(function CardDistributionChart({
   spacedRepetitionInsights,
   cardDistribution
 }: CardDistributionChartProps) {
+  const { t } = useTranslation();
 
   // Use real data from Convex query
   const chartData = [
     {
-      name: "New Cards",
+      name: t('statistics.charts.cardDistribution.newCards'),
       value: cardDistribution.newCards,
       color: "#60a5fa", // Blue
-      description: "Cards never studied"
+      description: t('statistics.charts.cardDistribution.neverStudied')
     },
     {
-      name: "Learning",
+      name: t('statistics.charts.cardDistribution.learning'),
       value: cardDistribution.learningCards,
       color: "#f59e0b", // Amber
-      description: "Cards being learned"
+      description: t('statistics.charts.cardDistribution.beingLearned')
     },
     {
-      name: "Review",
+      name: t('statistics.charts.cardDistribution.review'),
       value: cardDistribution.reviewCards,
       color: "#8b5cf6", // Purple
-      description: "Cards in review cycle"
+      description: t('statistics.charts.cardDistribution.inReviewCycle')
     },
     {
-      name: "Due",
+      name: t('statistics.charts.cardDistribution.due'),
       value: cardDistribution.dueCards,
       color: "#ef4444", // Red
-      description: "Cards due for review"
+      description: t('statistics.charts.cardDistribution.dueForReview')
     },
     {
-      name: "Mastered",
+      name: t('statistics.charts.cardDistribution.mastered'),
       value: cardDistribution.masteredCards,
       color: "#10b981", // Green
-      description: "Well-learned cards"
+      description: t('statistics.charts.cardDistribution.wellLearned')
     }
   ].filter(item => item.value > 0); // Only show categories with cards
 
@@ -135,15 +137,14 @@ const CardDistributionChart = memo(function CardDistributionChart({
   if (cardDistribution.totalCards === 0) {
     return (
       <ChartWidget
-        title="Card Distribution"
-        subtitle="Overview of your cards across learning stages"
+        title={t('statistics.charts.cardDistribution.title')}
+        subtitle={t('statistics.charts.cardDistribution.subtitle')}
         chartHeight="h-64"
       >
         <div className="flex items-center justify-center h-full text-slate-500 dark:text-slate-400">
           <div className="text-center">
             <div className="text-4xl mb-4">🃏</div>
-            <p>No cards available</p>
-            <p className="text-sm mt-2">Add some cards to see distribution</p>
+            <p>{t('statistics.charts.cardDistribution.noData')}</p>
           </div>
         </div>
       </ChartWidget>
@@ -212,8 +213,8 @@ const CardDistributionChart = memo(function CardDistributionChart({
 
   return (
     <ChartWidget
-      title="Card Distribution"
-      subtitle="Overview of your cards across learning stages"
+      title={t('statistics.charts.cardDistribution.title')}
+      subtitle={t('statistics.charts.cardDistribution.subtitle')}
       chartHeight="h-64"
       footer={footerContent}
     >

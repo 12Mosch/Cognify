@@ -1,5 +1,6 @@
 import { memo, useState } from 'react';
 import { useQuery } from 'convex/react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../convex/_generated/api';
 import { 
   generateHeatmapGrid, 
@@ -24,6 +25,7 @@ import { HeatmapSkeleton } from './skeletons/SkeletonComponents';
  * - Responsive design with horizontal scrolling on mobile
  */
 const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
+  const { t } = useTranslation();
   const [hoveredDay, setHoveredDay] = useState<HeatmapDay | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
@@ -97,10 +99,10 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
-          Study Activity
+          {t('statistics.heatmap.title')}
         </h2>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          {stats.activeDays} days of study activity in the last year
+          {t('statistics.heatmap.subtitle', { count: stats.activeDays })}
         </p>
       </div>
 
@@ -168,7 +170,7 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
           {/* Legend */}
           <div className="flex items-center justify-between mt-4">
             <div className="text-xs text-slate-500 dark:text-slate-400">
-              Less
+              {t('statistics.heatmap.legend.less')}
             </div>
             <div className="flex items-center gap-1">
               {[0, 1, 2, 3, 4].map((level) => (
@@ -180,7 +182,7 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
               ))}
             </div>
             <div className="text-xs text-slate-500 dark:text-slate-400">
-              More
+              {t('statistics.heatmap.legend.more')}
             </div>
           </div>
         </div>
@@ -193,34 +195,34 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
             {stats.totalCards}
           </div>
           <div className="text-sm text-slate-600 dark:text-slate-400">
-            Cards studied
+            {t('statistics.heatmap.stats.cardsStudied')}
           </div>
         </div>
-        
+
         <div className="text-center">
           <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             {stats.activeDays}
           </div>
           <div className="text-sm text-slate-600 dark:text-slate-400">
-            Active days
+            {t('statistics.heatmap.stats.activeDays')}
           </div>
         </div>
-        
+
         <div className="text-center">
           <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             {stats.maxCardsInDay}
           </div>
           <div className="text-sm text-slate-600 dark:text-slate-400">
-            Best day
+            {t('statistics.heatmap.stats.bestDay')}
           </div>
         </div>
-        
+
         <div className="text-center">
           <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             {stats.studyRate}%
           </div>
           <div className="text-sm text-slate-600 dark:text-slate-400">
-            Study rate
+            {t('statistics.heatmap.stats.studyRate')}
           </div>
         </div>
       </div>

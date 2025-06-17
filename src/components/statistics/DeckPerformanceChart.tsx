@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { useTranslation } from "react-i18next";
 import ChartWidget from "./ChartWidget";
 
 interface DeckPerformance {
@@ -33,6 +34,8 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
   selectedDeckId,
   onDeckSelect
 }: DeckPerformanceChartProps) {
+  const { t } = useTranslation();
+
   // Prepare chart data
   const chartData = deckPerformance.map(deck => ({
     ...deck,
@@ -64,26 +67,26 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
           <p className="text-slate-200 font-semibold mb-3">{data.deckName}</p>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-slate-300">Total Cards:</span>
+              <span className="text-slate-300">{t('statistics.charts.deckPerformance.totalCards')}:</span>
               <span className="text-white font-semibold">{data.totalCards}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-300">Mastered:</span>
+              <span className="text-slate-300">{t('statistics.charts.deckPerformance.masteredCards')}:</span>
               <span className="text-white font-semibold">{data.masteredCards}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-300">Progress:</span>
+              <span className="text-slate-300">{t('statistics.charts.deckPerformance.masteryPercentage')}:</span>
               <span className="text-white font-semibold">{data.masteryPercentage.toFixed(1)}%</span>
             </div>
             {data.averageEaseFactor && (
               <div className="flex justify-between">
-                <span className="text-slate-300">Avg. Ease:</span>
+                <span className="text-slate-300">{t('statistics.charts.deckPerformance.averageEase')}:</span>
                 <span className="text-white font-semibold">{data.averageEaseFactor.toFixed(2)}</span>
               </div>
             )}
           </div>
           <div className="mt-3 pt-2 border-t border-slate-600">
-            <p className="text-xs text-slate-400">Click to select deck</p>
+            <p className="text-xs text-slate-400">{t('statistics.charts.deckPerformance.clickToSelect')}</p>
           </div>
         </div>
       );
@@ -100,13 +103,12 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
     return (
       <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
         <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">
-          Deck Performance
+          {t('statistics.charts.deckPerformance.title')}
         </h3>
         <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-400">
           <div className="text-center">
             <div className="text-4xl mb-4">📊</div>
-            <p>No decks available</p>
-            <p className="text-sm mt-2">Create some decks to see performance metrics</p>
+            <p>{t('statistics.charts.deckPerformance.noData')}</p>
           </div>
         </div>
       </div>
@@ -160,25 +162,25 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                   <div>
-                    <div className="text-slate-600 dark:text-slate-400">Total Cards</div>
+                    <div className="text-slate-600 dark:text-slate-400">{t('statistics.charts.deckPerformance.totalCards')}</div>
                     <div className="font-semibold text-slate-800 dark:text-slate-200">
                       {selectedDeck.totalCards}
                     </div>
                   </div>
                   <div>
-                    <div className="text-slate-600 dark:text-slate-400">Mastered</div>
+                    <div className="text-slate-600 dark:text-slate-400">{t('statistics.charts.deckPerformance.masteredCards')}</div>
                     <div className="font-semibold text-slate-800 dark:text-slate-200">
                       {selectedDeck.masteredCards}
                     </div>
                   </div>
                   <div>
-                    <div className="text-slate-600 dark:text-slate-400">Progress</div>
+                    <div className="text-slate-600 dark:text-slate-400">{t('statistics.charts.deckPerformance.masteryPercentage')}</div>
                     <div className="font-semibold text-slate-800 dark:text-slate-200">
                       {selectedDeck.masteryPercentage.toFixed(1)}%
                     </div>
                   </div>
                   <div>
-                    <div className="text-slate-600 dark:text-slate-400">Avg. Ease</div>
+                    <div className="text-slate-600 dark:text-slate-400">{t('statistics.charts.deckPerformance.averageEase')}</div>
                     <div className="font-semibold text-slate-800 dark:text-slate-200">
                       {selectedDeck.averageEaseFactor ? selectedDeck.averageEaseFactor.toFixed(2) : 'N/A'}
                     </div>
@@ -194,8 +196,8 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
 
   return (
     <ChartWidget
-      title="Deck Performance"
-      subtitle="Compare mastery progress across your decks"
+      title={t('statistics.charts.deckPerformance.title')}
+      subtitle={t('statistics.charts.deckPerformance.subtitle')}
       chartHeight="h-64"
       headerActions={headerActions}
       footer={footerContent}

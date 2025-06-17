@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 // Define types that match the actual Convex query return structure
 // These are manually defined to ensure proper optional property handling
@@ -44,69 +45,71 @@ export const StatisticsOverviewCards = memo(function StatisticsOverviewCards({
   userStats,
   spacedRepetitionInsights
 }: StatisticsOverviewCardsProps) {
+  const { t } = useTranslation();
+
   const cards = [
     {
-      title: "Total Decks",
+      title: t('statistics.cards.totalDecks'),
       value: userStats.totalDecks,
-      subtitle: "Learning collections",
+      subtitle: t('statistics.cards.learningCollections'),
       icon: "📚",
       color: "blue",
       trend: null,
     },
     {
-      title: "Total Cards",
+      title: t('statistics.cards.totalCards'),
       value: userStats.totalCards,
-      subtitle: "Flashcards created",
+      subtitle: t('statistics.cards.flashcardsCreated'),
       icon: "🃏",
       color: "cyan",
       trend: null,
     },
     {
-      title: "Due Today",
+      title: t('statistics.cards.dueToday'),
       value: spacedRepetitionInsights.cardsToReviewToday,
-      subtitle: "Cards to review",
+      subtitle: t('statistics.cards.cardsToReview'),
       icon: "⏰",
       color: spacedRepetitionInsights.cardsToReviewToday > 0 ? "orange" : "green",
       trend: null,
     },
     {
-      title: "Current Streak",
+      title: t('statistics.cards.currentStreak'),
       value: userStats.currentStreak,
-      subtitle: `Best: ${userStats.longestStreak} days`,
+      subtitle: t('statistics.cards.bestDays', { count: userStats.longestStreak }),
       icon: "🔥",
       color: userStats.currentStreak > 0 ? "green" : "gray",
       trend: null,
     },
     {
-      title: "New Cards",
+      title: t('statistics.cards.newCards'),
       value: spacedRepetitionInsights.totalNewCards,
-      subtitle: "Ready to learn",
+      subtitle: t('statistics.cards.readyToLearn'),
       icon: "✨",
       color: "purple",
       trend: null,
     },
     {
-      title: "Study Sessions",
+      title: t('statistics.cards.studySessions'),
       value: userStats.totalStudySessions,
-      subtitle: "Total completed",
+      subtitle: t('statistics.cards.totalCompleted'),
       icon: "📖",
       color: "indigo",
       trend: null,
     },
     {
-      title: "Average Interval",
+      title: t('statistics.cards.averageInterval'),
       value: spacedRepetitionInsights.averageInterval ?
         `${spacedRepetitionInsights.averageInterval.toFixed(1)}d` : 'N/A',
-      subtitle: "Between reviews",
+      subtitle: t('statistics.cards.betweenReviews'),
       icon: "📅",
       color: "teal",
       trend: null,
     },
     {
-      title: "Retention Rate",
+      title: t('statistics.cards.retentionRate'),
       value: spacedRepetitionInsights.retentionRate ?
         `${spacedRepetitionInsights.retentionRate.toFixed(1)}%` : 'N/A',
-      subtitle: "Success rate",
+      subtitle: t('statistics.cards.successRate'),
       icon: "🎯",
       color: "green",
       trend: null,

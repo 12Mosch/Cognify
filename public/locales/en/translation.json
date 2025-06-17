@@ -169,7 +169,7 @@
     "overview": {
       "title": "Overview",
       "totalDecks": "Total Decks",
-      "totalCards": "Total Cards", 
+      "totalCards": "Total Cards",
       "cardsReviewed": "Cards Reviewed",
       "studyStreak": "Study Streak"
     },
@@ -183,6 +183,188 @@
       "title": "Study Activity",
       "last7Days": "Last 7 Days",
       "last30Days": "Last 30 Days"
+    },
+    "cards": {
+      "totalDecks": "Total Decks",
+      "totalCards": "Total Cards",
+      "dueToday": "Due Today",
+      "currentStreak": "Current Streak",
+      "newCards": "New Cards",
+      "studySessions": "Study Sessions",
+      "averageInterval": "Average Interval",
+      "retentionRate": "Retention Rate",
+      "learningCollections": "Learning collections",
+      "flashcardsCreated": "Flashcards created",
+      "cardsToReview": "Cards to review",
+      "bestDays": "Best: {{count}} days",
+      "readyToLearn": "Ready to learn",
+      "totalCompleted": "Total completed",
+      "betweenReviews": "Between reviews",
+      "successRate": "Success rate",
+      "day": "day",
+      "days": "days"
+    },
+    "charts": {
+      "studyActivity": {
+        "title": "Study Activity Over Time",
+        "subtitle": "Track your learning consistency and progress patterns",
+        "cardsStudied": "Cards Studied",
+        "sessions": "Sessions",
+        "timeMinutes": "Time (min)",
+        "totalCards": "Total cards studied: {{count}}",
+        "totalSessions": "Total sessions: {{count}}",
+        "totalTime": "Total time: {{hours}}h {{minutes}}m",
+        "noData": "No study activity data available for the selected period."
+      },
+      "deckPerformance": {
+        "title": "Deck Performance Comparison",
+        "subtitle": "Compare mastery levels across your decks",
+        "masteryPercentage": "Mastery %",
+        "deckName": "Deck Name",
+        "totalCards": "Total Cards",
+        "masteredCards": "Mastered Cards",
+        "averageEase": "Average Ease",
+        "lastStudied": "Last Studied",
+        "clickToSelect": "Click to select/deselect deck",
+        "noData": "No deck performance data available."
+      },
+      "cardDistribution": {
+        "title": "Card Distribution",
+        "subtitle": "Overview of your cards across learning stages",
+        "newCards": "New Cards",
+        "learning": "Learning",
+        "review": "Review",
+        "due": "Due",
+        "mastered": "Mastered",
+        "neverStudied": "Cards never studied",
+        "beingLearned": "Cards being learned",
+        "inReviewCycle": "Cards in review cycle",
+        "dueForReview": "Cards due for review",
+        "wellLearned": "Well-learned cards",
+        "totalCardsInStage": "{{count}} cards in {{stage}} stage",
+        "percentageOfTotal": "{{percentage}}% of total cards",
+        "noData": "No cards available"
+      }
+    },
+    "widgets": {
+      "upcomingReviews": {
+        "title": "Upcoming Reviews",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "allCaughtUp": "All caught up!",
+        "noReviewsScheduled": "No reviews scheduled for the next week",
+        "moreReviewsScheduled": "+{{count}} more reviews scheduled",
+        "totalCards": "Total Cards",
+        "reviewDays": "Review Days",
+        "card": "card",
+        "cards": "cards"
+      },
+      "learningStreak": {
+        "title": "Learning Streak",
+        "messages": {
+          "start": "Start your learning journey!",
+          "greatStart": "Great start! Keep it up!",
+          "buildingMomentum": "Building momentum!",
+          "onFire": "You're on fire! 🔥",
+          "incredibleDedication": "Incredible dedication!",
+          "legendaryLearner": "Legendary learner! 🏆"
+        },
+        "milestones": {
+          "daysToReach": "{{count}} days to reach {{milestone}}-day milestone",
+          "progressTo": "Progress to {{milestone}} days"
+        },
+        "current": "Current",
+        "best": "Best",
+        "achievements": {
+          "weeklyWarrior": "Weekly Warrior!",
+          "monthlyMaster": "Monthly Master!",
+          "centuryClub": "Century Club!",
+          "yearLongLearner": "Year-Long Learner!",
+          "keepUpConsistency": "Keep up the amazing consistency!"
+        }
+      },
+      "spacedRepetition": {
+        "title": "Algorithm Insights",
+        "retentionRate": "Retention Rate",
+        "averageInterval": "Average Interval",
+        "newVsReviewBalance": "New vs Review Balance",
+        "newCards": "New Cards",
+        "dueCards": "Due Cards",
+        "reviewDays": "Review Days",
+        "dueToday": "Due Today",
+        "timeBetweenReviews": "Time between reviews",
+        "retentionMessages": {
+          "noData": "No data yet",
+          "excellent": "Excellent retention!",
+          "good": "Good retention",
+          "fair": "Fair retention",
+          "needsImprovement": "Needs improvement"
+        },
+        "intervalEfficiency": {
+          "unknown": "Unknown",
+          "excellent": "Excellent",
+          "good": "Good",
+          "fair": "Fair",
+          "learning": "Learning"
+        },
+        "algorithmTip": "Algorithm Tip",
+        "tips": {
+          "improveRetention": "Consider reviewing cards more frequently to improve retention.",
+          "frequentReviews": "Your cards are being reviewed frequently - great for learning new material!",
+          "balanceDueCards": "Focus on clearing due cards before adding new ones for better balance.",
+          "workingWell": "Your spaced repetition is working well! Keep up the consistent practice."
+        },
+        "balancePercentage": "{{newPercentage}}% new cards, {{reviewPercentage}}% reviews"
+      }
+    },
+    "heatmap": {
+      "title": "Study Activity",
+      "subtitle": "{{count}} days of study activity in the last year",
+      "legend": {
+        "less": "Less",
+        "more": "More"
+      },
+      "stats": {
+        "cardsStudied": "Cards studied",
+        "activeDays": "Active days",
+        "bestDay": "Best day",
+        "studyRate": "Study rate"
+      }
+    },
+    "loading": {
+      "dashboard": "Loading statistics dashboard",
+      "chartTitle": "Loading {{title}}..."
+    },
+    "table": {
+      "deckPerformance": {
+        "title": "Deck Performance Overview",
+        "headers": {
+          "deck": "Deck",
+          "cards": "Cards",
+          "mastered": "Mastered",
+          "progress": "Progress",
+          "avgEase": "Avg. Ease"
+        }
+      }
+    },
+    "dashboard": {
+      "title": "Learning Analytics",
+      "subtitle": "Comprehensive insights into your flashcard learning progress",
+      "backToDashboard": "Back to dashboard",
+      "dateRange": {
+        "last7Days": "Last 7 days",
+        "last30Days": "Last 30 days",
+        "last90Days": "Last 90 days",
+        "allTime": "All time"
+      },
+      "export": {
+        "exportData": "Export Data",
+        "exporting": "Exporting...",
+        "exportAsCSV": "Export as CSV",
+        "exportAsJSON": "Export as JSON",
+        "exportSuccess": "Statistics exported as {{format}}",
+        "exportError": "Failed to export statistics"
+      }
     }
   },
   "streak": {
