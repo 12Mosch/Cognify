@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useMutation } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { useAnalytics } from "../lib/analytics";
 import FocusLock from "react-focus-lock";
@@ -22,6 +23,7 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
   const [showForm, setShowForm] = useState(false);
   const [submissionAttempt, setSubmissionAttempt] = useState(0);
 
+  const { t } = useTranslation();
   const { user } = useUser();
   const posthog = usePostHog();
   const createDeck = useMutation(api.decks.createDeck);
@@ -56,15 +58,15 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
     const validationErrors: Record<string, string[]> = {};
 
     if (!name.trim()) {
-      validationErrors.name = ["Deck name is required"];
+      validationErrors.name = [t('forms.validation.deckNameRequired')];
     }
 
     if (name.length > 100) {
-      validationErrors.name = [...(validationErrors.name || []), "Deck name cannot exceed 100 characters"];
+      validationErrors.name = [...(validationErrors.name || []), t('forms.validation.maxLength', { field: t('forms.createDeck.name'), max: 100 })];
     }
 
     if (description.length > 500) {
-      validationErrors.description = ["Deck description cannot exceed 500 characters"];
+      validationErrors.description = [t('forms.validation.maxLength', { field: t('forms.createDeck.description'), max: 500 })];
     }
 
     // Track validation errors if any
@@ -154,7 +156,7 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 
         // Show error toast for all failures
         // Let the user see the specific error in the inline error display
-        showErrorToast("Failed to create deck. Please try again.");
+        showErrorToast(t('errors.generic'));
       } finally {
         setIsSubmitting(false);
       }
@@ -181,9 +183,9 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
           setShowForm(true);
         }}
         className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
-        aria-label="Create new deck"
+        aria-label={t('forms.createDeck.buttonLabel')}
       >
-        + Create New Deck
+        + {t('forms.createDeck.create')}
       </button>
     );
   }
@@ -207,15 +209,15 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
             aria-labelledby="create-deck-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="create-deck-title" className="text-lg font-bold mb-4">Create New Deck</h3>
+            <h3 id="create-deck-title" className="text-lg font-bold mb-4">{t('forms.createDeck.title')}</h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label 
-            htmlFor="deck-name" 
+          <label
+            htmlFor="deck-name"
             className="block text-sm font-medium mb-2"
           >
-            Deck Name *
+            {t('forms.createDeck.name')} *
           </label>
           <input
             ref={firstInputRef}
@@ -223,36 +225,36 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Enter deck name"
+            placeholder={t('forms.createDeck.namePlaceholder')}
             className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400"
             maxLength={100}
             required
             aria-describedby={error ? "form-error" : undefined}
           />
           <div className="text-xs text-slate-500 mt-1">
-            {name.length}/100 characters
+            {t('forms.createDeck.characterCount', { current: name.length, max: 100 })}
           </div>
         </div>
 
         <div>
-          <label 
-            htmlFor="deck-description" 
+          <label
+            htmlFor="deck-description"
             className="block text-sm font-medium mb-2"
           >
-            Description
+            {t('forms.createDeck.description')}
           </label>
           <textarea
             id="deck-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter deck description (optional)"
+            placeholder={t('forms.createDeck.descriptionPlaceholder')}
             rows={3}
             className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-vertical"
             maxLength={500}
             aria-describedby={error ? "form-error" : undefined}
           />
           <div className="text-xs text-slate-500 mt-1">
-            {description.length}/500 characters
+            {t('forms.createDeck.characterCount', { current: description.length, max: 500 })}
           </div>
         </div>
 
@@ -272,19 +274,19 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
             type="submit"
             disabled={isSubmitting || !name.trim()}
             className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-            aria-label={isSubmitting ? "Creating deck..." : "Create deck"}
+            aria-label={isSubmitting ? t('forms.createDeck.creating') : t('forms.createDeck.create')}
           >
-            {isSubmitting ? "Creating..." : "Create Deck"}
+            {isSubmitting ? t('forms.createDeck.creating') : t('forms.createDeck.create')}
           </button>
-          
+
           <button
             type="button"
             onClick={handleCancel}
             disabled={isSubmitting}
             className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Cancel deck creation"
+            aria-label={t('forms.createDeck.cancel')}
           >
-            Cancel
+            {t('forms.createDeck.cancel')}
           </button>
             </div>
             </form>

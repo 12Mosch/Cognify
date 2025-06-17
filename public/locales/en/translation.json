@@ -35,7 +35,8 @@
     "dueCards": "{{count}} due",
     "newCards": "{{count}} new",
     "manageCardsAria": "Manage cards in {{deckName}} deck",
-    "studyAria": "Study {{deckName}} deck"
+    "studyAria": "Study {{deckName}} deck",
+    "noDescription": "No description"
   },
   "emptyState": {
     "title": "No decks yet",
@@ -47,9 +48,35 @@
     "next": "Next",
     "previous": "Previous",
     "showAnswer": "Show Answer",
+    "showFront": "Show Front",
+    "showBack": "Show Back",
+    "exitStudySession": "Exit Study Session",
+    "exitStudy": "Exit Study",
+    "spacedRepetitionMode": "Spaced Repetition Mode",
+    "cardProgress": "Card {{current}} of {{total}}",
+    "deckNotFound": {
+      "title": "Deck Not Found",
+      "message": "The deck you're looking for doesn't exist or you don't have access to it.",
+      "backToDashboard": "Back to Dashboard"
+    },
+    "emptyDeck": {
+      "title": "No cards in this deck",
+      "message": "Add some flashcards to this deck before starting a study session.",
+      "addCards": "Add Cards to Deck"
+    },
+    "allCaughtUp": {
+      "title": "All Caught Up! 🎉",
+      "sessionStats": "Great work! You've reviewed {{count}} card in this session.",
+      "sessionStats_plural": "Great work! You've reviewed {{count}} cards in this session.",
+      "noCardsMessage": "You have no cards due for review right now. Excellent job staying on track with your studies!",
+      "emptyDeckMessage": "This deck is empty. Add some cards to start your learning journey!",
+      "nextReviewMessage": "Come back {{time}} for your next review session.",
+      "keepLearning": "Keep up the great work! Consistent daily practice is the key to long-term retention.",
+      "addCardsButton": "Add Cards to Deck"
+    },
     "difficulty": {
       "again": "Again",
-      "hard": "Hard", 
+      "hard": "Hard",
       "good": "Good",
       "easy": "Easy"
     },
@@ -66,10 +93,38 @@
       "flip": "Flip card",
       "next": "Next card",
       "difficulty1": "Again (1)",
-      "difficulty2": "Hard (2)", 
+      "difficulty2": "Hard (2)",
       "difficulty3": "Good (3)",
       "difficulty4": "Easy (4)",
       "help": "Show shortcuts"
+    },
+    "modeSelector": {
+      "title": "Choose Study Mode",
+      "subtitle": "How would you like to study {{deckName}}?",
+      "basicStudy": {
+        "title": "Basic Study",
+        "description": "Simple sequential review of all cards in the deck. Perfect for initial learning or quick review sessions.",
+        "features": {
+          "sequential": "Sequential Order",
+          "simple": "Simple Interface",
+          "quick": "Quick Review"
+        }
+      },
+      "spacedRepetition": {
+        "title": "Spaced Repetition",
+        "subtitle": "Recommended",
+        "description": "Intelligent scheduling based on the SM-2 algorithm. Cards are shown at optimal intervals for long-term retention.",
+        "features": {
+          "algorithm": "SM-2 Algorithm",
+          "timing": "Optimal Timing",
+          "retention": "Long-term Retention"
+        }
+      },
+      "cancel": "Cancel",
+      "info": {
+        "title": "About Spaced Repetition",
+        "description": "Spaced repetition is a learning technique that increases intervals of time between subsequent review of previously learned material. It's scientifically proven to improve long-term retention and reduce study time."
+      }
     }
   },
   "forms": {
@@ -80,24 +135,33 @@
       "description": "Description (optional)",
       "descriptionPlaceholder": "Enter deck description",
       "create": "Create Deck",
-      "cancel": "Cancel"
+      "creating": "Creating...",
+      "cancel": "Cancel",
+      "buttonLabel": "Create new deck",
+      "characterCount": "{{current}}/{{max}} characters"
     },
     "quickAddCard": {
       "title": "Quick Add Card",
       "selectDeck": "Select Deck",
       "selectDeckPlaceholder": "Choose a deck",
-      "front": "Front",
-      "frontPlaceholder": "Enter front of card",
-      "back": "Back", 
-      "backPlaceholder": "Enter back of card",
+      "front": "Front (Question)",
+      "frontPlaceholder": "Enter the question or prompt",
+      "back": "Back (Answer)",
+      "backPlaceholder": "Enter the answer or explanation",
       "add": "Add Card",
-      "cancel": "Cancel"
+      "adding": "Adding...",
+      "updating": "Updating...",
+      "cancel": "Cancel",
+      "buttonLabel": "Quick add card",
+      "characterCount": "{{current}}/{{max}} characters"
     },
     "validation": {
       "required": "This field is required",
       "deckNameRequired": "Deck name is required",
-      "frontRequired": "Front of card is required",
-      "backRequired": "Back of card is required"
+      "frontRequired": "Front content is required",
+      "backRequired": "Back content is required",
+      "selectDeckRequired": "Please select a deck",
+      "maxLength": "{{field}} cannot exceed {{max}} characters"
     }
   },
   "statistics": {
@@ -162,7 +226,14 @@
     "next": "Next",
     "previous": "Previous",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "from": "from",
+    "studyMode": "Study Mode",
+    "sessionDuration": "Session Duration",
+    "whatsNext": "What's Next?",
+    "continueStudying": "Continue Studying",
+    "moreCards": "more card",
+    "moreCards_plural": "more cards"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -173,8 +244,60 @@
   },
   "notifications": {
     "deckCreated": "Deck created successfully!",
+    "deckCreatedWithName": "\"{{deckName}}\" created successfully!",
     "cardAdded": "Card added successfully!",
+    "cardUpdated": "Card updated successfully!",
+    "cardDeleted": "Card deleted successfully!",
     "settingsSaved": "Settings saved successfully!",
-    "studySessionCompleted": "Study session completed!"
+    "studySessionCompleted": "Study session completed!",
+    "studySessionCompletedWithCount": "Study session complete! Reviewed {{count}} card.",
+    "studySessionCompletedWithCount_plural": "Study session complete! Reviewed {{count}} cards.",
+    "networkError": "Network error. Please check your connection and try again.",
+    "temporaryError": "Something went wrong. Please try again in a moment.",
+    "privacyCustomize": "Customize privacy settings from the profile menu."
+  },
+  "postSessionSummary": {
+    "title": "Study Session Complete! 🎉",
+    "subtitle": "Great job on completing your study session!",
+    "stats": {
+      "cardsReviewed": "Cards Reviewed",
+      "timeSpent": "Time Spent",
+      "sessionDuration": "{{minutes}}m {{seconds}}s"
+    },
+    "nextSteps": {
+      "title": "What's Next?",
+      "spacedRepetition": "Come back later to continue your spaced repetition schedule.",
+      "basicMode": "You can study this deck again anytime or try other decks."
+    },
+    "actions": {
+      "returnToDashboard": "Return to Dashboard",
+      "continueStudying": "Continue Studying"
+    }
+  },
+  "deckView": {
+    "title": "Manage Cards",
+    "backToDashboard": "Back to Dashboard",
+    "addCard": "Add Card",
+    "editCard": "Edit Card",
+    "deleteCard": "Delete Card",
+    "confirmDelete": "Are you sure you want to delete this card?",
+    "noCards": "No cards in this deck yet.",
+    "addFirstCard": "Add your first card to get started!"
+  },
+  "settings": {
+    "title": "Settings",
+    "close": "Close settings",
+    "tabs": {
+      "account": "Account",
+      "security": "Security"
+    },
+    "privacy": {
+      "title": "Privacy Settings",
+      "description": "Manage your privacy preferences and data collection settings."
+    },
+    "featureFlags": {
+      "title": "Feature Flags",
+      "description": "Enable or disable experimental features and development tools."
+    }
   }
 }

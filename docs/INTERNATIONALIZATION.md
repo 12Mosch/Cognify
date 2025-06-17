@@ -1,13 +1,22 @@
-# Internationalization (i18n) Setup
+# Internationalization (i18n) Implementation
 
-This document explains the internationalization setup for the Flashcard App using i18next and react-i18next.
+This document explains the comprehensive internationalization implementation for the Flashcard App using i18next and react-i18next.
 
 ## Overview
 
-The application supports multiple languages with automatic browser language detection and manual language switching. Currently supported languages:
+The application has been fully internationalized with support for multiple languages, automatic browser language detection, and manual language switching. All user-facing strings have been replaced with translation keys.
 
+**Currently supported languages:**
 - **English (en)** - Default/fallback language
 - **German (de)** - Secondary language
+
+**Internationalized Components:**
+- All form components (CreateDeckForm, QuickAddCardForm)
+- Study modes (BasicStudyMode, SpacedRepetitionMode, StudyModeSelector)
+- Dashboard and deck management (DeckView, PostSessionSummary)
+- Settings and modals (SettingsModal)
+- Toast notifications and error messages
+- All user-facing text throughout the application
 
 ## Architecture
 
@@ -23,15 +32,28 @@ The application supports multiple languages with automatic browser language dete
 src/
 ├── i18n.ts                           # i18n configuration
 ├── types/i18next.d.ts                # TypeScript type definitions
+├── test-utils.tsx                    # Test utilities with i18n support
 └── components/
-    └── LanguageSwitcher.tsx           # Language selection component
+    ├── LanguageSwitcher.tsx           # Language selection component
+    ├── CreateDeckForm.tsx             # ✅ Internationalized
+    ├── QuickAddCardForm.tsx           # ✅ Internationalized
+    ├── BasicStudyMode.tsx             # ✅ Internationalized
+    ├── SpacedRepetitionMode.tsx       # ✅ Internationalized
+    ├── StudyModeSelector.tsx          # ✅ Internationalized
+    ├── PostSessionSummary.tsx         # ✅ Internationalized
+    ├── DeckView.tsx                   # ✅ Internationalized
+    ├── SettingsModal.tsx              # ✅ Internationalized
+    └── ... (all components internationalized)
+
+src/lib/
+└── toast.ts                          # ✅ Internationalized toast messages
 
 public/
 └── locales/
     ├── en/
-    │   └── translation.json           # English translations
+    │   └── translation.json           # English translations (comprehensive)
     └── de/
-        └── translation.json           # German translations
+        └── translation.json           # German translations (comprehensive)
 ```
 
 ## Configuration
@@ -79,12 +101,13 @@ function MyComponent() {
 
 ### Translation Key Namespacing
 
-Translation keys follow a hierarchical structure:
+Translation keys follow a hierarchical structure organized by feature/component:
 
 ```json
 {
   "app": {
-    "title": "Flashcard App"
+    "title": "Flashcard App",
+    "goToMainDashboard": "Go to main dashboard"
   },
   "dashboard": {
     "title": "My Flashcard Decks",
@@ -92,7 +115,78 @@ Translation keys follow a hierarchical structure:
       "empty": "Create your first deck to get started",
       "withDecks": "{{count}} deck",
       "withDecks_plural": "{{count}} decks"
+    },
+    "buttons": {
+      "showStatistics": "Show Statistics",
+      "quickAddCard": "Quick Add Card",
+      "createDeck": "Create Deck"
     }
+  },
+  "forms": {
+    "createDeck": {
+      "title": "Create New Deck",
+      "name": "Deck Name",
+      "namePlaceholder": "Enter deck name",
+      "create": "Create Deck",
+      "creating": "Creating...",
+      "cancel": "Cancel"
+    },
+    "quickAddCard": {
+      "title": "Quick Add Card",
+      "front": "Front (Question)",
+      "back": "Back (Answer)",
+      "add": "Add Card",
+      "adding": "Adding...",
+      "updating": "Updating..."
+    },
+    "validation": {
+      "required": "This field is required",
+      "deckNameRequired": "Deck name is required",
+      "frontRequired": "Front content is required",
+      "backRequired": "Back content is required",
+      "maxLength": "{{field}} cannot exceed {{max}} characters"
+    }
+  },
+  "study": {
+    "flip": "Flip",
+    "next": "Next",
+    "showAnswer": "Show Answer",
+    "showFront": "Show Front",
+    "showBack": "Show Back",
+    "exitStudy": "Exit Study",
+    "spacedRepetitionMode": "Spaced Repetition Mode",
+    "cardProgress": "Card {{current}} of {{total}}",
+    "difficulty": {
+      "again": "Again",
+      "hard": "Hard",
+      "good": "Good",
+      "easy": "Easy"
+    },
+    "modeSelector": {
+      "title": "Choose Study Mode",
+      "subtitle": "How would you like to study {{deckName}}?",
+      "basicStudy": {
+        "title": "Basic Study",
+        "description": "Simple sequential review of all cards in the deck."
+      },
+      "spacedRepetition": {
+        "title": "Spaced Repetition",
+        "subtitle": "Recommended",
+        "description": "Intelligent scheduling based on the SM-2 algorithm."
+      }
+    }
+  },
+  "notifications": {
+    "deckCreated": "Deck created successfully!",
+    "deckCreatedWithName": "\"{{deckName}}\" created successfully!",
+    "cardAdded": "Card added successfully!",
+    "cardUpdated": "Card updated successfully!",
+    "cardDeleted": "Card deleted successfully!",
+    "studySessionCompleted": "Study session completed!",
+    "studySessionCompletedWithCount": "Study session complete! Reviewed {{count}} card.",
+    "studySessionCompletedWithCount_plural": "Study session complete! Reviewed {{count}} cards.",
+    "networkError": "Network error. Please check your connection and try again.",
+    "temporaryError": "Something went wrong. Please try again in a moment."
   }
 }
 ```
@@ -193,20 +287,53 @@ Different languages have different pluralization rules. i18next handles this aut
 
 ### Test Setup
 
-Tests mock the `useTranslation` hook to return English translations:
+The test utilities have been updated to include i18n support:
+
+```tsx
+// src/test-utils.tsx
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n';
+
+const AllTheProviders = ({ children }: AllTheProvidersProps) => {
+  return (
+    <I18nextProvider i18n={i18n}>
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+        <ConvexProvider client={mockConvexClient}>
+          {children}
+        </ConvexProvider>
+      </ClerkProvider>
+    </I18nextProvider>
+  );
+};
+```
+
+### Mock useTranslation Helper
+
+For unit tests that need to mock translations:
 
 ```ts
-jest.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, options?: any) => {
-      const translations = {
-        'app.title': 'Flashcard App',
-        // ... more translations
-      };
-      return translations[key] || key;
+// Available in test-utils.tsx
+export const mockUseTranslation = () => {
+  const mockT = jest.fn((key: string, options?: any) => {
+    // Simple mock that returns the key with interpolated values
+    if (options && typeof options === 'object') {
+      let result = key;
+      Object.keys(options).forEach(optionKey => {
+        result = result.replace(`{{${optionKey}}}`, String(options[optionKey]));
+      });
+      return result;
+    }
+    return key;
+  });
+
+  return {
+    t: mockT,
+    i18n: {
+      language: 'en',
+      changeLanguage: jest.fn(),
     },
-  }),
-}));
+  };
+};
 ```
 
 ### Testing Translations
@@ -246,12 +373,61 @@ If a translation key is missing:
 2. Check `src/types/i18next.d.ts` for proper type definitions
 3. Restart TypeScript server if types aren't updating
 
+## Implementation Status
+
+### ✅ Completed Components
+
+All major user-facing components have been internationalized:
+
+- **Forms**: CreateDeckForm, QuickAddCardForm with validation messages
+- **Study Modes**: BasicStudyMode, SpacedRepetitionMode, StudyModeSelector
+- **Dashboard**: DeckView, PostSessionSummary with statistics
+- **Settings**: SettingsModal with privacy and feature flag sections
+- **Toast Messages**: All success, error, and info notifications
+- **Error Handling**: Generic and specific error messages
+
+### 🔧 Toast Message Internationalization
+
+Toast messages now use i18n with helper functions:
+
+```ts
+// src/lib/toast.ts
+import i18n from '../i18n';
+
+export const toastHelpers = {
+  deckCreated: (deckName?: string) =>
+    showSuccessToast(deckName
+      ? i18n.t('notifications.deckCreatedWithName', { deckName })
+      : i18n.t('notifications.deckCreated')
+    ),
+
+  studySessionComplete: (cardsReviewed?: number) =>
+    showSuccessToast(cardsReviewed
+      ? i18n.t('notifications.studySessionCompletedWithCount', { count: cardsReviewed })
+      : i18n.t('notifications.studySessionCompleted')
+    ),
+};
+```
+
 ## Best Practices
 
 1. **Always use translation keys** - Never hardcode user-facing text
-2. **Test with longer languages** - German text is typically longer than English
-3. **Use semantic keys** - `dashboard.title` not `text1`
-4. **Group related translations** - Use hierarchical structure
-5. **Handle missing keys gracefully** - Provide fallbacks
-6. **Keep translations up to date** - Update all languages when adding new features
-7. **Consider RTL languages** - Plan for future right-to-left language support
+2. **Use namespaced keys** - Follow pattern `namespace.section.key` (e.g., 'forms.validation.required')
+3. **Use camelCase** - For translation keys and make them descriptive
+4. **Test with longer languages** - German text is typically 30% longer than English
+5. **Use semantic keys** - `dashboard.title` not `text1`
+6. **Group related translations** - Use hierarchical structure by feature/component
+7. **Handle missing keys gracefully** - Provide fallbacks and check console warnings
+8. **Keep translations up to date** - Update all languages when adding new features
+9. **Consider RTL languages** - Plan for future right-to-left language support
+10. **Preserve dynamic interpolation** - Ensure variables are properly interpolated in translations
+
+## Migration Notes
+
+When adding new user-facing text:
+
+1. **Add translation keys** to both `en/translation.json` and `de/translation.json`
+2. **Use useTranslation hook** in React components: `const { t } = useTranslation();`
+3. **Replace hardcoded strings** with `t('namespace.key')` calls
+4. **Test both languages** to ensure proper layout and functionality
+5. **Update tests** to work with translation keys instead of hardcoded text

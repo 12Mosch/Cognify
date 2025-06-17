@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useQuery } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
@@ -23,6 +24,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
   const [sessionStartTime, setSessionStartTime] = useState(0);
   const [flipStartTime, setFlipStartTime] = useState<number | null>(null);
 
+  const { t } = useTranslation();
   const deck = useQuery(api.decks.getDeckById, { deckId });
   const cards = useQuery(api.cards.getCardsForDeck, { deckId });
 
@@ -147,15 +149,15 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
       <div className="flex flex-col gap-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Deck Not Found</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('study.deckNotFound.title')}</h2>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              The deck you're looking for doesn't exist or you don't have access to it.
+              {t('study.deckNotFound.message')}
             </p>
             <button
               onClick={onExit}
               className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
             >
-              Back to Dashboard
+              {t('study.deckNotFound.backToDashboard')}
             </button>
           </div>
         </div>
@@ -195,9 +197,9 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold mb-2">No cards in this deck</h3>
+            <h3 className="text-xl font-semibold mb-2">{t('study.emptyDeck.title')}</h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              Add some flashcards to this deck before starting a study session.
+              {t('study.emptyDeck.message')}
             </p>
           </div>
         </div>
@@ -237,7 +239,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
         <div>
           <h1 className="text-3xl font-bold">{deck.name}</h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
-            Card {currentCardIndex + 1} of {cards.length}
+            {t('study.cardProgress', { current: currentCardIndex + 1, total: cards.length })}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -246,7 +248,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
             onClick={onExit}
             className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
           >
-            Exit Study Session
+            {t('study.exitStudySession')}
           </button>
         </div>
       </div>
@@ -273,7 +275,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
           <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
             {/* Content area with proper spacing */}
             <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
-              <h2 className="text-lg font-semibold mb-4 text-slate-600 dark:text-slate-400">Question</h2>
+              <h2 className="text-lg font-semibold mb-4 text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.front')}</h2>
               {/* Scrollable text content area */}
               <div className="flex-1 overflow-y-auto px-2 py-4" style={{ minHeight: 0 }}>
                 <p className="text-xl text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.front}</p>
@@ -292,7 +294,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
           <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
             {/* Content area with proper spacing */}
             <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
-              <h2 className="text-lg font-semibold mb-4 text-slate-600 dark:text-slate-400">Answer</h2>
+              <h2 className="text-lg font-semibold mb-4 text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.back')}</h2>
               {/* Scrollable text content area */}
               <div className="flex-1 overflow-y-auto px-2 py-4" style={{ minHeight: 0 }}>
                 <p className="text-xl text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.back}</p>
@@ -318,7 +320,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
           aria-label="Previous card (Press Left Arrow)"
         >
           <span className="flex items-center gap-2">
-            Previous
+            {t('study.previous')}
             <kbd className="px-1.5 py-0.5 text-xs bg-slate-300 dark:bg-slate-600 rounded border border-slate-400 dark:border-slate-500">←</kbd>
           </span>
         </button>
@@ -332,7 +334,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
           aria-label={currentCardIndex === cards.length - 1 ? "Finish study session" : "Next card (Press Right Arrow)"}
         >
           <span className="flex items-center gap-2">
-            {currentCardIndex === cards.length - 1 ? "Finish" : "Next"}
+            {currentCardIndex === cards.length - 1 ? t('study.session.completed') : t('study.next')}
             {currentCardIndex !== cards.length - 1 && (
               <kbd className="px-1.5 py-0.5 text-xs bg-slate-600 dark:bg-slate-300 bg-opacity-50 rounded border border-slate-400 dark:border-slate-500">→</kbd>
             )}

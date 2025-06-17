@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
@@ -43,6 +44,8 @@ function PostSessionSummary({
 }: PostSessionSummaryProps) {
   const [hasTrackedCompletion, setHasTrackedCompletion] = useState(false);
   const [hasRecordedSession, setHasRecordedSession] = useState(false);
+
+  const { t } = useTranslation();
 
   // Get study queue statistics for next session recommendations
   const studyQueueStats = useQuery(api.spacedRepetition.getStudyQueueStats, { deckId });
@@ -154,10 +157,10 @@ function PostSessionSummary({
           data-testid="session-complete-heading"
           tabIndex={-1}
         >
-          Session Complete!
+          {t('postSessionSummary.title')}
         </h1>
         <p className="text-slate-600 dark:text-slate-400">
-          You reviewed <span className="font-semibold text-slate-900 dark:text-slate-100">{cardsReviewed}</span> card{cardsReviewed === 1 ? '' : 's'} from{' '}
+          {t('postSessionSummary.subtitle')} <span className="font-semibold text-slate-900 dark:text-slate-100">{cardsReviewed}</span> {t('postSessionSummary.stats.cardsReviewed', { count: cardsReviewed })} {t('common.from')}{' '}
           <span className="font-semibold">{deckName}</span>
         </p>
       </div>
@@ -167,22 +170,22 @@ function PostSessionSummary({
         <div className="grid gap-4">
           {/* Cards Reviewed */}
           <div className="flex items-center justify-between">
-            <span className="text-slate-600 dark:text-slate-400">Cards Reviewed</span>
+            <span className="text-slate-600 dark:text-slate-400">{t('postSessionSummary.stats.cardsReviewed')}</span>
             <span className="font-semibold text-slate-900 dark:text-slate-100">{cardsReviewed}</span>
           </div>
-          
+
           {/* Study Mode */}
           <div className="flex items-center justify-between">
-            <span className="text-slate-600 dark:text-slate-400">Study Mode</span>
+            <span className="text-slate-600 dark:text-slate-400">{t('common.studyMode')}</span>
             <span className="font-semibold text-slate-900 dark:text-slate-100">
-              {studyMode === 'basic' ? 'Basic Study' : 'Spaced Repetition'}
+              {studyMode === 'basic' ? t('study.modeSelector.basicStudy.title') : t('study.modeSelector.spacedRepetition.title')}
             </span>
           </div>
 
           {/* Session Duration (if available) */}
           {sessionDuration && (
             <div className="flex items-center justify-between">
-              <span className="text-slate-600 dark:text-slate-400">Session Duration</span>
+              <span className="text-slate-600 dark:text-slate-400">{t('common.sessionDuration')}</span>
               <span className="font-semibold text-slate-900 dark:text-slate-100">
                 {formatDuration(sessionDuration)}
               </span>
@@ -210,7 +213,7 @@ function PostSessionSummary({
           </svg>
           <div>
             <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">
-              What's Next?
+              {t('common.whatsNext')}
             </h3>
             <p className="text-xs text-blue-700 dark:text-blue-300">
               {getNextStudyMessage()}
@@ -226,7 +229,7 @@ function PostSessionSummary({
           className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
           autoFocus
         >
-          Return to Dashboard
+          {t('postSessionSummary.actions.returnToDashboard')}
         </button>
         
         {/* Continue Studying Button (for spaced repetition with more cards available) */}
@@ -235,7 +238,7 @@ function PostSessionSummary({
             onClick={onContinueStudying}
             className="bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-medium py-3 px-6 rounded-lg border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
           >
-            Continue Studying ({studyQueueStats.dueCount} more cards)
+            {t('postSessionSummary.actions.continueStudying')} ({studyQueueStats.dueCount} {t('common.moreCards', { count: studyQueueStats.dueCount })})
           </button>
         )}
       </div>

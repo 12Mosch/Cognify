@@ -159,8 +159,8 @@ describe('SpacedRepetitionMode', () => {
       <SpacedRepetitionMode deckId={mockDeckId} onExit={mockOnExit} />
     );
 
-    expect(screen.getByText('Deck Not Found')).toBeInTheDocument();
-    expect(screen.getByText('Back to Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('study.deckNotFound.title')).toBeInTheDocument();
+    expect(screen.getByText('study.deckNotFound.backToDashboard')).toBeInTheDocument();
   });
 
   it('renders enhanced no cards state when there are no cards to study', () => {
@@ -183,10 +183,10 @@ describe('SpacedRepetitionMode', () => {
       <SpacedRepetitionMode deckId={mockDeckId} onExit={mockOnExit} />
     );
 
-    expect(screen.getByText('All Caught Up! 🎉')).toBeInTheDocument();
-    expect(screen.getByText(/You have no cards due for review right now/)).toBeInTheDocument();
-    expect(screen.getByText(/^Next review:/)).toBeInTheDocument();
-    expect(screen.getByText(/Come back then to continue your learning journey!/)).toBeInTheDocument();
+    expect(screen.getByText('study.allCaughtUp.title')).toBeInTheDocument();
+    expect(screen.getByText('study.allCaughtUp.noCardsMessage')).toBeInTheDocument();
+    expect(screen.getByText('study.session.nextReview')).toBeInTheDocument();
+    expect(screen.getByText('study.allCaughtUp.nextReviewMessage')).toBeInTheDocument();
   });
 
   it('renders enhanced no cards state with session statistics', () => {
@@ -209,8 +209,8 @@ describe('SpacedRepetitionMode', () => {
       <SpacedRepetitionMode deckId={mockDeckId} onExit={mockOnExit} />
     );
 
-    expect(screen.getByText('All Caught Up! 🎉')).toBeInTheDocument();
-    expect(screen.getByText(/Next review:/)).toBeInTheDocument(); // Just check for "Next review:" text
+    expect(screen.getByText('study.allCaughtUp.title')).toBeInTheDocument();
+    expect(screen.getByText('study.session.nextReview')).toBeInTheDocument();
   });
 
   it('renders no cards state for empty deck', () => {
@@ -233,9 +233,8 @@ describe('SpacedRepetitionMode', () => {
       <SpacedRepetitionMode deckId={mockDeckId} onExit={mockOnExit} />
     );
 
-    expect(screen.getByText('All Caught Up! 🎉')).toBeInTheDocument();
-    expect(screen.getByText(/This deck is empty/)).toBeInTheDocument();
-    expect(screen.getByText(/Add some cards to start your learning journey!/)).toBeInTheDocument();
+    expect(screen.getByText('study.allCaughtUp.title')).toBeInTheDocument();
+    expect(screen.getByText('study.allCaughtUp.emptyDeckMessage')).toBeInTheDocument();
   });
 
   it('renders study interface with cards', async () => {
@@ -259,7 +258,7 @@ describe('SpacedRepetitionMode', () => {
     });
 
     expect(screen.getByText('Spaced Repetition Mode')).toBeInTheDocument();
-    expect(screen.getByText('Question')).toBeInTheDocument();
+    expect(screen.getByText('Front (Question)')).toBeInTheDocument();
     expect(screen.getByText('What is the capital of France?')).toBeInTheDocument();
     expect(screen.getByText('Show Answer')).toBeInTheDocument();
   });
@@ -286,7 +285,7 @@ describe('SpacedRepetitionMode', () => {
 
     fireEvent.click(screen.getByText('Show Answer'));
 
-    expect(screen.getByText('Answer')).toBeInTheDocument();
+    expect(screen.getByText('Back (Answer)')).toBeInTheDocument();
     expect(screen.getByText('Paris')).toBeInTheDocument();
     expect(screen.getByText('How well did you know this?')).toBeInTheDocument();
     expect(screen.getByText('Again')).toBeInTheDocument();
@@ -466,7 +465,9 @@ describe('SpacedRepetitionMode', () => {
     fireEvent.click(screen.getByText('Show Answer'));
 
     await waitFor(() => {
-      expect(screen.getByText('Answer')).toBeInTheDocument();
+      // Look for the answer "4" in the card content, not the keyboard shortcut
+      const answerElement = screen.getByText('4', { selector: 'p' });
+      expect(answerElement).toBeInTheDocument();
     });
 
     // Press number key 3 for "Good" rating

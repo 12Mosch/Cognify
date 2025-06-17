@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import PrivacySettings from "./PrivacySettings";
 import FeatureFlagDemo from "./FeatureFlagDemo";
 
@@ -11,6 +12,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState<'account' | 'security'>('account');
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
+
+  const { t } = useTranslation();
 
   // Handle ESC key and focus management
   useEffect(() => {
@@ -110,12 +113,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             id="settings-modal-title"
             className="text-2xl font-bold text-slate-900 dark:text-slate-100"
           >
-            Settings
+            {t('settings.title')}
           </h2>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-            aria-label="Close settings"
+            aria-label={t('settings.close')}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -138,7 +141,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Account
+                {t('settings.tabs.account')}
               </button>
               <button
                 onClick={() => setActiveTab('security')}
@@ -151,7 +154,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                Security
+                {t('settings.tabs.security')}
               </button>
             </nav>
           </div>
@@ -162,10 +165,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               <div className="p-6">
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
-                    Privacy Settings
+                    {t('settings.privacy.title')}
                   </h3>
                   <p className="text-slate-600 dark:text-slate-400 mb-4">
-                    Manage your privacy preferences and data collection settings.
+                    {t('settings.privacy.description')}
                   </p>
                 </div>
                 <PrivacySettings isOpen={true} onClose={() => {}} embedded={true} />
@@ -176,10 +179,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               <div className="p-6">
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
-                    Feature Flags
+                    {t('settings.featureFlags.title')}
                   </h3>
                   <p className="text-slate-600 dark:text-slate-400 mb-4">
-                    Enable or disable experimental features and development tools.
+                    {t('settings.featureFlags.description')}
                   </p>
                 </div>
                 <FeatureFlagDemo />

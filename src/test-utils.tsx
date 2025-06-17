@@ -2,6 +2,8 @@ import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { ClerkProvider } from '@clerk/clerk-react';
+import { I18nextProvider } from 'react-i18next';
+import testI18n from './test-i18n';
 
 // Mock Convex client for testing
 const mockConvexClient = new ConvexReactClient('https://test.convex.cloud');
@@ -16,11 +18,13 @@ interface AllTheProvidersProps {
 // eslint-disable-next-line react-refresh/only-export-components
 const AllTheProviders = ({ children }: AllTheProvidersProps) => {
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
-      <ConvexProvider client={mockConvexClient}>
-        {children}
-      </ConvexProvider>
-    </ClerkProvider>
+    <I18nextProvider i18n={testI18n}>
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+        <ConvexProvider client={mockConvexClient}>
+          {children}
+        </ConvexProvider>
+      </ClerkProvider>
+    </I18nextProvider>
   );
 };
 
@@ -120,12 +124,37 @@ export const mockMatchMedia = (matches: boolean = false) => {
 // Helper to mock timers consistently
 export const setupMockTimers = () => {
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2024-01-15T12:00:00.000Z'));
+    jest.useFakeTimers({
+      now: new Date('2024-01-15T12:00:00.000Z'),
+      legacyFakeTimers: false
+    });
   });
 
   afterEach(() => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
+};
+
+// Mock useTranslation hook for testing
+export const mockUseTranslation = () => {
+  const mockT = jest.fn((key: string, options?: any) => {
+    // Simple mock that returns the key with interpolated values
+    if (options && typeof options === 'object') {
+      let result = key;
+      Object.keys(options).forEach(optionKey => {
+        result = result.replace(`{{${optionKey}}}`, String(options[optionKey]));
+      });
+      return result;
+    }
+    return key;
+  });
+
+  return {
+    t: mockT,
+    i18n: {
+      language: 'en',
+      changeLanguage: jest.fn(),
+    },
+  };
 };

@@ -35,7 +35,8 @@
     "dueCards": "{{count}} fällig",
     "newCards": "{{count}} neu",
     "manageCardsAria": "Karten in {{deckName}} Stapel verwalten",
-    "studyAria": "{{deckName}} Stapel lernen"
+    "studyAria": "{{deckName}} Stapel lernen",
+    "noDescription": "Keine Beschreibung"
   },
   "emptyState": {
     "title": "Noch keine Stapel",
@@ -47,6 +48,32 @@
     "next": "Weiter",
     "previous": "Zurück",
     "showAnswer": "Antwort zeigen",
+    "showFront": "Vorderseite zeigen",
+    "showBack": "Rückseite zeigen",
+    "exitStudySession": "Lernsitzung beenden",
+    "exitStudy": "Lernen beenden",
+    "spacedRepetitionMode": "Spaced-Repetition-Modus",
+    "cardProgress": "Karte {{current}} von {{total}}",
+    "deckNotFound": {
+      "title": "Stapel nicht gefunden",
+      "message": "Der gesuchte Stapel existiert nicht oder Sie haben keinen Zugriff darauf.",
+      "backToDashboard": "Zurück zum Dashboard"
+    },
+    "emptyDeck": {
+      "title": "Keine Karten in diesem Stapel",
+      "message": "Fügen Sie einige Karteikarten zu diesem Stapel hinzu, bevor Sie eine Lernsitzung starten.",
+      "addCards": "Karten zum Stapel hinzufügen"
+    },
+    "allCaughtUp": {
+      "title": "Alles erledigt! 🎉",
+      "sessionStats": "Großartige Arbeit! Sie haben {{count}} Karte in dieser Sitzung wiederholt.",
+      "sessionStats_plural": "Großartige Arbeit! Sie haben {{count}} Karten in dieser Sitzung wiederholt.",
+      "noCardsMessage": "Sie haben derzeit keine Karten zur Wiederholung. Ausgezeichnete Arbeit beim Einhalten Ihres Lernplans!",
+      "emptyDeckMessage": "Dieser Stapel ist leer. Fügen Sie einige Karten hinzu, um Ihre Lernreise zu beginnen!",
+      "nextReviewMessage": "Kommen Sie {{time}} für Ihre nächste Wiederholungssitzung zurück.",
+      "keepLearning": "Weiter so! Tägliches Üben ist der Schlüssel für langfristige Merkfähigkeit.",
+      "addCardsButton": "Karten zum Stapel hinzufügen"
+    },
     "difficulty": {
       "again": "Nochmal",
       "hard": "Schwer",
@@ -70,6 +97,34 @@
       "difficulty3": "Gut (3)",
       "difficulty4": "Einfach (4)",
       "help": "Tastenkürzel anzeigen"
+    },
+    "modeSelector": {
+      "title": "Lernmodus wählen",
+      "subtitle": "Wie möchten Sie {{deckName}} lernen?",
+      "basicStudy": {
+        "title": "Einfaches Lernen",
+        "description": "Einfache sequenzielle Wiederholung aller Karten im Stapel. Perfekt für das erste Lernen oder schnelle Wiederholungssitzungen.",
+        "features": {
+          "sequential": "Sequenzielle Reihenfolge",
+          "simple": "Einfache Oberfläche",
+          "quick": "Schnelle Wiederholung"
+        }
+      },
+      "spacedRepetition": {
+        "title": "Spaced Repetition",
+        "subtitle": "Empfohlen",
+        "description": "Intelligente Planung basierend auf dem SM-2-Algorithmus. Karten werden in optimalen Intervallen für langfristige Merkfähigkeit gezeigt.",
+        "features": {
+          "algorithm": "SM-2-Algorithmus",
+          "timing": "Optimales Timing",
+          "retention": "Langfristige Merkfähigkeit"
+        }
+      },
+      "cancel": "Abbrechen",
+      "info": {
+        "title": "Über Spaced Repetition",
+        "description": "Spaced Repetition ist eine Lerntechnik, die die Zeitintervalle zwischen aufeinanderfolgenden Wiederholungen von zuvor gelerntem Material vergrößert. Es ist wissenschaftlich erwiesen, dass sie die langfristige Merkfähigkeit verbessert und die Lernzeit reduziert."
+      }
     }
   },
   "forms": {
@@ -80,24 +135,33 @@
       "description": "Beschreibung (optional)",
       "descriptionPlaceholder": "Stapelbeschreibung eingeben",
       "create": "Stapel erstellen",
-      "cancel": "Abbrechen"
+      "creating": "Erstelle...",
+      "cancel": "Abbrechen",
+      "buttonLabel": "Neuen Stapel erstellen",
+      "characterCount": "{{current}}/{{max}} Zeichen"
     },
     "quickAddCard": {
       "title": "Karte schnell hinzufügen",
       "selectDeck": "Stapel auswählen",
       "selectDeckPlaceholder": "Einen Stapel wählen",
-      "front": "Vorderseite",
-      "frontPlaceholder": "Vorderseite der Karte eingeben",
-      "back": "Rückseite",
-      "backPlaceholder": "Rückseite der Karte eingeben",
+      "front": "Vorderseite (Frage)",
+      "frontPlaceholder": "Frage oder Aufforderung eingeben",
+      "back": "Rückseite (Antwort)",
+      "backPlaceholder": "Antwort oder Erklärung eingeben",
       "add": "Karte hinzufügen",
-      "cancel": "Abbrechen"
+      "adding": "Hinzufügen...",
+      "updating": "Aktualisieren...",
+      "cancel": "Abbrechen",
+      "buttonLabel": "Karte schnell hinzufügen",
+      "characterCount": "{{current}}/{{max}} Zeichen"
     },
     "validation": {
       "required": "Dieses Feld ist erforderlich",
       "deckNameRequired": "Stapelname ist erforderlich",
-      "frontRequired": "Vorderseite der Karte ist erforderlich",
-      "backRequired": "Rückseite der Karte ist erforderlich"
+      "frontRequired": "Vorderseite ist erforderlich",
+      "backRequired": "Rückseite ist erforderlich",
+      "selectDeckRequired": "Bitte wählen Sie einen Stapel aus",
+      "maxLength": "{{field}} darf nicht mehr als {{max}} Zeichen enthalten"
     }
   },
   "statistics": {
@@ -162,7 +226,14 @@
     "next": "Weiter",
     "previous": "Zurück",
     "yes": "Ja",
-    "no": "Nein"
+    "no": "Nein",
+    "from": "von",
+    "studyMode": "Lernmodus",
+    "sessionDuration": "Sitzungsdauer",
+    "whatsNext": "Was kommt als Nächstes?",
+    "continueStudying": "Weiterlernen",
+    "moreCards": "weitere Karte",
+    "moreCards_plural": "weitere Karten"
   },
   "errors": {
     "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
@@ -173,8 +244,60 @@
   },
   "notifications": {
     "deckCreated": "Stapel erfolgreich erstellt!",
+    "deckCreatedWithName": "\"{{deckName}}\" erfolgreich erstellt!",
     "cardAdded": "Karte erfolgreich hinzugefügt!",
+    "cardUpdated": "Karte erfolgreich aktualisiert!",
+    "cardDeleted": "Karte erfolgreich gelöscht!",
     "settingsSaved": "Einstellungen erfolgreich gespeichert!",
-    "studySessionCompleted": "Lernsitzung abgeschlossen!"
+    "studySessionCompleted": "Lernsitzung abgeschlossen!",
+    "studySessionCompletedWithCount": "Lernsitzung abgeschlossen! {{count}} Karte wiederholt.",
+    "studySessionCompletedWithCount_plural": "Lernsitzung abgeschlossen! {{count}} Karten wiederholt.",
+    "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "temporaryError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es in einem Moment erneut.",
+    "privacyCustomize": "Datenschutzeinstellungen über das Profilmenü anpassen."
+  },
+  "postSessionSummary": {
+    "title": "Lernsitzung abgeschlossen! 🎉",
+    "subtitle": "Großartige Arbeit beim Abschließen Ihrer Lernsitzung!",
+    "stats": {
+      "cardsReviewed": "Karten wiederholt",
+      "timeSpent": "Verbrachte Zeit",
+      "sessionDuration": "{{minutes}}m {{seconds}}s"
+    },
+    "nextSteps": {
+      "title": "Was kommt als Nächstes?",
+      "spacedRepetition": "Kommen Sie später zurück, um Ihren Spaced-Repetition-Plan fortzusetzen.",
+      "basicMode": "Sie können diesen Stapel jederzeit erneut lernen oder andere Stapel ausprobieren."
+    },
+    "actions": {
+      "returnToDashboard": "Zum Dashboard zurückkehren",
+      "continueStudying": "Weiterlernen"
+    }
+  },
+  "deckView": {
+    "title": "Karten verwalten",
+    "backToDashboard": "Zurück zum Dashboard",
+    "addCard": "Karte hinzufügen",
+    "editCard": "Karte bearbeiten",
+    "deleteCard": "Karte löschen",
+    "confirmDelete": "Sind Sie sicher, dass Sie diese Karte löschen möchten?",
+    "noCards": "Noch keine Karten in diesem Stapel.",
+    "addFirstCard": "Fügen Sie Ihre erste Karte hinzu, um zu beginnen!"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "close": "Einstellungen schließen",
+    "tabs": {
+      "account": "Konto",
+      "security": "Sicherheit"
+    },
+    "privacy": {
+      "title": "Datenschutzeinstellungen",
+      "description": "Verwalten Sie Ihre Datenschutzpräferenzen und Datenerfassungseinstellungen."
+    },
+    "featureFlags": {
+      "title": "Feature-Flags",
+      "description": "Aktivieren oder deaktivieren Sie experimentelle Funktionen und Entwicklungstools."
+    }
   }
 }

@@ -28,8 +28,7 @@ describe('StudyModeSelector', () => {
     );
 
     expect(screen.getByText('Choose Study Mode')).toBeInTheDocument();
-    expect(screen.getByText(/How would you like to study/)).toBeInTheDocument();
-    expect(screen.getByText('Test Deck')).toBeInTheDocument();
+    expect(screen.getByText('How would you like to study Test Deck?')).toBeInTheDocument();
     expect(screen.getByText('Basic Study')).toBeInTheDocument();
     expect(screen.getByText('Spaced Repetition')).toBeInTheDocument();
     expect(screen.getByText('Cancel')).toBeInTheDocument();
@@ -46,10 +45,10 @@ describe('StudyModeSelector', () => {
     );
 
     expect(screen.getByText('Basic Study')).toBeInTheDocument();
-    expect(screen.getByText(/Review all cards in sequence/)).toBeInTheDocument();
-    expect(screen.getByText('Sequential')).toBeInTheDocument();
-    expect(screen.getByText('All Cards')).toBeInTheDocument();
-    expect(screen.getByText('Quick Review')).toBeInTheDocument();
+    expect(screen.getByText('Simple sequential review of all cards in the deck.')).toBeInTheDocument();
+    expect(screen.getByText('Sequential Review')).toBeInTheDocument();
+    expect(screen.getByText('Simple Interface')).toBeInTheDocument();
+    expect(screen.getByText('Quick Setup')).toBeInTheDocument();
   });
 
   it('displays spaced repetition mode information', () => {
@@ -64,10 +63,10 @@ describe('StudyModeSelector', () => {
 
     expect(screen.getByText('Spaced Repetition')).toBeInTheDocument();
     expect(screen.getByText('Recommended')).toBeInTheDocument();
-    expect(screen.getByText(/Intelligent scheduling based on the SM-2 algorithm/)).toBeInTheDocument();
+    expect(screen.getByText('Intelligent scheduling based on the SM-2 algorithm.')).toBeInTheDocument();
     expect(screen.getByText('SM-2 Algorithm')).toBeInTheDocument();
     expect(screen.getByText('Optimal Timing')).toBeInTheDocument();
-    expect(screen.getByText('Long-term Retention')).toBeInTheDocument();
+    expect(screen.getByText('Better Retention')).toBeInTheDocument();
   });
 
   it('displays information about spaced repetition', () => {
@@ -80,8 +79,8 @@ describe('StudyModeSelector', () => {
       />
     );
 
-    expect(screen.getByText('About Spaced Repetition')).toBeInTheDocument();
-    expect(screen.getByText(/Spaced repetition is a learning technique/)).toBeInTheDocument();
+    expect(screen.getByText('What is Spaced Repetition?')).toBeInTheDocument();
+    expect(screen.getByText('Spaced repetition is a learning technique that involves reviewing information at increasing intervals to improve long-term retention.')).toBeInTheDocument();
   });
 
   it('calls onSelectMode with basic when basic study is clicked', () => {

@@ -134,7 +134,7 @@ describe('Toast Utilities', () => {
         toastHelpers.studySessionComplete(cardsReviewed);
 
         expect(mockedToastSuccess).toHaveBeenCalledWith(
-          `Study session complete! Reviewed ${cardsReviewed} cards.`,
+          `Study session complete! Reviewed ${cardsReviewed} card.`,
           expect.any(Object)
         );
       });

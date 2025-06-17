@@ -1,4 +1,5 @@
 import toast from 'react-hot-toast';
+import i18n from '../i18n';
 
 /**
  * Toast notification utilities for consistent user feedback
@@ -90,51 +91,55 @@ export function showInfoToast(message: string): void {
 }
 
 /**
- * Predefined success messages for common actions
+ * Get internationalized success messages for common actions
  */
-export const SUCCESS_MESSAGES = {
-  DECK_CREATED: 'Deck created successfully!',
-  CARD_CREATED: 'Card added successfully!',
-  CARD_UPDATED: 'Card updated successfully!',
-  STUDY_SESSION_COMPLETE: 'Study session completed!',
-} as const;
+export const getSuccessMessages = () => ({
+  DECK_CREATED: i18n.t('notifications.deckCreated'),
+  CARD_CREATED: i18n.t('notifications.cardAdded'),
+  CARD_UPDATED: i18n.t('notifications.cardUpdated'),
+  CARD_DELETED: i18n.t('notifications.cardDeleted'),
+  STUDY_SESSION_COMPLETE: i18n.t('notifications.studySessionCompleted'),
+} as const);
 
 /**
- * Predefined error messages for common failures
+ * Get internationalized error messages for common failures
  */
-export const ERROR_MESSAGES = {
-  NETWORK_ERROR: 'Network error. Please check your connection and try again.',
-  TEMPORARY_ERROR: 'Something went wrong. Please try again in a moment.',
-  DECK_CREATE_FAILED: 'Failed to create deck. Please try again.',
-  CARD_CREATE_FAILED: 'Failed to add card. Please try again.',
-  CARD_UPDATE_FAILED: 'Failed to update card. Please try again.',
-} as const;
+export const getErrorMessages = () => ({
+  NETWORK_ERROR: i18n.t('notifications.networkError'),
+  TEMPORARY_ERROR: i18n.t('notifications.temporaryError'),
+  DECK_CREATE_FAILED: i18n.t('errors.generic'),
+  CARD_CREATE_FAILED: i18n.t('errors.generic'),
+  CARD_UPDATE_FAILED: i18n.t('errors.generic'),
+} as const);
 
 /**
- * Convenience functions for common toast messages
+ * Convenience functions for common toast messages with internationalization
  */
 export const toastHelpers = {
   deckCreated: (deckName?: string) =>
-    showSuccessToast(deckName ? `"${deckName}" created successfully!` : SUCCESS_MESSAGES.DECK_CREATED),
+    showSuccessToast(deckName ? i18n.t('notifications.deckCreatedWithName', { deckName }) : getSuccessMessages().DECK_CREATED),
 
   cardCreated: () =>
-    showSuccessToast(SUCCESS_MESSAGES.CARD_CREATED),
+    showSuccessToast(getSuccessMessages().CARD_CREATED),
 
   cardUpdated: () =>
-    showSuccessToast(SUCCESS_MESSAGES.CARD_UPDATED),
+    showSuccessToast(getSuccessMessages().CARD_UPDATED),
+
+  cardDeleted: () =>
+    showSuccessToast(getSuccessMessages().CARD_DELETED),
 
   studySessionComplete: (cardsReviewed?: number) =>
     showSuccessToast(
       cardsReviewed
-        ? `Study session complete! Reviewed ${cardsReviewed} card${cardsReviewed === 1 ? '' : 's'}.`
-        : SUCCESS_MESSAGES.STUDY_SESSION_COMPLETE
+        ? i18n.t('notifications.studySessionCompletedWithCount', { count: cardsReviewed })
+        : getSuccessMessages().STUDY_SESSION_COMPLETE
     ),
 
   networkError: () =>
-    showErrorToast(ERROR_MESSAGES.NETWORK_ERROR),
+    showErrorToast(getErrorMessages().NETWORK_ERROR),
 
   temporaryError: () =>
-    showErrorToast(ERROR_MESSAGES.TEMPORARY_ERROR),
+    showErrorToast(getErrorMessages().TEMPORARY_ERROR),
 
   // Generic success and error methods for flexibility
   success: (message: string) =>

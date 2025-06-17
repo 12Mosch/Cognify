@@ -1,6 +1,9 @@
 // Jest DOM matchers
 import '@testing-library/jest-dom';
 
+// Initialize i18n for tests
+import './test-i18n';
+
 // Mock IntersectionObserver for components that use it
 global.IntersectionObserver = class IntersectionObserver {
   root = null;

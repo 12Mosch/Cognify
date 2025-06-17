@@ -113,11 +113,11 @@ describe('SettingsModal', () => {
     // Click Security tab
     const securityTab = screen.getByText('Security');
     fireEvent.click(securityTab);
-    
+
     // Should now show Feature Flags
     expect(screen.queryByTestId('privacy-settings')).not.toBeInTheDocument();
     expect(screen.getByTestId('feature-flag-demo')).toBeInTheDocument();
-    
+
     // Click Account tab again
     const accountTab = screen.getByText('Account');
     fireEvent.click(accountTab);

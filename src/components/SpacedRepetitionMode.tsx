@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import {
@@ -68,6 +69,8 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   const [sessionId] = useState<string>(() => `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`);
   const [_lastCardReviewTime, setLastCardReviewTime] = useState<number>(0);
   const [errorTracked, setErrorTracked] = useState<{deck?: boolean, studyQueue?: boolean}>({});
+
+  const { t } = useTranslation();
 
   // Fetch deck and study queue using Convex queries
   const deck = useQuery(api.decks.getDeckById, { deckId });
@@ -458,16 +461,16 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       <div className="flex flex-col gap-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Deck Not Found</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('study.deckNotFound.title')}</h2>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              The deck you're looking for doesn't exist or you don't have access to it.
+              {t('study.deckNotFound.message')}
             </p>
             <button
               onClick={onExit}
               className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
-              aria-label="Return to dashboard"
+              aria-label={t('study.deckNotFound.backToDashboard')}
             >
-              Back to Dashboard
+              {t('study.deckNotFound.backToDashboard')}
             </button>
           </div>
         </div>
@@ -481,16 +484,16 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       <div className="flex flex-col gap-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Unable to Load Study Queue</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('errors.generic')}</h2>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              There was an error loading your study queue. Please try again.
+              {t('errors.network')}
             </p>
             <button
               onClick={onExit}
               className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
-              aria-label="Return to dashboard"
+              aria-label={t('study.deckNotFound.backToDashboard')}
             >
-              Back to Dashboard
+              {t('study.deckNotFound.backToDashboard')}
             </button>
           </div>
         </div>
@@ -514,39 +517,39 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
           <button
             onClick={onExit}
             className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
-            aria-label="Exit spaced repetition mode"
+            aria-label={t('study.exitStudy')}
           >
-            Exit Study
+            {t('study.exitStudy')}
           </button>
         </div>
 
         {/* Enhanced "All Caught Up" message */}
         <div className="flex items-center justify-center py-12">
           <div className="text-center max-w-2xl">
-            <h2 className="text-2xl font-bold mb-4">All Caught Up! 🎉</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('study.allCaughtUp.title')}</h2>
 
             {/* Session statistics */}
             {sessionCardsReviewed > 0 && (
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6">
                 <p className="text-green-800 dark:text-green-200 font-medium">
-                  Great work! You've reviewed {sessionCardsReviewed} card{sessionCardsReviewed === 1 ? '' : 's'} in this session.
+                  {t('study.allCaughtUp.sessionStats', { count: sessionCardsReviewed })}
                 </p>
               </div>
             )}
 
             {/* Main encouragement message */}
             <p className="text-slate-600 dark:text-slate-400 mb-4 text-lg">
-              You have no cards due for review right now. Excellent job staying on track with your studies!
+              {t('study.allCaughtUp.noCardsMessage')}
             </p>
 
             {/* Next review information */}
             {hasNextReview && nextReviewTime ? (
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
                 <p className="text-blue-800 dark:text-blue-200">
-                  <span className="font-medium">Next review:</span> {nextReviewTime}
+                  <span className="font-medium">{t('study.session.nextReview', { time: nextReviewTime })}</span>
                 </p>
                 <p className="text-blue-600 dark:text-blue-300 text-sm mt-1">
-                  Come back then to continue your learning journey!
+                  {t('study.allCaughtUp.nextReviewMessage', { time: nextReviewTime })}
                 </p>
               </div>
             ) : totalCards > 0 ? (
@@ -561,7 +564,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
             ) : (
               <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-6">
                 <p className="text-slate-600 dark:text-slate-400">
-                  This deck is empty. Add some cards to start your learning journey!
+                  {t('study.allCaughtUp.emptyDeckMessage')}
                 </p>
               </div>
             )}
@@ -569,9 +572,9 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
             <button
               onClick={onExit}
               className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
-              aria-label="Return to dashboard"
+              aria-label={t('study.deckNotFound.backToDashboard')}
             >
-              Back to Dashboard
+              {t('study.deckNotFound.backToDashboard')}
             </button>
           </div>
         </div>
@@ -608,7 +611,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
         <div>
           <h1 className="text-3xl font-bold">{deck.name}</h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
-            Spaced Repetition Mode
+            {t('study.spacedRepetitionMode')}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -616,9 +619,9 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
           <button
             onClick={onExit}
             className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
-            aria-label="Exit spaced repetition mode"
+            aria-label={t('study.exitStudy')}
           >
-            Exit Study
+            {t('study.exitStudy')}
           </button>
         </div>
       </div>
@@ -637,7 +640,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
           <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
             {/* Content area with proper spacing */}
             <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
-              <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">Question</h2>
+              <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.front')}</h2>
               {/* Scrollable text content area */}
               <div className="flex-1 overflow-y-auto px-2 py-4" style={{ minHeight: 0 }}>
                 <p className="text-2xl leading-relaxed text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.front}</p>
@@ -652,9 +655,9 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
                   handleFlipCard();
                 }}
                 className="bg-dark dark:bg-light text-light dark:text-dark text-lg px-8 py-4 rounded-md border-2 hover:opacity-80 transition-opacity font-medium pointer-events-auto"
-                aria-label="Show answer"
+                aria-label={t('study.showAnswer')}
               >
-                Show Answer
+                {t('study.showAnswer')}
               </button>
               {/* Flip hint */}
               <div className="text-sm text-slate-500 dark:text-slate-400 mt-4 pointer-events-none">
@@ -667,7 +670,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
           <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
             {/* Content area with proper spacing */}
             <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
-              <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">Answer</h2>
+              <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.back')}</h2>
               {/* Scrollable text content area */}
               <div className="flex-1 overflow-y-auto px-2 py-2" style={{ minHeight: 0 }}>
                 <p className="text-2xl leading-relaxed text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.back}</p>
@@ -690,7 +693,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
                   aria-label="Again - I didn't know this at all (Press 1)"
                 >
                   <span className="flex items-center justify-between">
-                    Again
+                    {t('study.difficulty.again')}
                     <kbd className="ml-2 px-1.5 py-0.5 text-xs bg-red-600 bg-opacity-50 rounded border border-red-400">1</kbd>
                   </span>
                 </button>
@@ -703,7 +706,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
                   aria-label="Hard - I knew this with difficulty (Press 2)"
                 >
                   <span className="flex items-center justify-between">
-                    Hard
+                    {t('study.difficulty.hard')}
                     <kbd className="ml-2 px-1.5 py-0.5 text-xs bg-orange-600 bg-opacity-50 rounded border border-orange-400">2</kbd>
                   </span>
                 </button>
@@ -716,7 +719,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
                   aria-label="Good - I knew this well (Press 3)"
                 >
                   <span className="flex items-center justify-between">
-                    Good
+                    {t('study.difficulty.good')}
                     <kbd className="ml-2 px-1.5 py-0.5 text-xs bg-green-600 bg-opacity-50 rounded border border-green-400">3</kbd>
                   </span>
                 </button>
@@ -729,7 +732,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
                   aria-label="Easy - I knew this perfectly (Press 4)"
                 >
                   <span className="flex items-center justify-between">
-                    Easy
+                    {t('study.difficulty.easy')}
                     <kbd className="ml-2 px-1.5 py-0.5 text-xs bg-blue-600 bg-opacity-50 rounded border border-blue-400">4</kbd>
                   </span>
                 </button>

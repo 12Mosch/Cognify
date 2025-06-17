@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Id } from "../../convex/_generated/dataModel";
 
 interface StudyModeSelectorProps {
@@ -15,13 +16,15 @@ interface StudyModeSelectorProps {
  * - Spaced Repetition: Intelligent scheduling using SM-2 algorithm
  */
 function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onCancel }: StudyModeSelectorProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-8 max-w-2xl mx-auto">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold mb-2">Choose Study Mode</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('study.modeSelector.title')}</h1>
         <p className="text-slate-600 dark:text-slate-400">
-          How would you like to study <span className="font-semibold">{deckName}</span>?
+          {t('study.modeSelector.subtitle', { deckName })}
         </p>
       </div>
 
@@ -52,20 +55,20 @@ function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onCancel }
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
-                Basic Study
+                {t('study.modeSelector.basicStudy.title')}
               </h3>
               <p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
-                Review all cards in sequence. Perfect for quick reviews or when you want to go through the entire deck.
+                {t('study.modeSelector.basicStudy.description')}
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
-                  Sequential
+                  {t('study.modeSelector.basicStudy.features.sequential')}
                 </span>
                 <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
-                  All Cards
+                  {t('study.modeSelector.basicStudy.features.simple')}
                 </span>
                 <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
-                  Quick Review
+                  {t('study.modeSelector.basicStudy.features.quick')}
                 </span>
               </div>
             </div>
@@ -97,23 +100,23 @@ function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onCancel }
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
-                Spaced Repetition
+                {t('study.modeSelector.spacedRepetition.title')}
                 <span className="ml-2 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded">
-                  Recommended
+                  {t('study.modeSelector.spacedRepetition.subtitle')}
                 </span>
               </h3>
               <p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
-                Intelligent scheduling based on the SM-2 algorithm. Review cards just before you're likely to forget them for optimal long-term retention.
+                {t('study.modeSelector.spacedRepetition.description')}
               </p>
               <div className="flex flex-wrap gap-2">
                 <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded">
-                  SM-2 Algorithm
+                  {t('study.modeSelector.spacedRepetition.features.algorithm')}
                 </span>
                 <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded">
-                  Optimal Timing
+                  {t('study.modeSelector.spacedRepetition.features.timing')}
                 </span>
                 <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded">
-                  Long-term Retention
+                  {t('study.modeSelector.spacedRepetition.features.retention')}
                 </span>
               </div>
             </div>
@@ -127,7 +130,7 @@ function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onCancel }
           onClick={onCancel}
           className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-6 py-3 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity font-medium"
         >
-          Cancel
+          {t('study.modeSelector.cancel')}
         </button>
       </div>
 
@@ -150,11 +153,10 @@ function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onCancel }
           </svg>
           <div>
             <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">
-              About Spaced Repetition
+              {t('study.modeSelector.info.title')}
             </h4>
             <p className="text-xs text-blue-700 dark:text-blue-300">
-              Spaced repetition is a learning technique that increases intervals of time between subsequent review of previously learned material. 
-              It's scientifically proven to improve long-term retention and reduce study time.
+              {t('study.modeSelector.info.description')}
             </p>
           </div>
         </div>

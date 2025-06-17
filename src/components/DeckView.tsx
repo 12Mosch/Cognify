@@ -1,5 +1,6 @@
 import { useState, useEffect, memo } from "react";
 import { useQuery, useMutation } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { DeckViewSkeleton } from "./skeletons/SkeletonComponents";
@@ -26,6 +27,7 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
   const [editingCard, setEditingCard] = useState<Card | null>(null);
   const [errorTracked, setErrorTracked] = useState<{deck?: boolean, cards?: boolean}>({});
 
+  const { t } = useTranslation();
   const { user } = useUser();
   const { trackConvexQuery } = useErrorMonitoring();
 
@@ -72,15 +74,15 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
       <div className="flex flex-col gap-8 max-w-6xl mx-auto">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Deck Not Found</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('study.deckNotFound.title')}</h2>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              The deck you're looking for doesn't exist or you don't have access to it.
+              {t('study.deckNotFound.message')}
             </p>
             <button
               onClick={onBack}
               className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
             >
-              Back to Dashboard
+              {t('deckView.backToDashboard')}
             </button>
           </div>
         </div>
@@ -96,17 +98,17 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
           <button
             onClick={onBack}
             className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
-            aria-label="Back to dashboard"
+            aria-label={t('deckView.backToDashboard')}
           >
-            ← Back
+            ← {t('common.back')}
           </button>
           <div>
             <h1 className="text-3xl font-bold">{deck.name}</h1>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
-              {deck.description || "No description"}
+              {deck.description || t('deck.noDescription')}
             </p>
             <p className="text-sm text-slate-500 mt-1">
-              {cards.length} card{cards.length === 1 ? '' : 's'}
+              {t('deck.cardCount', { count: cards.length })}
             </p>
           </div>
         </div>
@@ -114,7 +116,7 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
           onClick={() => setShowAddForm(true)}
           className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
         >
-          + Add Card
+          + {t('deckView.addCard')}
         </button>
       </div>
 
@@ -161,13 +163,15 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
 }
 
 const EmptyState = memo(function EmptyState() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center justify-center py-16">
       <div className="text-center max-w-md">
         <div className="text-6xl mb-4">📚</div>
-        <h3 className="text-xl font-semibold mb-2">No Cards Yet</h3>
+        <h3 className="text-xl font-semibold mb-2">{t('deckView.noCards')}</h3>
         <p className="text-slate-600 dark:text-slate-400 mb-6">
-          Start building your deck by adding your first flashcard. Click the "Add Card" button above to get started.
+          {t('deckView.addFirstCard')}
         </p>
       </div>
     </div>
@@ -183,6 +187,7 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const { t } = useTranslation();
   const { user } = useUser();
   const { trackConvexMutation, captureError } = useErrorMonitoring();
   const deleteCard = useMutation(api.cards.deleteCard);
@@ -191,7 +196,7 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
     try {
       await deleteCard({ cardId: card._id });
       setShowDeleteConfirm(false);
-      showSuccessToast("Card deleted successfully!");
+      showSuccessToast(t('notifications.cardDeleted'));
     } catch (error) {
       console.error("Failed to delete card:", error);
 
@@ -204,7 +209,7 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
       });
 
       // Show error toast
-      showErrorToast("Failed to delete card. Please try again.");
+      showErrorToast(t('errors.generic'));
     }
   };
 
@@ -244,13 +249,13 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
           onKeyDown={handleKeyDown}
           tabIndex={0}
           role="button"
-          aria-label={isFlipped ? "Click to show front" : "Click to show back"}
+          aria-label={isFlipped ? t('study.showFront') : t('study.showBack')}
         >
           <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
             {/* Front side */}
             <div className="flashcard-side flashcard-front flex flex-col justify-center">
               <div className="text-xs text-slate-500 mb-2 uppercase tracking-wide pointer-events-none">
-                Front
+                {t('forms.quickAddCard.front')}
               </div>
               <div className="text-sm leading-relaxed pointer-events-none">
                 {card.front}
@@ -260,7 +265,7 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
             {/* Back side */}
             <div className="flashcard-side flashcard-back flex flex-col justify-center">
               <div className="text-xs text-slate-500 mb-2 uppercase tracking-wide pointer-events-none">
-                Back
+                {t('forms.quickAddCard.back')}
               </div>
               <div className="text-sm leading-relaxed pointer-events-none">
                 {card.back}
@@ -275,7 +280,7 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
             onClick={handleFlipCard}
             className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
           >
-            {isFlipped ? "Show Front" : "Show Back"}
+            {isFlipped ? t('study.showFront') : t('study.showBack')}
           </button>
           
           <div className="flex gap-2">
@@ -283,13 +288,13 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
               onClick={onEdit}
               className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
             >
-              Edit
+              {t('deckView.editCard')}
             </button>
             <button
               onClick={() => setShowDeleteConfirm(true)}
               className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 transition-colors"
             >
-              Delete
+              {t('deckView.deleteCard')}
             </button>
           </div>
         </div>
@@ -299,22 +304,22 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-light dark:bg-dark p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 max-w-sm mx-4">
-            <h3 className="text-lg font-semibold mb-4">Delete Card?</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('deckView.deleteCard')}?</h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              Are you sure you want to delete this card? This action cannot be undone.
+              {t('deckView.confirmDelete')}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 className="flex-1 bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={() => void handleDelete()}
                 className="flex-1 bg-red-600 text-white text-sm px-4 py-2 rounded-md border-2 border-red-600 hover:opacity-80 transition-opacity"
               >
-                Delete
+                {t('common.delete')}
               </button>
             </div>
           </div>
@@ -337,6 +342,7 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [submissionAttempt, setSubmissionAttempt] = useState(0);
 
+  const { t } = useTranslation();
   const { user } = useUser();
   const posthog = usePostHog();
   const { trackConvexMutation, captureError } = useErrorMonitoring();
@@ -354,19 +360,19 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
     const validationErrors: Record<string, string[]> = {};
 
     if (!front.trim()) {
-      validationErrors.front = ["Front content is required"];
+      validationErrors.front = [t('forms.validation.frontRequired')];
     }
 
     if (!back.trim()) {
-      validationErrors.back = ["Back content is required"];
+      validationErrors.back = [t('forms.validation.backRequired')];
     }
 
     if (front.length > 1000) {
-      validationErrors.front = [...(validationErrors.front || []), "Front content cannot exceed 1000 characters"];
+      validationErrors.front = [...(validationErrors.front || []), t('forms.validation.maxLength', { field: t('forms.quickAddCard.front'), max: 1000 })];
     }
 
     if (back.length > 1000) {
-      validationErrors.back = [...(validationErrors.back || []), "Back content cannot exceed 1000 characters"];
+      validationErrors.back = [...(validationErrors.back || []), t('forms.validation.maxLength', { field: t('forms.quickAddCard.back'), max: 1000 })];
     }
 
     // Track validation errors if any
@@ -418,7 +424,7 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
         setSubmissionAttempt(0);
         onSuccess();
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to add card";
+        const errorMessage = err instanceof Error ? err.message : t('errors.generic');
         setError(errorMessage);
 
         // Capture general form submission error
@@ -447,44 +453,44 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 
   return (
     <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-      <h3 className="text-lg font-bold mb-4">Add New Card</h3>
+      <h3 className="text-lg font-bold mb-4">{t('deckView.addCard')}</h3>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="card-front" className="block text-sm font-medium mb-2">
-            Front (Question/Prompt) *
+            {t('forms.quickAddCard.front')} *
           </label>
           <textarea
             id="card-front"
             value={front}
             onChange={(e) => setFront(e.target.value)}
-            placeholder="Enter the front side of the card"
+            placeholder={t('forms.quickAddCard.frontPlaceholder')}
             className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-vertical"
             rows={3}
             maxLength={1000}
             required
           />
           <div className="text-xs text-slate-500 mt-1">
-            {front.length}/1000 characters
+            {t('forms.quickAddCard.characterCount', { current: front.length, max: 1000 })}
           </div>
         </div>
 
         <div>
           <label htmlFor="card-back" className="block text-sm font-medium mb-2">
-            Back (Answer) *
+            {t('forms.quickAddCard.back')} *
           </label>
           <textarea
             id="card-back"
             value={back}
             onChange={(e) => setBack(e.target.value)}
-            placeholder="Enter the back side of the card"
+            placeholder={t('forms.quickAddCard.backPlaceholder')}
             className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-vertical"
             rows={3}
             maxLength={1000}
             required
           />
           <div className="text-xs text-slate-500 mt-1">
-            {back.length}/1000 characters
+            {t('forms.quickAddCard.characterCount', { current: back.length, max: 1000 })}
           </div>
         </div>
 
@@ -500,14 +506,14 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
             disabled={isSubmitting || !front.trim() || !back.trim()}
             className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
-            {isSubmitting ? "Adding..." : "Add Card"}
+            {isSubmitting ? t('forms.quickAddCard.adding') : t('forms.quickAddCard.add')}
           </button>
           <button
             type="button"
             onClick={onCancel}
             className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
         </div>
       </form>
@@ -528,6 +534,7 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [submissionAttempt, setSubmissionAttempt] = useState(0);
 
+  const { t } = useTranslation();
   const { user } = useUser();
   const posthog = usePostHog();
   const { trackConvexMutation, captureError } = useErrorMonitoring();
@@ -545,19 +552,19 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
     const validationErrors: Record<string, string[]> = {};
 
     if (!front.trim()) {
-      validationErrors.front = ["Front content is required"];
+      validationErrors.front = [t('forms.validation.frontRequired')];
     }
 
     if (!back.trim()) {
-      validationErrors.back = ["Back content is required"];
+      validationErrors.back = [t('forms.validation.backRequired')];
     }
 
     if (front.length > 1000) {
-      validationErrors.front = [...(validationErrors.front || []), "Front content cannot exceed 1000 characters"];
+      validationErrors.front = [...(validationErrors.front || []), t('forms.validation.maxLength', { field: t('forms.quickAddCard.front'), max: 1000 })];
     }
 
     if (back.length > 1000) {
-      validationErrors.back = [...(validationErrors.back || []), "Back content cannot exceed 1000 characters"];
+      validationErrors.back = [...(validationErrors.back || []), t('forms.validation.maxLength', { field: t('forms.quickAddCard.back'), max: 1000 })];
     }
 
     // Track validation errors if any
@@ -608,7 +615,7 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
         setSubmissionAttempt(0);
         onSuccess();
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to update card";
+        const errorMessage = err instanceof Error ? err.message : t('errors.generic');
         setError(errorMessage);
 
         // Capture general form submission error
@@ -638,12 +645,12 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 
   return (
     <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-      <h3 className="text-lg font-bold mb-4">Edit Card</h3>
+      <h3 className="text-lg font-bold mb-4">{t('deckView.editCard')}</h3>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="edit-card-front" className="block text-sm font-medium mb-2">
-            Front (Question/Prompt) *
+            {t('forms.quickAddCard.front')} *
           </label>
           <textarea
             id="edit-card-front"
@@ -655,13 +662,13 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
             required
           />
           <div className="text-xs text-slate-500 mt-1">
-            {front.length}/1000 characters
+            {t('forms.quickAddCard.characterCount', { current: front.length, max: 1000 })}
           </div>
         </div>
 
         <div>
           <label htmlFor="edit-card-back" className="block text-sm font-medium mb-2">
-            Back (Answer) *
+            {t('forms.quickAddCard.back')} *
           </label>
           <textarea
             id="edit-card-back"
@@ -673,7 +680,7 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
             required
           />
           <div className="text-xs text-slate-500 mt-1">
-            {back.length}/1000 characters
+            {t('forms.quickAddCard.characterCount', { current: back.length, max: 1000 })}
           </div>
         </div>
 
@@ -689,14 +696,14 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
             disabled={isSubmitting || !front.trim() || !back.trim()}
             className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
-            {isSubmitting ? "Updating..." : "Update Card"}
+            {isSubmitting ? t('forms.quickAddCard.updating') : t('deckView.editCard')}
           </button>
           <button
             type="button"
             onClick={onCancel}
             className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
         </div>
       </form>

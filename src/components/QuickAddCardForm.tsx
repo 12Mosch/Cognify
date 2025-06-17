@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
@@ -26,6 +27,7 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
   const [showForm, setShowForm] = useState(false);
   const [submissionAttempt, setSubmissionAttempt] = useState(0);
 
+  const { t } = useTranslation();
   const { user } = useUser();
   const posthog = usePostHog();
   const decks = useQuery(api.decks.getDecksForUser);
@@ -72,23 +74,23 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
     const validationErrors: Record<string, string[]> = {};
 
     if (!selectedDeckId) {
-      validationErrors.deckId = ["Please select a deck"];
+      validationErrors.deckId = [t('forms.validation.selectDeckRequired')];
     }
 
     if (!front.trim()) {
-      validationErrors.front = ["Front content is required"];
+      validationErrors.front = [t('forms.validation.frontRequired')];
     }
 
     if (!back.trim()) {
-      validationErrors.back = ["Back content is required"];
+      validationErrors.back = [t('forms.validation.backRequired')];
     }
 
     if (front.length > 1000) {
-      validationErrors.front = [...(validationErrors.front || []), "Front content cannot exceed 1000 characters"];
+      validationErrors.front = [...(validationErrors.front || []), t('forms.validation.maxLength', { field: t('forms.quickAddCard.front'), max: 1000 })];
     }
 
     if (back.length > 1000) {
-      validationErrors.back = [...(validationErrors.back || []), "Back content cannot exceed 1000 characters"];
+      validationErrors.back = [...(validationErrors.back || []), t('forms.validation.maxLength', { field: t('forms.quickAddCard.back'), max: 1000 })];
     }
 
     // Track validation errors if any
@@ -155,7 +157,7 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
         // Call success callback
         onSuccess?.();
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to add card";
+        const errorMessage = err instanceof Error ? err.message : t('errors.generic');
         setError(errorMessage);
 
         // Capture general form submission error
@@ -181,7 +183,7 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
 
         // Show error toast for all failures
         // Let the user see the specific error in the inline error display
-        showErrorToast("Failed to add card. Please try again.");
+        showErrorToast(t('errors.generic'));
       } finally {
         setIsSubmitting(false);
 
@@ -223,9 +225,9 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
           setShowForm(true);
         }}
         className="bg-slate-600 dark:bg-slate-400 text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
-        aria-label="Quick add card to existing deck"
+        aria-label={t('forms.quickAddCard.buttonLabel')}
       >
-        + Quick Add Card
+        + {t('forms.quickAddCard.add')}
       </button>
     );
   }
@@ -249,16 +251,16 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
             aria-labelledby="quick-add-card-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="quick-add-card-title" className="text-lg font-bold mb-4">Quick Add Card</h3>
+            <h3 id="quick-add-card-title" className="text-lg font-bold mb-4">{t('forms.quickAddCard.title')}</h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
         {/* Deck Selection */}
         <div>
-          <label 
-            htmlFor="deck-select" 
+          <label
+            htmlFor="deck-select"
             className="block text-sm font-medium mb-2"
           >
-            Select Deck *
+            {t('forms.quickAddCard.selectDeck')} *
           </label>
           <select
             ref={firstSelectRef}
@@ -269,7 +271,7 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
             required
             aria-describedby={error ? "form-error" : undefined}
           >
-            <option value="">Choose a deck...</option>
+            <option value="">{t('forms.quickAddCard.selectDeckPlaceholder')}</option>
             {decks.map((deck) => (
               <option key={deck._id} value={deck._id}>
                 {deck.name}
@@ -280,17 +282,17 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
 
         {/* Card Front */}
         <div>
-          <label 
-            htmlFor="card-front" 
+          <label
+            htmlFor="card-front"
             className="block text-sm font-medium mb-2"
           >
-            Front (Question) *
+            {t('forms.quickAddCard.front')} *
           </label>
           <textarea
             id="card-front"
             value={front}
             onChange={(e) => setFront(e.target.value)}
-            placeholder="Enter the question or prompt"
+            placeholder={t('forms.quickAddCard.frontPlaceholder')}
             className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-none"
             rows={3}
             maxLength={1000}
@@ -298,23 +300,23 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
             aria-describedby={error ? "form-error" : undefined}
           />
           <div className="text-xs text-slate-500 mt-1">
-            {front.length}/1000 characters
+            {t('forms.quickAddCard.characterCount', { current: front.length, max: 1000 })}
           </div>
         </div>
 
         {/* Card Back */}
         <div>
-          <label 
-            htmlFor="card-back" 
+          <label
+            htmlFor="card-back"
             className="block text-sm font-medium mb-2"
           >
-            Back (Answer) *
+            {t('forms.quickAddCard.back')} *
           </label>
           <textarea
             id="card-back"
             value={back}
             onChange={(e) => setBack(e.target.value)}
-            placeholder="Enter the answer or explanation"
+            placeholder={t('forms.quickAddCard.backPlaceholder')}
             className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-none"
             rows={3}
             maxLength={1000}
@@ -322,7 +324,7 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
             aria-describedby={error ? "form-error" : undefined}
           />
           <div className="text-xs text-slate-500 mt-1">
-            {back.length}/1000 characters
+            {t('forms.quickAddCard.characterCount', { current: back.length, max: 1000 })}
           </div>
         </div>
 
@@ -343,14 +345,14 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
             disabled={isSubmitting || !selectedDeckId || !front.trim() || !back.trim()}
             className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
-            {isSubmitting ? "Adding..." : "Add Card"}
+            {isSubmitting ? t('forms.quickAddCard.adding') : t('forms.quickAddCard.add')}
           </button>
           <button
             type="button"
             onClick={handleCancel}
             className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
           >
-            Cancel
+            {t('forms.quickAddCard.cancel')}
           </button>
             </div>
             </form>
