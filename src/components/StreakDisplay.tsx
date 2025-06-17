@@ -57,10 +57,10 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
       return {
         title: t('streak.display.status.buildingMomentum.title'),
         message: t('streak.display.status.buildingMomentum.message'),
-        bgColor: "from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20",
-        borderColor: "border-green-200 dark:border-green-800",
-        textColor: "text-green-600 dark:text-green-400",
-        streakColor: "text-green-800 dark:text-green-200",
+        bgColor: "from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20",
+        borderColor: "border-blue-200 dark:border-blue-800",
+        textColor: "text-blue-600 dark:text-blue-400",
+        streakColor: "text-blue-800 dark:text-blue-200",
       };
     } else if (currentStreak < 30) {
       return {
@@ -113,7 +113,7 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
           {t('streak.display.title')}
         </h3>
         {lastMilestone && (
-          <div className="flex items-center gap-1 text-xs font-medium px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-full">
+          <div className="flex items-center gap-1 text-xs font-medium px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 rounded-full">
             🏅 {t('streak.display.milestoneAchieved', { count: lastMilestone })}
           </div>
         )}

@@ -47,13 +47,13 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
     if (isSelected) {
       return '#60a5fa'; // Blue for selected
     }
-    
+
     if (masteryPercentage >= 80) {
-      return '#22c55e'; // Green for excellent
+      return '#06b6d4'; // Cyan for excellent
     } else if (masteryPercentage >= 60) {
-      return '#eab308'; // Yellow for good
+      return '#14b8a6'; // Teal for good
     } else if (masteryPercentage >= 40) {
-      return '#f97316'; // Orange for fair
+      return '#f59e0b'; // Amber for fair
     } else {
       return '#ef4444'; // Red for needs work
     }

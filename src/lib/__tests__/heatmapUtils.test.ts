@@ -38,10 +38,10 @@ describe('heatmapUtils', () => {
   describe('getActivityLevelClasses', () => {
     it('returns correct CSS classes for each activity level', () => {
       expect(getActivityLevelClasses(0)).toContain('bg-slate-100 dark:bg-slate-800');
-      expect(getActivityLevelClasses(1)).toContain('bg-green-200 dark:bg-green-900/40');
-      expect(getActivityLevelClasses(2)).toContain('bg-green-300 dark:bg-green-800/60');
-      expect(getActivityLevelClasses(3)).toContain('bg-green-400 dark:bg-green-700/80');
-      expect(getActivityLevelClasses(4)).toContain('bg-green-500 dark:bg-green-600');
+      expect(getActivityLevelClasses(1)).toContain('bg-blue-200 dark:bg-blue-900/40');
+      expect(getActivityLevelClasses(2)).toContain('bg-blue-300 dark:bg-blue-800/60');
+      expect(getActivityLevelClasses(3)).toContain('bg-blue-400 dark:bg-blue-700/80');
+      expect(getActivityLevelClasses(4)).toContain('bg-blue-500 dark:bg-blue-600');
     });
   });
 

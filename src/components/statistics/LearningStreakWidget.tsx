@@ -33,10 +33,10 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
 
   const getStreakColor = (streak: number) => {
     if (streak === 0) return "text-slate-400";
-    if (streak < 7) return "text-orange-500";
-    if (streak < 30) return "text-red-500";
-    if (streak < 100) return "text-purple-500";
-    return "text-yellow-500";
+    if (streak < 7) return "text-blue-500";
+    if (streak < 30) return "text-cyan-500";
+    if (streak < 100) return "text-teal-500";
+    return "text-amber-500";
   };
 
   const getStreakIcon = (streak: number) => {

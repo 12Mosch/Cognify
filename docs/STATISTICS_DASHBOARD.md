@@ -53,7 +53,7 @@ While we initially attempted to use Convex's `FunctionReturnType` utility for au
 ## Features
 
 ### 📊 **Visual Design**
-- **Dark Theme**: Sophisticated color palette with glowing blue (#00d4ff/#0ea5e9) and green (#10b981/#22c55e) accents
+- **Dark Theme**: Sophisticated color palette with cohesive blue-cyan gradient system (#3b82f6/#06b6d4) and warm amber accents (#f59e0b)
 - **Modern UI**: Clean, minimalist interface following current UI/UX best practices
 - **Responsive Layout**: Grid-based design that works seamlessly on desktop and mobile
 - **Smooth Animations**: Micro-interactions and transitions for enhanced user experience

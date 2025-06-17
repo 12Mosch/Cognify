@@ -223,13 +223,13 @@ export function getActivityLevelClasses(level: 0 | 1 | 2 | 3 | 4): string {
     case 0:
       return 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700';
     case 1:
-      return 'bg-green-200 dark:bg-green-900/40 border-green-300 dark:border-green-800';
+      return 'bg-blue-200 dark:bg-blue-900/40 border-blue-300 dark:border-blue-800';
     case 2:
-      return 'bg-green-300 dark:bg-green-800/60 border-green-400 dark:border-green-700';
+      return 'bg-blue-300 dark:bg-blue-800/60 border-blue-400 dark:border-blue-700';
     case 3:
-      return 'bg-green-400 dark:bg-green-700/80 border-green-500 dark:border-green-600';
+      return 'bg-blue-400 dark:bg-blue-700/80 border-blue-500 dark:border-blue-600';
     case 4:
-      return 'bg-green-500 dark:bg-green-600 border-green-600 dark:border-green-500';
+      return 'bg-blue-500 dark:bg-blue-600 border-blue-600 dark:border-blue-500';
     default:
       return 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700';
   }

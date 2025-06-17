@@ -9,7 +9,7 @@ The Study History Heatmap provides a GitHub-style contribution graph visualizati
 ### 📊 **Visual Design**
 - **GitHub-Style Grid**: 365-day contribution graph with weekly columns
 - **Activity Levels**: 5-level color intensity system (0-4) based on cards studied
-- **Dark Theme**: Consistent with app styling using green activity indicators
+- **Dark Theme**: Consistent with app styling using cohesive blue activity indicators
 - **Month Labels**: Positioned above grid columns for easy date reference
 - **Day Labels**: Vertical labels (M, T, W, T, F, S, S) on the left side
 - **Responsive Design**: Horizontal scrolling on mobile, full grid on desktop

@@ -96,7 +96,7 @@ describe('StudyHistoryHeatmap', () => {
     mockGetDayLabels.mockReturnValue(['S', 'M', 'T', 'W', 'T', 'F', 'S']);
     mockGenerateHeatmapGrid.mockReturnValue(mockHeatmapData);
     mockCalculateHeatmapStats.mockReturnValue(mockStats);
-    mockGetActivityLevelClasses.mockReturnValue('bg-green-300 border-green-400');
+    mockGetActivityLevelClasses.mockReturnValue('bg-blue-300 border-blue-400');
     mockFormatTooltipContent.mockReturnValue('5 cards studied on Mon, Jan 15, 2024');
   });
 

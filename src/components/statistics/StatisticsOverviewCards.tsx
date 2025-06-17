@@ -69,7 +69,7 @@ export const StatisticsOverviewCards = memo(function StatisticsOverviewCards({
       value: spacedRepetitionInsights.cardsToReviewToday,
       subtitle: t('statistics.cards.cardsToReview'),
       icon: "⏰",
-      color: spacedRepetitionInsights.cardsToReviewToday > 0 ? "orange" : "green",
+      color: spacedRepetitionInsights.cardsToReviewToday > 0 ? "orange" : "teal",
       trend: null,
     },
     {
@@ -77,7 +77,7 @@ export const StatisticsOverviewCards = memo(function StatisticsOverviewCards({
       value: userStats.currentStreak,
       subtitle: t('statistics.cards.bestDays', { count: userStats.longestStreak }),
       icon: "🔥",
-      color: userStats.currentStreak > 0 ? "green" : "gray",
+      color: userStats.currentStreak > 0 ? "blue" : "gray",
       trend: null,
     },
     {
@@ -163,10 +163,10 @@ const StatisticsCard = memo(function StatisticsCard({
         };
       case 'green':
         return {
-          bg: 'bg-green-500/10 dark:bg-green-400/10',
-          border: 'border-green-200 dark:border-green-800',
-          text: 'text-green-600 dark:text-green-400',
-          glow: 'shadow-green-500/20 dark:shadow-green-400/20',
+          bg: 'bg-teal-500/10 dark:bg-teal-400/10',
+          border: 'border-teal-200 dark:border-teal-800',
+          text: 'text-teal-600 dark:text-teal-400',
+          glow: 'shadow-teal-500/20 dark:shadow-teal-400/20',
         };
       case 'orange':
         return {

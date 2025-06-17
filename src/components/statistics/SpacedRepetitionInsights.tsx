@@ -36,9 +36,9 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
 
   const getRetentionColor = (rate?: number) => {
     if (!rate) return "text-slate-400";
-    if (rate >= 90) return "text-green-500";
-    if (rate >= 80) return "text-blue-500";
-    if (rate >= 70) return "text-yellow-500";
+    if (rate >= 90) return "text-blue-500";
+    if (rate >= 80) return "text-cyan-500";
+    if (rate >= 70) return "text-amber-500";
     return "text-red-500";
   };
 

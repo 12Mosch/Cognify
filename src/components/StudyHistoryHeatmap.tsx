@@ -14,10 +14,10 @@ import { HeatmapSkeleton } from './skeletons/SkeletonComponents';
 
 /**
  * Study History Heatmap Component
- * 
+ *
  * Displays user study activity in a GitHub-style contribution graph format
  * showing the last 365 days of study activity with:
- * - Dark theme with green activity indicators
+ * - Dark theme with cohesive blue activity indicators
  * - Month and day labels
  * - Hover tooltips with detailed information
  * - Activity level color coding
