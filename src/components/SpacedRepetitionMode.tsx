@@ -66,7 +66,14 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   const [sessionStartTime, setSessionStartTime] = useState<number>(0);
   const [cardsReviewed, setCardsReviewed] = useState<number>(0);
   const [flipStartTime, setFlipStartTime] = useState<number | null>(null);
-  const [sessionId] = useState<string>(() => `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`);
+  const [sessionId] = useState<string>(() => {
+    // Generate cryptographically secure random session ID
+    const timestamp = Date.now();
+    const randomBytes = new Uint8Array(8);
+    crypto.getRandomValues(randomBytes);
+    const randomString = Array.from(randomBytes, byte => byte.toString(36)).join('').substring(0, 11);
+    return `session_${timestamp}_${randomString}`;
+  });
   const [_lastCardReviewTime, setLastCardReviewTime] = useState<number>(0);
   const [errorTracked, setErrorTracked] = useState<{deck?: boolean, studyQueue?: boolean}>({});
 
