@@ -224,7 +224,7 @@ export function QuickAddCardForm({ onSuccess, onCancel }: QuickAddCardFormProps)
           storeTriggerElement();
           setShowForm(true);
         }}
-        className="bg-slate-600 dark:bg-slate-400 text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
+        className="border-2 border-slate-400 dark:border-slate-500 text-slate-700 dark:text-slate-300 hover:border-slate-600 dark:hover:border-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 px-6 py-3 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
         aria-label={t('forms.quickAddCard.buttonLabel')}
       >
         + {t('forms.quickAddCard.add')}
