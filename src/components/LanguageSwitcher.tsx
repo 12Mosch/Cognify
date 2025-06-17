@@ -14,7 +14,9 @@ export default function LanguageSwitcher({ className = '' }: LanguageSwitcherPro
   const { i18n, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
-  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
+  // Normalize language code to handle region codes like "en-US" -> "en"
+  const langCode = i18n.resolvedLanguage?.split('-')[0] ?? 'en';
+  const currentLanguage = languages.find(l => l.code === langCode) || languages[0];
 
   const handleLanguageChange = async (languageCode: string) => {
     try {
@@ -63,7 +65,7 @@ export default function LanguageSwitcher({ className = '' }: LanguageSwitcherPro
                   key={language.code}
                   onClick={() => void handleLanguageChange(language.code)}
                   className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${
-                    language.code === i18n.language
+                    language.code === langCode
                       ? 'bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100'
                       : 'text-slate-700 dark:text-slate-300'
                   }`}
@@ -71,7 +73,7 @@ export default function LanguageSwitcher({ className = '' }: LanguageSwitcherPro
                 >
                   <span className="text-lg">{language.flag}</span>
                   <span>{language.name}</span>
-                  {language.code === i18n.language && (
+                  {language.code === langCode && (
                     <svg
                       className="w-4 h-4 ml-auto text-blue-600 dark:text-blue-400"
                       fill="currentColor"

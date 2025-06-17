@@ -156,7 +156,7 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 
         // Show error toast for all failures
         // Let the user see the specific error in the inline error display
-        showErrorToast(t('errors.generic'));
+        showErrorToast('errors.generic');
       } finally {
         setIsSubmitting(false);
       }
