@@ -310,46 +310,49 @@ const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: {
   };
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors group">
+    <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 p-8 rounded-xl border border-slate-200/60 dark:border-slate-700/60 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg dark:hover:shadow-slate-900/20 transition-all duration-300 group shadow-sm">
       <div className="flex flex-col h-full">
         {/* Deck Header */}
-        <div className="flex-1">
-          <h3 className="text-xl font-bold mb-3 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors line-clamp-2 tracking-tight">
+        <div className="flex-1 mb-6">
+          <h3 className="text-xl font-bold mb-4 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors line-clamp-2 tracking-tight">
             {deck.name}
           </h3>
 
           {deck.description && (
-            <p className="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-3 font-normal leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-400 text-sm mb-0 line-clamp-3 font-normal leading-relaxed">
               {deck.description}
             </p>
           )}
         </div>
 
-        {/* Deck Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
-          <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            {t('deck.createdOn', { date: formatDate(deck._creationTime) })}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded font-medium">
+        {/* Deck Metadata */}
+        <div className="flex items-center justify-between mb-4 pt-4 border-t border-slate-200/60 dark:border-slate-700/60">
+          <div className="flex items-center gap-3">
+            <span className="text-xs bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 px-2.5 py-1.5 rounded-md font-medium border border-slate-200/50 dark:border-slate-600/50">
               {t('deck.cardCount', { count: deck.cardCount })}
             </span>
-            <button
-              onClick={onManageCards}
-              className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1 rounded hover:opacity-80 transition-opacity font-medium"
-              aria-label={t('deck.manageCardsAria', { deckName: deck.name })}
-            >
-              {t('deck.manageCards')}
-            </button>
-            <button
-              onClick={onStartStudy}
-              className="text-xs bg-dark dark:bg-light text-light dark:text-dark px-3 py-1 rounded hover:opacity-80 transition-opacity font-semibold"
-              aria-label={t('deck.studyAria', { deckName: deck.name })}
-            >
-              {t('deck.studyNow')}
-            </button>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              {t('deck.createdOn', { date: formatDate(deck._creationTime) })}
+            </span>
           </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onManageCards}
+            className="flex-1 text-sm bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-medium border border-slate-200/50 dark:border-slate-600/50"
+            aria-label={t('deck.manageCardsAria', { deckName: deck.name })}
+          >
+            {t('deck.manageCards')}
+          </button>
+          <button
+            onClick={onStartStudy}
+            className="flex-1 text-sm bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+            aria-label={t('deck.studyAria', { deckName: deck.name })}
+          >
+            {t('deck.studyNow')}
+          </button>
         </div>
       </div>
     </div>

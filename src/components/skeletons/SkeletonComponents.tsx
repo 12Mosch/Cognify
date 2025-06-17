@@ -31,33 +31,34 @@ const SkeletonElement = memo(function SkeletonElement({
 export const DeckCardSkeleton = memo(function DeckCardSkeleton() {
   return (
     <div
-      className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700"
+      className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 p-8 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm"
       role="status"
       aria-busy="true"
       aria-label="Loading deck"
     >
       <div className="flex flex-col h-full">
         {/* Deck Header */}
-        <div className="flex-1">
+        <div className="flex-1 mb-6">
           {/* Deck title */}
-          <SkeletonElement className="h-6 w-3/4 mb-2" />
+          <SkeletonElement className="h-7 w-3/4 mb-4" />
 
           {/* Deck description */}
           <SkeletonElement className="h-4 w-full mb-2" />
-          <SkeletonElement className="h-4 w-2/3 mb-4" />
+          <SkeletonElement className="h-4 w-2/3" />
         </div>
 
-        {/* Deck Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
-          {/* Creation date */}
-          <SkeletonElement className="h-3 w-24" />
-
-          {/* Card count and buttons */}
-          <div className="flex items-center gap-2">
-            <SkeletonElement className="h-6 w-16" />
-            <SkeletonElement className="h-6 w-16" />
-            <SkeletonElement className="h-6 w-12" />
+        {/* Deck Metadata */}
+        <div className="flex items-center justify-between mb-4 pt-4 border-t border-slate-200/60 dark:border-slate-700/60">
+          <div className="flex items-center gap-3">
+            <SkeletonElement className="h-7 w-16 rounded-md" />
+            <SkeletonElement className="h-4 w-24" />
           </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3">
+          <SkeletonElement className="flex-1 h-10 rounded-lg" />
+          <SkeletonElement className="flex-1 h-10 rounded-lg" />
         </div>
       </div>
     </div>
