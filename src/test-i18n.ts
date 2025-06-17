@@ -91,11 +91,25 @@ const mockTranslations = {
       // Dashboard
       'dashboard.title': 'My Flashcard Decks',
       'dashboard.subtitle.empty': 'Create your first deck to get started',
-      'dashboard.subtitle.withDecks': '{{count}} deck',
-      'dashboard.subtitle.withDecks_plural': '{{count}} decks',
+      'dashboard.subtitle.withDecks_one': '{{count}} deck',
+      'dashboard.subtitle.withDecks_other': '{{count}} decks',
       'dashboard.buttons.showStatistics': 'Show Statistics',
       'dashboard.buttons.quickAddCard': 'Quick Add Card',
       'dashboard.buttons.createDeck': 'Create Deck',
+
+      // Deck
+      'deck.cardCount_one': '{{count}} card',
+      'deck.cardCount_other': '{{count}} cards',
+      'deck.studyNow': 'Study Now',
+      'deck.manageCards': 'Manage Cards',
+      'deck.dueCards_one': '{{count}} due',
+      'deck.dueCards_other': '{{count}} due',
+      'deck.newCards_one': '{{count}} new',
+      'deck.newCards_other': '{{count}} new',
+      'deck.manageCardsAria': 'Manage cards in {{deckName}} deck',
+      'deck.studyAria': 'Study {{deckName}} deck',
+      'deck.noDescription': 'No description',
+      'deck.createdOn': 'Created {{date}}',
 
       // Deck View
       'deckView.editCard': 'Edit Card',
@@ -129,8 +143,8 @@ const mockTranslations = {
       'notifications.cardUpdated': 'Card updated successfully!',
       'notifications.cardDeleted': 'Card deleted successfully!',
       'notifications.studySessionCompleted': 'Study session completed!',
-      'notifications.studySessionCompletedWithCount': 'Study session complete! Reviewed {{count}} card.',
-      'notifications.studySessionCompletedWithCount_plural': 'Study session complete! Reviewed {{count}} cards.',
+      'notifications.studySessionCompletedWithCount_one': 'Study session complete! Reviewed {{count}} card.',
+      'notifications.studySessionCompletedWithCount_other': 'Study session complete! Reviewed {{count}} cards.',
       'notifications.networkError': 'Network error. Please check your connection and try again.',
       'notifications.temporaryError': 'Something went wrong. Please try again in a moment.',
 
@@ -165,6 +179,8 @@ const mockTranslations = {
       'streak.display.title': 'Study Streak',
       'streak.display.day': 'day',
       'streak.display.days': 'days',
+      'streak.days_one': '{{count}} day',
+      'streak.days_other': '{{count}} days',
       'streak.display.milestoneAchieved': '{{count}} days',
       'streak.display.nextMilestone': 'Next milestone',
       'streak.display.daysToGo': '{{count}} days to go',
@@ -226,7 +242,8 @@ const mockTranslations = {
       'statistics.widgets.upcomingReviews.tomorrow': 'Tomorrow',
       'statistics.widgets.upcomingReviews.allCaughtUp': 'All caught up!',
       'statistics.widgets.upcomingReviews.noReviewsScheduled': 'No reviews scheduled for the next week',
-      'statistics.widgets.upcomingReviews.moreReviewsScheduled': '+{{count}} more reviews scheduled',
+      'statistics.widgets.upcomingReviews.moreReviewsScheduled_one': '+{{count}} more review scheduled',
+      'statistics.widgets.upcomingReviews.moreReviewsScheduled_other': '+{{count}} more reviews scheduled',
       'statistics.widgets.upcomingReviews.totalCards': 'Total Cards',
       'statistics.widgets.upcomingReviews.reviewDays': 'Review Days',
       'statistics.widgets.upcomingReviews.card': 'card',
@@ -240,7 +257,8 @@ const mockTranslations = {
       'statistics.widgets.learningStreak.messages.onFire': 'You\'re on fire! 🔥',
       'statistics.widgets.learningStreak.messages.incredibleDedication': 'Incredible dedication!',
       'statistics.widgets.learningStreak.messages.legendaryLearner': 'Legendary learner! 🏆',
-      'statistics.widgets.learningStreak.milestones.daysToReach': '{{count}} days to reach {{milestone}}-day milestone',
+      'statistics.widgets.learningStreak.milestones.daysToReach_one': '{{count}} day to reach {{milestone}}-day milestone',
+      'statistics.widgets.learningStreak.milestones.daysToReach_other': '{{count}} days to reach {{milestone}}-day milestone',
       'statistics.widgets.learningStreak.milestones.progressTo': 'Progress to {{milestone}} days',
       'statistics.widgets.learningStreak.current': 'Current',
       'statistics.widgets.learningStreak.best': 'Best',
@@ -340,6 +358,10 @@ void i18n
     interpolation: {
       escapeValue: false, // React already does escaping
     },
+
+    // Pluralization options
+    pluralSeparator: '_',
+    contextSeparator: '_',
 
     // Disable loading from external sources in tests
     load: 'languageOnly',

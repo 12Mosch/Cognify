@@ -18,8 +18,8 @@
     "title": "My Flashcard Decks",
     "subtitle": {
       "empty": "Create your first deck to get started",
-      "withDecks": "{{count}} deck",
-      "withDecks_plural": "{{count}} decks"
+      "withDecks_one": "{{count}} deck",
+      "withDecks_other": "{{count}} decks"
     },
     "buttons": {
       "showStatistics": "Show Statistics",
@@ -28,12 +28,14 @@
     }
   },
   "deck": {
-    "cardCount": "{{count}} card",
-    "cardCount_plural": "{{count}} cards",
+    "cardCount_one": "{{count}} card",
+    "cardCount_other": "{{count}} cards",
     "studyNow": "Study Now",
     "manageCards": "Manage Cards",
-    "dueCards": "{{count}} due",
-    "newCards": "{{count}} new",
+    "dueCards_one": "{{count}} due",
+    "dueCards_other": "{{count}} due",
+    "newCards_one": "{{count}} new",
+    "newCards_other": "{{count}} new",
     "manageCardsAria": "Manage cards in {{deckName}} deck",
     "studyAria": "Study {{deckName}} deck",
     "noDescription": "No description",
@@ -83,7 +85,8 @@
     },
     "session": {
       "completed": "Study Session Completed!",
-      "cardsReviewed": "Cards reviewed: {{count}}",
+      "cardsReviewed_one": "Card reviewed: {{count}}",
+      "cardsReviewed_other": "Cards reviewed: {{count}}",
       "returnToDashboard": "Return to Dashboard",
       "allCaughtUp": "All Caught Up!",
       "noCardsToReview": "No cards to review right now.",
@@ -254,7 +257,8 @@
         "tomorrow": "Tomorrow",
         "allCaughtUp": "All caught up!",
         "noReviewsScheduled": "No reviews scheduled for the next week",
-        "moreReviewsScheduled": "+{{count}} more reviews scheduled",
+        "moreReviewsScheduled_one": "+{{count}} more review scheduled",
+        "moreReviewsScheduled_other": "+{{count}} more reviews scheduled",
         "totalCards": "Total Cards",
         "reviewDays": "Review Days",
         "card": "card",
@@ -271,7 +275,8 @@
           "legendaryLearner": "Legendary learner! 🏆"
         },
         "milestones": {
-          "daysToReach": "{{count}} days to reach {{milestone}}-day milestone",
+          "daysToReach_one": "{{count}} day to {{milestone}}-day milestone",
+          "daysToReach_other": "{{count}} days to reach {{milestone}}-day milestone",
           "progressTo": "Progress to {{milestone}} days"
         },
         "current": "Current",
@@ -370,17 +375,19 @@
   },
   "streak": {
     "title": "Study Streak",
-    "days": "{{count}} day",
-    "days_plural": "{{count}} days",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
     "keepItUp": "Keep it up!",
     "startToday": "Start your streak today!",
     "display": {
       "title": "Study Streak",
       "day": "day",
       "days": "days",
-      "milestoneAchieved": "{{count}} days",
+      "milestoneAchieved_one": "{{count}} day",
+      "milestoneAchieved_other": "{{count}} days",
       "nextMilestone": "Next milestone",
-      "daysToGo": "{{count}} days to go",
+      "daysToGo_one": "{{count}} day to go",
+      "daysToGo_other": "{{count}} days to go",
       "longestStreak": "Longest Streak",
       "totalDays": "Total Days",
       "milestonesAchieved": "Milestones Achieved",
@@ -462,8 +469,8 @@
     "cardDeleted": "Card deleted successfully!",
     "settingsSaved": "Settings saved successfully!",
     "studySessionCompleted": "Study session completed!",
-    "studySessionCompletedWithCount": "Study session complete! Reviewed {{count}} card.",
-    "studySessionCompletedWithCount_plural": "Study session complete! Reviewed {{count}} cards.",
+    "studySessionCompletedWithCount_one": "Study session complete! Reviewed {{count}} card.",
+    "studySessionCompletedWithCount_other": "Study session complete! Reviewed {{count}} cards.",
     "networkError": "Network error. Please check your connection and try again.",
     "temporaryError": "Something went wrong. Please try again in a moment.",
     "privacyCustomize": "Customize privacy settings from the profile menu."

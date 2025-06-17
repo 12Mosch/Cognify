@@ -53,6 +53,10 @@ void i18n
       escapeValue: false, // React already does escaping
     },
 
+    // Pluralization options
+    pluralSeparator: '_',
+    contextSeparator: '_',
+
     // React specific options
     react: {
       // Wait for translation to be loaded before rendering

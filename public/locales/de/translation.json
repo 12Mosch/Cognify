@@ -18,8 +18,8 @@
     "title": "Meine Karteikarten-Stapel",
     "subtitle": {
       "empty": "Erstellen Sie Ihren ersten Stapel, um zu beginnen",
-      "withDecks": "{{count}} Stapel",
-      "withDecks_plural": "{{count}} Stapel"
+      "withDecks_one": "{{count}} Stapel",
+      "withDecks_other": "{{count}} Stapel"
     },
     "buttons": {
       "showStatistics": "Statistiken anzeigen",
@@ -28,12 +28,14 @@
     }
   },
   "deck": {
-    "cardCount": "{{count}} Karte",
-    "cardCount_plural": "{{count}} Karten",
+    "cardCount_one": "{{count}} Karte",
+    "cardCount_other": "{{count}} Karten",
     "studyNow": "Jetzt lernen",
     "manageCards": "Karten verwalten",
-    "dueCards": "{{count}} fällig",
-    "newCards": "{{count}} neu",
+    "dueCards_one": "{{count}} fällig",
+    "dueCards_other": "{{count}} fällig",
+    "newCards_one": "{{count}} neu",
+    "newCards_other": "{{count}} neu",
     "manageCardsAria": "Karten in {{deckName}} Stapel verwalten",
     "studyAria": "{{deckName}} Stapel lernen",
     "noDescription": "Keine Beschreibung",
@@ -67,8 +69,8 @@
     },
     "allCaughtUp": {
       "title": "Alles erledigt! 🎉",
-      "sessionStats": "Großartige Arbeit! Sie haben {{count}} Karte in dieser Sitzung wiederholt.",
-      "sessionStats_plural": "Großartige Arbeit! Sie haben {{count}} Karten in dieser Sitzung wiederholt.",
+      "sessionStats_one": "Großartige Arbeit! Sie haben {{count}} Karte in dieser Sitzung wiederholt.",
+      "sessionStats_other": "Großartige Arbeit! Sie haben {{count}} Karten in dieser Sitzung wiederholt.",
       "noCardsMessage": "Sie haben derzeit keine Karten zur Wiederholung. Ausgezeichnete Arbeit beim Einhalten Ihres Lernplans!",
       "emptyDeckMessage": "Dieser Stapel ist leer. Fügen Sie einige Karten hinzu, um Ihre Lernreise zu beginnen!",
       "nextReviewMessage": "Kommen Sie {{time}} für Ihre nächste Wiederholungssitzung zurück.",
@@ -83,7 +85,8 @@
     },
     "session": {
       "completed": "Lernsitzung abgeschlossen!",
-      "cardsReviewed": "Karten wiederholt: {{count}}",
+      "cardsReviewed_one": "Karte wiederholt: {{count}}",
+      "cardsReviewed_other": "Karten wiederholt: {{count}}",
       "returnToDashboard": "Zum Dashboard zurückkehren",
       "allCaughtUp": "Alles erledigt!",
       "noCardsToReview": "Keine Karten zum Wiederholen verfügbar.",
@@ -254,7 +257,8 @@
         "tomorrow": "Morgen",
         "allCaughtUp": "Alles erledigt!",
         "noReviewsScheduled": "Keine Wiederholungen für die nächste Woche geplant",
-        "moreReviewsScheduled": "+{{count}} weitere Wiederholungen geplant",
+        "moreReviewsScheduled_one": "+{{count}} weitere Wiederholung geplant",
+        "moreReviewsScheduled_other": "+{{count}} weitere Wiederholungen geplant",
         "totalCards": "Karten gesamt",
         "reviewDays": "Wiederholungstage",
         "card": "Karte",
@@ -271,7 +275,8 @@
           "legendaryLearner": "Legendärer Lerner! 🏆"
         },
         "milestones": {
-          "daysToReach": "{{count}} Tage bis zum {{milestone}}-Tage-Meilenstein",
+          "daysToReach_one": "{{count}} Tag bis zum {{milestone}}-Tage-Meilenstein",
+          "daysToReach_other": "{{count}} Tage bis zum {{milestone}}-Tage-Meilenstein",
           "progressTo": "Fortschritt zu {{milestone}} Tagen"
         },
         "current": "Aktuell",
@@ -370,17 +375,19 @@
   },
   "streak": {
     "title": "Lernserie",
-    "days": "{{count}} Tag",
-    "days_plural": "{{count}} Tage",
+    "days_one": "{{count}} Tag",
+    "days_other": "{{count}} Tage",
     "keepItUp": "Weiter so!",
     "startToday": "Beginnen Sie heute Ihre Serie!",
     "display": {
       "title": "Lernserie",
       "day": "Tag",
       "days": "Tage",
-      "milestoneAchieved": "{{count}} Tage",
+      "milestoneAchieved_one": "{{count}} Tag",
+      "milestoneAchieved_other": "{{count}} Tage",
       "nextMilestone": "Nächster Meilenstein",
-      "daysToGo": "{{count}} Tage verbleibend",
+      "daysToGo_one": "{{count}} Tag verbleibend",
+      "daysToGo_other": "{{count}} Tage verbleibend",
       "longestStreak": "Längste Serie",
       "totalDays": "Tage gesamt",
       "milestonesAchieved": "Erreichte Meilensteine",
@@ -444,8 +451,8 @@
     "sessionDuration": "Sitzungsdauer",
     "whatsNext": "Was kommt als Nächstes?",
     "continueStudying": "Weiterlernen",
-    "moreCards": "weitere Karte",
-    "moreCards_plural": "weitere Karten"
+    "moreCards_one": "weitere Karte",
+    "moreCards_other": "weitere Karten"
   },
   "errors": {
     "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
@@ -462,8 +469,8 @@
     "cardDeleted": "Karte erfolgreich gelöscht!",
     "settingsSaved": "Einstellungen erfolgreich gespeichert!",
     "studySessionCompleted": "Lernsitzung abgeschlossen!",
-    "studySessionCompletedWithCount": "Lernsitzung abgeschlossen! {{count}} Karte wiederholt.",
-    "studySessionCompletedWithCount_plural": "Lernsitzung abgeschlossen! {{count}} Karten wiederholt.",
+    "studySessionCompletedWithCount_one": "Lernsitzung abgeschlossen! {{count}} Karte wiederholt.",
+    "studySessionCompletedWithCount_other": "Lernsitzung abgeschlossen! {{count}} Karten wiederholt.",
     "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
     "temporaryError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es in einem Moment erneut.",
     "privacyCustomize": "Datenschutzeinstellungen über das Profilmenü anpassen."
