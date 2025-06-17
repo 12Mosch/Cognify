@@ -8,6 +8,38 @@ import { useAnalytics } from '../../lib/analytics';
 jest.mock('convex/react');
 jest.mock('../../lib/analytics');
 
+// Mock react-i18next
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: any) => {
+      // Return English translations for testing
+      const translations: Record<string, string> = {
+        'streak.display.title': 'Study Streak',
+        'streak.display.day': 'day',
+        'streak.display.days': 'days',
+        'streak.display.milestoneAchieved': `${options?.count || 0} days`,
+        'streak.display.nextMilestone': 'Next milestone',
+        'streak.display.daysToGo': `${options?.count || 0} days to go`,
+        'streak.display.longestStreak': 'Longest Streak',
+        'streak.display.totalDays': 'Total Days',
+        'streak.display.milestonesAchieved': 'Milestones Achieved',
+        'streak.display.status.startStreak.title': 'Start Your Streak! 🎯',
+        'streak.display.status.startStreak.message': 'Study today to begin your learning journey',
+        'streak.display.status.buildingMomentum.title': 'Building Momentum! 🌱',
+        'streak.display.status.buildingMomentum.message': 'Keep going to reach your first milestone',
+        'streak.display.status.greatProgress.title': 'Great Progress! 🔥',
+        'streak.display.status.greatProgress.message': 'You\'re developing a strong habit',
+        'streak.display.status.streakMaster.title': 'Streak Master! 🏆',
+        'streak.display.status.streakMaster.message': 'You\'re a dedicated learner',
+      };
+      return translations[key] || key;
+    },
+    i18n: {
+      changeLanguage: jest.fn(),
+    },
+  }),
+}));
+
 const mockUseQuery = useQuery as jest.MockedFunction<typeof useQuery>;
 const mockUseAnalytics = useAnalytics as jest.MockedFunction<typeof useAnalytics>;
 

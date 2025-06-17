@@ -381,10 +381,11 @@ All major user-facing components have been internationalized:
 
 - **Forms**: CreateDeckForm, QuickAddCardForm with validation messages
 - **Study Modes**: BasicStudyMode, SpacedRepetitionMode, StudyModeSelector
-- **Dashboard**: DeckView, PostSessionSummary with statistics
+- **Dashboard**: DeckView, PostSessionSummary with statistics, StreakDisplay
 - **Settings**: SettingsModal with privacy and feature flag sections
 - **Toast Messages**: All success, error, and info notifications
 - **Error Handling**: Generic and specific error messages
+- **Streak Display**: Complete internationalization with status messages and milestone tracking
 
 ### 🔧 Toast Message Internationalization
 

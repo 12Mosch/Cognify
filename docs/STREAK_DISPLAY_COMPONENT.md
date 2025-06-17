@@ -12,6 +12,7 @@ The `StreakDisplay` component shows the user's current study streak with visual 
 - **Analytics Integration**: Tracks user interactions with PostHog
 - **Responsive Design**: Adapts to different screen sizes
 - **Loading States**: Skeleton loader while data is fetching
+- **Internationalization**: Full i18n support with react-i18next
 
 ## Null Response Handling
 
@@ -95,10 +96,67 @@ import StreakDisplay from './components/StreakDisplay';
 <StreakDisplay className="mb-6" />
 ```
 
+## Internationalization
+
+The component is fully internationalized using react-i18next with the following translation keys:
+
+### Translation Key Structure
+
+All streak display translations are namespaced under `streak.display.*`:
+
+```json
+{
+  "streak": {
+    "display": {
+      "title": "Study Streak",
+      "day": "day",
+      "days": "days",
+      "milestoneAchieved": "{{count}} days",
+      "nextMilestone": "Next milestone",
+      "daysToGo": "{{count}} days to go",
+      "longestStreak": "Longest Streak",
+      "totalDays": "Total Days",
+      "milestonesAchieved": "Milestones Achieved",
+      "status": {
+        "startStreak": {
+          "title": "Start Your Streak! 🎯",
+          "message": "Study today to begin your learning journey"
+        },
+        "buildingMomentum": {
+          "title": "Building Momentum! 🌱",
+          "message": "Keep going to reach your first milestone"
+        },
+        "greatProgress": {
+          "title": "Great Progress! 🔥",
+          "message": "You're developing a strong habit"
+        },
+        "streakMaster": {
+          "title": "Streak Master! 🏆",
+          "message": "You're a dedicated learner"
+        }
+      }
+    }
+  }
+}
+```
+
+### Supported Languages
+
+- **English** (`en`): Complete translations
+- **German** (`de`): Complete translations
+
+### Dynamic Interpolation
+
+The component uses dynamic interpolation for:
+- Milestone counts: `{{count}} days`
+- Days remaining: `{{count}} days to go`
+- Singular/plural day forms based on streak count
+
 ## Dependencies
 
 - `convex/react`: For data fetching
 - `useAnalytics`: For event tracking
+- `react-i18next`: For internationalization
 - Convex API: `api.streaks.getCurrentStreak`
 
 ## Related Components

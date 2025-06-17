@@ -372,7 +372,36 @@
     "days": "{{count}} day",
     "days_plural": "{{count}} days",
     "keepItUp": "Keep it up!",
-    "startToday": "Start your streak today!"
+    "startToday": "Start your streak today!",
+    "display": {
+      "title": "Study Streak",
+      "day": "day",
+      "days": "days",
+      "milestoneAchieved": "{{count}} days",
+      "nextMilestone": "Next milestone",
+      "daysToGo": "{{count}} days to go",
+      "longestStreak": "Longest Streak",
+      "totalDays": "Total Days",
+      "milestonesAchieved": "Milestones Achieved",
+      "status": {
+        "startStreak": {
+          "title": "Start Your Streak! 🎯",
+          "message": "Study today to begin your learning journey"
+        },
+        "buildingMomentum": {
+          "title": "Building Momentum! 🌱",
+          "message": "Keep going to reach your first milestone"
+        },
+        "greatProgress": {
+          "title": "Great Progress! 🔥",
+          "message": "You're developing a strong habit"
+        },
+        "streakMaster": {
+          "title": "Streak Master! 🏆",
+          "message": "You're a dedicated learner"
+        }
+      }
+    }
   },
   "privacy": {
     "banner": {

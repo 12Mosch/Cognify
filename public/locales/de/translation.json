@@ -372,7 +372,36 @@
     "days": "{{count}} Tag",
     "days_plural": "{{count}} Tage",
     "keepItUp": "Weiter so!",
-    "startToday": "Beginnen Sie heute Ihre Serie!"
+    "startToday": "Beginnen Sie heute Ihre Serie!",
+    "display": {
+      "title": "Lernserie",
+      "day": "Tag",
+      "days": "Tage",
+      "milestoneAchieved": "{{count}} Tage",
+      "nextMilestone": "Nächster Meilenstein",
+      "daysToGo": "{{count}} Tage verbleibend",
+      "longestStreak": "Längste Serie",
+      "totalDays": "Tage gesamt",
+      "milestonesAchieved": "Erreichte Meilensteine",
+      "status": {
+        "startStreak": {
+          "title": "Starten Sie Ihre Serie! 🎯",
+          "message": "Lernen Sie heute, um Ihre Lernreise zu beginnen"
+        },
+        "buildingMomentum": {
+          "title": "Schwung aufbauen! 🌱",
+          "message": "Machen Sie weiter, um Ihren ersten Meilenstein zu erreichen"
+        },
+        "greatProgress": {
+          "title": "Großartiger Fortschritt! 🔥",
+          "message": "Sie entwickeln eine starke Gewohnheit"
+        },
+        "streakMaster": {
+          "title": "Serien-Meister! 🏆",
+          "message": "Sie sind ein engagierter Lerner"
+        }
+      }
+    }
   },
   "privacy": {
     "banner": {
