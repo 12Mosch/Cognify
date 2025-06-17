@@ -23,7 +23,7 @@ interface UpcomingReviewsWidgetProps {
 const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
   upcomingReviews
 }: UpcomingReviewsWidgetProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const formatDate = (dateString: string) => {
     const date = new Date(`${dateString}T00:00:00Z`); // ISO-8601 UTC midnight
@@ -36,14 +36,17 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
 
     if (isToday) return t('statistics.widgets.upcomingReviews.today');
     if (isTomorrow) return t('statistics.widgets.upcomingReviews.tomorrow');
-    
+
     const daysDiff = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
+
+    // Get the current language from i18n
+    const currentLanguage = i18n.resolvedLanguage?.split('-')[0] || 'en';
+
     if (daysDiff <= 7) {
-      return date.toLocaleDateString('en-US', { weekday: 'long' });
+      return date.toLocaleDateString(currentLanguage, { weekday: 'long' });
     }
-    
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+    return date.toLocaleDateString(currentLanguage, { month: 'short', day: 'numeric' });
   };
 
   const getUrgencyColor = (dateString: string) => {
@@ -111,7 +114,7 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
                     {formatDate(review.date)}
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400">
-                    {new Date(`${review.date}T00:00:00Z`).toLocaleDateString('en-US', {
+                    {new Date(`${review.date}T00:00:00Z`).toLocaleDateString(i18n.resolvedLanguage?.split('-')[0] || 'en', {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric'

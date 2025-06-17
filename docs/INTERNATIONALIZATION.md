@@ -410,6 +410,74 @@ export const toastHelpers = {
 };
 ```
 
+## Date and Time Localization
+
+### Date Formatting
+
+The application properly localizes date formatting using the browser's `Intl.DateTimeFormat` API with the current language:
+
+```tsx
+import { useTranslation } from 'react-i18next';
+
+function DeckCard({ deck }) {
+  const { t, i18n } = useTranslation();
+
+  const formatDate = (timestamp: number) => {
+    // Get the current language from i18n
+    const currentLanguage = i18n.resolvedLanguage?.split('-')[0] || 'en';
+
+    return new Date(timestamp).toLocaleDateString(currentLanguage, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <div>
+      {t('deck.createdOn', { date: formatDate(deck._creationTime) })}
+    </div>
+  );
+}
+```
+
+### Translation Keys for Dates
+
+Date-related text uses translation keys with interpolated formatted dates:
+
+```json
+{
+  "deck": {
+    "createdOn": "Created {{date}}"
+  }
+}
+```
+
+German translation:
+```json
+{
+  "deck": {
+    "createdOn": "Erstellt am {{date}}"
+  }
+}
+```
+
+### Utility Functions
+
+Date utility functions accept locale parameters for proper localization:
+
+```ts
+// src/lib/dateUtils.ts
+export function formatNextReviewTime(timestamp: number, locale: string = 'en'): string {
+  // ... formatting logic with locale support
+}
+
+// src/lib/heatmapUtils.ts
+export function generateHeatmapGrid(studyData: Array<...>, locale: string = 'en-US'): HeatmapData {
+  // ... generates month labels with proper locale
+}
+```
+
 ## Best Practices
 
 1. **Always use translation keys** - Never hardcode user-facing text
@@ -422,6 +490,8 @@ export const toastHelpers = {
 8. **Keep translations up to date** - Update all languages when adding new features
 9. **Consider RTL languages** - Plan for future right-to-left language support
 10. **Preserve dynamic interpolation** - Ensure variables are properly interpolated in translations
+11. **Localize dates properly** - Use `i18n.resolvedLanguage` with `toLocaleDateString()` for date formatting
+12. **Pass locale to utility functions** - Ensure date utilities accept and use locale parameters
 
 ## Migration Notes
 

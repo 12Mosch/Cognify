@@ -34,9 +34,10 @@ export function getLocalDateString(timeZone?: string): string {
 /**
  * Format a timestamp into a user-friendly "next review" message
  * @param timestamp - Unix timestamp in milliseconds
+ * @param locale - Optional locale for date formatting (defaults to 'en')
  * @returns Formatted string like "Tomorrow", "in 3 hours", "on Dec 25", etc.
  */
-export function formatNextReviewTime(timestamp: number): string {
+export function formatNextReviewTime(timestamp: number, locale: string = 'en'): string {
   const now = Date.now();
   const diffMs = timestamp - now;
   
@@ -84,14 +85,14 @@ export function formatNextReviewTime(timestamp: number): string {
   
   // Same year - show month and day
   if (date.getFullYear() === today.getFullYear()) {
-    return `on ${date.toLocaleDateString('en-US', {
+    return `on ${date.toLocaleDateString(locale, {
       month: 'short',
       day: 'numeric'
     })}`;
   }
 
   // Different year - show month, day, and year
-  return `on ${date.toLocaleDateString('en-US', {
+  return `on ${date.toLocaleDateString(locale, {
     month: 'short',
     day: 'numeric',
     year: 'numeric'

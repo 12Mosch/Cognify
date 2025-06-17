@@ -36,7 +36,8 @@
     "newCards": "{{count}} neu",
     "manageCardsAria": "Karten in {{deckName}} Stapel verwalten",
     "studyAria": "{{deckName}} Stapel lernen",
-    "noDescription": "Keine Beschreibung"
+    "noDescription": "Keine Beschreibung",
+    "createdOn": "Erstellt am {{date}}"
   },
   "emptyState": {
     "title": "Noch keine Stapel",

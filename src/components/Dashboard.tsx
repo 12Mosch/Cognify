@@ -294,10 +294,13 @@ const EmptyState = memo(function EmptyState() {
 
 const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: { deck: Deck; onStartStudy: () => void; onManageCards: () => void }) {
   // No longer need to query cards - we have the count directly from the deck
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString(undefined, {
+    // Get the current language from i18n
+    const currentLanguage = i18n.resolvedLanguage?.split('-')[0] || 'en';
+
+    return new Date(timestamp).toLocaleDateString(currentLanguage, {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -323,7 +326,7 @@ const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: {
         {/* Deck Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
           <div className="text-xs text-slate-500 dark:text-slate-400">
-            Created {formatDate(deck._creationTime)}
+            {t('deck.createdOn', { date: formatDate(deck._creationTime) })}
           </div>
           
           <div className="flex items-center gap-2">

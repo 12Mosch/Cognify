@@ -36,7 +36,8 @@
     "newCards": "{{count}} new",
     "manageCardsAria": "Manage cards in {{deckName}} deck",
     "studyAria": "Study {{deckName}} deck",
-    "noDescription": "No description"
+    "noDescription": "No description",
+    "createdOn": "Created {{date}}"
   },
   "emptyState": {
     "title": "No decks yet",

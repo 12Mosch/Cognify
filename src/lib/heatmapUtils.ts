@@ -34,6 +34,7 @@ export interface HeatmapData {
 /**
  * Generate a complete 365-day heatmap grid structure
  * Creates a GitHub-style contribution graph layout
+ * @param locale - Optional locale for month formatting (defaults to 'en-US')
  */
 export function generateHeatmapGrid(
   studyData: Array<{
@@ -41,7 +42,8 @@ export function generateHeatmapGrid(
     cardsStudied: number;
     sessionCount: number;
     totalDuration?: number;
-  }>
+  }>,
+  locale: string = 'en-US'
 ): HeatmapData {
   const endDate = new Date();
   const startDate = new Date();
@@ -137,7 +139,7 @@ while (currentWeek.length < 7) {
   });
 
   // Generate month labels
-  const months = generateMonthLabels(weeks);
+  const months = generateMonthLabels(weeks, locale);
 
   return {
     weeks,
@@ -162,8 +164,9 @@ export function getActivityLevel(cardsStudied: number): 0 | 1 | 2 | 3 | 4 {
 
 /**
  * Generate month labels for the heatmap header
+ * @param locale - Optional locale for month formatting (defaults to 'en-US')
  */
-function generateMonthLabels(weeks: HeatmapWeek[]): Array<{
+function generateMonthLabels(weeks: HeatmapWeek[], locale: string = 'en-US'): Array<{
   name: string;
   weekStart: number;
   weekSpan: number;
@@ -196,7 +199,7 @@ function generateMonthLabels(weeks: HeatmapWeek[]): Array<{
       monthStart = weekIndex;
       
       months.push({
-        name: date.toLocaleDateString('en-US', { month: 'short' }),
+        name: date.toLocaleDateString(locale, { month: 'short' }),
         weekStart: weekIndex,
         weekSpan: 1, // Will be updated when month ends
       });
@@ -234,10 +237,11 @@ export function getActivityLevelClasses(level: 0 | 1 | 2 | 3 | 4): string {
 
 /**
  * Format tooltip content for a heatmap day
+ * @param locale - Optional locale for date formatting (defaults to 'en-US')
  */
-export function formatTooltipContent(day: HeatmapDay): string {
+export function formatTooltipContent(day: HeatmapDay, locale: string = 'en-US'): string {
   const date = new Date(day.date);
-  const formattedDate = date.toLocaleDateString('en-US', {
+  const formattedDate = date.toLocaleDateString(locale, {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
