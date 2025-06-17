@@ -103,11 +103,23 @@ description: text-slate-600 dark:text-slate-400 leading-relaxed
 - **Improved legibility** especially on high-DPI displays
 - **Consistent appearance** across different operating systems
 
-#### **Custom Typography Utilities**
+#### **Extended Tailwind Typography Utilities (v4)**
 ```css
-.leading-relaxed-plus { line-height: 1.75; }
-.tracking-tight-plus { letter-spacing: -0.05em; }
+/* src/index.css - Tailwind v4 theme customization */
+@theme {
+  --line-height-relaxed-plus: 1.75;
+  --letter-spacing-tight-plus: -0.05em;
+}
 ```
+
+**Usage:**
+- `leading-relaxed-plus` - Enhanced line height (1.75) for improved readability
+- `tracking-tight-plus` - Tighter letter spacing (-0.05em) for headings
+
+**Benefits of Tailwind v4 approach:**
+- **Native IntelliSense support** - Custom utilities work with IDE autocompletion
+- **No separate config file** - All customizations in one place
+- **Better tooling integration** - Utilities are recognized by Tailwind tooling
 
 ## Implementation Details
 
@@ -189,7 +201,7 @@ description: text-slate-600 dark:text-slate-400 leading-relaxed
 
 ## Files Modified
 
-- `src/index.css` - Font family, text rendering optimization, typography utilities
+- `src/index.css` - Font family, text rendering optimization, Tailwind v4 theme extensions
 - `src/components/Dashboard.tsx` - Title, subtitle, deck card, and empty state typography
 - `src/components/DeckView.tsx` - Page title, description, and empty state improvements
 - `docs/TYPOGRAPHY_IMPROVEMENTS.md` - Comprehensive documentation

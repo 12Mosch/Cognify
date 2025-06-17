@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Tailwind v4 Custom Theme Extensions */
+@theme {
+  --line-height-relaxed-plus: 1.75;
+  --letter-spacing-tight-plus: -0.05em;
+}
+
 :root {
    --color-light: #ffffff;
    --color-dark: #171717;
@@ -280,12 +286,4 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom line heights for better readability */
-.leading-relaxed-plus {
-  line-height: 1.75;
-}
 
-/* Enhanced tracking for headings */
-.tracking-tight-plus {
-  letter-spacing: -0.05em;
-}
