@@ -59,7 +59,7 @@ export default function App() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 bg-light dark:bg-dark p-4 border-b-2 border-slate-200 dark:border-slate-800 flex flex-row justify-between items-center">
+      <header className="sticky top-0 z-10 bg-white dark:bg-slate-900 p-4 border-b-2 border-slate-200 dark:border-slate-800 flex flex-row justify-between items-center backdrop-blur-sm">
         <button
           onClick={handleGoHome}
           className="text-xl font-bold hover:text-slate-700 dark:hover:text-slate-300 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 rounded-md px-2 py-1"
@@ -87,7 +87,7 @@ export default function App() {
         </UserButton>
         </div>
       </header>
-      <main className="p-8">
+      <main className="pt-20 p-8">
         <Authenticated>
           <Dashboard ref={dashboardRef} />
         </Authenticated>
