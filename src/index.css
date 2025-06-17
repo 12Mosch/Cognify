@@ -3,13 +3,14 @@
 :root {
    --color-light: #ffffff;
    --color-dark: #171717;
+   --font-family-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 @media (prefers-color-scheme: dark) {
   body {
     color: var(--color-light);
     background: var(--color-dark);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-family-sans);
   }
 }
 
@@ -17,7 +18,7 @@
   body {
     color: var(--color-dark);
     background: var(--color-light);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-family-sans);
   }
 }
 
@@ -261,4 +262,30 @@
     opacity: 1;
     animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
+}
+
+/* Typography Utilities */
+
+/* Enhanced text rendering for better readability */
+.text-render-optimized {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Apply optimized text rendering globally */
+* {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom line heights for better readability */
+.leading-relaxed-plus {
+  line-height: 1.75;
+}
+
+/* Enhanced tracking for headings */
+.tracking-tight-plus {
+  letter-spacing: -0.05em;
 }

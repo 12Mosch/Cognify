@@ -204,8 +204,8 @@ function DashboardContent({
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">{t('dashboard.title')}</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
+          <h1 className="text-3xl font-bold tracking-tight">{t('dashboard.title')}</h1>
+          <p className="text-slate-700 dark:text-slate-300 mt-1 font-medium">
             {decks.length === 0
               ? t('dashboard.subtitle.empty')
               : t('dashboard.subtitle.withDecks', { count: decks.length })
@@ -282,11 +282,11 @@ const EmptyState = memo(function EmptyState() {
             />
           </svg>
         </div>
-        <h3 className="text-xl font-semibold mb-2">{t('emptyState.title')}</h3>
-        <p className="text-slate-600 dark:text-slate-400 mb-6">
+        <h3 className="text-2xl font-bold mb-3 tracking-tight">{t('emptyState.title')}</h3>
+        <p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
           {t('emptyState.description')}
         </p>
-        <div className="text-sm text-slate-500 dark:text-slate-400">
+        <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">
           {t('emptyState.getStarted')}
         </div>
       </div>
@@ -314,12 +314,12 @@ const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: {
       <div className="flex flex-col h-full">
         {/* Deck Header */}
         <div className="flex-1">
-          <h3 className="text-lg font-semibold mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors line-clamp-2">
+          <h3 className="text-xl font-bold mb-3 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors line-clamp-2 tracking-tight">
             {deck.name}
           </h3>
-          
+
           {deck.description && (
-            <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-3">
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-3 font-normal leading-relaxed">
               {deck.description}
             </p>
           )}
@@ -327,12 +327,12 @@ const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: {
 
         {/* Deck Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
-          <div className="text-xs text-slate-500 dark:text-slate-400">
+          <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             {t('deck.createdOn', { date: formatDate(deck._creationTime) })}
           </div>
-          
+
           <div className="flex items-center gap-2">
-            <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">
+            <span className="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded font-medium">
               {t('deck.cardCount', { count: deck.cardCount })}
             </span>
             <button
@@ -344,7 +344,7 @@ const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: {
             </button>
             <button
               onClick={onStartStudy}
-              className="text-xs bg-dark dark:bg-light text-light dark:text-dark px-3 py-1 rounded hover:opacity-80 transition-opacity font-medium"
+              className="text-xs bg-dark dark:bg-light text-light dark:text-dark px-3 py-1 rounded hover:opacity-80 transition-opacity font-semibold"
               aria-label={t('deck.studyAria', { deckName: deck.name })}
             >
               {t('deck.studyNow')}

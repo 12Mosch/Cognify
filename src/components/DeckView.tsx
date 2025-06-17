@@ -103,11 +103,11 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
             ← {t('common.back')}
           </button>
           <div>
-            <h1 className="text-3xl font-bold">{deck.name}</h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-1">
+            <h1 className="text-3xl font-bold tracking-tight">{deck.name}</h1>
+            <p className="text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
               {deck.description || t('deck.noDescription')}
             </p>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-sm text-slate-500 mt-2 font-medium">
               {t('deck.cardCount', { count: cards.length })}
             </p>
           </div>
@@ -169,8 +169,8 @@ const EmptyState = memo(function EmptyState() {
     <div className="flex items-center justify-center py-16">
       <div className="text-center max-w-md">
         <div className="text-6xl mb-4">📚</div>
-        <h3 className="text-xl font-semibold mb-2">{t('deckView.noCards')}</h3>
-        <p className="text-slate-600 dark:text-slate-400 mb-6">
+        <h3 className="text-2xl font-bold mb-3 tracking-tight">{t('deckView.noCards')}</h3>
+        <p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
           {t('deckView.addFirstCard')}
         </p>
       </div>
