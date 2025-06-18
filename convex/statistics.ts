@@ -244,6 +244,81 @@ export const getDeckStatistics = query({
 });
 
 /**
+ * Get deck progress data for dashboard cards
+ */
+export const getDeckProgressData = query({
+  args: {},
+  returns: v.array(v.object({
+    deckId: v.id("decks"),
+    studiedCards: v.number(),
+    totalCards: v.number(),
+    progressPercentage: v.number(),
+    status: v.union(v.literal("new"), v.literal("in-progress"), v.literal("mastered")),
+    lastStudied: v.optional(v.number()),
+  })),
+  handler: async (ctx, _args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("User must be authenticated to access deck progress data");
+    }
+
+    // Get user's decks
+    const decks = await ctx.db
+      .query("decks")
+      .filter((q) => q.eq(q.field("userId"), identity.subject))
+      .collect();
+
+    const deckProgressData = [];
+
+    for (const deck of decks) {
+      // Get cards for this deck
+      const cards = await ctx.db
+        .query("cards")
+        .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
+        .collect();
+
+      // Count studied cards (cards with repetition > 0)
+      const studiedCards = cards.filter(card => (card.repetition || 0) > 0).length;
+      const totalCards = cards.length;
+      const progressPercentage = totalCards > 0 ? Math.round((studiedCards / totalCards) * 100) : 0;
+
+      // Determine status
+      let status: "new" | "in-progress" | "mastered";
+      if (studiedCards === 0) {
+        status = "new";
+      } else if (progressPercentage >= 90) {
+        status = "mastered";
+      } else {
+        status = "in-progress";
+      }
+
+      // Get last studied date for this deck
+      const lastSession = await ctx.db
+        .query("studySessions")
+        .withIndex("by_userId_and_deckId", (q) =>
+          q.eq("userId", identity.subject).eq("deckId", deck._id)
+        )
+        .order("desc")
+        .first();
+
+      const lastStudied = lastSession ? new Date(lastSession.sessionDate).getTime() : undefined;
+
+      deckProgressData.push({
+        deckId: deck._id,
+        studiedCards,
+        totalCards,
+        progressPercentage,
+        status,
+        lastStudied,
+      });
+    }
+
+    return deckProgressData;
+  },
+});
+
+/**
  * Get spaced repetition insights across all user's decks
  */
 export const getSpacedRepetitionInsights = query({

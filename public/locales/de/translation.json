@@ -41,7 +41,20 @@
     "studyAria": "{{deckName}} Stapel lernen",
     "editDeckAria": "{{deckName}} Stapel bearbeiten",
     "noDescription": "Keine Beschreibung",
-    "createdOn": "Erstellt am {{date}}"
+    "createdOn": "Erstellt am {{date}}",
+    "lastStudied": "Zuletzt gelernt {{date}}",
+    "status": {
+      "new": "Neu",
+      "inProgress": "In Bearbeitung",
+      "mastered": "Gemeistert",
+      "newAria": "Dieser Stapel wurde noch nicht gelernt",
+      "inProgressAria": "Dieser Stapel wird gerade gelernt",
+      "masteredAria": "Dieser Stapel wurde gemeistert"
+    },
+    "progress": {
+      "label": "Fortschritt",
+      "aria": "{{percentage}}% abgeschlossen"
+    }
   },
   "emptyState": {
     "title": "Noch keine Stapel",

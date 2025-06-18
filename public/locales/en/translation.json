@@ -41,7 +41,20 @@
     "studyAria": "Study {{deckName}} deck",
     "editDeckAria": "Edit {{deckName}} deck",
     "noDescription": "No description",
-    "createdOn": "Created {{date}}"
+    "createdOn": "Created {{date}}",
+    "lastStudied": "Last studied {{date}}",
+    "status": {
+      "new": "New",
+      "inProgress": "In Progress",
+      "mastered": "Mastered",
+      "newAria": "This deck has not been studied yet",
+      "inProgressAria": "This deck is currently being studied",
+      "masteredAria": "This deck has been mastered"
+    },
+    "progress": {
+      "label": "Progress",
+      "aria": "{{percentage}}% complete"
+    }
   },
   "emptyState": {
     "title": "No decks yet",

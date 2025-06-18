@@ -33,6 +33,15 @@ interface Deck {
   cardCount: number;
 }
 
+interface DeckProgress {
+  deckId: Id<"decks">;
+  studiedCards: number;
+  totalCards: number;
+  progressPercentage: number;
+  status: "new" | "in-progress" | "mastered";
+  lastStudied?: number;
+}
+
 // Main Dashboard wrapper that handles all navigation state
 export const Dashboard = forwardRef<{ goHome: () => void }>(function Dashboard(_, ref) {
   const [showingStatistics, setShowingStatistics] = useState(false);
@@ -148,6 +157,7 @@ function DashboardContent({
 
   // Only fetch decks when we're in the main dashboard content
   const decks = useQuery(api.decks.getDecksForUser);
+  const deckProgressData = useQuery(api.statistics.getDeckProgressData);
 
   // Track decks loading errors (side effect)
   useEffect(() => {
@@ -161,7 +171,7 @@ function DashboardContent({
   }, [decks, errorTracked.decks, trackConvexQuery, user?.id]);
 
   // Loading state
-  if (decks === undefined) {
+  if (decks === undefined || deckProgressData === undefined) {
     return <DeckListSkeleton />;
   }
 
@@ -239,14 +249,18 @@ function DashboardContent({
         <EmptyState />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {decks.map((deck) => (
-            <DeckCard
-              key={deck._id}
-              deck={deck}
-              onStartStudy={() => onStartStudy(deck._id)}
-              onManageCards={() => onManageCards(deck._id)}
-            />
-          ))}
+          {decks.map((deck) => {
+            const progressData = deckProgressData.find(p => p.deckId === deck._id);
+            return (
+              <DeckCard
+                key={deck._id}
+                deck={deck}
+                progressData={progressData}
+                onStartStudy={() => onStartStudy(deck._id)}
+                onManageCards={() => onManageCards(deck._id)}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -290,8 +304,17 @@ const EmptyState = memo(function EmptyState() {
   );
 });
 
-const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: { deck: Deck; onStartStudy: () => void; onManageCards: () => void }) {
-  // No longer need to query cards - we have the count directly from the deck
+const DeckCard = memo(function DeckCard({
+  deck,
+  progressData,
+  onStartStudy,
+  onManageCards
+}: {
+  deck: Deck;
+  progressData?: DeckProgress;
+  onStartStudy: () => void;
+  onManageCards: () => void;
+}) {
   const { t, i18n } = useTranslation();
 
   const formatDate = (timestamp: number) => {
@@ -305,11 +328,70 @@ const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: {
     });
   };
 
+  // Get status badge configuration
+  const getStatusBadge = () => {
+    if (!progressData) return null;
+
+    const { status } = progressData;
+    const badgeConfig = {
+      new: {
+        text: t('deck.status.new'),
+        className: 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600',
+        ariaLabel: t('deck.status.newAria')
+      },
+      'in-progress': {
+        text: t('deck.status.inProgress'),
+        className: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700',
+        ariaLabel: t('deck.status.inProgressAria')
+      },
+      mastered: {
+        text: t('deck.status.mastered'),
+        className: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700',
+        ariaLabel: t('deck.status.masteredAria')
+      }
+    };
+
+    const config = badgeConfig[status];
+    return (
+      <div
+        className={`status-badge absolute top-3 right-3 px-2 py-1 text-xs font-medium rounded-md border ${config.className} transition-colors duration-200`}
+        aria-label={config.ariaLabel}
+      >
+        {config.text}
+      </div>
+    );
+  };
+
+  // Get progress bar configuration
+  const getProgressConfig = () => {
+    if (!progressData) return null;
+
+    const { progressPercentage, status } = progressData;
+    const progressConfig = {
+      new: 'bg-slate-200 dark:bg-slate-700',
+      'in-progress': 'bg-blue-500 dark:bg-blue-400',
+      mastered: 'bg-green-500 dark:bg-green-400'
+    };
+
+    return {
+      percentage: progressPercentage,
+      barColor: progressConfig[status],
+      textColor: status === 'mastered' ? 'text-green-700 dark:text-green-300' :
+                 status === 'in-progress' ? 'text-blue-700 dark:text-blue-300' :
+                 'text-slate-600 dark:text-slate-400'
+    };
+  };
+
+  const progressConfig = getProgressConfig();
+
   return (
-    <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 p-8 rounded-xl border border-slate-200/60 dark:border-slate-700/60 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg dark:hover:shadow-slate-900/20 transition-all duration-300 group shadow-sm">
+    <div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 p-8 rounded-xl border border-slate-200/60 dark:border-slate-700/60 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg dark:hover:shadow-slate-900/20 transition-all duration-300 group shadow-sm">
+      {/* Status Badge */}
+      {getStatusBadge()}
+
       <div className="flex flex-col h-full">
         {/* Deck Header */}
-        <div className="flex-1 mb-6">
+        <div className="flex-1 mb-6 pr-16"> {/* Add right padding to avoid status badge overlap */}
           <h3 className="text-xl font-bold mb-4 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors line-clamp-2 tracking-tight">
             {deck.name}
           </h3>
@@ -321,13 +403,43 @@ const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: {
           )}
         </div>
 
+        {/* Progress Bar */}
+        {progressConfig && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                {t('deck.progress.label')}
+              </span>
+              <span className={`text-xs font-semibold ${progressConfig.textColor}`}>
+                {progressConfig.percentage}%
+              </span>
+            </div>
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+              <div
+                className={`progress-bar h-full ${progressConfig.barColor} transition-all duration-500 ease-out rounded-full`}
+                style={{ width: `${progressConfig.percentage}%` }}
+                role="progressbar"
+                aria-valuenow={progressConfig.percentage}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={t('deck.progress.aria', { percentage: progressConfig.percentage })}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Deck Metadata */}
         <div className="flex items-center justify-between mb-4 pt-4 border-t border-slate-200/60 dark:border-slate-700/60">
-          <div className="flex items-center gap-3">
-            <span className="text-xs bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 px-2.5 py-1.5 rounded-md font-medium border border-slate-200/50 dark:border-slate-600/50">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="deck-metadata-badge text-xs bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 px-2.5 py-1.5 rounded-md font-medium border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200">
               {t('deck.cardCount', { count: deck.cardCount })}
             </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            {progressData?.lastStudied && (
+              <span className="deck-metadata-badge text-xs bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 px-2.5 py-1.5 rounded-md font-medium border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200">
+                {t('deck.lastStudied', { date: formatDate(progressData.lastStudied) })}
+              </span>
+            )}
+            <span className="deck-metadata-badge text-xs text-slate-500 dark:text-slate-400 font-medium hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-200">
               {t('deck.createdOn', { date: formatDate(deck._creationTime) })}
             </span>
           </div>
@@ -337,14 +449,14 @@ const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: {
         <div className="flex items-center gap-2">
           <button
             onClick={onManageCards}
-            className="flex-1 text-sm bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-medium border border-slate-200/50 dark:border-slate-600/50"
+            className="flex-1 text-sm bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 font-medium border border-slate-200/50 dark:border-slate-600/50 hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
             aria-label={t('deck.manageCardsAria', { deckName: deck.name })}
           >
             {t('deck.manageCards')}
           </button>
           <button
             onClick={onStartStudy}
-            className="flex-1 text-sm bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+            className="flex-1 text-sm bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
             aria-label={t('deck.studyAria', { deckName: deck.name })}
           >
             {t('deck.studyNow')}

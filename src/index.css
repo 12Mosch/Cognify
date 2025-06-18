@@ -286,4 +286,45 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Deck Card Enhancements */
+
+/* Hover animations for metadata badges - only when motion is preferred */
+@media (prefers-reduced-motion: no-preference) {
+  .deck-metadata-badge {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .deck-metadata-badge:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Progress bar animation */
+  .progress-bar {
+    transition: width 0.5s ease-out;
+  }
+
+  /* Status badge hover effects */
+  .status-badge {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .status-badge:hover {
+    transform: scale(1.05);
+  }
+}
+
+/* Static fallbacks for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .deck-metadata-badge,
+  .progress-bar,
+  .status-badge {
+    transition: none;
+  }
+
+  .deck-metadata-badge:hover,
+  .status-badge:hover {
+    transform: none;
+  }
+}
+
 
