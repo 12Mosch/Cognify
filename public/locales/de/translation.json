@@ -32,12 +32,14 @@
     "cardCount_other": "{{count}} Karten",
     "studyNow": "Jetzt lernen",
     "manageCards": "Karten verwalten",
+    "editDeck": "Stapel bearbeiten",
     "dueCards_one": "{{count}} fällig",
     "dueCards_other": "{{count}} fällig",
     "newCards_one": "{{count}} neu",
     "newCards_other": "{{count}} neu",
     "manageCardsAria": "Karten in {{deckName}} Stapel verwalten",
     "studyAria": "{{deckName}} Stapel lernen",
+    "editDeckAria": "{{deckName}} Stapel bearbeiten",
     "noDescription": "Keine Beschreibung",
     "createdOn": "Erstellt am {{date}}"
   },
@@ -142,6 +144,18 @@
       "creating": "Erstelle...",
       "cancel": "Abbrechen",
       "buttonLabel": "Neuen Stapel erstellen",
+      "characterCount": "{{current}}/{{max}} Zeichen"
+    },
+    "editDeck": {
+      "title": "Stapel bearbeiten",
+      "name": "Stapelname",
+      "namePlaceholder": "Stapelname eingeben",
+      "description": "Beschreibung (optional)",
+      "descriptionPlaceholder": "Stapelbeschreibung eingeben",
+      "update": "Stapel aktualisieren",
+      "updating": "Aktualisiere...",
+      "cancel": "Abbrechen",
+      "buttonLabel": "Stapel bearbeiten",
       "characterCount": "{{current}}/{{max}} Zeichen"
     },
     "quickAddCard": {
@@ -464,6 +478,8 @@
   "notifications": {
     "deckCreated": "Stapel erfolgreich erstellt!",
     "deckCreatedWithName": "\"{{deckName}}\" erfolgreich erstellt!",
+    "deckUpdated": "Stapel erfolgreich aktualisiert!",
+    "deckUpdatedWithName": "\"{{deckName}}\" erfolgreich aktualisiert!",
     "cardAdded": "Karte erfolgreich hinzugefügt!",
     "cardUpdated": "Karte erfolgreich aktualisiert!",
     "cardDeleted": "Karte erfolgreich gelöscht!",
@@ -496,6 +512,7 @@
   "deckView": {
     "title": "Karten verwalten",
     "backToDashboard": "Zurück zum Dashboard",
+    "editDeck": "Stapel bearbeiten",
     "addCard": "Karte hinzufügen",
     "editCard": "Karte bearbeiten",
     "deleteCard": "Karte löschen",

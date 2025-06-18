@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { DeckViewSkeleton } from "./skeletons/SkeletonComponents";
+import { EditDeckForm } from "./EditDeckForm";
 import { toastHelpers, showErrorToast, showSuccessToast } from "../lib/toast";
 import { useErrorMonitoring, withFormErrorMonitoring } from "../lib/errorMonitoring";
 import { useUser } from "@clerk/clerk-react";
@@ -25,6 +26,7 @@ interface Card {
 function DeckView({ deckId, onBack }: DeckViewProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCard, setEditingCard] = useState<Card | null>(null);
+  const [showEditDeckForm, setShowEditDeckForm] = useState(false);
   const [errorTracked, setErrorTracked] = useState<{deck?: boolean, cards?: boolean}>({});
 
   const { t } = useTranslation();
@@ -62,6 +64,12 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
   useEffect(() => {
     setErrorTracked({});
   }, [deckId]);
+
+  // Success handler for deck editing
+  const handleEditDeckSuccess = (deckName?: string) => {
+    setShowEditDeckForm(false);
+    toastHelpers.deckUpdated(deckName);
+  };
 
   // Loading state
   if (deck === undefined || cards === undefined) {
@@ -112,12 +120,21 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
-        >
-          + {t('deckView.addCard')}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowEditDeckForm(true)}
+            className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-3 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity font-medium"
+            aria-label={t('deck.editDeckAria', { deckName: deck.name })}
+          >
+            {t('deckView.editDeck')}
+          </button>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
+          >
+            + {t('deckView.addCard')}
+          </button>
+        </div>
       </div>
 
       {/* Add Card Form */}
@@ -141,6 +158,16 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
             setEditingCard(null);
             toastHelpers.cardUpdated();
           }}
+        />
+      )}
+
+      {/* Edit Deck Form */}
+      {showEditDeckForm && deck && (
+        <EditDeckForm
+          deck={deck}
+          onSuccess={handleEditDeckSuccess}
+          onCancel={() => setShowEditDeckForm(false)}
+          forceShowForm={true}
         />
       )}
 

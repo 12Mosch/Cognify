@@ -95,6 +95,7 @@ export function showInfoToast(message: string): void {
  */
 export const getSuccessMessages = () => ({
   DECK_CREATED: i18n.t('notifications.deckCreated'),
+  DECK_UPDATED: i18n.t('notifications.deckUpdated'),
   CARD_CREATED: i18n.t('notifications.cardAdded'),
   CARD_UPDATED: i18n.t('notifications.cardUpdated'),
   CARD_DELETED: i18n.t('notifications.cardDeleted'),
@@ -118,6 +119,9 @@ export const getErrorMessages = () => ({
 export const toastHelpers = {
   deckCreated: (deckName?: string) =>
     showSuccessToast(deckName ? i18n.t('notifications.deckCreatedWithName', { deckName }) : getSuccessMessages().DECK_CREATED),
+
+  deckUpdated: (deckName?: string) =>
+    showSuccessToast(deckName ? i18n.t('notifications.deckUpdatedWithName', { deckName }) : getSuccessMessages().DECK_UPDATED),
 
   cardCreated: () =>
     showSuccessToast(getSuccessMessages().CARD_CREATED),

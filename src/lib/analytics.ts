@@ -106,6 +106,7 @@ export interface UserCohortProperties {
 export type AnalyticsEvent =
   | 'user_signed_up'
   | 'deck_created'
+  | 'deck_updated'
   | 'card_created'
   | 'study_session_started'
   | 'study_session_completed'
@@ -135,6 +136,10 @@ export type AnalyticsEvent =
 export interface AnalyticsEventData {
   user_signed_up: Record<string, never>; // No additional data needed
   deck_created: {
+    deckId?: string;
+    deckName?: string;
+  };
+  deck_updated: {
     deckId?: string;
     deckName?: string;
   };
@@ -373,6 +378,20 @@ export function trackDeckCreated(
   deckName?: string
 ): void {
   trackEvent(posthog, 'deck_created', {
+    deckId,
+    deckName,
+  });
+}
+
+/**
+ * Track deck update event
+ */
+export function trackDeckUpdated(
+  posthog: ReturnType<typeof usePostHog> | null,
+  deckId?: string,
+  deckName?: string
+): void {
+  trackEvent(posthog, 'deck_updated', {
     deckId,
     deckName,
   });
@@ -1671,6 +1690,8 @@ export function useAnalytics() {
     trackUserSignUp: () => trackUserSignUp(posthog),
     trackDeckCreated: (deckId?: string, deckName?: string) =>
       trackDeckCreated(posthog, deckId, deckName),
+    trackDeckUpdated: (deckId?: string, deckName?: string) =>
+      trackDeckUpdated(posthog, deckId, deckName),
     trackCardCreated: (cardId?: string, deckName?: string) =>
       trackCardCreated(posthog, cardId, deckName),
     trackStudySessionStarted: (deckId: string, deckName?: string, cardCount?: number) =>

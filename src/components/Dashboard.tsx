@@ -197,8 +197,6 @@ function DashboardContent({
     }
   };
 
-
-
   return (
     <div className="flex flex-col gap-8 max-w-6xl mx-auto">
       {/* Header */}
@@ -254,8 +252,6 @@ function DashboardContent({
 
       {/* Privacy Banner */}
       <PrivacyBanner />
-
-
     </div>
   );
 }
@@ -338,7 +334,7 @@ const DeckCard = memo(function DeckCard({ deck, onStartStudy, onManageCards }: {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={onManageCards}
             className="flex-1 text-sm bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-medium border border-slate-200/50 dark:border-slate-600/50"

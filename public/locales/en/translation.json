@@ -32,12 +32,14 @@
     "cardCount_other": "{{count}} cards",
     "studyNow": "Study Now",
     "manageCards": "Manage Cards",
+    "editDeck": "Edit Deck",
     "dueCards_one": "{{count}} due",
     "dueCards_other": "{{count}} due",
     "newCards_one": "{{count}} new",
     "newCards_other": "{{count}} new",
     "manageCardsAria": "Manage cards in {{deckName}} deck",
     "studyAria": "Study {{deckName}} deck",
+    "editDeckAria": "Edit {{deckName}} deck",
     "noDescription": "No description",
     "createdOn": "Created {{date}}"
   },
@@ -142,6 +144,18 @@
       "creating": "Creating...",
       "cancel": "Cancel",
       "buttonLabel": "Create new deck",
+      "characterCount": "{{current}}/{{max}} characters"
+    },
+    "editDeck": {
+      "title": "Edit Deck",
+      "name": "Deck Name",
+      "namePlaceholder": "Enter deck name",
+      "description": "Description (optional)",
+      "descriptionPlaceholder": "Enter deck description",
+      "update": "Update Deck",
+      "updating": "Updating...",
+      "cancel": "Cancel",
+      "buttonLabel": "Edit deck",
       "characterCount": "{{current}}/{{max}} characters"
     },
     "quickAddCard": {
@@ -464,6 +478,8 @@
   "notifications": {
     "deckCreated": "Deck created successfully!",
     "deckCreatedWithName": "\"{{deckName}}\" created successfully!",
+    "deckUpdated": "Deck updated successfully!",
+    "deckUpdatedWithName": "\"{{deckName}}\" updated successfully!",
     "cardAdded": "Card added successfully!",
     "cardUpdated": "Card updated successfully!",
     "cardDeleted": "Card deleted successfully!",
@@ -496,6 +512,7 @@
   "deckView": {
     "title": "Manage Cards",
     "backToDashboard": "Back to Dashboard",
+    "editDeck": "Edit Deck",
     "addCard": "Add Card",
     "editCard": "Edit Card",
     "deleteCard": "Delete Card",
