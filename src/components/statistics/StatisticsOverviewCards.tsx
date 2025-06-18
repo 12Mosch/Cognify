@@ -163,10 +163,10 @@ const StatisticsCard = memo(function StatisticsCard({
         };
       case 'green':
         return {
-          bg: 'bg-teal-500/10 dark:bg-teal-400/10',
-          border: 'border-teal-200 dark:border-teal-800',
-          text: 'text-teal-600 dark:text-teal-400',
-          glow: 'shadow-teal-500/20 dark:shadow-teal-400/20',
+          bg: 'bg-green-500/10 dark:bg-green-400/10',
+          border: 'border-green-200 dark:border-green-800',
+          text: 'text-green-600 dark:text-green-400',
+          glow: 'shadow-green-500/20 dark:shadow-green-400/20',
         };
       case 'orange':
         return {

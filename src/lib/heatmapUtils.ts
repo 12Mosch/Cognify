@@ -230,8 +230,6 @@ export function getActivityLevelClasses(level: 0 | 1 | 2 | 3 | 4): string {
       return 'bg-blue-400 dark:bg-blue-700/80 border-blue-500 dark:border-blue-600';
     case 4:
       return 'bg-blue-500 dark:bg-blue-600 border-blue-600 dark:border-blue-500';
-    default:
-      return 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700';
   }
 }
 

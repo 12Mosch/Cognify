@@ -77,10 +77,7 @@ export const getUserStatistics = query({
 
       // Check if user studied today or yesterday to start current streak
       let streakStarted = false;
-      if (studyDates.includes(todayStr)) {
-        currentStreak = 1;
-        streakStarted = true;
-      } else if (studyDates.includes(yesterdayStr)) {
+      if (studyDates.includes(todayStr) || studyDates.includes(yesterdayStr)) {
         currentStreak = 1;
         streakStarted = true;
       }

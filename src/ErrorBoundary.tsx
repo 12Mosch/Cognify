@@ -395,7 +395,7 @@ class ErrorBoundaryClass extends Component<
                 <div>
                   <h4 className="font-medium text-sm">Component Stack:</h4>
                   <pre className="p-3 bg-slate-100 dark:bg-slate-800 rounded text-xs overflow-auto max-h-40">
-                    {this.state.errorInfo.componentStack}
+                    {this.state.errorInfo?.componentStack}
                   </pre>
                 </div>
               )}
