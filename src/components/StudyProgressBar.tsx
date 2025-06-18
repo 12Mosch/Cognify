@@ -37,7 +37,8 @@ export function StudyProgressBar({
   const { t } = useTranslation();
 
   // Calculate progress percentage
-  const progressPercentage = Math.round((currentPosition / totalCards) * 100);
+  const raw = totalCards > 0 ? (currentPosition / totalCards) * 100 : 0;
+  const progressPercentage = Math.min(100, Math.max(0, Math.round(raw)));
   
   // Determine colors based on completion status
   const colors = isCompleted ? {

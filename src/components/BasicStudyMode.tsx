@@ -289,7 +289,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
       <StudyProgressBar
         currentPosition={currentCardIndex + 1}
         totalCards={cards.length}
-        isCompleted={false}
+        isCompleted={currentCardIndex === cards.length - 1}
         className="flex-shrink-0 mb-6"
       />
 

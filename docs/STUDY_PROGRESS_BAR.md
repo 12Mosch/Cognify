@@ -79,7 +79,7 @@ The component replaces the simple progress bar in `BasicStudyMode.tsx`:
 <StudyProgressBar
   currentPosition={currentCardIndex + 1}
   totalCards={cards.length}
-  isCompleted={false}
+  isCompleted={currentCardIndex === cards.length - 1}
   className="flex-shrink-0 mb-6"
 />
 ```
@@ -92,7 +92,7 @@ Added to `SpacedRepetitionMode.tsx` to provide progress feedback:
 <StudyProgressBar
   currentPosition={currentCardIndex + 1}
   totalCards={studyQueue.length}
-  isCompleted={false}
+  isCompleted={currentCardIndex + 1 >= studyQueue.length}
   className="flex-shrink-0 mb-6"
 />
 ```

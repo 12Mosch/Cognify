@@ -670,7 +670,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       <StudyProgressBar
         currentPosition={currentCardIndex + 1}
         totalCards={studyQueue.length}
-        isCompleted={false}
+        isCompleted={currentCardIndex + 1 >= studyQueue.length}
         className="flex-shrink-0 mb-6"
       />
 
