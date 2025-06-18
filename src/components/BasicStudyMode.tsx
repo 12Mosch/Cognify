@@ -9,6 +9,7 @@ import HelpIcon from "./HelpIcon";
 import PostSessionSummary from "./PostSessionSummary";
 import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
 import { FlashcardSkeleton } from "./skeletons/SkeletonComponents";
+import { StudyProgressBar } from "./StudyProgressBar";
 
 interface BasicStudyModeProps {
   deckId: Id<"decks">;
@@ -253,13 +254,13 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
         </div>
       </div>
 
-      {/* Progress Bar */}
-      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 flex-shrink-0 mb-6">
-        <div
-          className="bg-dark dark:bg-light h-2 rounded-full transition-all duration-300"
-          style={{ width: `${((currentCardIndex + 1) / cards.length) * 100}%` }}
-        ></div>
-      </div>
+      {/* Study Progress Bar */}
+      <StudyProgressBar
+        currentPosition={currentCardIndex + 1}
+        totalCards={cards.length}
+        isCompleted={false}
+        className="flex-shrink-0 mb-6"
+      />
 
       {/* Flashcard with 3D Flip Animation - Takes remaining height */}
       <div

@@ -72,6 +72,13 @@
     "exitStudy": "Exit Study",
     "spacedRepetitionMode": "Spaced Repetition Mode",
     "cardProgress": "Card {{current}} of {{total}}",
+    "progress": {
+      "cardPosition": "Card {{current}} of {{total}}",
+      "completed": "Complete",
+      "aria": "Study progress: {{current}} of {{total}} cards completed, {{percentage}}% done",
+      "completedAria": "Study session completed! All {{total}} cards reviewed.",
+      "inProgressAria": "Study session in progress: {{current}} of {{total}} cards completed"
+    },
     "deckNotFound": {
       "title": "Deck Not Found",
       "message": "The deck you're looking for doesn't exist or you don't have access to it.",

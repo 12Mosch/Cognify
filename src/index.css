@@ -311,13 +311,24 @@
   .status-badge:hover {
     transform: scale(1.05);
   }
+
+  /* Study progress bar animations */
+  .study-progress-bar {
+    transition: width 0.5s ease-out;
+  }
+
+  .study-progress-container {
+    transition: opacity 0.3s ease-in-out;
+  }
 }
 
 /* Static fallbacks for reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .deck-metadata-badge,
   .progress-bar,
-  .status-badge {
+  .status-badge,
+  .study-progress-bar,
+  .study-progress-container {
     transition: none;
   }
 

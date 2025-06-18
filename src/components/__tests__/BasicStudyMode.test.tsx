@@ -90,7 +90,7 @@ describe('BasicStudyMode', () => {
       expect(screen.getByText('Test Deck')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Card 1 of 2')).toBeInTheDocument();
+    expect(screen.getAllByText('Card 1 of 2')).toHaveLength(2); // Header and progress bar
     expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
     expect(screen.getByLabelText('Show keyboard shortcuts help')).toBeInTheDocument();
   });
@@ -145,7 +145,7 @@ describe('BasicStudyMode', () => {
       expect(screen.getByText('What is the capital of France?')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Card 2 of 2')).toBeInTheDocument();
+    expect(screen.getAllByText('Card 2 of 2')).toHaveLength(2); // Header and progress bar
   });
 
   it('navigates to previous card when Left Arrow key is pressed', async () => {
@@ -171,7 +171,7 @@ describe('BasicStudyMode', () => {
       expect(screen.getByText('What is 2+2?')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Card 1 of 2')).toBeInTheDocument();
+    expect(screen.getAllByText('Card 1 of 2')).toHaveLength(2); // Header and progress bar
   });
 
   it('opens keyboard shortcuts modal when ? key is pressed', async () => {

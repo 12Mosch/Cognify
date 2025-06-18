@@ -21,6 +21,7 @@ import PostSessionSummary from "./PostSessionSummary";
 import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
 import { formatNextReviewTime } from "../lib/dateUtils";
 import { FlashcardSkeleton } from "./skeletons/SkeletonComponents";
+import { StudyProgressBar } from "./StudyProgressBar";
 
 interface SpacedRepetitionModeProps {
   deckId: Id<"decks">;
@@ -632,6 +633,14 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
           </button>
         </div>
       </div>
+
+      {/* Study Progress Bar */}
+      <StudyProgressBar
+        currentPosition={currentCardIndex + 1}
+        totalCards={studyQueue.length}
+        isCompleted={false}
+        className="flex-shrink-0 mb-6"
+      />
 
       {/* Flashcard with 3D Flip Animation - Takes remaining height */}
       <div

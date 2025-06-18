@@ -72,6 +72,13 @@
     "exitStudy": "Lernen beenden",
     "spacedRepetitionMode": "Spaced-Repetition-Modus",
     "cardProgress": "Karte {{current}} von {{total}}",
+    "progress": {
+      "cardPosition": "Karte {{current}} von {{total}}",
+      "completed": "Abgeschlossen",
+      "aria": "Lernfortschritt: {{current}} von {{total}} Karten bearbeitet, {{percentage}}% erledigt",
+      "completedAria": "Lernsitzung abgeschlossen! Alle {{total}} Karten wurden durchgegangen.",
+      "inProgressAria": "Lernsitzung läuft: {{current}} von {{total}} Karten bearbeitet"
+    },
     "deckNotFound": {
       "title": "Stapel nicht gefunden",
       "message": "Der gesuchte Stapel existiert nicht oder Sie haben keinen Zugriff darauf.",
