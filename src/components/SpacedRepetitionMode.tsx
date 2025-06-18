@@ -22,6 +22,10 @@ import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
 import { formatNextReviewTime } from "../lib/dateUtils";
 import { FlashcardSkeleton } from "./skeletons/SkeletonComponents";
 import { StudyProgressBar } from "./StudyProgressBar";
+import { DifficultyIndicator } from "./DifficultyIndicator";
+import { useFlashcardGestures, initializeGestureStyles, isTouchDevice } from "../lib/gestureUtils";
+import GestureTutorial from "./GestureTutorial";
+import { useGestureTutorial } from "../lib/gestureTutorialUtils";
 
 interface SpacedRepetitionModeProps {
   deckId: Id<"decks">;
@@ -97,6 +101,25 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
   const { trackStudySessionStarted, posthog } = useAnalytics();
   const { trackEventBatched, hasConsent } = useAnalyticsEnhanced();
   const { trackConvexMutation, trackStudySession, captureError, trackConvexQuery } = useErrorMonitoring();
+
+  // Gesture tutorial management
+  const gestureTutorial = useGestureTutorial('spaced-repetition');
+
+  // Initialize gesture styles on component mount
+  useEffect(() => {
+    initializeGestureStyles();
+  }, []);
+
+  // Show gesture tutorial when session starts (only on first study session)
+  useEffect(() => {
+    if (sessionStarted && gestureTutorial.shouldShow && studyQueue.length > 0) {
+      // Small delay to let the study interface load first
+      const timer = setTimeout(() => {
+        gestureTutorial.showTutorial();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [sessionStarted, gestureTutorial, studyQueue.length]);
 
   // Initialize study queue when data is loaded
   useEffect(() => {
@@ -369,6 +392,15 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
       setFlipStartTime(Date.now()); // Reset flip timer for new card
     }
   }, [studyQueue, currentCardIndex, initializeCard, reviewCard, deckId, hasConsent, trackEventBatched, cardsReviewed, posthog, sessionId, sessionStartTime, handleSessionCompletion, trackConvexMutation]);
+
+  // Configure gesture handlers for mobile touch interactions
+  const gestureHandlers = useFlashcardGestures({
+    onFlipCard: handleFlipCard,
+    onRateEasy: () => isFlipped && void handleReview(5), // Easy rating on right swipe when flipped
+    onRateHard: () => isFlipped && void handleReview(0), // Again rating on down swipe when flipped
+    disabled: showKeyboardHelp || studyQueue.length === 0,
+    studyMode: 'spaced-repetition',
+  });
 
   /**
    * Reset session state to start a new study session
@@ -650,13 +682,23 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
         tabIndex={0}
         role="button"
         aria-label={isFlipped ? "Click to show question" : "Click to show answer"}
+        {...gestureHandlers}
       >
         <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
           {/* Front side (Question) */}
           <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
             {/* Content area with proper spacing */}
             <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
-              <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.front')}</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.front')}</h2>
+                <DifficultyIndicator
+                  repetition={currentCard.repetition}
+                  easeFactor={currentCard.easeFactor}
+                  interval={currentCard.interval}
+                  variant="compact"
+                  showLabel={true}
+                />
+              </div>
               {/* Scrollable text content area */}
               <div className="flex-1 overflow-y-auto px-2 py-4" style={{ minHeight: 0 }}>
                 <p className="text-2xl leading-relaxed text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.front}</p>
@@ -675,9 +717,12 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
               >
                 {t('study.showAnswer')}
               </button>
-              {/* Flip hint */}
+              {/* Flip hint with gesture support */}
               <div className="text-sm text-slate-500 dark:text-slate-400 mt-4 pointer-events-none">
-                Click anywhere or press Space/Enter to flip
+                {isTouchDevice()
+                  ? 'Tap or swipe left to show answer'
+                  : 'Click anywhere or press Space/Enter to flip'
+                }
               </div>
             </div>
           </div>
@@ -686,7 +731,16 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
           <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
             {/* Content area with proper spacing */}
             <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
-              <h2 className="text-lg font-semibold mb-6 text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.back')}</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.back')}</h2>
+                <DifficultyIndicator
+                  repetition={currentCard.repetition}
+                  easeFactor={currentCard.easeFactor}
+                  interval={currentCard.interval}
+                  variant="compact"
+                  showLabel={true}
+                />
+              </div>
               {/* Scrollable text content area */}
               <div className="flex-1 overflow-y-auto px-2 py-2" style={{ minHeight: 0 }}>
                 <p className="text-2xl leading-relaxed text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.back}</p>
@@ -753,9 +807,12 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
                   </span>
                 </button>
               </div>
-              {/* Flip hint */}
+              {/* Flip hint with gesture support */}
               <div className="text-sm text-slate-500 dark:text-slate-400 mt-4 pointer-events-none">
-                Click anywhere or press Space/Enter to flip back
+                {isTouchDevice()
+                  ? 'Swipe left to flip • Swipe right for Easy • Swipe down for Again'
+                  : 'Click anywhere or press Space/Enter to flip back'
+                }
               </div>
             </div>
             </div>
@@ -768,6 +825,13 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
         isOpen={showKeyboardHelp}
         onClose={() => setShowKeyboardHelp(false)}
         shortcuts={getKeyboardShortcuts('spaced-repetition')}
+        studyMode="spaced-repetition"
+      />
+
+      {/* Gesture Tutorial */}
+      <GestureTutorial
+        isOpen={gestureTutorial.isOpen}
+        onClose={gestureTutorial.closeTutorial}
         studyMode="spaced-repetition"
       />
     </div>

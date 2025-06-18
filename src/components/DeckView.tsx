@@ -9,6 +9,7 @@ import { toastHelpers, showErrorToast, showSuccessToast } from "../lib/toast";
 import { useErrorMonitoring, withFormErrorMonitoring } from "../lib/errorMonitoring";
 import { useUser } from "@clerk/clerk-react";
 import { usePostHog } from "posthog-js/react";
+import { DifficultyIndicator } from "./DifficultyIndicator";
 
 interface DeckViewProps {
   deckId: Id<"decks">;
@@ -21,6 +22,11 @@ interface Card {
   deckId: Id<"decks">;
   front: string;
   back: string;
+  // Spaced repetition fields
+  repetition?: number;
+  easeFactor?: number;
+  interval?: number;
+  dueDate?: number;
 }
 
 function DeckView({ deckId, onBack }: DeckViewProps) {
@@ -303,12 +309,21 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
 
         {/* Card Actions */}
         <div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700">
-          <button
-            onClick={handleFlipCard}
-            className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-          >
-            {isFlipped ? t('study.showFront') : t('study.showBack')}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleFlipCard}
+              className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+            >
+              {isFlipped ? t('study.showFront') : t('study.showBack')}
+            </button>
+            <DifficultyIndicator
+              repetition={card.repetition}
+              easeFactor={card.easeFactor}
+              interval={card.interval}
+              variant="compact"
+              showLabel={false}
+            />
+          </div>
           
           <div className="flex gap-2">
             <button

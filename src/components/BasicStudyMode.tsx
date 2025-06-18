@@ -10,6 +10,10 @@ import PostSessionSummary from "./PostSessionSummary";
 import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
 import { FlashcardSkeleton } from "./skeletons/SkeletonComponents";
 import { StudyProgressBar } from "./StudyProgressBar";
+import { DifficultyIndicator } from "./DifficultyIndicator";
+import { useFlashcardGestures, initializeGestureStyles, isTouchDevice } from "../lib/gestureUtils";
+import GestureTutorial from "./GestureTutorial";
+import { useGestureTutorial } from "../lib/gestureTutorialUtils";
 
 interface BasicStudyModeProps {
   deckId: Id<"decks">;
@@ -30,6 +34,25 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
   const cards = useQuery(api.cards.getCardsForDeck, { deckId });
 
   const { trackStudySessionStarted, trackCardFlipped } = useAnalytics();
+
+  // Gesture tutorial management
+  const gestureTutorial = useGestureTutorial('basic');
+
+  // Initialize gesture styles on component mount
+  useEffect(() => {
+    initializeGestureStyles();
+  }, []);
+
+  // Show gesture tutorial when session starts (only on first study session)
+  useEffect(() => {
+    if (sessionStarted && gestureTutorial.shouldShow && cards && cards.length > 0) {
+      // Small delay to let the study interface load first
+      const timer = setTimeout(() => {
+        gestureTutorial.showTutorial();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [sessionStarted, gestureTutorial, cards]);
 
   // Calculate cards reviewed based on current position (always accurate regardless of navigation)
   const cardsReviewed = currentCardIndex + 1;
@@ -78,6 +101,14 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
     setIsFlipped(prev => !prev);
     setFlipStartTime(Date.now());
   }, [showKeyboardHelp, cards, currentCardIndex, isFlipped, flipStartTime, trackCardFlipped, deckId]);
+
+  // Configure gesture handlers for mobile touch interactions
+  const gestureHandlers = useFlashcardGestures({
+    onFlipCard: handleFlipCard,
+    onNextCard: handleNextCard,
+    disabled: showKeyboardHelp || !cards || cards.length === 0,
+    studyMode: 'basic',
+  });
 
   // Reset analytics gate whenever we switch decks
   useEffect(() => {
@@ -270,13 +301,23 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
         tabIndex={0}
         role="button"
         aria-label={isFlipped ? "Click to show question" : "Click to show answer"}
+        {...gestureHandlers}
       >
         <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
           {/* Front side (Question) */}
           <div className="flashcard-side flashcard-front bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
             {/* Content area with proper spacing */}
             <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
-              <h2 className="text-lg font-semibold mb-4 text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.front')}</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.front')}</h2>
+                <DifficultyIndicator
+                  repetition={currentCard.repetition}
+                  easeFactor={currentCard.easeFactor}
+                  interval={currentCard.interval}
+                  variant="compact"
+                  showLabel={true}
+                />
+              </div>
               {/* Scrollable text content area */}
               <div className="flex-1 overflow-y-auto px-2 py-4" style={{ minHeight: 0 }}>
                 <p className="text-xl text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.front}</p>
@@ -284,9 +325,12 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
             </div>
             {/* Fixed bottom section for controls */}
             <div className="flex-shrink-0 mt-4">
-              {/* Flip hint */}
+              {/* Flip hint with gesture support */}
               <div className="text-sm text-slate-500 dark:text-slate-400 pointer-events-none">
-                Click anywhere or press Space/Enter to flip
+                {isTouchDevice()
+                  ? 'Tap or swipe left to flip • Swipe right for next card'
+                  : 'Click anywhere or press Space/Enter to flip'
+                }
               </div>
             </div>
           </div>
@@ -295,7 +339,16 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
           <div className="flashcard-side flashcard-back bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors flex flex-col text-center">
             {/* Content area with proper spacing */}
             <div className="flex-1 flex flex-col min-h-0 w-full pointer-events-none">
-              <h2 className="text-lg font-semibold mb-4 text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.back')}</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-slate-600 dark:text-slate-400">{t('forms.quickAddCard.back')}</h2>
+                <DifficultyIndicator
+                  repetition={currentCard.repetition}
+                  easeFactor={currentCard.easeFactor}
+                  interval={currentCard.interval}
+                  variant="compact"
+                  showLabel={true}
+                />
+              </div>
               {/* Scrollable text content area */}
               <div className="flex-1 overflow-y-auto px-2 py-4" style={{ minHeight: 0 }}>
                 <p className="text-xl text-slate-900 dark:text-slate-100 break-words text-center">{currentCard.back}</p>
@@ -303,9 +356,12 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
             </div>
             {/* Fixed bottom section for controls */}
             <div className="flex-shrink-0 mt-4">
-              {/* Flip hint */}
+              {/* Flip hint with gesture support */}
               <div className="text-sm text-slate-500 dark:text-slate-400 pointer-events-none">
-                Click anywhere or press Space/Enter to flip
+                {isTouchDevice()
+                  ? 'Tap or swipe left to flip back • Swipe right for next card'
+                  : 'Click anywhere or press Space/Enter to flip back'
+                }
               </div>
             </div>
           </div>
@@ -348,6 +404,13 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
         isOpen={showKeyboardHelp}
         onClose={() => setShowKeyboardHelp(false)}
         shortcuts={getKeyboardShortcuts('basic')}
+        studyMode="basic"
+      />
+
+      {/* Gesture Tutorial */}
+      <GestureTutorial
+        isOpen={gestureTutorial.isOpen}
+        onClose={gestureTutorial.closeTutorial}
         studyMode="basic"
       />
     </div>
