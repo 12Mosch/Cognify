@@ -55,7 +55,7 @@ export function DifficultyIndicator({
         )}
         <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
           <div
-            className={`h-full transition-all duration-300 ease-out ${difficultyInfo.color.bg.replace('bg-', 'bg-').replace('-100', '-500').replace('-900', '-500')}`}
+            className={`h-full transition-all duration-300 ease-out ${difficultyInfo.color.bg.replace('-100', '-500').replace('-900', '-500')}`}
             style={{ width: `${difficultyInfo.progress}%` }}
             role="progressbar"
             aria-valuenow={difficultyInfo.progress}
@@ -77,7 +77,7 @@ export function DifficultyIndicator({
         title={`${difficultyInfo.label} - ${difficultyInfo.description}`}
       >
         <div
-          className={`w-2 h-2 rounded-full ${difficultyInfo.color.bg.replace('bg-', 'bg-').replace('-100', '-500').replace('-900', '-500')}`}
+          className={`w-2 h-2 rounded-full ${difficultyInfo.color.bg.replace('-100', '-500').replace('-900', '-500')}`}
           aria-hidden="true"
         />
         {showLabel && (
@@ -108,7 +108,7 @@ export function DifficultyIndicator({
         
         <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
           <div
-            className={`h-full transition-all duration-300 ease-out ${difficultyInfo.color.bg.replace('bg-', 'bg-').replace('-100', '-500').replace('-900', '-500')}`}
+            className={`h-full transition-all duration-300 ease-out ${difficultyInfo.color.bg.replace('-100', '-500').replace('-900', '-500')}`}
             style={{ width: `${difficultyInfo.progress}%` }}
             role="progressbar"
             aria-valuenow={difficultyInfo.progress}
@@ -185,7 +185,7 @@ export function DifficultyStars({
           key={index}
           className={`w-3 h-3 ${
             index < filledStars
-              ? difficultyInfo.color.text.replace('text-', 'text-').replace('-700', '-500').replace('-300', '-400')
+              ? difficultyInfo.color.text.replace('-700', '-500').replace('-300', '-400')
               : 'text-slate-300 dark:text-slate-600'
           }`}
           fill="currentColor"
@@ -227,7 +227,7 @@ export function DifficultyDot({
 
   return (
     <div
-      className={`rounded-full ${sizeClasses[size]} ${difficultyInfo.color.bg.replace('bg-', 'bg-').replace('-100', '-500').replace('-900', '-500')} ${className}`}
+      className={`rounded-full ${sizeClasses[size]} ${difficultyInfo.color.bg.replace('-100', '-500').replace('-900', '-500')} ${className}`}
       role="status"
       aria-label={`Difficulty: ${difficultyInfo.label}`}
       title={`${difficultyInfo.label} - ${difficultyInfo.description}`}
