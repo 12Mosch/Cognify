@@ -142,9 +142,14 @@ export const updateCard = mutation({
 
     // Get the existing card
     const existingCard = await ctx.db.get(args.cardId);
-    
+
     if (!existingCard) {
       throw new Error("Card not found");
+    }
+
+    // Validate that the card has a valid deckId before using it
+    if (!existingCard.deckId) {
+      throw new Error("Card has invalid deck reference");
     }
 
     // Verify that the user owns the deck containing this card
@@ -209,9 +214,14 @@ export const deleteCard = mutation({
 
     // Get the existing card
     const existingCard = await ctx.db.get(args.cardId);
-    
+
     if (!existingCard) {
       throw new Error("Card not found");
+    }
+
+    // Validate that the card has a valid deckId before using it
+    if (!existingCard.deckId) {
+      throw new Error("Card has invalid deck reference");
     }
 
     // Verify that the user owns the deck containing this card

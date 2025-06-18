@@ -111,9 +111,14 @@ export const reviewCard = mutation({
 
     // Get the card
     const card = await ctx.db.get(args.cardId);
-    
+
     if (!card) {
       throw new Error("Card not found");
+    }
+
+    // Validate that the card has a valid deckId before using it
+    if (!card.deckId) {
+      throw new Error("Card has invalid deck reference");
     }
 
     // Get the deck to verify ownership
@@ -488,9 +493,14 @@ export const initializeCardForSpacedRepetition = mutation({
 
     // Get the card
     const card = await ctx.db.get(args.cardId);
-    
+
     if (!card) {
       throw new Error("Card not found");
+    }
+
+    // Validate that the card has a valid deckId before using it
+    if (!card.deckId) {
+      throw new Error("Card has invalid deck reference");
     }
 
     // Get the deck to verify ownership
