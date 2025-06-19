@@ -43,7 +43,7 @@ interface DeckProgress {
 }
 
 // Main Dashboard wrapper that handles all navigation state
-export const Dashboard = forwardRef<{ goHome: () => void }>(function Dashboard(_, ref) {
+export const Dashboard = forwardRef<{ goHome: () => void }, { onSettingsClick?: () => void }>(function Dashboard({ onSettingsClick }, ref) {
   const [showingStatistics, setShowingStatistics] = useState(false);
   const [studyingDeckId, setStudyingDeckId] = useState<Id<"decks"> | null>(null);
   const [studyMode, setStudyMode] = useState<'basic' | 'spaced-repetition' | null>(null);
@@ -135,6 +135,7 @@ export const Dashboard = forwardRef<{ goHome: () => void }>(function Dashboard(_
       onShowStatistics={() => setShowingStatistics(true)}
       onStartStudy={setSelectingStudyMode}
       onManageCards={setViewingDeckId}
+      onSettingsClick={onSettingsClick}
     />
   );
 });
@@ -143,11 +144,13 @@ export const Dashboard = forwardRef<{ goHome: () => void }>(function Dashboard(_
 function DashboardContent({
   onShowStatistics,
   onStartStudy,
-  onManageCards
+  onManageCards,
+  onSettingsClick
 }: {
   onShowStatistics: () => void;
   onStartStudy: (deckId: Id<"decks">) => void;
   onManageCards: (deckId: Id<"decks">) => void;
+  onSettingsClick?: () => void;
 }) {
   const [errorTracked, setErrorTracked] = useState<{decks?: boolean}>({});
   const { t } = useTranslation();
@@ -265,7 +268,7 @@ function DashboardContent({
       )}
 
       {/* Privacy Banner */}
-      <PrivacyBanner />
+      <PrivacyBanner onSettingsClick={onSettingsClick} />
     </div>
   );
 }

@@ -22,6 +22,7 @@ export default function App() {
 
   // State for Settings modal
   const [showSettings, setShowSettings] = useState(false);
+  const [onSettingsClosedCallback, setOnSettingsClosedCallback] = useState<(() => void) | null>(null);
 
   // Track user registration when user first signs up
   useEffect(() => {
@@ -89,7 +90,13 @@ export default function App() {
       </header>
       <main className="pt-20 p-8">
         <Authenticated>
-          <Dashboard ref={dashboardRef} />
+          <Dashboard
+            ref={dashboardRef}
+            onSettingsClick={(onSettingsClosed?: () => void) => {
+              setShowSettings(true);
+              setOnSettingsClosedCallback(() => onSettingsClosed || null);
+            }}
+          />
         </Authenticated>
         <Unauthenticated>
           <SignInForm />
@@ -99,7 +106,14 @@ export default function App() {
       {/* Settings Modal */}
       <SettingsModal
         isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
+        onClose={() => {
+          setShowSettings(false);
+          // Call the callback if it exists (from privacy banner)
+          if (onSettingsClosedCallback) {
+            onSettingsClosedCallback();
+            setOnSettingsClosedCallback(null);
+          }
+        }}
       />
 
       {/* Toast notifications */}
