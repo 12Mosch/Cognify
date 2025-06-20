@@ -8,6 +8,9 @@ import { Id } from "../../convex/_generated/dataModel";
 import { DeckListSkeleton, GenericSkeleton } from "./skeletons/SkeletonComponents";
 import { toastHelpers } from "../lib/toast";
 import StreakDisplay from "./StreakDisplay";
+import SmartSchedulingWidget from "./SmartSchedulingWidget";
+import AchievementsWidget from "./AchievementsWidget";
+import KnowledgeMapWidget from "./KnowledgeMapWidget";
 import PrivacyBanner from "./PrivacyBanner";
 import { useErrorMonitoring } from "../lib/errorMonitoring";
 import { useUser } from "@clerk/clerk-react";
@@ -17,6 +20,7 @@ const DeckView = lazy(() => import("./DeckView"));
 const StudyModeSelector = lazy(() => import("./StudyModeSelector"));
 const BasicStudyMode = lazy(() => import("./BasicStudyMode"));
 const SpacedRepetitionMode = lazy(() => import("./SpacedRepetitionMode"));
+const AdaptiveStudyMode = lazy(() => import("./AdaptiveStudyMode"));
 const StatisticsDashboard = lazy(() => import("./StatisticsDashboard"));
 
 // Loading fallback component with skeleton loaders
@@ -46,7 +50,7 @@ interface DeckProgress {
 export const Dashboard = forwardRef<{ goHome: () => void }, { onSettingsClick?: () => void }>(function Dashboard({ onSettingsClick }, ref) {
   const [showingStatistics, setShowingStatistics] = useState(false);
   const [studyingDeckId, setStudyingDeckId] = useState<Id<"decks"> | null>(null);
-  const [studyMode, setStudyMode] = useState<'basic' | 'spaced-repetition' | null>(null);
+  const [studyMode, setStudyMode] = useState<'basic' | 'spaced-repetition' | 'adaptive' | null>(null);
   const [selectingStudyMode, setSelectingStudyMode] = useState<Id<"decks"> | null>(null);
   const [viewingDeckId, setViewingDeckId] = useState<Id<"decks"> | null>(null);
 
@@ -90,7 +94,7 @@ export const Dashboard = forwardRef<{ goHome: () => void }, { onSettingsClick?: 
         <StudyModeSelector
           deckId={selectingStudyMode}
           deckName="Deck" // We'll get the name in the component
-          onSelectMode={(mode: 'basic' | 'spaced-repetition') => {
+          onSelectMode={(mode: 'basic' | 'spaced-repetition' | 'adaptive') => {
             setStudyMode(mode);
             setStudyingDeckId(selectingStudyMode);
             setSelectingStudyMode(null);
@@ -112,6 +116,15 @@ export const Dashboard = forwardRef<{ goHome: () => void }, { onSettingsClick?: 
       return (
         <Suspense fallback={<LoadingFallback type="flashcard" />}>
           <SpacedRepetitionMode
+            deckId={studyingDeckId}
+            onExit={handleExitStudy}
+          />
+        </Suspense>
+      );
+    } else if (studyMode === 'adaptive') {
+      return (
+        <Suspense fallback={<LoadingFallback type="flashcard" />}>
+          <AdaptiveStudyMode
             deckId={studyingDeckId}
             onExit={handleExitStudy}
           />
@@ -244,8 +257,15 @@ function DashboardContent({
         </div>
       </div>
 
-      {/* Streak Display */}
-      <StreakDisplay className="mb-6" />
+      {/* Streak Display, Smart Scheduling, and Achievements */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <StreakDisplay />
+        <SmartSchedulingWidget />
+        <AchievementsWidget />
+      </div>
+
+      {/* Knowledge Map Widget */}
+      <KnowledgeMapWidget className="mb-6" />
 
       {/* Decks Grid */}
       {decks.length === 0 ? (

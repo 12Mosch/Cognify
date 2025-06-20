@@ -4,7 +4,7 @@ import { Id } from "../../convex/_generated/dataModel";
 interface StudyModeSelectorProps {
   deckId: Id<"decks">;
   deckName: string;
-  onSelectMode: (mode: 'basic' | 'spaced-repetition') => void;
+  onSelectMode: (mode: 'basic' | 'spaced-repetition' | 'adaptive') => void;
   onCancel: () => void;
 }
 
@@ -14,6 +14,7 @@ interface StudyModeSelectorProps {
  * This component allows users to select between different study modes:
  * - Basic Study: Simple sequential review of all cards
  * - Spaced Repetition: Intelligent scheduling using SM-2 algorithm
+ * - Adaptive Learning: Personalized spaced repetition with learning patterns
  */
 function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onCancel }: StudyModeSelectorProps) {
   const { t } = useTranslation();
@@ -117,6 +118,54 @@ function StudyModeSelector({ deckId: _deckId, deckName, onSelectMode, onCancel }
                 </span>
                 <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded">
                   {t('study.modeSelector.spacedRepetition.features.retention')}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Adaptive Learning Mode */}
+        <div
+          className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer group"
+          onClick={() => onSelectMode('adaptive')}
+          data-testid="adaptive-learning-card"
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg
+                className="w-6 h-6 text-purple-600 dark:text-purple-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+                {t('study.modeSelector.adaptiveLearning.title', 'Adaptive Learning')}
+                <span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+                  {t('study.modeSelector.adaptiveLearning.subtitle', 'AI-Powered')}
+                </span>
+              </h3>
+              <p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
+                {t('study.modeSelector.adaptiveLearning.description', 'Personalized spaced repetition that adapts to your learning patterns, optimal study times, and individual performance.')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+                  {t('study.modeSelector.adaptiveLearning.features.personalized', 'Personalized')}
+                </span>
+                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+                  {t('study.modeSelector.adaptiveLearning.features.timeOptimized', 'Time-Optimized')}
+                </span>
+                <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+                  {t('study.modeSelector.adaptiveLearning.features.intelligent', 'Intelligent')}
                 </span>
               </div>
             </div>
