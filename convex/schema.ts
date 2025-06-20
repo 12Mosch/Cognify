@@ -10,7 +10,7 @@ export default defineSchema({
     name: v.string(),   // Name of the deck
     description: v.string(), // Description of the deck
     cardCount: v.number(), // Number of cards in this deck (for performance optimization)
-  }),
+  }).index("by_userId", ["userId"]), // Index for efficient user deck queries
 
   // Cards table - stores individual flashcards
   cards: defineTable({
@@ -80,9 +80,131 @@ export default defineSchema({
     easeFactorAfter: v.number(),  // Ease factor after this review
     // Metadata
     reviewDuration: v.optional(v.number()), // Time spent on this review in milliseconds
-    studyMode: v.union(v.literal("basic"), v.literal("spaced-repetition")), // Study mode used
+    studyMode: v.union(v.literal("basic"), v.literal("spaced-repetition"), v.literal("adaptive-spaced-repetition")), // Study mode used
+    // Additional fields for adaptive learning
+    responseTime: v.optional(v.number()),     // Time taken to respond in milliseconds
+    confidenceRating: v.optional(v.number()), // User's confidence rating (1-5)
+    predictedConfidence: v.optional(v.number()), // Algorithm's confidence prediction (0-1)
+    timeOfDay: v.optional(v.number()),        // Hour of day when review was performed (0-23)
   }).index("by_userId_and_date", ["userId", "reviewDate"])      // Index for user review history queries
     .index("by_cardId_and_date", ["cardId", "reviewDate"])      // Index for card-specific review history
     .index("by_deckId_and_date", ["deckId", "reviewDate"])      // Index for deck-specific review analysis
     .index("by_userId_and_success", ["userId", "wasSuccessful"]) // Index for retention rate calculations
+    .index("by_userId_and_timeOfDay", ["userId", "timeOfDay"]), // Index for time-of-day performance analysis
+
+  // Learning Patterns table - stores personalized learning analytics for adaptive algorithm
+  learningPatterns: defineTable({
+    userId: v.string(),           // ID of the user
+    averageSuccessRate: v.number(), // Overall success rate across all reviews
+    learningVelocity: v.number(),   // Cards mastered per day
+    // Time-of-day performance breakdown
+    timeOfDayPerformance: v.object({
+      early_morning: v.object({
+        successRate: v.number(),
+        reviewCount: v.number(),
+        averageResponseTime: v.number(),
+      }),
+      morning: v.object({
+        successRate: v.number(),
+        reviewCount: v.number(),
+        averageResponseTime: v.number(),
+      }),
+      afternoon: v.object({
+        successRate: v.number(),
+        reviewCount: v.number(),
+        averageResponseTime: v.number(),
+      }),
+      evening: v.object({
+        successRate: v.number(),
+        reviewCount: v.number(),
+        averageResponseTime: v.number(),
+      }),
+      night: v.object({
+        successRate: v.number(),
+        reviewCount: v.number(),
+        averageResponseTime: v.number(),
+      }),
+      late_night: v.object({
+        successRate: v.number(),
+        reviewCount: v.number(),
+        averageResponseTime: v.number(),
+      }),
+    }),
+    // Difficulty-based performance patterns
+    difficultyPatterns: v.object({
+      easyCards: v.object({
+        successRate: v.number(),
+        averageInterval: v.number(),
+      }),
+      mediumCards: v.object({
+        successRate: v.number(),
+        averageInterval: v.number(),
+      }),
+      hardCards: v.object({
+        successRate: v.number(),
+        averageInterval: v.number(),
+      }),
+    }),
+    personalEaseFactorBias: v.number(),    // Personal adjustment to base ease factor (-0.5 to +0.5)
+    retentionCurve: v.array(v.object({     // Personal retention curve data points
+      interval: v.number(),                 // Interval in days
+      retentionRate: v.number(),           // Retention rate at this interval (0-1)
+    })),
+    lastUpdated: v.number(),              // Unix timestamp of last pattern update
+  }).index("by_userId", ["userId"])       // Index for efficient user pattern queries
+    .index("by_lastUpdated", ["lastUpdated"]), // Index for finding patterns that need updating
+
+  // User Preferences table - stores study scheduling and learning preferences
+  userPreferences: defineTable({
+    userId: v.string(),                   // ID of the user
+    preferredTimeSlots: v.array(v.string()), // Preferred time slots for studying
+    preferredDuration: v.number(),        // Preferred session duration in minutes
+    dailyGoal: v.number(),               // Daily study goal in cards
+    availableDays: v.array(v.string()),  // Available days of the week
+    lastUpdated: v.number(),             // Unix timestamp of last update
+  }).index("by_userId", ["userId"]),     // Index for efficient user preference queries
+
+  // User Achievements table - tracks unlocked achievements and gamification progress
+  userAchievements: defineTable({
+    userId: v.string(),                  // ID of the user
+    achievementId: v.string(),           // ID of the unlocked achievement
+    unlockedAt: v.number(),             // Unix timestamp when achievement was unlocked
+    triggerType: v.string(),            // What triggered the achievement (e.g., "study_session", "streak_updated")
+  }).index("by_userId", ["userId"])      // Index for efficient user achievement queries
+    .index("by_achievementId", ["achievementId"]) // Index for achievement statistics
+    .index("by_userId_and_achievement", ["userId", "achievementId"]), // Compound index for checking specific achievements
+
+  // Learning Reflections table - stores metacognitive reflections and self-assessments
+  learningReflections: defineTable({
+    userId: v.string(),                  // ID of the user
+    sessionId: v.optional(v.string()),   // Optional session ID for grouping
+    deckId: v.optional(v.id("decks")),   // Optional deck ID for context
+    category: v.union(                   // Category of reflection
+      v.literal("difficulty"),
+      v.literal("strategy"),
+      v.literal("motivation"),
+      v.literal("understanding"),
+      v.literal("time_management"),
+      v.literal("goals")
+    ),
+    prompt: v.string(),                  // The reflection prompt
+    response: v.string(),                // User's reflection response
+    rating: v.number(),                  // User's rating (1-5 scale)
+    tags: v.array(v.string()),          // Optional tags for categorization
+    timestamp: v.number(),               // Unix timestamp
+  }).index("by_userId_and_timestamp", ["userId", "timestamp"]) // Index for user reflection history
+    .index("by_category", ["category"])  // Index for analyzing reflection patterns
+    .index("by_deckId", ["deckId"]),    // Index for deck-specific reflections
+
+  // Confidence Calibrations table - tracks accuracy of confidence predictions
+  confidenceCalibrations: defineTable({
+    userId: v.string(),                  // ID of the user
+    cardId: v.id("cards"),              // ID of the card
+    predictedConfidence: v.number(),     // User's confidence prediction (0-1)
+    actualPerformance: v.number(),       // Actual performance (0-1)
+    calibrationError: v.number(),        // Absolute difference between prediction and performance
+    timestamp: v.number(),               // Unix timestamp
+  }).index("by_userId", ["userId"])      // Index for user calibration analysis
+    .index("by_cardId", ["cardId"])      // Index for card-specific calibration
+    .index("by_userId_and_timestamp", ["userId", "timestamp"]), // Index for temporal analysis
 });
