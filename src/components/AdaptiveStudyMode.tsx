@@ -221,7 +221,7 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
             {t('study.noCardsToReview', 'No cards to review')}
           </h2>
           <p className="text-slate-600 dark:text-slate-400 mb-6">
-            {t('study.allCaughtUp', 'You\'re all caught up!')}
+            {t('study.allCaughtUp.noCardsMessage')}
           </p>
           <button
             onClick={onExit}

@@ -93,8 +93,8 @@
     },
     "allCaughtUp": {
       "title": "All Caught Up! 🎉",
-      "sessionStats": "Great work! You've reviewed {{count}} card in this session.",
-      "sessionStats_plural": "Great work! You've reviewed {{count}} cards in this session.",
+      "sessionStats_one": "Great work! You've reviewed {{count}} card in this session.",
+      "sessionStats_other": "Great work! You've reviewed {{count}} cards in this session.",
       "noCardsMessage": "You have no cards due for review right now. Excellent job staying on track with your studies!",
       "emptyDeckMessage": "This deck is empty. Add some cards to start your learning journey!",
       "nextReviewMessage": "Come back {{time}} for your next review session.",
@@ -107,6 +107,16 @@
       "good": "Good",
       "easy": "Easy"
     },
+    "exit": "Exit",
+    "adaptive": "Adaptive",
+    "successRate": "Success Rate",
+    "learningVelocity": "Learning Velocity",
+    "cardsPerDay": "cards/day",
+    "clickToReveal": "Click to reveal",
+    "howConfident": "How confident are you?",
+    "keyboardShortcuts": "Keyboard shortcuts",
+    "toFlip": "to flip",
+    "toRate": "to rate",
     "session": {
       "completed": "Study Session Completed!",
       "cardsReviewed_one": "Card reviewed: {{count}}",
@@ -599,8 +609,8 @@
     "sessionDuration": "Session Duration",
     "whatsNext": "What's Next?",
     "continueStudying": "Continue Studying",
-    "moreCards": "more card",
-    "moreCards_plural": "more cards"
+    "moreCards_one": "more card",
+    "moreCards_other": "more cards"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

@@ -107,6 +107,16 @@
       "good": "Gut",
       "easy": "Einfach"
     },
+    "exit": "Beenden",
+    "adaptive": "Adaptiv",
+    "successRate": "Erfolgsrate",
+    "learningVelocity": "Lerngeschwindigkeit",
+    "cardsPerDay": "Karten/Tag",
+    "clickToReveal": "Klicken zum Aufdecken",
+    "howConfident": "Wie sicher sind Sie?",
+    "keyboardShortcuts": "Tastenkürzel",
+    "toFlip": "zum Umdrehen",
+    "toRate": "zum Bewerten",
     "session": {
       "completed": "Lernsitzung abgeschlossen!",
       "cardsReviewed_one": "Karte wiederholt: {{count}}",

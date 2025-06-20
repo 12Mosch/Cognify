@@ -48,6 +48,8 @@ const mockTranslations = {
       'study.difficulty.hard': 'Hard',
       'study.difficulty.good': 'Good',
       'study.difficulty.easy': 'Easy',
+      'study.allCaughtUp.sessionStats_one': "Great work! You've reviewed {{count}} card in this session.",
+      'study.allCaughtUp.sessionStats_other': "Great work! You've reviewed {{count}} cards in this session.",
 
       // Study Mode Selector
       'study.modeSelector.title': 'Choose Study Mode',

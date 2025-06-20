@@ -84,6 +84,23 @@ describe('Pluralization Support', () => {
     });
   });
 
+  describe('Study Session Stats Pluralization', () => {
+    it('should use singular form for 1 card reviewed', () => {
+      const result = i18n.t('study.allCaughtUp.sessionStats', { count: 1 });
+      expect(result).toBe("Great work! You've reviewed 1 card in this session.");
+    });
+
+    it('should use plural form for 0 cards reviewed', () => {
+      const result = i18n.t('study.allCaughtUp.sessionStats', { count: 0 });
+      expect(result).toBe("Great work! You've reviewed 0 cards in this session.");
+    });
+
+    it('should use plural form for 5 cards reviewed', () => {
+      const result = i18n.t('study.allCaughtUp.sessionStats', { count: 5 });
+      expect(result).toBe("Great work! You've reviewed 5 cards in this session.");
+    });
+  });
+
   describe('Edge Cases', () => {
     it('should handle negative numbers (i18next treats -1 as singular)', () => {
       const result = i18n.t('deck.cardCount', { count: -1 });

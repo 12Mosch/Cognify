@@ -46,7 +46,7 @@ void i18n
     load: 'languageOnly',
 
     // Debug mode (disable in production)
-    debug: process.env.NODE_ENV === 'development',
+    debug: false,
 
     // Interpolation options
     interpolation: {
@@ -62,6 +62,16 @@ void i18n
       // Wait for translation to be loaded before rendering
       useSuspense: false,
     },
+
+    // Return key if translation is missing (instead of showing key with locale)
+    returnNull: false,
+    returnEmptyString: false,
+    returnObjects: false,
+    joinArrays: false,
+
+    // Key separator
+    keySeparator: '.',
+    nsSeparator: ':',
   });
 
 export default i18n;
