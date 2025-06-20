@@ -15,6 +15,7 @@ export default defineSchema({
   // Cards table - stores individual flashcards
   cards: defineTable({
     deckId: v.id("decks"), // Reference to the deck this card belongs to
+    userId: v.string(),    // ID of the user who owns this card (denormalized for performance)
     front: v.string(),     // Front side of the card (question/prompt)
     back: v.string(),      // Back side of the card (answer)
 
@@ -26,7 +27,10 @@ export default defineSchema({
   }).index("by_deckId", ["deckId"])        // Index for efficient queries by deck
     .index("by_dueDate", ["dueDate"])      // Index for spaced repetition due date queries
     .index("by_deckId_and_dueDate", ["deckId", "dueDate"]) // Compound index for deck-specific due cards
-    .index("by_deckId_and_repetition", ["deckId", "repetition"]), // Index for finding new cards efficiently
+    .index("by_deckId_and_repetition", ["deckId", "repetition"]) // Index for finding new cards efficiently
+    .index("by_userId", ["userId"])        // Index for efficient user-based card queries
+    .index("by_userId_and_dueDate", ["userId", "dueDate"]) // Compound index for user's due cards
+    .index("by_userId_and_repetition", ["userId", "repetition"]), // Index for user's new cards
 
   // Study Sessions table - tracks daily study activity for analytics and heatmap visualization
   studySessions: defineTable({

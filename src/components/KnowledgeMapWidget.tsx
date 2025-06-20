@@ -4,9 +4,51 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
 
+type TabId = 'clusters' | 'paths' | 'graph';
+
 interface KnowledgeMapWidgetProps {
   deckId?: Id<"decks">;
   className?: string;
+}
+
+// Helper component prop interfaces
+interface ConceptClustersViewProps {
+  clusters: Array<{
+    id: string;
+    name: string;
+    description: string;
+    cardCount: number;
+    masteryLevel: number;
+    averageDifficulty: number;
+    centerCard: { front: string; back: string };
+  }>;
+  selectedCluster: string | null;
+  onSelectCluster: (clusterId: string | null) => void;
+  t: any; // Using any for now to match react-i18next TFunction type
+}
+
+interface LearningPathsViewProps {
+  paths: Array<{
+    pathType: string;
+    description: string;
+    estimatedTime: number;
+    confidence: number;
+    path: Array<{
+      cardId: any;
+      front: any;
+      reason: string;
+      estimatedDifficulty: number;
+    }>;
+  }>;
+  t: any; // Using any for now to match react-i18next TFunction type
+}
+
+interface KnowledgeGraphViewProps {
+  graphData: {
+    nodes: Array<{ id: string; label: string; type: string }>;
+    edges: Array<{ source: string; target: string; type: string }>;
+  } | null;
+  t: any; // Using any for now to match react-i18next TFunction type
 }
 
 /**
@@ -24,7 +66,7 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
   className = "" 
 }: KnowledgeMapWidgetProps) {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'clusters' | 'paths' | 'graph'>('clusters');
+  const [activeTab, setActiveTab] = useState<TabId>('clusters');
   const [selectedCluster, setSelectedCluster] = useState<string | null>(null);
 
   // Fetch contextual learning data
@@ -42,7 +84,11 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
   });
 
   // Loading state
-  if (conceptClusters === undefined) {
+  if (
+    conceptClusters === undefined ||
+    learningPaths === undefined ||
+    knowledgeGraph === undefined
+  ) {
     return <KnowledgeMapSkeleton className={className} />;
   }
 
@@ -51,7 +97,7 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
     return <NoKnowledgeDataState className={className} />;
   }
 
-  const tabs = [
+  const tabs: Array<{ id: TabId; label: string; icon: string }> = [
     { id: 'clusters', label: t('knowledge.tabs.clusters', 'Concept Clusters'), icon: '🧩' },
     { id: 'paths', label: t('knowledge.tabs.paths', 'Learning Paths'), icon: '🛤️' },
     { id: 'graph', label: t('knowledge.tabs.graph', 'Knowledge Graph'), icon: '🕸️' },
@@ -81,7 +127,7 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
               activeTab === tab.id
                 ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-slate-100 shadow-sm'
@@ -129,14 +175,14 @@ const ConceptClustersView = memo(function ConceptClustersView({
   selectedCluster,
   onSelectCluster,
   t
-}: any) {
+}: ConceptClustersViewProps) {
   return (
     <div className="space-y-4">
       <div className="text-sm text-slate-600 dark:text-slate-400 mb-3">
         {t('knowledge.clusters.description', 'Related concepts grouped together based on content similarity')}
       </div>
       
-      {clusters.map((cluster: any) => (
+      {clusters.map((cluster) => (
         <div
           key={cluster.id}
           className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${
@@ -207,7 +253,7 @@ const ConceptClustersView = memo(function ConceptClustersView({
 const LearningPathsView = memo(function LearningPathsView({
   paths,
   t
-}: any) {
+}: LearningPathsViewProps) {
   if (!paths || paths.length === 0) {
     return (
       <div className="text-center py-8 text-slate-500 dark:text-slate-400">
@@ -223,7 +269,7 @@ const LearningPathsView = memo(function LearningPathsView({
         {t('knowledge.paths.description', 'Recommended sequences for learning your cards effectively')}
       </div>
 
-      {paths.map((path: any, index: number) => (
+      {paths.map((path, index: number) => (
         <div key={index} className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
           <div className="flex items-start justify-between mb-3">
             <div>
@@ -249,7 +295,7 @@ const LearningPathsView = memo(function LearningPathsView({
               {t('knowledge.paths.sequence', 'Learning Sequence')}:
             </h5>
             <div className="flex flex-wrap gap-2">
-              {path.path.slice(0, 5).map((step: any, stepIndex: number) => (
+              {path.path.slice(0, 5).map((step, stepIndex: number) => (
                 <div
                   key={stepIndex}
                   className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
@@ -279,7 +325,7 @@ const LearningPathsView = memo(function LearningPathsView({
 const KnowledgeGraphView = memo(function KnowledgeGraphView({
   graphData,
   t
-}: any) {
+}: KnowledgeGraphViewProps) {
   if (!graphData || graphData.nodes.length === 0) {
     return (
       <div className="text-center py-8 text-slate-500 dark:text-slate-400">
@@ -322,7 +368,7 @@ const KnowledgeGraphView = memo(function KnowledgeGraphView({
         </h5>
         <div className="space-y-2">
           {['similar', 'related', 'prerequisite'].map((type) => {
-            const count = graphData.edges.filter((edge: any) => edge.type === type).length;
+            const count = graphData.edges.filter((edge) => edge.type === type).length;
             if (count === 0) return null;
             
             return (

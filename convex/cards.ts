@@ -14,6 +14,7 @@ export const getCardsForDeck = query({
       _id: v.id("cards"),
       _creationTime: v.number(),
       deckId: v.id("decks"),
+      userId: v.string(),
       front: v.string(),
       back: v.string(),
       // Spaced repetition fields
@@ -103,6 +104,7 @@ export const addCardToDeck = mutation({
     // Insert the new card into the database with initialized spaced repetition fields
     const cardId = await ctx.db.insert("cards", {
       deckId: args.deckId,
+      userId: identity.subject, // Denormalize userId for efficient filtering
       front: args.front.trim(),
       back: args.back.trim(),
       // Initialize spaced repetition fields for optimal query performance

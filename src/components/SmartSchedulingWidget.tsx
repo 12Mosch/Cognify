@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../convex/_generated/api';
+import { formatTimeSlot } from '../utils/scheduling';
 
 interface SmartSchedulingWidgetProps {
   className?: string;
@@ -34,8 +35,13 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
   });
 
   // Loading state
-  if (todayRecommendations === undefined) {
+  if (todayRecommendations === undefined || weeklySchedule === undefined) {
     return <SchedulingWidgetSkeleton className={className} />;
+  }
+
+  // Error state - Convex returns null for query errors
+  if (todayRecommendations === null || weeklySchedule === null) {
+    return <SchedulingErrorState className={className} />;
   }
 
   // No data state
@@ -67,17 +73,7 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
     }
   };
 
-  const formatTimeSlot = (slot: string) => {
-    const timeSlotNames: Record<string, string> = {
-      early_morning: t('scheduling.timeSlots.earlyMorning', 'Early Morning'),
-      morning: t('scheduling.timeSlots.morning', 'Morning'),
-      afternoon: t('scheduling.timeSlots.afternoon', 'Afternoon'),
-      evening: t('scheduling.timeSlots.evening', 'Evening'),
-      night: t('scheduling.timeSlots.night', 'Night'),
-      late_night: t('scheduling.timeSlots.lateNight', 'Late Night'),
-    };
-    return timeSlotNames[slot] || slot;
-  };
+
 
   return (
     <div className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 ${className}`}>
@@ -118,7 +114,7 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
                 {t('scheduling.currentTime', 'Current Time Slot')}
               </div>
               <div className="font-medium text-slate-900 dark:text-slate-100">
-                {formatTimeSlot(currentTimeSlot)}
+                {formatTimeSlot(currentTimeSlot, t, 'scheduling')}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -220,6 +216,17 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
             weeklySchedule.slice(0, 7).map((day, index) => (
               <WeeklyScheduleDay key={day.date} day={day} isToday={index === 0} />
             ))
+          ) : weeklySchedule === null ? (
+            /* Weekly schedule error state */
+            <div className="text-center py-8 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+              <div className="text-2xl mb-2">⚠️</div>
+              <div className="text-red-700 dark:text-red-300 font-medium mb-1">
+                {t('scheduling.weeklyError.title', 'Unable to load weekly schedule')}
+              </div>
+              <div className="text-sm text-red-600 dark:text-red-400">
+                {t('scheduling.weeklyError.description', 'Today\'s recommendations are still available above')}
+              </div>
+            </div>
           ) : (
             <div className="text-center py-8 text-slate-500 dark:text-slate-400">
               {t('scheduling.noWeeklyData', 'Weekly schedule will appear after more study sessions')}
@@ -250,8 +257,9 @@ const WeeklyScheduleDay = memo(function WeeklyScheduleDay({
   };
   isToday: boolean;
 }) {
+  const { i18n } = useTranslation();
   const date = new Date(day.date);
-  const dayName = date.toLocaleDateString('en', { weekday: 'short' });
+  const dayName = date.toLocaleDateString(i18n.language, { weekday: 'short' });
   const dayNumber = date.getDate();
 
   return (
@@ -328,7 +336,7 @@ const SchedulingWidgetSkeleton = memo(function SchedulingWidgetSkeleton({ classN
 
 const NoSchedulingDataState = memo(function NoSchedulingDataState({ className }: { className: string }) {
   const { t } = useTranslation();
-  
+
   return (
     <div className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 ${className}`}>
       <div className="text-center py-8">
@@ -339,6 +347,30 @@ const NoSchedulingDataState = memo(function NoSchedulingDataState({ className }:
         <p className="text-sm text-slate-600 dark:text-slate-400">
           {t('scheduling.noData.description', 'Complete a few study sessions to get personalized recommendations')}
         </p>
+      </div>
+    </div>
+  );
+});
+
+const SchedulingErrorState = memo(function SchedulingErrorState({ className }: { className: string }) {
+  const { t } = useTranslation();
+
+  return (
+    <div className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-red-200 dark:border-red-700 ${className}`}>
+      <div className="text-center py-8">
+        <div className="text-4xl mb-3">⚠️</div>
+        <h3 className="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">
+          {t('scheduling.error.title', 'Unable to load recommendations')}
+        </h3>
+        <p className="text-sm text-red-600 dark:text-red-400 mb-4">
+          {t('scheduling.error.description', 'Please try again later')}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+        >
+          {t('scheduling.error.retry', 'Retry')}
+        </button>
       </div>
     </div>
   );

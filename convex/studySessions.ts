@@ -207,7 +207,7 @@ export const getStudyStatistics = query({
 
     let mostActiveDay: { date: string; cardsStudied: number } | undefined;
     let maxCards = 0;
-    for (const [date, cards] of dailyTotals.entries()) {
+    for (const [date, cards] of Array.from(dailyTotals.entries())) {
       if (cards > maxCards) {
         maxCards = cards;
         mostActiveDay = { date, cardsStudied: cards };

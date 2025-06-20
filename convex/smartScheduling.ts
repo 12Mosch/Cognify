@@ -72,18 +72,49 @@ function calculateOptimalDuration(
   // Base duration calculation
   const baseCardsPerMinute = learningVelocity / (24 * 60); // Convert daily velocity to per-minute
   const adjustedCardsPerMinute = baseCardsPerMinute * timeSlotPerformance;
-  
+
   // Optimal session length (research suggests 20-45 minutes for focused learning)
   const minDuration = 15;
   const maxDuration = 45;
   const optimalDuration = Math.min(maxDuration, Math.max(minDuration, availableCards / adjustedCardsPerMinute));
-  
+
   const expectedCards = Math.round(adjustedCardsPerMinute * optimalDuration);
-  
+
   return {
     duration: Math.round(optimalDuration),
     expectedCards: Math.min(expectedCards, availableCards),
   };
+}
+
+/**
+ * Determine study session priority based on multiple factors
+ */
+function calculateStudyPriority(
+  performance: { successRate: number; reviewCount: number },
+  dueCardCount: number,
+  isTopPerformingSlot: boolean
+): 'high' | 'medium' | 'low' {
+  const hasHighSuccessRate = performance.successRate >= 0.8;
+  const hasSufficientData = performance.reviewCount >= 10;
+  const hasManyDueCards = dueCardCount > 10;
+  const hasFewDueCards = dueCardCount < 5;
+  const hasPoorPerformance = performance.successRate < 0.6;
+
+  // High priority conditions
+  if (isTopPerformingSlot && hasManyDueCards && hasHighSuccessRate) {
+    return 'high';
+  }
+  if (hasHighSuccessRate && hasSufficientData && dueCardCount >= 5) {
+    return 'high';
+  }
+
+  // Low priority conditions
+  if (hasFewDueCards || hasPoorPerformance) {
+    return 'low';
+  }
+
+  // Default to medium priority
+  return 'medium';
 }
 
 /**
@@ -143,25 +174,14 @@ export const getStudyRecommendations = query({
       const dayEnd = new Date(targetDate);
       dayEnd.setHours(23, 59, 59, 999);
 
-      // Count due cards for this day
-      const dueCards = await ctx.db
+      // Count due cards for this day using efficient user-based index
+      const userDueCards = await ctx.db
         .query("cards")
-        .filter((q) => 
-          q.and(
-            q.lte(q.field("dueDate"), dayEnd.getTime()),
-            q.gte(q.field("dueDate"), 0)
-          )
+        .withIndex("by_userId_and_dueDate", (q) =>
+          q.eq("userId", identity.subject).lte("dueDate", dayEnd.getTime())
         )
+        .filter((q) => q.gte(q.field("dueDate"), 0))
         .collect();
-
-      // Filter for user's cards
-      const userDueCards = [];
-      for (const card of dueCards) {
-        const deck = await ctx.db.get(card.deckId);
-        if (deck?.userId === identity.subject) {
-          userDueCards.push(card);
-        }
-      }
 
       // Generate recommendations for this day
       const recommendations: StudyRecommendation[] = [];
@@ -203,13 +223,13 @@ export const getStudyRecommendations = query({
             reasoning += ` (${performance.reviewCount} previous sessions)`;
           }
 
-          // Determine priority
-          let priority: 'high' | 'medium' | 'low' = 'medium';
-          if (timeSlotPerformance.indexOf([slot, performance]) === 0 && userDueCards.length > 10) {
-            priority = 'high';
-          } else if (userDueCards.length < 5) {
-            priority = 'low';
-          }
+          // Determine priority using helper function
+          const isTopPerformingSlot = timeSlotPerformance[0][0] === slot;
+          const priority = calculateStudyPriority(
+            performance,
+            userDueCards.length,
+            isTopPerformingSlot
+          );
 
           recommendations.push({
             timeSlot,
@@ -307,23 +327,25 @@ export const getTodayStudyRecommendations = query({
     const nextOptimalTime = futureSlots.length > 0 ? 
       getTimeSlotName(futureSlots[0][0] as TimeSlot) : undefined;
 
-    // Count due and new cards
-    const allCards = await ctx.db.query("cards").collect();
-    const userCards = [];
-    for (const card of allCards) {
-      const deck = await ctx.db.get(card.deckId);
-      if (deck?.userId === identity.subject) {
-        userCards.push(card);
-      }
-    }
+    // Count due and new cards using efficient user-based indexes
+    const nowTimestamp = Date.now();
 
-    const dueCardsCount = userCards.filter(card => 
-      card.dueDate && card.dueDate <= Date.now()
-    ).length;
+    const dueCards = await ctx.db
+      .query("cards")
+      .withIndex("by_userId_and_dueDate", (q) =>
+        q.eq("userId", identity.subject).lte("dueDate", nowTimestamp)
+      )
+      .collect();
 
-    const newCardsAvailable = userCards.filter(card => 
-      !card.repetition || card.repetition === 0
-    ).length;
+    const newCards = await ctx.db
+      .query("cards")
+      .withIndex("by_userId_and_repetition", (q) =>
+        q.eq("userId", identity.subject).eq("repetition", 0)
+      )
+      .collect();
+
+    const dueCardsCount = dueCards.length;
+    const newCardsAvailable = newCards.length;
 
     // Predict energy level based on time and historical performance
     let energyLevelPrediction: 'high' | 'medium' | 'low' = 'medium';

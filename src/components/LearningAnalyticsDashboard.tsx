@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../convex/_generated/api';
+import { formatTimeSlot } from '../utils/scheduling';
 
 interface LearningAnalyticsDashboardProps {
   onBack: () => void;
@@ -79,7 +80,7 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
         type: 'time',
         title: t('statistics.analytics.recommendations.optimalTime.title'),
         description: t('statistics.analytics.recommendations.optimalTime.description', {
-          time: formatTimeSlot(bestTime.timeSlot),
+          time: formatTimeSlot(bestTime.timeSlot, t, 'analytics'),
           successRate: Math.round(bestTime.successRate * 100)
         }),
         priority: 'high' as const,
@@ -119,17 +120,7 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 
   const recommendations = getRecommendations();
 
-  const formatTimeSlot = (slot: string) => {
-    const timeSlotNames: Record<string, string> = {
-      early_morning: t('analytics.timeSlots.earlyMorning', '5-9 AM'),
-      morning: t('analytics.timeSlots.morning', '9 AM-1 PM'),
-      afternoon: t('analytics.timeSlots.afternoon', '1-5 PM'),
-      evening: t('analytics.timeSlots.evening', '5-9 PM'),
-      night: t('analytics.timeSlots.night', '9 PM-12 AM'),
-      late_night: t('analytics.timeSlots.lateNight', '12-5 AM'),
-    };
-    return timeSlotNames[slot] || slot;
-  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
@@ -231,7 +222,7 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
               <div key={time.timeSlot} className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-slate-900 dark:text-slate-100">
-                    {formatTimeSlot(time.timeSlot)}
+                    {formatTimeSlot(time.timeSlot, t, 'analytics')}
                   </span>
                   <span className={`text-sm px-2 py-1 rounded ${
                     index === 0 ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :

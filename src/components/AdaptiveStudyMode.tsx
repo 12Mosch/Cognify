@@ -44,6 +44,7 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
     averageSuccess: number;
     sessionStartTime: number;
   } | null>(null);
+  const [reviewResults, setReviewResults] = useState<number[]>([]); // Track quality ratings for each review
 
   // Convex queries and mutations
   const decks = useQuery(api.decks.getDecksForUser);
@@ -103,6 +104,10 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
 
       setPersonalizedMessage(result.personalizedMessage);
 
+      // Track review result for session statistics
+      const updatedReviewResults = [...reviewResults, quality];
+      setReviewResults(updatedReviewResults);
+
       // Check for achievements
       try {
         const newAchievements = await checkAchievements({
@@ -132,11 +137,20 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
         // Session complete - calculate final stats and show reflection modal
         if (sessionStats) {
           const sessionDuration = (Date.now() - sessionStats.sessionStartTime) / 1000 / 60; // minutes
+
+          // Calculate actual average success rate from review results
+          // A review is considered successful if quality >= 3 (based on SM-2 algorithm)
+          const finalReviewResults = [...reviewResults, quality]; // Include the current review
+          const successfulReviews = finalReviewResults.filter(q => q >= 3).length;
+          const actualAverageSuccess = finalReviewResults.length > 0
+            ? successfulReviews / finalReviewResults.length
+            : 0;
+
           const finalStats = {
             ...sessionStats,
             cardsReviewed: studyQueue!.length,
             sessionDuration,
-            averageSuccess: 0.75, // This would be calculated from actual review results
+            averageSuccess: actualAverageSuccess,
           };
           setSessionStats(finalStats);
           setShowReflectionModal(true);
@@ -157,7 +171,7 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
     } catch (error) {
       console.error("Error reviewing card:", error);
     }
-  }, [currentCard, responseStartTime, confidenceRating, reviewCardAdaptive, currentCardIndex, studyQueue, onExit, checkAchievements, deckId, sessionStats]);
+  }, [currentCard, responseStartTime, confidenceRating, reviewCardAdaptive, currentCardIndex, studyQueue, onExit, checkAchievements, deckId, sessionStats, reviewResults]);
 
   // Keyboard shortcuts
   useEffect(() => {

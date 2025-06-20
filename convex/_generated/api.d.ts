@@ -20,6 +20,7 @@ import type * as decks from "../decks.js";
 import type * as gamification from "../gamification.js";
 import type * as metacognition from "../metacognition.js";
 import type * as migrations_addCardCountToDecks from "../migrations/addCardCountToDecks.js";
+import type * as migrations_addUserIdToCards from "../migrations/addUserIdToCards.js";
 import type * as migrations_migrateStudySessionsDateField from "../migrations/migrateStudySessionsDateField.js";
 import type * as smartScheduling from "../smartScheduling.js";
 import type * as spacedRepetition from "../spacedRepetition.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   gamification: typeof gamification;
   metacognition: typeof metacognition;
   "migrations/addCardCountToDecks": typeof migrations_addCardCountToDecks;
+  "migrations/addUserIdToCards": typeof migrations_addUserIdToCards;
   "migrations/migrateStudySessionsDateField": typeof migrations_migrateStudySessionsDateField;
   smartScheduling: typeof smartScheduling;
   spacedRepetition: typeof spacedRepetition;

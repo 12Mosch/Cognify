@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { api } from "./_generated/api";
 
 /**
  * Adaptive Learning Algorithm for Personalized Spaced Repetition
@@ -347,7 +348,7 @@ export const reviewCardAdaptive = mutation({
     }
 
     // Trigger learning pattern update (async)
-    await ctx.scheduler.runAfter(0, "adaptiveLearning:updateLearningPattern" as any, {
+    await ctx.scheduler.runAfter(0, api.adaptiveLearning.updateLearningPattern, {
       userId: identity.subject,
     });
 
@@ -416,7 +417,15 @@ export const updateLearningPattern = mutation({
       }
     }
 
-    const timeOfDayPerformance: LearningPattern['timeOfDayPerformance'] = {} as any;
+    const timeOfDayPerformance: LearningPattern['timeOfDayPerformance'] = {
+      early_morning: { successRate: 0.5, reviewCount: 0, averageResponseTime: 0 },
+      morning: { successRate: 0.5, reviewCount: 0, averageResponseTime: 0 },
+      afternoon: { successRate: 0.5, reviewCount: 0, averageResponseTime: 0 },
+      evening: { successRate: 0.5, reviewCount: 0, averageResponseTime: 0 },
+      night: { successRate: 0.5, reviewCount: 0, averageResponseTime: 0 },
+      late_night: { successRate: 0.5, reviewCount: 0, averageResponseTime: 0 },
+    };
+
     for (const [slot, data] of Object.entries(timeSlotData)) {
       timeOfDayPerformance[slot as TimeSlot] = {
         successRate: data.total > 0 ? data.successes / data.total : 0.5,

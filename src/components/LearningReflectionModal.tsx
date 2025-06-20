@@ -33,14 +33,17 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
   sessionId
 }: LearningReflectionModalProps) {
   const { t } = useTranslation();
-  
+
+  // Helper function to convert API prompt to selected prompt
+  const convertToSelectedPrompt = (prompt: ReflectionPrompt): SelectedPrompt => ({
+    category: prompt.category as ReflectionCategory,
+    prompt: prompt.prompt,
+    priority: prompt.priority,
+  });
+
   // Component state
   const [currentStep, setCurrentStep] = useState<'prompts' | 'strategies' | 'calibration'>('prompts');
-  const [selectedPrompt, setSelectedPrompt] = useState<{
-    category: string;
-    prompt: string;
-    priority: string;
-  } | null>(null);
+  const [selectedPrompt, setSelectedPrompt] = useState<SelectedPrompt | null>(null);
   const [reflectionResponse, setReflectionResponse] = useState('');
   const [reflectionRating, setReflectionRating] = useState(3);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -81,7 +84,7 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
     setIsSubmitting(true);
     try {
       await saveReflection({
-        category: selectedPrompt.category as any,
+        category: selectedPrompt.category,
         prompt: selectedPrompt.prompt,
         response: reflectionResponse.trim(),
         rating: reflectionRating,
@@ -102,7 +105,6 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
     }
   };
 
-  // Get priority styling
   const getPriorityStyle = (priority: string) => {
     switch (priority) {
       case 'high':
@@ -112,14 +114,14 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
       case 'low':
         return 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20';
       default:
-        return 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700';
+        return 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/20';
     }
   };
 
   // Get category icon
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'difficulty': return '🎯';
+      case 'difficulty': return '⚡';
       case 'strategy': return '🧠';
       case 'motivation': return '💪';
       case 'understanding': return '💡';
@@ -191,7 +193,7 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
             <ReflectionPromptsStep
               prompts={reflectionPrompts || []}
               selectedPrompt={selectedPrompt}
-              onSelectPrompt={setSelectedPrompt}
+              onSelectPrompt={(prompt) => setSelectedPrompt(prompt ? convertToSelectedPrompt(prompt) : null)}
               response={reflectionResponse}
               onResponseChange={setReflectionResponse}
               rating={reflectionRating}
@@ -242,6 +244,36 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
   );
 });
 
+// Type definitions
+type ReflectionCategory = "difficulty" | "strategy" | "motivation" | "understanding" | "time_management" | "goals";
+type Priority = "high" | "medium" | "low";
+
+interface ReflectionPrompt {
+  category: string;
+  prompt: string;
+  priority: Priority;
+}
+
+interface SelectedPrompt {
+  category: ReflectionCategory;
+  prompt: string;
+  priority: string;
+}
+
+// Helper Component Interfaces
+interface ReflectionPromptsStepProps {
+  prompts: ReflectionPrompt[];
+  selectedPrompt: SelectedPrompt | null;
+  onSelectPrompt: (prompt: ReflectionPrompt | null) => void;
+  response: string;
+  onResponseChange: (value: string) => void;
+  rating: number;
+  onRatingChange: (value: number) => void;
+  getPriorityStyle: (priority: string) => string;
+  getCategoryIcon: (category: string) => string;
+  t: any; // Using any for the complex i18next TFunction type
+}
+
 // Helper Components
 const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
   prompts,
@@ -254,7 +286,7 @@ const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
   getPriorityStyle,
   getCategoryIcon,
   t
-}: any) {
+}: ReflectionPromptsStepProps) {
   return (
     <div className="space-y-6">
       {/* Prompt Selection */}
@@ -263,7 +295,7 @@ const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
           {t('reflection.selectPrompt', 'Choose a reflection prompt')}
         </h3>
         <div className="space-y-3">
-          {prompts.map((prompt: any, index: number) => (
+          {prompts.map((prompt, index: number) => (
             <button
               key={index}
               onClick={() => onSelectPrompt(prompt)}
@@ -340,11 +372,29 @@ const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
   );
 });
 
+interface StrategyRecommendationsStepProps {
+  strategies: Array<{
+    strategy: {
+      id: string;
+      name: string;
+      description: string;
+      category: string;
+      effectiveness: number;
+      difficulty: string;
+      timeRequired: number;
+    };
+    relevanceScore: number;
+    reasoning: string;
+  }>;
+  onNext: () => void;
+  t: any; // Using any for the complex i18next TFunction type
+}
+
 const StrategyRecommendationsStep = memo(function StrategyRecommendationsStep({
   strategies,
   onNext,
   t
-}: any) {
+}: StrategyRecommendationsStepProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -403,11 +453,22 @@ const StrategyRecommendationsStep = memo(function StrategyRecommendationsStep({
   );
 });
 
+interface CalibrationInsightsStepProps {
+  insights: {
+    averageCalibrationError: number;
+    overconfidenceBias: number;
+    calibrationTrend: string;
+    recommendations: string[];
+  } | null | undefined;
+  onClose: () => void;
+  t: any; // Using any for the complex i18next TFunction type
+}
+
 const CalibrationInsightsStep = memo(function CalibrationInsightsStep({
   insights,
   onClose,
   t
-}: any) {
+}: CalibrationInsightsStepProps) {
   if (!insights) {
     return (
       <div className="text-center py-8">

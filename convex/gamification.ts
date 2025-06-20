@@ -246,8 +246,8 @@ export const getUserAchievements = query({
     const unlockedAchievements = userAchievements.map(ua => ({
       achievementId: ua.achievementId,
       unlockedAt: ua.unlockedAt,
-      achievement: ACHIEVEMENTS.find(a => a.id === ua.achievementId)!,
-    })).filter(ua => ua.achievement);
+      achievement: ACHIEVEMENTS.find(a => a.id === ua.achievementId),
+    })).filter((ua): ua is typeof ua & { achievement: Achievement } => ua.achievement !== undefined);
 
     const totalPoints = unlockedAchievements.reduce((sum, ua) => sum + ua.achievement.points, 0);
 
