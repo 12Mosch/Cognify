@@ -73,11 +73,11 @@ jest.mock('react-i18next', () => ({
     t: (key: string, options?: any) => {
       // Return English translations for testing
       const translations: Record<string, string> = {
-        'app.title': 'Flashcard App',
+        'app.title': 'Cognify',
         'app.goToMainDashboard': 'Go to main dashboard',
         'navigation.settings': 'Settings',
         'navigation.signOut': 'Sign Out',
-        'auth.welcome': `Welcome to ${options?.appName || 'Flashcard App'}`,
+        'auth.welcome': `Welcome to ${options?.appName || 'Cognify'}`,
         'auth.signInPrompt': 'Sign in to create and manage your flashcard decks',
         'auth.signIn': 'Sign In',
         'auth.signUp': 'Sign Up',
@@ -151,7 +151,7 @@ describe('App Component', () => {
     
     const titleButton = screen.getByRole('button', { name: /go to main dashboard/i });
     expect(titleButton).toBeInTheDocument();
-    expect(titleButton).toHaveTextContent('Flashcard App');
+    expect(titleButton).toHaveTextContent('Cognify');
   });
 
   it('has proper accessibility attributes on the title button', () => {

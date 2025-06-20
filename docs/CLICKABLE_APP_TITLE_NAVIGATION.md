@@ -2,7 +2,7 @@
 
 ## Overview
 
-The app title "Flashcard App" in the header is now clickable and serves as a home button that takes users back to the main dashboard from any view within the application.
+The app title "Cognify" in the header is now clickable and serves as a home button that takes users back to the main dashboard from any view within the application.
 
 ## Implementation Details
 
@@ -92,7 +92,7 @@ Comprehensive test coverage includes:
 
 ## Usage
 
-Users can click the "Flashcard App" title in the header from any view to:
+Users can click the "Cognify" title in the header from any view to:
 - Return to the main dashboard
 - Exit study sessions
 - Close deck management views

@@ -6,7 +6,7 @@ const mockTranslations = {
   en: {
     translation: {
       // App
-      'app.title': 'Flashcard App',
+      'app.title': 'Cognify',
       'app.goToMainDashboard': 'Go to main dashboard',
 
       // Navigation
