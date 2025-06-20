@@ -107,7 +107,7 @@ export const StatisticsOverviewCards = memo(function StatisticsOverviewCards({
     },
     {
       title: t('statistics.cards.retentionRate'),
-      value: spacedRepetitionInsights.retentionRate ?
+      value: spacedRepetitionInsights.retentionRate !== undefined ?
         `${spacedRepetitionInsights.retentionRate.toFixed(1)}%` : 'N/A',
       subtitle: t('statistics.cards.successRate'),
       icon: "🎯",

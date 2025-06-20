@@ -62,4 +62,27 @@ export default defineSchema({
   }).index("by_userId", ["userId"])                             // Index for efficient user streak queries
     .index("by_currentStreak", ["currentStreak"])               // Index for leaderboard queries
     .index("by_longestStreak", ["longestStreak"]),              // Index for all-time leaderboard queries
+
+  // Card Reviews table - tracks individual review outcomes for retention rate calculation
+  cardReviews: defineTable({
+    userId: v.string(),           // ID of the user who performed the review
+    cardId: v.id("cards"),       // Reference to the reviewed card
+    deckId: v.id("decks"),       // Reference to the deck (for efficient queries)
+    reviewDate: v.number(),      // Unix timestamp when review was performed
+    quality: v.number(),         // Quality rating (0-5 scale from SM-2 algorithm)
+    wasSuccessful: v.boolean(),  // Whether the review was successful (quality >= 3)
+    // Spaced repetition context at time of review
+    repetitionBefore: v.number(), // Repetition count before this review
+    repetitionAfter: v.number(),  // Repetition count after this review
+    intervalBefore: v.number(),   // Interval before this review
+    intervalAfter: v.number(),    // Interval after this review
+    easeFactorBefore: v.number(), // Ease factor before this review
+    easeFactorAfter: v.number(),  // Ease factor after this review
+    // Metadata
+    reviewDuration: v.optional(v.number()), // Time spent on this review in milliseconds
+    studyMode: v.union(v.literal("basic"), v.literal("spaced-repetition")), // Study mode used
+  }).index("by_userId_and_date", ["userId", "reviewDate"])      // Index for user review history queries
+    .index("by_cardId_and_date", ["cardId", "reviewDate"])      // Index for card-specific review history
+    .index("by_deckId_and_date", ["deckId", "reviewDate"])      // Index for deck-specific review analysis
+    .index("by_userId_and_success", ["userId", "wasSuccessful"]) // Index for retention rate calculations
 });

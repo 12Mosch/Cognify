@@ -87,13 +87,13 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
           </div>
           <div className="flex items-center gap-3">
             <div className={`text-2xl font-bold ${getRetentionColor(insights.retentionRate)}`}>
-              {insights.retentionRate ? `${insights.retentionRate.toFixed(1)}%` : 'N/A'}
+              {insights.retentionRate !== undefined ? `${insights.retentionRate.toFixed(1)}%` : 'N/A'}
             </div>
             <div className="flex-1">
               <div className="text-xs text-slate-500 dark:text-slate-400">
                 {getRetentionMessage(insights.retentionRate)}
               </div>
-              {insights.retentionRate && (
+              {insights.retentionRate !== undefined && (
                 <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1.5 mt-1">
                   <div 
                     className={`h-1.5 rounded-full transition-all duration-500 ${
@@ -177,7 +177,7 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
               {t('statistics.widgets.spacedRepetition.algorithmTip')}
             </div>
             <div className="text-xs text-blue-600 dark:text-blue-400">
-              {insights.retentionRate && insights.retentionRate < 80 ?
+              {insights.retentionRate !== undefined && insights.retentionRate < 80 ?
                 t('statistics.widgets.spacedRepetition.tips.improveRetention') :
                 insights.averageInterval && insights.averageInterval < 7 ?
                 t('statistics.widgets.spacedRepetition.tips.frequentReviews') :

@@ -316,6 +316,67 @@ export const getDeckProgressData = query({
 });
 
 /**
+ * Interface for card review data used in retention rate calculation
+ */
+interface ReviewData {
+  wasSuccessful: boolean;
+  easeFactorBefore: number;
+}
+
+/**
+ * Calculate retention rate based on review history over a specified time period
+ * @param ctx - Convex context
+ * @param userId - User ID
+ * @param daysPeriod - Number of days to look back (default: 30)
+ * @returns Retention rate as percentage (0-100) or undefined if no data
+ */
+async function calculateRetentionRate(
+  ctx: any,
+  userId: string,
+  daysPeriod: number = 30
+): Promise<number | undefined> {
+  const cutoffDate = Date.now() - (daysPeriod * 24 * 60 * 60 * 1000);
+
+  // Get all reviews in the time period
+  const reviews = await ctx.db
+    .query("cardReviews")
+    .withIndex("by_userId_and_date", (q: any) =>
+      q.eq("userId", userId).gte("reviewDate", cutoffDate)
+    )
+    .collect();
+
+  if (reviews.length === 0) {
+    return undefined; // No data available
+  }
+
+  // Calculate basic retention rate
+  const successfulReviews = reviews.filter((review: ReviewData) => review.wasSuccessful).length;
+  const totalReviews = reviews.length;
+
+  // Calculate weighted retention rate (harder cards weighted more heavily)
+  let weightedSuccessSum = 0;
+  let weightedTotalSum = 0;
+
+  for (const review of reviews as ReviewData[]) {
+    // Weight is inversely proportional to ease factor (harder cards have lower ease factor)
+    const weight = 1 / review.easeFactorBefore;
+
+    if (review.wasSuccessful) {
+      weightedSuccessSum += weight;
+    }
+    weightedTotalSum += weight;
+  }
+
+  // Use weighted average if we have enough data, otherwise use simple average
+  const retentionRate = totalReviews >= 10
+    ? (weightedSuccessSum / weightedTotalSum) * 100
+    : (successfulReviews / totalReviews) * 100;
+
+  // Round to one decimal place and ensure it's between 0-100
+  return Math.min(100, Math.max(0, Math.round(retentionRate * 10) / 10));
+}
+
+/**
  * Get spaced repetition insights across all user's decks
  */
 export const getSpacedRepetitionInsights = query({
@@ -333,7 +394,7 @@ export const getSpacedRepetitionInsights = query({
   }),
   handler: async (ctx, _args) => {
     const identity = await ctx.auth.getUserIdentity();
-    
+
     if (!identity) {
       throw new Error("User must be authenticated to access statistics");
     }
@@ -397,16 +458,19 @@ export const getSpacedRepetitionInsights = query({
       .map(([date, count]) => ({ date, count }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    const averageInterval = cardsWithInterval > 0 
-      ? totalInterval / cardsWithInterval 
+    const averageInterval = cardsWithInterval > 0
+      ? totalInterval / cardsWithInterval
       : undefined;
+
+    // Calculate retention rate using review history
+    const retentionRate = await calculateRetentionRate(ctx, identity.subject, 30);
 
     return {
       totalDueCards,
       totalNewCards,
       cardsToReviewToday: totalDueCards, // For now, same as due cards
       upcomingReviews: upcomingReviewsArray,
-      retentionRate: undefined, // Will be implemented with session tracking
+      retentionRate,
       averageInterval,
     };
   },
@@ -766,12 +830,15 @@ export const getDashboardData = query({
     const averageInterval = cardsWithInterval > 0 ? totalInterval / cardsWithInterval : undefined;
     const cardsToReviewToday = totalDueCards;
 
+    // Calculate retention rate using review history
+    const retentionRate = await calculateRetentionRate(ctx, identity.subject, 30);
+
     const spacedRepetitionInsights = {
       totalDueCards,
       totalNewCards,
       cardsToReviewToday,
       upcomingReviews: upcomingReviewsArray,
-      retentionRate: undefined, // Would need review history to calculate
+      retentionRate,
       averageInterval,
     };
 

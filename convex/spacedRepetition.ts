@@ -145,6 +145,23 @@ export const reviewCard = mutation({
       currentInterval
     );
 
+    // Record the review outcome for retention rate calculation
+    await ctx.db.insert("cardReviews", {
+      userId: identity.subject,
+      cardId: args.cardId,
+      deckId: card.deckId,
+      reviewDate: Date.now(),
+      quality: args.quality,
+      wasSuccessful: args.quality >= 3, // SM-2 considers quality >= 3 as successful
+      repetitionBefore: currentRepetition,
+      repetitionAfter: repetition,
+      intervalBefore: currentInterval,
+      intervalAfter: interval,
+      easeFactorBefore: currentEaseFactor,
+      easeFactorAfter: easeFactor,
+      studyMode: "spaced-repetition",
+    });
+
     // Update the card with new spaced repetition parameters
     await ctx.db.patch(args.cardId, {
       repetition,
