@@ -257,16 +257,21 @@ export const getCurrentStudyStreak = query({
 
     // Calculate current streak
     // Note: This function now works with user's local dates stored in sessionDate
-    // The dates are already in the user's timezone, so we can compare them directly
+    // Use a more lenient approach to account for timezone differences
     let currentStreak = 0;
-    const today = new Date().toISOString().split('T')[0]; // This is still UTC for server comparison
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const utcToday = new Date().toISOString().split('T')[0];
+    const utcYesterday = new Date();
+    utcYesterday.setDate(utcYesterday.getDate() - 1);
+    const utcYesterdayStr = utcYesterday.toISOString().split('T')[0];
 
-    // Check if user studied today or yesterday to start streak calculation
-    // Note: This comparison may not be accurate across timezones - consider enhancing in the future
-    if (studyDates[0] === today || studyDates[0] === yesterdayStr) {
+    // Also check day before yesterday to account for timezone differences
+    const utcDayBeforeYesterday = new Date();
+    utcDayBeforeYesterday.setDate(utcDayBeforeYesterday.getDate() - 2);
+    const utcDayBeforeYesterdayStr = utcDayBeforeYesterday.toISOString().split('T')[0];
+
+    // Check if user studied within the last 2 days to start streak calculation
+    // This accounts for timezone differences between server and user
+    if (studyDates[0] === utcToday || studyDates[0] === utcYesterdayStr || studyDates[0] === utcDayBeforeYesterdayStr) {
       const checkDate = new Date(studyDates[0]);
       let dateIndex = 0;
 

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query } from "./_generated/server";
+import { query, type QueryCtx } from "./_generated/server";
 
 /**
  * Statistics and Analytics Queries for the Flashcard App
@@ -49,8 +49,16 @@ export const getUserStatistics = query({
       .collect();
 
     // Calculate today's cards studied
-    const today = new Date().toISOString().split('T')[0];
-    const todaySessions = allSessions.filter(session => session.sessionDate === today);
+    // Use a more lenient approach to account for timezone differences
+    const utcToday = new Date().toISOString().split('T')[0];
+    const utcYesterday = new Date();
+    utcYesterday.setDate(utcYesterday.getDate() - 1);
+    const utcYesterdayStr = utcYesterday.toISOString().split('T')[0];
+
+    // Include sessions from both UTC today and yesterday to account for timezone differences
+    const todaySessions = allSessions.filter(session =>
+      session.sessionDate === utcToday || session.sessionDate === utcYesterdayStr
+    );
     const cardsStudiedToday = todaySessions.reduce((sum, session) => sum + session.cardsStudied, 0);
 
     // Calculate total study time and average session duration
@@ -331,7 +339,7 @@ interface ReviewData {
  * @returns Retention rate as percentage (0-100) or undefined if no data
  */
 async function calculateRetentionRate(
-  ctx: any,
+  ctx: QueryCtx,
   userId: string,
   daysPeriod: number = 30
 ): Promise<number | undefined> {
@@ -340,7 +348,7 @@ async function calculateRetentionRate(
   // Get all reviews in the time period
   const reviews = await ctx.db
     .query("cardReviews")
-    .withIndex("by_userId_and_date", (q: any) =>
+    .withIndex("by_userId_and_date", (q) =>
       q.eq("userId", userId).gte("reviewDate", cutoffDate)
     )
     .collect();
@@ -727,8 +735,16 @@ export const getDashboardData = query({
       .withIndex("by_userId_and_date", (q) => q.eq("userId", identity.subject))
       .collect();
 
-    const today = new Date().toISOString().split('T')[0];
-    const todaySessions = allSessions.filter(session => session.sessionDate === today);
+    // Use a more lenient approach to account for timezone differences
+    const utcToday = new Date().toISOString().split('T')[0];
+    const utcYesterday = new Date();
+    utcYesterday.setDate(utcYesterday.getDate() - 1);
+    const utcYesterdayStr = utcYesterday.toISOString().split('T')[0];
+
+    // Include sessions from both UTC today and yesterday to account for timezone differences
+    const todaySessions = allSessions.filter(session =>
+      session.sessionDate === utcToday || session.sessionDate === utcYesterdayStr
+    );
     const cardsStudiedToday = todaySessions.reduce((sum, session) => sum + session.cardsStudied, 0);
 
     // Calculate streaks
@@ -753,7 +769,7 @@ export const getDashboardData = query({
 
       if (cardsOnDate > 0) {
         currentStreak++;
-      } else if (dateStr !== today) {
+      } else if (dateStr !== utcToday) {
         break;
       }
 

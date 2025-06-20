@@ -19,7 +19,7 @@ import KeyboardShortcutsModal from "./KeyboardShortcutsModal";
 import HelpIcon from "./HelpIcon";
 import PostSessionSummary from "./PostSessionSummary";
 import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
-import { formatNextReviewTime } from "../lib/dateUtils";
+import { formatNextReviewTime, getLocalDateString, getUserTimeZone } from "../lib/dateUtils";
 import { FlashcardSkeleton } from "./skeletons/SkeletonComponents";
 import { StudyProgressBar } from "./StudyProgressBar";
 import { DifficultyIndicator } from "./DifficultyIndicator";
@@ -196,8 +196,8 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
     // Record study session in database
     try {
-      const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const localDate = new Date().toISOString().split('T')[0];
+      const userTimeZone = getUserTimeZone();
+      const localDate = getLocalDateString(userTimeZone);
 
       await recordStudySession({
         deckId,

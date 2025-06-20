@@ -216,55 +216,67 @@ export const getStreakLeaderboard = query({
 /**
  * Helper function to calculate current streak based on last study date
  * Returns 0 if the user missed yesterday's study session (streak broken)
+ *
+ * Note: This function now works with user's local dates consistently.
+ * Since we can't determine the user's timezone in this context, we use a more
+ * lenient approach that considers a streak valid if the last study date is
+ * within the last 2 days, accounting for potential timezone differences.
  */
 function calculateCurrentStreak(lastStudyDate: string | undefined, storedStreak: number): number {
   if (!lastStudyDate || storedStreak === 0) {
     return 0;
   }
 
-  const today = getTodayDateString();
-  const yesterday = getYesterday(today);
+  // Get current UTC date for server-side comparison
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD in UTC
 
-  // Streak is valid if user studied today or yesterday
-  if (lastStudyDate === today || lastStudyDate === yesterday) {
+  // Calculate yesterday in UTC
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+  // Calculate day before yesterday to account for timezone differences
+  const dayBeforeYesterday = new Date(today);
+  dayBeforeYesterday.setDate(dayBeforeYesterday.getDate() - 2);
+  const dayBeforeYesterdayStr = dayBeforeYesterday.toISOString().split('T')[0];
+
+  // Streak is valid if user studied within the last 2 days (accounting for timezone differences)
+  // This is more lenient but prevents false streak breaks due to timezone inconsistencies
+  if (lastStudyDate === todayStr || lastStudyDate === yesterdayStr || lastStudyDate === dayBeforeYesterdayStr) {
     return storedStreak;
   }
 
-  // Streak is broken if last study date is more than 1 day ago
+  // Streak is broken if last study date is more than 2 days ago
   return 0;
 }
 
 /**
- * Helper function to get today's date in YYYY-MM-DD format
- * Uses UTC to ensure consistency across server environments
- */
-function getTodayDateString(): string {
-  const today = new Date();
-  const yyyy = today.getUTCFullYear();
-  const mm = String(today.getUTCMonth() + 1).padStart(2, '0');
-  const dd = String(today.getUTCDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-/**
  * Helper function to get yesterday's date in YYYY-MM-DD format
- * Timezone-safe implementation that avoids UTC conversion issues
+ * Works with local date strings to maintain timezone consistency
+ *
+ * @param dateStr - Date string in YYYY-MM-DD format
+ * @returns Yesterday's date in YYYY-MM-DD format
  */
 function getYesterday(dateStr: string): string {
   // Parse YYYY-MM-DD directly without timezone assumptions
   const [year, month, day] = dateStr.split('-').map(Number);
 
-  // Create date object in local timezone, then subtract one day
+  // Create date object representing the given date at midnight local time
   const date = new Date(year, month - 1, day); // month is 0-indexed
+
+  // Subtract one day
   date.setDate(date.getDate() - 1);
 
-  // Format back to YYYY-MM-DD without UTC conversion
+  // Format back to YYYY-MM-DD using local date components
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, '0'); // month is 0-indexed
   const dd = String(date.getDate()).padStart(2, '0');
 
   return `${yyyy}-${mm}-${dd}`;
 }
+
+
 
 /**
  * Get streak statistics for analytics
