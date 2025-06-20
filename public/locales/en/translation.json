@@ -405,6 +405,53 @@
         "exportSuccess": "Statistics exported as {{format}}",
         "exportError": "Failed to export statistics"
       }
+    },
+    "analytics": {
+      "back": "Back",
+      "recommendations": {
+        "optimalTime": {
+          "title": "Optimize Your Study Time",
+          "description": "Your best performance is during {{time}} with {{successRate}}% success rate."
+        },
+        "difficultCards": {
+          "title": "Focus on Difficult Cards",
+          "description": "Consider shorter intervals or additional review techniques for challenging cards."
+        },
+        "slowLearning": {
+          "title": "Increase Study Frequency",
+          "description": "Your learning velocity is below optimal. Consider shorter, more frequent study sessions."
+        },
+        "fastLearning": {
+          "title": "Excellent Progress",
+          "description": "You're learning at an optimal pace. Keep up the great work!"
+        }
+      },
+      "metrics": {
+        "successRate": {
+          "title": "Success Rate",
+          "subtitle": "overall performance"
+        },
+        "learningVelocity": {
+          "title": "Learning Velocity",
+          "subtitle": "cards/day"
+        },
+        "dueCards": {
+          "title": "Due Cards",
+          "subtitle": "ready to review"
+        },
+        "averageInterval": {
+          "title": "Avg Interval",
+          "subtitle": "between reviews"
+        }
+      },
+      "timePerformance": {
+        "title": "Time-of-Day Performance"
+      },
+      "noData": {
+        "title": "Not Enough Data Yet",
+        "description": "Complete at least 20 reviews to see your learning analytics.",
+        "backButton": "Back to Dashboard"
+      }
     }
   },
   "streak": {

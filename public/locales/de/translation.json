@@ -405,6 +405,53 @@
         "exportSuccess": "Statistiken als {{format}} exportiert",
         "exportError": "Fehler beim Exportieren der Statistiken"
       }
+    },
+    "analytics": {
+      "back": "Zurück",
+      "recommendations": {
+        "optimalTime": {
+          "title": "Optimieren Sie Ihre Lernzeit",
+          "description": "Ihre beste Leistung ist während {{time}} mit {{successRate}}% Erfolgsrate."
+        },
+        "difficultCards": {
+          "title": "Fokus auf schwierige Karten",
+          "description": "Erwägen Sie kürzere Intervalle oder zusätzliche Wiederholungstechniken für herausfordernde Karten."
+        },
+        "slowLearning": {
+          "title": "Lernfrequenz erhöhen",
+          "description": "Ihre Lerngeschwindigkeit ist unter dem Optimum. Erwägen Sie kürzere, häufigere Lernsitzungen."
+        },
+        "fastLearning": {
+          "title": "Ausgezeichneter Fortschritt",
+          "description": "Sie lernen in einem optimalen Tempo. Machen Sie weiter so!"
+        }
+      },
+      "metrics": {
+        "successRate": {
+          "title": "Erfolgsrate",
+          "subtitle": "Gesamtleistung"
+        },
+        "learningVelocity": {
+          "title": "Lerngeschwindigkeit",
+          "subtitle": "Karten/Tag"
+        },
+        "dueCards": {
+          "title": "Fällige Karten",
+          "subtitle": "bereit zur Wiederholung"
+        },
+        "averageInterval": {
+          "title": "Ø Intervall",
+          "subtitle": "zwischen Wiederholungen"
+        }
+      },
+      "timePerformance": {
+        "title": "Tageszeit-Leistung"
+      },
+      "noData": {
+        "title": "Noch nicht genügend Daten",
+        "description": "Schließen Sie mindestens 20 Wiederholungen ab, um Ihre Lernanalyse zu sehen.",
+        "backButton": "Zurück zum Dashboard"
+      }
     }
   },
   "streak": {
