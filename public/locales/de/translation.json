@@ -72,6 +72,8 @@
     "exitStudy": "Lernen beenden",
     "spacedRepetitionMode": "Spaced-Repetition-Modus",
     "cardProgress": "Karte {{current}} von {{total}}",
+    "returnToDashboard": "Zum Dashboard zurückkehren",
+    "noCardsToReview": "Keine Karten zum Wiederholen",
     "progress": {
       "cardPosition": "Karte {{current}} von {{total}}",
       "completed": "Abgeschlossen",
@@ -144,6 +146,16 @@
           "algorithm": "SM-2-Algorithmus",
           "timing": "Optimales Timing",
           "retention": "Langfristige Merkfähigkeit"
+        }
+      },
+      "adaptiveLearning": {
+        "title": "Adaptives Lernen",
+        "subtitle": "KI-gestützt",
+        "description": "Personalisierte Spaced Repetition, die sich an Ihre Lernmuster, optimalen Lernzeiten und individuelle Leistung anpasst.",
+        "features": {
+          "personalized": "Personalisiert",
+          "timeOptimized": "Zeitoptimiert",
+          "intelligent": "Intelligent"
         }
       },
       "cancel": "Abbrechen",
@@ -458,6 +470,7 @@
     "title": "Intelligente Terminplanung",
     "subtitle": "KI-gestützte Lernempfehlungen",
     "showWeekly": "Wöchentlich anzeigen",
+    "showToday": "Heute anzeigen",
     "currentTime": "Aktueller Zeitslot",
     "timeSlots": {
       "earlyMorning": "Früher Morgen",
@@ -473,13 +486,17 @@
       "medium": "mittel"
     },
     "dueCards": "Fällige Karten",
-    "newCards": "Neue Karten"
+    "newCards": "Neue Karten",
+    "noWeeklyData": "Wöchentlicher Zeitplan wird nach mehr Lernsitzungen angezeigt"
   },
   "achievements": {
     "title": "Erfolge",
     "points": "Punkte",
     "unlocked": "freigeschaltet",
     "showAll": "Alle anzeigen",
+    "showSummary": "Zusammenfassung anzeigen",
+    "all": "Alle",
+    "inProgress": "In Bearbeitung",
     "recent": "Kürzliche Erfolge",
     "categoryProgress": "Kategorie-Fortschritt",
     "categories": {
@@ -651,6 +668,50 @@
     "featureFlags": {
       "title": "Feature-Flags",
       "description": "Aktivieren oder deaktivieren Sie experimentelle Funktionen und Entwicklungstools."
+    }
+  },
+  "knowledge": {
+    "title": "Wissenskarte",
+    "subtitle": "Entdecken Sie Verbindungen in Ihrem Lernen",
+    "tabs": {
+      "clusters": "Konzept-Cluster",
+      "paths": "Lernpfade",
+      "graph": "Wissensgraph"
+    },
+    "clusters": {
+      "description": "Verwandte Konzepte, die basierend auf inhaltlicher Ähnlichkeit gruppiert sind",
+      "cards": "Karten",
+      "mastered": "gemeistert",
+      "difficulty": "Schwierigkeit"
+    },
+    "paths": {
+      "types": {
+        "prerequisite": "Voraussetzungspfad",
+        "sequential": "Sequenzieller Pfad",
+        "conceptual": "Konzeptueller Pfad",
+        "difficulty_based": "Schwierigkeitsbasierter Pfad"
+      },
+      "confidence": "Vertrauen",
+      "noData": "Lernpfade werden angezeigt, wenn Sie mehr Karten in diesem Stapel haben"
+    },
+    "graph": {
+      "description": "Visuelle Darstellung der Verbindungen zwischen Ihren Karten und Konzepten",
+      "placeholder": "Interaktive Graphvisualisierung würde hier erscheinen",
+      "nodes": "Konzepte",
+      "connections": "Verbindungen",
+      "connectionTypes": "Verbindungstypen",
+      "types": {
+        "related": "verwandt"
+      }
+    },
+    "noData": {
+      "title": "Ihre Wissenskarte wird erstellt",
+      "description": "Fügen Sie mehr Karten hinzu, um Verbindungen und Lernmuster zu sehen"
+    },
+    "error": {
+      "title": "Wissenskarte kann nicht geladen werden",
+      "description": "Beim Laden Ihrer Wissenskarte ist ein Fehler aufgetreten. Bitte versuchen Sie, die Seite zu aktualisieren.",
+      "retry": "Erneut versuchen"
     }
   }
 }

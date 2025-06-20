@@ -72,6 +72,8 @@
     "exitStudy": "Exit Study",
     "spacedRepetitionMode": "Spaced Repetition Mode",
     "cardProgress": "Card {{current}} of {{total}}",
+    "returnToDashboard": "Return to Dashboard",
+    "noCardsToReview": "No cards to review",
     "progress": {
       "cardPosition": "Card {{current}} of {{total}}",
       "completed": "Complete",
@@ -144,6 +146,16 @@
           "algorithm": "SM-2 Algorithm",
           "timing": "Optimal Timing",
           "retention": "Long-term Retention"
+        }
+      },
+      "adaptiveLearning": {
+        "title": "Adaptive Learning",
+        "subtitle": "AI-Powered",
+        "description": "Personalized spaced repetition that adapts to your learning patterns, optimal study times, and individual performance.",
+        "features": {
+          "personalized": "Personalized",
+          "timeOptimized": "Time-Optimized",
+          "intelligent": "Intelligent"
         }
       },
       "cancel": "Cancel",
@@ -458,6 +470,7 @@
     "title": "Smart Scheduling",
     "subtitle": "AI-powered study recommendations",
     "showWeekly": "Show Weekly",
+    "showToday": "Show Today",
     "currentTime": "Current Time Slot",
     "timeSlots": {
       "earlyMorning": "Early Morning",
@@ -473,13 +486,17 @@
       "medium": "medium"
     },
     "dueCards": "Due Cards",
-    "newCards": "New Cards"
+    "newCards": "New Cards",
+    "noWeeklyData": "Weekly schedule will appear after more study sessions"
   },
   "achievements": {
     "title": "Achievements",
     "points": "points",
     "unlocked": "unlocked",
     "showAll": "Show All",
+    "showSummary": "Show Summary",
+    "all": "All",
+    "inProgress": "In Progress",
     "recent": "Recent Achievements",
     "categoryProgress": "Category Progress",
     "categories": {
@@ -651,6 +668,50 @@
     "featureFlags": {
       "title": "Feature Flags",
       "description": "Enable or disable experimental features and development tools."
+    }
+  },
+  "knowledge": {
+    "title": "Knowledge Map",
+    "subtitle": "Explore connections in your learning",
+    "tabs": {
+      "clusters": "Concept Clusters",
+      "paths": "Learning Paths",
+      "graph": "Knowledge Graph"
+    },
+    "clusters": {
+      "description": "Related concepts grouped together based on content similarity",
+      "cards": "cards",
+      "mastered": "mastered",
+      "difficulty": "Difficulty"
+    },
+    "paths": {
+      "types": {
+        "prerequisite": "Prerequisite Path",
+        "sequential": "Sequential Path",
+        "conceptual": "Conceptual Path",
+        "difficulty_based": "Difficulty-Based Path"
+      },
+      "confidence": "confidence",
+      "noData": "Learning paths will appear when you have more cards in this deck"
+    },
+    "graph": {
+      "description": "Visual representation of connections between your cards and concepts",
+      "placeholder": "Interactive graph visualization would appear here",
+      "nodes": "Concepts",
+      "connections": "Connections",
+      "connectionTypes": "Connection Types",
+      "types": {
+        "related": "related"
+      }
+    },
+    "noData": {
+      "title": "Building Your Knowledge Map",
+      "description": "Add more cards to see connections and learning patterns"
+    },
+    "error": {
+      "title": "Unable to Load Knowledge Map",
+      "description": "There was an error loading your knowledge map. Please try refreshing the page.",
+      "retry": "Retry"
     }
   }
 }
