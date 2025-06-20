@@ -282,7 +282,7 @@ const LearningPathsView = memo(function LearningPathsView({
           <div className="flex items-start justify-between mb-3">
             <div>
               <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
-                {t(`knowledge.paths.types.${path.pathType}`, path.pathType.replace('_', ' '))}
+                {t(`knowledge.paths.types.${path.pathType}`, path.pathType.replace(/_/g, ' '))}
               </h4>
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 {path.description}

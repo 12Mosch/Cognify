@@ -649,7 +649,7 @@ export const getLearningInsights = query({
       recommendations.push({
         type: "time_optimization",
         title: "Optimize Your Study Time",
-        description: `Your best performance is during ${bestTime[0].replace('_', ' ')} with ${Math.round(bestTime[1].successRate * 100)}% success rate.`,
+        description: `Your best performance is during ${bestTime[0].replace(/_/g, ' ')} with ${Math.round(bestTime[1].successRate * 100)}% success rate.`,
         priority: "high" as const,
         actionable: true,
       });
