@@ -1,0 +1,347 @@
+import { memo, useState } from 'react';
+import { useQuery } from 'convex/react';
+import { useTranslation } from 'react-i18next';
+import { api } from '../../convex/_generated/api';
+
+interface SmartSchedulingWidgetProps {
+  className?: string;
+}
+
+/**
+ * Smart Scheduling Widget Component
+ * 
+ * Provides intelligent study session recommendations including:
+ * - Real-time optimal study time detection
+ * - Personalized scheduling based on performance patterns
+ * - Energy level predictions
+ * - Immediate study recommendations
+ * - Weekly study schedule overview
+ */
+const SmartSchedulingWidget = memo(function SmartSchedulingWidget({ 
+  className = "" 
+}: SmartSchedulingWidgetProps) {
+  const { t } = useTranslation();
+  const [showWeeklySchedule, setShowWeeklySchedule] = useState(false);
+
+  // Fetch today's recommendations and weekly schedule
+  const todayRecommendations = useQuery(api.smartScheduling.getTodayStudyRecommendations, {
+    userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  });
+  
+  const weeklySchedule = useQuery(api.smartScheduling.getStudyRecommendations, {
+    daysAhead: 7,
+    userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  });
+
+  // Loading state
+  if (todayRecommendations === undefined) {
+    return <SchedulingWidgetSkeleton className={className} />;
+  }
+
+  // No data state
+  if (!todayRecommendations) {
+    return <NoSchedulingDataState className={className} />;
+  }
+
+  const {
+    currentTimeSlot,
+    isOptimalTime,
+    nextOptimalTime,
+    immediateRecommendation,
+    dueCardsCount,
+    newCardsAvailable,
+    energyLevelPrediction,
+  } = todayRecommendations;
+
+  // Get energy level styling
+  const getEnergyLevelStyle = (level: string) => {
+    switch (level) {
+      case 'high':
+        return 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800';
+      case 'medium':
+        return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800';
+      case 'low':
+        return 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800';
+      default:
+        return 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600';
+    }
+  };
+
+  const formatTimeSlot = (slot: string) => {
+    const timeSlotNames: Record<string, string> = {
+      early_morning: t('scheduling.timeSlots.earlyMorning', 'Early Morning'),
+      morning: t('scheduling.timeSlots.morning', 'Morning'),
+      afternoon: t('scheduling.timeSlots.afternoon', 'Afternoon'),
+      evening: t('scheduling.timeSlots.evening', 'Evening'),
+      night: t('scheduling.timeSlots.night', 'Night'),
+      late_night: t('scheduling.timeSlots.lateNight', 'Late Night'),
+    };
+    return timeSlotNames[slot] || slot;
+  };
+
+  return (
+    <div className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 ${className}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+            <span className="text-white text-lg">🧠</span>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {t('scheduling.title', 'Smart Scheduling')}
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              {t('scheduling.subtitle', 'AI-powered study recommendations')}
+            </p>
+          </div>
+        </div>
+        
+        <button
+          onClick={() => setShowWeeklySchedule(!showWeeklySchedule)}
+          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+        >
+          {showWeeklySchedule ? 
+            t('scheduling.showToday', 'Show Today') : 
+            t('scheduling.showWeekly', 'Show Weekly')
+          }
+        </button>
+      </div>
+
+      {!showWeeklySchedule ? (
+        /* Today's Recommendations */
+        <div className="space-y-4">
+          {/* Current Status */}
+          <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+            <div>
+              <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                {t('scheduling.currentTime', 'Current Time Slot')}
+              </div>
+              <div className="font-medium text-slate-900 dark:text-slate-100">
+                {formatTimeSlot(currentTimeSlot)}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                isOptimalTime 
+                  ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800'
+                  : 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800'
+              }`}>
+                {isOptimalTime ? 
+                  t('scheduling.optimal', 'Optimal') : 
+                  t('scheduling.suboptimal', 'Sub-optimal')
+                }
+              </div>
+            </div>
+          </div>
+
+          {/* Energy Level */}
+          <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+            <div>
+              <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+                {t('scheduling.energyLevel', 'Predicted Energy Level')}
+              </div>
+              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium border ${getEnergyLevelStyle(energyLevelPrediction)}`}>
+                <span>
+                  {energyLevelPrediction === 'high' ? '🔥' : 
+                   energyLevelPrediction === 'medium' ? '⚡' : '😴'}
+                </span>
+                {t(`scheduling.energy.${energyLevelPrediction}`, energyLevelPrediction)}
+              </div>
+            </div>
+          </div>
+
+          {/* Cards Available */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="text-2xl font-bold text-blue-700 dark:text-blue-300 mb-1">
+                {dueCardsCount}
+              </div>
+              <div className="text-sm text-blue-600 dark:text-blue-400">
+                {t('scheduling.dueCards', 'Due Cards')}
+              </div>
+            </div>
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+              <div className="text-2xl font-bold text-green-700 dark:text-green-300 mb-1">
+                {newCardsAvailable}
+              </div>
+              <div className="text-sm text-green-600 dark:text-green-400">
+                {t('scheduling.newCards', 'New Cards')}
+              </div>
+            </div>
+          </div>
+
+          {/* Immediate Recommendation */}
+          {immediateRecommendation && (
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+              <div className="flex items-start gap-3">
+                <div className="text-2xl">💡</div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
+                    {immediateRecommendation.action}
+                  </h4>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                    {immediateRecommendation.reasoning}
+                  </p>
+                  {immediateRecommendation.estimatedDuration > 0 && (
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="text-slate-600 dark:text-slate-400">
+                        ⏱️ {immediateRecommendation.estimatedDuration} min
+                      </span>
+                      <span className="text-slate-600 dark:text-slate-400">
+                        📚 {immediateRecommendation.expectedCards} cards
+                      </span>
+                      <span className="text-slate-600 dark:text-slate-400">
+                        🎯 {Math.round(immediateRecommendation.confidence * 100)}% confidence
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Next Optimal Time */}
+          {nextOptimalTime && !isOptimalTime && (
+            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <div className="flex items-center gap-2">
+                <span className="text-yellow-600 dark:text-yellow-400">⏰</span>
+                <span className="text-sm text-yellow-700 dark:text-yellow-300">
+                  {t('scheduling.nextOptimal', 'Next optimal time')}: <strong>{nextOptimalTime}</strong>
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Weekly Schedule */
+        <div className="space-y-4">
+          {weeklySchedule && weeklySchedule.length > 0 ? (
+            weeklySchedule.slice(0, 7).map((day, index) => (
+              <WeeklyScheduleDay key={day.date} day={day} isToday={index === 0} />
+            ))
+          ) : (
+            <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+              {t('scheduling.noWeeklyData', 'Weekly schedule will appear after more study sessions')}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+});
+
+// Helper Components
+const WeeklyScheduleDay = memo(function WeeklyScheduleDay({
+  day,
+  isToday
+}: {
+  day: {
+    date: string;
+    recommendations: Array<{
+      timeSlot: string;
+      startTime: string;
+      duration: number;
+      expectedCards: number;
+      priority: string;
+    }>;
+    totalEstimatedCards: number;
+    estimatedStudyTime: number;
+  };
+  isToday: boolean;
+}) {
+  const date = new Date(day.date);
+  const dayName = date.toLocaleDateString('en', { weekday: 'short' });
+  const dayNumber = date.getDate();
+
+  return (
+    <div className={`p-4 rounded-lg border ${
+      isToday 
+        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+        : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600'
+    }`}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            isToday 
+              ? 'bg-blue-600 text-white'
+              : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'
+          }`}>
+            {dayNumber}
+          </div>
+          <div>
+            <div className="font-medium text-slate-900 dark:text-slate-100">
+              {dayName}
+              {isToday && <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">Today</span>}
+            </div>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-sm font-medium text-slate-900 dark:text-slate-100">
+            {day.totalEstimatedCards} cards
+          </div>
+          <div className="text-xs text-slate-600 dark:text-slate-400">
+            {day.estimatedStudyTime} min
+          </div>
+        </div>
+      </div>
+      
+      {day.recommendations.length > 0 && (
+        <div className="space-y-2">
+          {day.recommendations.slice(0, 2).map((rec, index) => (
+            <div key={index} className="flex items-center justify-between text-sm">
+              <span className="text-slate-600 dark:text-slate-400">
+                {rec.startTime} • {rec.duration}min
+              </span>
+              <span className={`px-2 py-1 rounded text-xs ${
+                rec.priority === 'high' 
+                  ? 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+                  : rec.priority === 'medium'
+                  ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
+                  : 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+              }`}>
+                {rec.expectedCards} cards
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
+
+const SchedulingWidgetSkeleton = memo(function SchedulingWidgetSkeleton({ className }: { className: string }) {
+  return (
+    <div className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 ${className}`}>
+      <div className="animate-pulse space-y-4">
+        <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
+        <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+        <div className="h-12 bg-slate-200 dark:bg-slate-700 rounded" />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const NoSchedulingDataState = memo(function NoSchedulingDataState({ className }: { className: string }) {
+  const { t } = useTranslation();
+  
+  return (
+    <div className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 ${className}`}>
+      <div className="text-center py-8">
+        <div className="text-4xl mb-3">🧠</div>
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+          {t('scheduling.noData.title', 'Building Your Schedule')}
+        </h3>
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          {t('scheduling.noData.description', 'Complete a few study sessions to get personalized recommendations')}
+        </p>
+      </div>
+    </div>
+  );
+});
+
+export default SmartSchedulingWidget;
