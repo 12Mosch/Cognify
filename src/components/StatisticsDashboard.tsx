@@ -46,6 +46,7 @@ export default function StatisticsDashboard({ onBack }: StatisticsDashboardProps
   const [dateRange, setDateRange] = useState<DateRange>('30d');
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  // Note: Learning analytics state removed as it's not currently used
 
   // Fetch unified dashboard data
   const dashboardData = useQuery(api.statistics.getDashboardData);
