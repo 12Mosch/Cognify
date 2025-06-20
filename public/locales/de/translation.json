@@ -454,6 +454,56 @@
       }
     }
   },
+  "scheduling": {
+    "title": "Intelligente Terminplanung",
+    "subtitle": "KI-gestützte Lernempfehlungen",
+    "showWeekly": "Wöchentlich anzeigen",
+    "currentTime": "Aktueller Zeitslot",
+    "timeSlots": {
+      "earlyMorning": "Früher Morgen",
+      "morning": "Morgen",
+      "afternoon": "Nachmittag",
+      "evening": "Abend",
+      "night": "Nacht",
+      "lateNight": "Späte Nacht"
+    },
+    "suboptimal": "Suboptimal",
+    "energyLevel": "Vorhergesagtes Energieniveau",
+    "energy": {
+      "medium": "mittel"
+    },
+    "dueCards": "Fällige Karten",
+    "newCards": "Neue Karten"
+  },
+  "achievements": {
+    "title": "Erfolge",
+    "points": "Punkte",
+    "unlocked": "freigeschaltet",
+    "showAll": "Alle anzeigen",
+    "recent": "Kürzliche Erfolge",
+    "categoryProgress": "Kategorie-Fortschritt",
+    "categories": {
+      "consistency": "Beständigkeit",
+      "exploration": "Erkundung",
+      "mastery": "Meisterschaft",
+      "social": "Sozial",
+      "streak": "Serie",
+      "velocity": "Geschwindigkeit"
+    },
+    "complete": "vollständig",
+    "nextToUnlock": "Als nächstes freischalten",
+    "unlockedOn": "Freigeschaltet am"
+  },
+  "analytics": {
+    "timeSlots": {
+      "earlyMorning": "5-9 Uhr",
+      "morning": "9-13 Uhr",
+      "afternoon": "13-17 Uhr",
+      "evening": "17-21 Uhr",
+      "night": "21-24 Uhr",
+      "lateNight": "0-5 Uhr"
+    }
+  },
   "streak": {
     "title": "Lernserie",
     "days_one": "{{count}} Tag",

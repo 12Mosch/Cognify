@@ -454,6 +454,56 @@
       }
     }
   },
+  "scheduling": {
+    "title": "Smart Scheduling",
+    "subtitle": "AI-powered study recommendations",
+    "showWeekly": "Show Weekly",
+    "currentTime": "Current Time Slot",
+    "timeSlots": {
+      "earlyMorning": "Early Morning",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "night": "Night",
+      "lateNight": "Late Night"
+    },
+    "suboptimal": "Sub-optimal",
+    "energyLevel": "Predicted Energy Level",
+    "energy": {
+      "medium": "medium"
+    },
+    "dueCards": "Due Cards",
+    "newCards": "New Cards"
+  },
+  "achievements": {
+    "title": "Achievements",
+    "points": "points",
+    "unlocked": "unlocked",
+    "showAll": "Show All",
+    "recent": "Recent Achievements",
+    "categoryProgress": "Category Progress",
+    "categories": {
+      "consistency": "consistency",
+      "exploration": "exploration",
+      "mastery": "mastery",
+      "social": "social",
+      "streak": "streak",
+      "velocity": "velocity"
+    },
+    "complete": "complete",
+    "nextToUnlock": "Next to Unlock",
+    "unlockedOn": "Unlocked on"
+  },
+  "analytics": {
+    "timeSlots": {
+      "earlyMorning": "5-9 AM",
+      "morning": "9 AM-1 PM",
+      "afternoon": "1-5 PM",
+      "evening": "5-9 PM",
+      "night": "9 PM-12 AM",
+      "lateNight": "12-5 AM"
+    }
+  },
   "streak": {
     "title": "Study Streak",
     "days_one": "{{count}} day",
