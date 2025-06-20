@@ -40,10 +40,16 @@ The deck cards have been enhanced with micro-interactions, progress indicators, 
 - **Accessibility**: Proper ARIA attributes (`role="progressbar"`, `aria-valuenow`, etc.)
 
 #### Progress Calculation
-Progress is calculated based on cards that have been studied (repetition > 0) vs total cards in deck:
+Progress is calculated based on truly mastered cards (using spaced repetition criteria) vs total cards in deck:
 ```typescript
-const progressPercentage = totalCards > 0 ? Math.round((studiedCards / totalCards) * 100) : 0;
+// Count mastered cards using sophisticated spaced repetition criteria
+const masteredCards = cards.filter(card =>
+  card.easeFactor && card.easeFactor >= 2.5 && card.interval && card.interval >= 21
+).length;
+const progressPercentage = totalCards > 0 ? Math.round((masteredCards / totalCards) * 100) : 0;
 ```
+
+This provides a more accurate representation of learning progress by considering cards truly mastered rather than just studied.
 
 ### 3. Status Badges
 
@@ -52,19 +58,22 @@ const progressPercentage = totalCards > 0 ? Math.round((studiedCards / totalCard
 - **Three states**:
   - **"New"**: Gray badge for decks with no study sessions
   - **"In Progress"**: Blue badge for partially studied decks
-  - **"Mastered"**: Green badge for fully completed decks (≥90% progress)
+  - **"Mastered"**: Green badge for decks with ≥80% truly mastered cards
 
 #### Status Logic
 ```typescript
 let status: "new" | "in-progress" | "mastered";
 if (studiedCards === 0) {
   status = "new";
-} else if (progressPercentage >= 90) {
+} else if (progressPercentage >= 80) {
+  // Use 80% threshold for mastered status (more achievable than 90%)
   status = "mastered";
 } else {
   status = "in-progress";
 }
 ```
+
+The status is now based on actual mastery using spaced repetition criteria rather than simple study counts.
 
 #### Badge Styling
 - **Consistent design**: Rounded corners, proper contrast ratios

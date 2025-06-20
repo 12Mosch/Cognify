@@ -200,10 +200,11 @@ export const getDeckStatistics = query({
         newCards++;
       } else if (repetition < 3) {
         learningCards++;
-      } else if (repetition < 8) {
-        reviewCards++;
-      } else {
+      } else if (card.easeFactor && card.easeFactor >= 2.5 && card.interval && card.interval >= 21) {
+        // Consider cards mastered if they have good ease factor and long interval
         masteredCards++;
+      } else {
+        reviewCards++;
       }
 
       if (card.easeFactor) {
@@ -283,16 +284,22 @@ export const getDeckProgressData = query({
         .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
         .collect();
 
-      // Count studied cards (cards with repetition > 0)
+      // Count studied cards (cards with repetition > 0) and mastered cards
       const studiedCards = cards.filter(card => (card.repetition || 0) > 0).length;
+      const masteredCards = cards.filter(card =>
+        card.easeFactor && card.easeFactor >= 2.5 && card.interval && card.interval >= 21
+      ).length;
       const totalCards = cards.length;
-      const progressPercentage = totalCards > 0 ? Math.round((studiedCards / totalCards) * 100) : 0;
 
-      // Determine status
+      // Calculate progress based on mastered cards (consistent with statistics dashboard)
+      const progressPercentage = totalCards > 0 ? Math.round((masteredCards / totalCards) * 100) : 0;
+
+      // Determine status based on actual mastery, not just studied cards
       let status: "new" | "in-progress" | "mastered";
       if (studiedCards === 0) {
         status = "new";
-      } else if (progressPercentage >= 90) {
+      } else if (progressPercentage >= 80) {
+        // Use 80% threshold for mastered status (more achievable than 90%)
         status = "mastered";
       } else {
         status = "in-progress";
@@ -525,11 +532,11 @@ export const getDeckPerformanceComparison = query({
       let cardsWithEaseFactor = 0;
 
       for (const card of cards) {
-        const repetition = card.repetition || 0;
         const easeFactor = card.easeFactor || 2.5;
 
-        // Consider cards with 8+ repetitions as mastered
-        if (repetition >= 8) {
+        // Consider cards mastered if they have good ease factor and long interval
+        // This aligns with the criteria used in other statistics functions
+        if (card.easeFactor && card.easeFactor >= 2.5 && card.interval && card.interval >= 21) {
           masteredCards++;
         }
 
@@ -1007,10 +1014,11 @@ export const getCardDistributionData = query({
           newCards++;
         } else if (repetition < 3) {
           learningCards++;
-        } else if (repetition < 8) {
-          reviewCards++;
-        } else {
+        } else if (card.easeFactor && card.easeFactor >= 2.5 && card.interval && card.interval >= 21) {
+          // Consider cards mastered if they have good ease factor and long interval
           masteredCards++;
+        } else {
+          reviewCards++;
         }
 
         // Count due cards (cards that need review now)
