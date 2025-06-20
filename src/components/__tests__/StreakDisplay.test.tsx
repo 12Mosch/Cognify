@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useQuery } from 'convex/react';
 import StreakDisplay from '../StreakDisplay';
@@ -46,13 +45,23 @@ const mockUseAnalytics = useAnalytics as jest.MockedFunction<typeof useAnalytics
 describe('StreakDisplay', () => {
   const mockPosthog = {
     capture: jest.fn(),
-  };
+  } as any; // Type assertion to satisfy PostHog interface
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseAnalytics.mockReturnValue({
       posthog: mockPosthog,
-      isAnalyticsEnabled: true,
+      trackUserSignUp: jest.fn(),
+      trackDeckCreated: jest.fn(),
+      trackDeckUpdated: jest.fn(),
+      trackCardCreated: jest.fn(),
+      trackStudySessionStarted: jest.fn(),
+      trackStudySessionCompleted: jest.fn(),
+      trackCardFlipped: jest.fn(),
+      trackDifficultyRated: jest.fn(),
+      captureError: jest.fn(),
+      trackConvexQueryError: jest.fn(),
+      trackConvexMutationError: jest.fn(),
     });
   });
 
