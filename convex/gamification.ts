@@ -204,7 +204,13 @@ export const getUserAchievements = query({
         category: v.string(),
         tier: v.string(),
         icon: v.string(),
+        criteria: v.object({
+          type: v.string(),
+          value: v.number(),
+          timeframe: v.optional(v.string()),
+        }),
         points: v.number(),
+        isSecret: v.boolean(),
       }),
     })),
     totalPoints: v.number(),
@@ -216,7 +222,13 @@ export const getUserAchievements = query({
         category: v.string(),
         tier: v.string(),
         icon: v.string(),
+        criteria: v.object({
+          type: v.string(),
+          value: v.number(),
+          timeframe: v.optional(v.string()),
+        }),
         points: v.number(),
+        isSecret: v.boolean(),
       }),
       progress: v.number(), // 0-1 scale
       currentValue: v.number(),
@@ -268,7 +280,9 @@ export const getUserAchievements = query({
           category: achievement.category,
           tier: achievement.tier,
           icon: achievement.icon,
+          criteria: achievement.criteria,
           points: achievement.points,
+          isSecret: achievement.isSecret,
         },
         progress,
         currentValue,
@@ -312,7 +326,13 @@ export const checkAchievements = mutation({
       category: v.string(),
       tier: v.string(),
       icon: v.string(),
+      criteria: v.object({
+        type: v.string(),
+        value: v.number(),
+        timeframe: v.optional(v.string()),
+      }),
       points: v.number(),
+      isSecret: v.boolean(),
     }),
   })),
   handler: async (ctx, args) => {
@@ -356,7 +376,9 @@ export const checkAchievements = mutation({
             category: achievement.category,
             tier: achievement.tier,
             icon: achievement.icon,
+            criteria: achievement.criteria,
             points: achievement.points,
+            isSecret: achievement.isSecret,
           },
         });
       }
