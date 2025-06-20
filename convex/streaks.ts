@@ -3,6 +3,7 @@ import { query, mutation } from "./_generated/server";
 
 /**
  * Get current study streak for the authenticated user
+ * Automatically resets streak to 0 if user missed yesterday's study session
  */
 export const getCurrentStreak = query({
   args: {},
@@ -17,7 +18,7 @@ export const getCurrentStreak = query({
   }),
   handler: async (ctx, _args) => {
     const identity = await ctx.auth.getUserIdentity();
-    
+
     if (!identity) {
       throw new Error("User must be authenticated to access streak data");
     }
@@ -39,8 +40,11 @@ export const getCurrentStreak = query({
       };
     }
 
+    // Check if streak should be reset due to missing yesterday's study session
+    const currentStreak = calculateCurrentStreak(streak.lastStudyDate, streak.currentStreak);
+
     return {
-      currentStreak: streak.currentStreak,
+      currentStreak,
       longestStreak: streak.longestStreak,
       lastStudyDate: streak.lastStudyDate,
       streakStartDate: streak.streakStartDate,
@@ -208,6 +212,39 @@ export const getStreakLeaderboard = query({
     }));
   },
 });
+
+/**
+ * Helper function to calculate current streak based on last study date
+ * Returns 0 if the user missed yesterday's study session (streak broken)
+ */
+function calculateCurrentStreak(lastStudyDate: string | undefined, storedStreak: number): number {
+  if (!lastStudyDate || storedStreak === 0) {
+    return 0;
+  }
+
+  const today = getTodayDateString();
+  const yesterday = getYesterday(today);
+
+  // Streak is valid if user studied today or yesterday
+  if (lastStudyDate === today || lastStudyDate === yesterday) {
+    return storedStreak;
+  }
+
+  // Streak is broken if last study date is more than 1 day ago
+  return 0;
+}
+
+/**
+ * Helper function to get today's date in YYYY-MM-DD format
+ * Uses UTC to ensure consistency across server environments
+ */
+function getTodayDateString(): string {
+  const today = new Date();
+  const yyyy = today.getUTCFullYear();
+  const mm = String(today.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(today.getUTCDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
 
 /**
  * Helper function to get yesterday's date in YYYY-MM-DD format
