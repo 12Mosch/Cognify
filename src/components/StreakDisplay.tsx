@@ -20,11 +20,11 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 
   if (streakData === undefined) {
     return (
-      <div className={`bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-6 ${className}`}>
+      <div className={`bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-6 ${className}`}>
         <div className="animate-pulse" data-testid="streak-loading">
-          <div className="h-6 bg-orange-200 dark:bg-orange-700 rounded w-32 mb-4"></div>
-          <div className="h-12 bg-orange-200 dark:bg-orange-700 rounded w-20 mb-2"></div>
-          <div className="h-4 bg-orange-200 dark:bg-orange-700 rounded w-48"></div>
+          <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-32 mb-4"></div>
+          <div className="h-12 bg-slate-200 dark:bg-slate-700 rounded w-20 mb-2"></div>
+          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-48"></div>
         </div>
       </div>
     );
