@@ -394,7 +394,7 @@ export const getKnowledgeGraphData = query({
  */
 export const getLearningPathRecommendations = query({
   args: {
-    deckId: v.id("decks"),
+    deckId: v.optional(v.id("decks")),
   },
   returns: v.array(v.object({
     path: v.array(v.object({
@@ -414,8 +414,16 @@ export const getLearningPathRecommendations = query({
       throw new Error("User must be authenticated");
     }
 
+    // If no deckId provided, return empty array
+    if (!args.deckId) {
+      return [];
+    }
+
+    // At this point, we know args.deckId is defined
+    const deckId = args.deckId;
+
     // Verify deck ownership
-    const deck = await ctx.db.get(args.deckId);
+    const deck = await ctx.db.get(deckId);
     if (!deck || deck.userId !== identity.subject) {
       throw new Error("You can only get learning paths for your own decks");
     }
@@ -423,7 +431,7 @@ export const getLearningPathRecommendations = query({
     // Get deck cards
     const cards = await ctx.db
       .query("cards")
-      .withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
+      .withIndex("by_deckId", (q) => q.eq("deckId", deckId))
       .collect();
 
     if (cards.length === 0) {

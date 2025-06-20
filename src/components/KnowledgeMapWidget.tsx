@@ -20,7 +20,7 @@ interface ConceptClustersViewProps {
     cardCount: number;
     masteryLevel: number;
     averageDifficulty: number;
-    centerCard: { front: string; back: string };
+    centerCard: { _id: Id<"cards">; front: string; back: string };
   }>;
   selectedCluster: string | null;
   onSelectCluster: (clusterId: string | null) => void;
@@ -73,8 +73,9 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
   const conceptClusters = useQuery(api.contextualLearning.getConceptClusters, {
     deckId,
   });
-  
-  const learningPaths = useQuery(api.contextualLearning.getLearningPathRecommendations, 
+
+  const learningPaths = useQuery(
+    api.contextualLearning.getLearningPathRecommendations,
     deckId ? { deckId } : "skip"
   );
 
@@ -83,13 +84,20 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
     includeDecks: false,
   });
 
+
+
   // Loading state
   if (
     conceptClusters === undefined ||
-    learningPaths === undefined ||
+    (deckId && learningPaths === undefined) ||
     knowledgeGraph === undefined
   ) {
     return <KnowledgeMapSkeleton className={className} />;
+  }
+
+  // Error state - Convex returns null for query errors
+  if (conceptClusters === null || (deckId && learningPaths === null) || knowledgeGraph === null) {
+    return <KnowledgeMapErrorState className={className} />;
   }
 
   // No data state
@@ -153,7 +161,7 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
 
         {activeTab === 'paths' && (
           <LearningPathsView
-            paths={learningPaths || []}
+            paths={deckId ? (learningPaths || []) : []}
             t={t}
           />
         )}
@@ -418,7 +426,7 @@ const KnowledgeMapSkeleton = memo(function KnowledgeMapSkeleton({ className }: {
 
 const NoKnowledgeDataState = memo(function NoKnowledgeDataState({ className }: { className: string }) {
   const { t } = useTranslation();
-  
+
   return (
     <div className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 ${className}`}>
       <div className="text-center py-8">
@@ -429,6 +437,30 @@ const NoKnowledgeDataState = memo(function NoKnowledgeDataState({ className }: {
         <p className="text-sm text-slate-600 dark:text-slate-400">
           {t('knowledge.noData.description', 'Add more cards to see connections and learning patterns')}
         </p>
+      </div>
+    </div>
+  );
+});
+
+const KnowledgeMapErrorState = memo(function KnowledgeMapErrorState({ className }: { className: string }) {
+  const { t } = useTranslation();
+
+  return (
+    <div className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 ${className}`}>
+      <div className="text-center py-8">
+        <div className="text-4xl mb-3">⚠️</div>
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+          {t('knowledge.error.title', 'Unable to Load Knowledge Map')}
+        </h3>
+        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+          {t('knowledge.error.description', 'There was an error loading your knowledge map. Please try refreshing the page.')}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors"
+        >
+          {t('knowledge.error.retry', 'Retry')}
+        </button>
       </div>
     </div>
   );
