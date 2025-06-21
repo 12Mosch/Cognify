@@ -24,7 +24,7 @@ interface ConceptClustersViewProps {
   }>;
   selectedCluster: string | null;
   onSelectCluster: (clusterId: string | null) => void;
-  t: any; // Using any for now to match react-i18next TFunction type
+  t: ReturnType<typeof useTranslation>['t'];
 }
 
 interface LearningPathsViewProps {
@@ -40,7 +40,7 @@ interface LearningPathsViewProps {
       estimatedDifficulty: number;
     }>;
   }>;
-  t: any; // Using any for now to match react-i18next TFunction type
+  t: ReturnType<typeof useTranslation>['t'];
 }
 
 interface KnowledgeGraphViewProps {
@@ -48,7 +48,7 @@ interface KnowledgeGraphViewProps {
     nodes: Array<{ id: string; label: string; type: string }>;
     edges: Array<{ source: string; target: string; type: string }>;
   } | null;
-  t: any; // Using any for now to match react-i18next TFunction type
+  t: ReturnType<typeof useTranslation>['t'];
 }
 
 /**
@@ -245,8 +245,9 @@ const ConceptClustersView = memo(function ConceptClustersView({
                     {cluster.centerCard.front}
                   </div>
                   <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
-                    {cluster.centerCard.back.substring(0, 100)}
-                    {cluster.centerCard.back.length > 100 ? '...' : ''}
+                    {cluster.centerCard.back.length > 100
+                      ? `${cluster.centerCard.back.substring(0, 100)}...`
+                      : cluster.centerCard.back}
                   </div>
                 </div>
               </div>
@@ -312,8 +313,9 @@ const LearningPathsView = memo(function LearningPathsView({
                     {stepIndex + 1}
                   </span>
                   <span className="text-sm text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
-                    {step.front.substring(0, 20)}
-                    {step.front.length > 20 ? '...' : ''}
+                    {step.front.length > 20
+                      ? `${step.front.substring(0, 20)}...`
+                      : step.front}
                   </span>
                 </div>
               ))}
