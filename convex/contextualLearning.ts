@@ -256,7 +256,11 @@ export const getConceptClusters = query({
       });
 
       const averageMastery = cardMasteries.reduce((sum, m) => sum + m, 0) / cardMasteries.length;
-      const centerCard = cards.find(c => c._id === cluster.centerCard)!;
+      const centerCard = cards.find(c => c._id === cluster.centerCard);
+      if (!centerCard) {
+        console.error('Center card §{cluster.centerCard} not found in cards array');
+        continue; // Skip this cluster
+      }
 
       return {
         id: cluster.id,
