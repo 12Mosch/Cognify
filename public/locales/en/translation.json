@@ -1,730 +1,730 @@
 {
-  "app": {
-    "title": "Cognify",
-    "goToMainDashboard": "Go to main dashboard"
-  },
-  "navigation": {
-    "settings": "Settings",
-    "signOut": "Sign Out",
-    "selectLanguage": "Select language"
-  },
-  "auth": {
-    "welcome": "Welcome to {{appName}}",
-    "signInPrompt": "Sign in to create and manage your flashcard decks",
-    "signIn": "Sign In",
-    "signUp": "Sign Up"
-  },
-  "dashboard": {
-    "title": "My Flashcard Decks",
-    "subtitle": {
-      "empty": "Create your first deck to get started",
-      "withDecks_one": "{{count}} deck",
-      "withDecks_other": "{{count}} decks"
-    },
-    "buttons": {
-      "showStatistics": "Show Statistics",
-      "quickAddCard": "Quick Add Card",
-      "createDeck": "Create Deck"
-    }
-  },
-  "deck": {
-    "cardCount_one": "{{count}} card",
-    "cardCount_other": "{{count}} cards",
-    "studyNow": "Study Now",
-    "manageCards": "Manage Cards",
-    "editDeck": "Edit Deck",
-    "dueCards_one": "{{count}} due",
-    "dueCards_other": "{{count}} due",
-    "newCards_one": "{{count}} new",
-    "newCards_other": "{{count}} new",
-    "manageCardsAria": "Manage cards in {{deckName}} deck",
-    "studyAria": "Study {{deckName}} deck",
-    "editDeckAria": "Edit {{deckName}} deck",
-    "noDescription": "No description",
-    "createdOn": "Created {{date}}",
-    "lastStudied": "Last studied {{date}}",
-    "status": {
-      "new": "New",
-      "inProgress": "In Progress",
-      "mastered": "Mastered",
-      "newAria": "This deck has not been studied yet",
-      "inProgressAria": "This deck is currently being studied",
-      "masteredAria": "This deck has been mastered"
-    },
-    "progress": {
-      "label": "Progress",
-      "aria": "{{percentage}}% complete"
-    }
-  },
-  "emptyState": {
-    "title": "No decks yet",
-    "description": "Create your first flashcard deck to start learning. You can add cards, study, and track your progress.",
-    "getStarted": "Get started by creating your first deck!"
-  },
-  "study": {
-    "flip": "Flip",
-    "next": "Next",
-    "previous": "Previous",
-    "showAnswer": "Show Answer",
-    "showFront": "Show Front",
-    "showBack": "Show Back",
-    "exitStudySession": "Exit Study Session",
-    "exitStudy": "Exit Study",
-    "spacedRepetitionMode": "Spaced Repetition Mode",
-    "cardProgress": "Card {{current}} of {{total}}",
-    "returnToDashboard": "Return to Dashboard",
-    "noCardsToReview": "No cards to review",
-    "progress": {
-      "cardPosition": "Card {{current}} of {{total}}",
-      "completed": "Complete",
-      "aria": "Study progress: {{current}} of {{total}} cards completed, {{percentage}}% done",
-      "completedAria": "Study session completed! All {{total}} cards reviewed.",
-      "inProgressAria": "Study session in progress: {{current}} of {{total}} cards completed"
-    },
-    "deckNotFound": {
-      "title": "Deck Not Found",
-      "message": "The deck you're looking for doesn't exist or you don't have access to it.",
-      "backToDashboard": "Back to Dashboard"
-    },
-    "emptyDeck": {
-      "title": "No cards in this deck",
-      "message": "Add some flashcards to this deck before starting a study session.",
-      "addCards": "Add Cards to Deck"
-    },
-    "allCaughtUp": {
-      "title": "All Caught Up! 🎉",
-      "sessionStats_one": "Great work! You've reviewed {{count}} card in this session.",
-      "sessionStats_other": "Great work! You've reviewed {{count}} cards in this session.",
-      "noCardsMessage": "You have no cards due for review right now. Excellent job staying on track with your studies!",
-      "emptyDeckMessage": "This deck is empty. Add some cards to start your learning journey!",
-      "nextReviewMessage": "Come back {{time}} for your next review session.",
-      "keepLearning": "Keep up the great work! Consistent daily practice is the key to long-term retention.",
-      "addCardsButton": "Add Cards to Deck"
-    },
-    "difficulty": {
-      "again": "Again",
-      "hard": "Hard",
-      "good": "Good",
-      "easy": "Easy"
-    },
-    "exit": "Exit",
-    "adaptive": "Adaptive",
-    "successRate": "Success Rate",
-    "learningVelocity": "Learning Velocity",
-    "cardsPerDay": "cards/day",
-    "clickToReveal": "Click to reveal",
-    "howConfident": "How confident are you?",
-    "keyboardShortcuts": "Keyboard shortcuts",
-    "toFlip": "to flip",
-    "toRate": "to rate",
-    "session": {
-      "completed": "Study Session Completed!",
-      "cardsReviewed_one": "Card reviewed: {{count}}",
-      "cardsReviewed_other": "Cards reviewed: {{count}}",
-      "returnToDashboard": "Return to Dashboard",
-      "allCaughtUp": "All Caught Up!",
-      "noCardsToReview": "No cards to review right now.",
-      "nextReview": "Next review in {{time}}"
-    },
-    "shortcuts": {
-      "title": "Keyboard Shortcuts",
-      "flip": "Flip card",
-      "next": "Next card",
-      "difficulty1": "Again (1)",
-      "difficulty2": "Hard (2)",
-      "difficulty3": "Good (3)",
-      "difficulty4": "Easy (4)",
-      "help": "Show shortcuts"
-    },
-    "modeSelector": {
-      "title": "Choose Study Mode",
-      "subtitle": "How would you like to study {{deckName}}?",
-      "basicStudy": {
-        "title": "Basic Study",
-        "description": "Simple sequential review of all cards in the deck. Perfect for initial learning or quick review sessions.",
-        "features": {
-          "sequential": "Sequential Order",
-          "simple": "Simple Interface",
-          "quick": "Quick Review"
-        }
-      },
-      "spacedRepetition": {
-        "title": "Spaced Repetition",
-        "subtitle": "Recommended",
-        "description": "Intelligent scheduling based on the SM-2 algorithm. Cards are shown at optimal intervals for long-term retention.",
-        "features": {
-          "algorithm": "SM-2 Algorithm",
-          "timing": "Optimal Timing",
-          "retention": "Long-term Retention"
-        }
-      },
-      "adaptiveLearning": {
-        "title": "Adaptive Learning",
-        "subtitle": "AI-Powered",
-        "description": "Personalized spaced repetition that adapts to your learning patterns, optimal study times, and individual performance.",
-        "features": {
-          "personalized": "Personalized",
-          "timeOptimized": "Time-Optimized",
-          "intelligent": "Intelligent"
-        }
-      },
-      "cancel": "Cancel",
-      "info": {
-        "title": "About Spaced Repetition",
-        "description": "Spaced repetition is a learning technique that increases intervals of time between subsequent review of previously learned material. It's scientifically proven to improve long-term retention and reduce study time."
-      }
-    }
-  },
-  "forms": {
-    "createDeck": {
-      "title": "Create New Deck",
-      "name": "Deck Name",
-      "namePlaceholder": "Enter deck name",
-      "description": "Description (optional)",
-      "descriptionPlaceholder": "Enter deck description",
-      "create": "Create Deck",
-      "creating": "Creating...",
-      "cancel": "Cancel",
-      "buttonLabel": "Create new deck",
-      "characterCount": "{{current}}/{{max}} characters"
-    },
-    "editDeck": {
-      "title": "Edit Deck",
-      "name": "Deck Name",
-      "namePlaceholder": "Enter deck name",
-      "description": "Description (optional)",
-      "descriptionPlaceholder": "Enter deck description",
-      "update": "Update Deck",
-      "updating": "Updating...",
-      "cancel": "Cancel",
-      "buttonLabel": "Edit deck",
-      "characterCount": "{{current}}/{{max}} characters"
-    },
-    "quickAddCard": {
-      "title": "Quick Add Card",
-      "selectDeck": "Select Deck",
-      "selectDeckPlaceholder": "Choose a deck",
-      "front": "Front (Question)",
-      "frontPlaceholder": "Enter the question or prompt",
-      "back": "Back (Answer)",
-      "backPlaceholder": "Enter the answer or explanation",
-      "add": "Add Card",
-      "adding": "Adding...",
-      "updating": "Updating...",
-      "cancel": "Cancel",
-      "buttonLabel": "Quick add card",
-      "characterCount": "{{current}}/{{max}} characters"
-    },
-    "validation": {
-      "required": "This field is required",
-      "deckNameRequired": "Deck name is required",
-      "frontRequired": "Front content is required",
-      "backRequired": "Back content is required",
-      "selectDeckRequired": "Please select a deck",
-      "maxLength": "{{field}} cannot exceed {{max}} characters"
-    }
-  },
-  "statistics": {
-    "title": "Statistics Dashboard",
-    "overview": {
-      "title": "Overview",
-      "totalDecks": "Total Decks",
-      "totalCards": "Total Cards",
-      "cardsReviewed": "Cards Reviewed",
-      "studyStreak": "Study Streak"
-    },
-    "performance": {
-      "title": "Performance",
-      "accuracy": "Accuracy",
-      "averageTime": "Avg. Time per Card",
-      "sessionsCompleted": "Sessions Completed"
-    },
-    "activity": {
-      "title": "Study Activity",
-      "last7Days": "Last 7 Days",
-      "last30Days": "Last 30 Days"
-    },
-    "cards": {
-      "totalDecks": "Total Decks",
-      "totalCards": "Total Cards",
-      "dueToday": "Due Today",
-      "currentStreak": "Current Streak",
-      "newCards": "New Cards",
-      "studySessions": "Study Sessions",
-      "averageInterval": "Average Interval",
-      "retentionRate": "Retention Rate",
-      "learningCollections": "Learning collections",
-      "flashcardsCreated": "Flashcards created",
-      "cardsToReview": "Cards to review",
-      "bestDays": "Best: {{count}} days",
-      "readyToLearn": "Ready to learn",
-      "totalCompleted": "Total completed",
-      "betweenReviews": "Between reviews",
-      "successRate": "Success rate",
-      "day": "day",
-      "days": "days"
-    },
-    "charts": {
-      "studyActivity": {
-        "title": "Study Activity Over Time",
-        "subtitle": "Track your learning consistency and progress patterns",
-        "cardsStudied": "Cards Studied",
-        "sessions": "Sessions",
-        "timeMinutes": "Time (min)",
-        "totalCards": "Total cards studied: {{count}}",
-        "totalSessions": "Total sessions: {{count}}",
-        "totalTime": "Total time: {{hours}}h {{minutes}}m",
-        "noData": "No study activity data available for the selected period."
-      },
-      "deckPerformance": {
-        "title": "Deck Performance Comparison",
-        "subtitle": "Compare mastery levels across your decks",
-        "masteryPercentage": "Mastery %",
-        "deckName": "Deck Name",
-        "totalCards": "Total Cards",
-        "masteredCards": "Mastered Cards",
-        "averageEase": "Average Ease",
-        "lastStudied": "Last Studied",
-        "clickToSelect": "Click to select/deselect deck",
-        "noData": "No deck performance data available."
-      },
-      "cardDistribution": {
-        "title": "Card Distribution",
-        "subtitle": "Overview of your cards across learning stages",
-        "newCards": "New Cards",
-        "learning": "Learning",
-        "review": "Review",
-        "due": "Due",
-        "mastered": "Mastered",
-        "neverStudied": "Cards never studied",
-        "beingLearned": "Cards being learned",
-        "inReviewCycle": "Cards in review cycle",
-        "dueForReview": "Cards due for review",
-        "wellLearned": "Well-learned cards",
-        "totalCardsInStage": "{{count}} cards in {{stage}} stage",
-        "percentageOfTotal": "{{percentage}}% of total cards",
-        "noData": "No cards available"
-      }
-    },
-    "widgets": {
-      "upcomingReviews": {
-        "title": "Upcoming Reviews",
-        "today": "Today",
-        "tomorrow": "Tomorrow",
-        "allCaughtUp": "All caught up!",
-        "noReviewsScheduled": "No reviews scheduled for the next week",
-        "moreReviewsScheduled_one": "+{{count}} more review scheduled",
-        "moreReviewsScheduled_other": "+{{count}} more reviews scheduled",
-        "totalCards": "Total Cards",
-        "reviewDays": "Review Days",
-        "card": "card",
-        "cards": "cards"
-      },
-      "learningStreak": {
-        "title": "Learning Streak",
-        "messages": {
-          "start": "Start your learning journey!",
-          "greatStart": "Great start! Keep it up!",
-          "buildingMomentum": "Building momentum!",
-          "onFire": "You're on fire! 🔥",
-          "incredibleDedication": "Incredible dedication!",
-          "legendaryLearner": "Legendary learner! 🏆"
-        },
-        "milestones": {
-          "daysToReach_one": "{{count}} day to {{milestone}}-day milestone",
-          "daysToReach_other": "{{count}} days to reach {{milestone}}-day milestone",
-          "progressTo": "Progress to {{milestone}} days"
-        },
-        "current": "Current",
-        "best": "Best",
-        "achievements": {
-          "weeklyWarrior": "Weekly Warrior!",
-          "monthlyMaster": "Monthly Master!",
-          "centuryClub": "Century Club!",
-          "yearLongLearner": "Year-Long Learner!",
-          "keepUpConsistency": "Keep up the amazing consistency!"
-        }
-      },
-      "spacedRepetition": {
-        "title": "Algorithm Insights",
-        "retentionRate": "Retention Rate",
-        "averageInterval": "Average Interval",
-        "newVsReviewBalance": "New vs Review Balance",
-        "newCards": "New Cards",
-        "dueCards": "Due Cards",
-        "reviewDays": "Review Days",
-        "dueToday": "Due Today",
-        "timeBetweenReviews": "Time between reviews",
-        "retentionMessages": {
-          "noData": "No data yet",
-          "excellent": "Excellent retention!",
-          "good": "Good retention",
-          "fair": "Fair retention",
-          "needsImprovement": "Needs improvement"
-        },
-        "intervalEfficiency": {
-          "unknown": "Unknown",
-          "excellent": "Excellent",
-          "good": "Good",
-          "fair": "Fair",
-          "learning": "Learning"
-        },
-        "algorithmTip": "Algorithm Tip",
-        "tips": {
-          "improveRetention": "Consider reviewing cards more frequently to improve retention.",
-          "frequentReviews": "Your cards are being reviewed frequently - great for learning new material!",
-          "balanceDueCards": "Focus on clearing due cards before adding new ones for better balance.",
-          "workingWell": "Your spaced repetition is working well! Keep up the consistent practice."
-        },
-        "balancePercentage": "{{newPercentage}}% new cards, {{reviewPercentage}}% reviews"
-      }
-    },
-    "heatmap": {
-      "title": "Study Activity",
-      "subtitle": "{{count}} days of study activity in the last year",
-      "legend": {
-        "less": "Less",
-        "more": "More"
-      },
-      "stats": {
-        "cardsStudied": "Cards studied",
-        "activeDays": "Active days",
-        "bestDay": "Best day",
-        "studyRate": "Study rate"
-      }
-    },
-    "loading": {
-      "dashboard": "Loading statistics dashboard",
-      "chartTitle": "Loading {{title}}..."
-    },
-    "table": {
-      "deckPerformance": {
-        "title": "Deck Performance Overview",
-        "headers": {
-          "deck": "Deck",
-          "cards": "Cards",
-          "mastered": "Mastered",
-          "progress": "Progress",
-          "avgEase": "Avg. Ease"
-        }
-      }
-    },
-    "dashboard": {
-      "title": "Learning Analytics",
-      "subtitle": "Comprehensive insights into your flashcard learning progress",
-      "backToDashboard": "Back to dashboard",
-      "dateRange": {
-        "last7Days": "Last 7 days",
-        "last30Days": "Last 30 days",
-        "last90Days": "Last 90 days",
-        "allTime": "All time"
-      },
-      "export": {
-        "exportData": "Export Data",
-        "exporting": "Exporting...",
-        "exportAsCSV": "Export as CSV",
-        "exportAsJSON": "Export as JSON",
-        "exportSuccess": "Statistics exported as {{format}}",
-        "exportError": "Failed to export statistics"
-      }
-    },
-    "analytics": {
-      "back": "Back",
-      "recommendations": {
-        "optimalTime": {
-          "title": "Optimize Your Study Time",
-          "description": "Your best performance is during {{time}} with {{successRate}}% success rate."
-        },
-        "difficultCards": {
-          "title": "Focus on Difficult Cards",
-          "description": "Consider shorter intervals or additional review techniques for challenging cards."
-        },
-        "slowLearning": {
-          "title": "Increase Study Frequency",
-          "description": "Your learning velocity is below optimal. Consider shorter, more frequent study sessions."
-        },
-        "fastLearning": {
-          "title": "Excellent Progress",
-          "description": "You're learning at an optimal pace. Keep up the great work!"
-        }
-      },
-      "metrics": {
-        "successRate": {
-          "title": "Success Rate",
-          "subtitle": "overall performance"
-        },
-        "learningVelocity": {
-          "title": "Learning Velocity",
-          "subtitle": "cards/day"
-        },
-        "dueCards": {
-          "title": "Due Cards",
-          "subtitle": "ready to review"
-        },
-        "averageInterval": {
-          "title": "Avg Interval",
-          "subtitle": "between reviews"
-        }
-      },
-      "timePerformance": {
-        "title": "Time-of-Day Performance"
-      },
-      "noData": {
-        "title": "Not Enough Data Yet",
-        "description": "Complete at least 20 reviews to see your learning analytics.",
-        "backButton": "Back to Dashboard"
-      }
-    }
-  },
-  "scheduling": {
-    "title": "Smart Scheduling",
-    "subtitle": "AI-powered study recommendations",
-    "showWeekly": "Show Weekly",
-    "showToday": "Show Today",
-    "currentTime": "Current Time Slot",
-    "timeSlots": {
-      "earlyMorning": "Early Morning",
-      "morning": "Morning",
-      "afternoon": "Afternoon",
-      "evening": "Evening",
-      "night": "Night",
-      "lateNight": "Late Night"
-    },
-    "suboptimal": "Sub-optimal",
-    "energyLevel": "Predicted Energy Level",
-    "energy": {
-      "medium": "medium"
-    },
-    "dueCards": "Due Cards",
-    "newCards": "New Cards",
-    "noWeeklyData": "Weekly schedule will appear after more study sessions"
-  },
-  "achievements": {
-    "title": "Achievements",
-    "points": "points",
-    "unlocked": "unlocked",
-    "showAll": "Show All",
-    "showSummary": "Show Summary",
-    "all": "All",
-    "inProgress": "In Progress",
-    "recent": "Recent Achievements",
-    "categoryProgress": "Category Progress",
-    "categories": {
-      "consistency": "consistency",
-      "exploration": "exploration",
-      "mastery": "mastery",
-      "social": "social",
-      "streak": "streak",
-      "velocity": "velocity"
-    },
-    "complete": "complete",
-    "nextToUnlock": "Next to Unlock",
-    "unlockedOn": "Unlocked on"
-  },
-  "analytics": {
-    "timeSlots": {
-      "earlyMorning": "5-9 AM",
-      "morning": "9 AM-1 PM",
-      "afternoon": "1-5 PM",
-      "evening": "5-9 PM",
-      "night": "9 PM-12 AM",
-      "lateNight": "12-5 AM"
-    }
-  },
-  "streak": {
-    "title": "Study Streak",
-    "days_one": "{{count}} day",
-    "days_other": "{{count}} days",
-    "keepItUp": "Keep it up!",
-    "startToday": "Start your streak today!",
-    "display": {
-      "title": "Study Streak",
-      "day": "day",
-      "days": "days",
-      "milestoneAchieved_one": "{{count}} day",
-      "milestoneAchieved_other": "{{count}} days",
-      "nextMilestone": "Next milestone",
-      "daysToGo_one": "{{count}} day to go",
-      "daysToGo_other": "{{count}} days to go",
-      "longestStreak": "Longest Streak",
-      "totalDays": "Total Days",
-      "milestonesAchieved": "Milestones Achieved",
-      "status": {
-        "startStreak": {
-          "title": "Start Your Streak! 🎯",
-          "message": "Study today to begin your learning journey"
-        },
-        "buildingMomentum": {
-          "title": "Building Momentum! 🌱",
-          "message": "Keep going to reach your first milestone"
-        },
-        "greatProgress": {
-          "title": "Great Progress! 🔥",
-          "message": "You're developing a strong habit"
-        },
-        "streakMaster": {
-          "title": "Streak Master! 🏆",
-          "message": "You're a dedicated learner"
-        }
-      }
-    }
-  },
-  "privacy": {
-    "banner": {
-      "title": {
-        "eu": "Your Privacy Matters",
-        "ca": "Privacy Notice", 
-        "default": "Cookie Notice"
-      },
-      "message": {
-        "eu": "We use cookies and similar technologies to improve your experience, analyze usage, and provide personalized content. Under GDPR, we need your consent to process your personal data. You can withdraw consent at any time.",
-        "ca": "We collect and process personal information as described in our Privacy Policy. Under CCPA, you have the right to know what personal information we collect and to opt-out of its sale.",
-        "default": "We use cookies to enhance your experience and analyze site usage. By continuing to use our site, you agree to our use of cookies and data processing practices."
-      },
-      "buttons": {
-        "acceptAll": "Accept All",
-        "rejectAll": "Reject All",
-        "optOut": "Opt Out",
-        "customize": "Customize",
-        "processing": "Processing..."
-      }
-    }
-  },
-  "common": {
-    "loading": "Loading...",
-    "error": "Error",
-    "success": "Success",
-    "close": "Close",
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "back": "Back",
-    "next": "Next",
-    "previous": "Previous",
-    "yes": "Yes",
-    "no": "No",
-    "from": "from",
-    "studyMode": "Study Mode",
-    "sessionDuration": "Session Duration",
-    "whatsNext": "What's Next?",
-    "continueStudying": "Continue Studying",
-    "moreCards_one": "more card",
-    "moreCards_other": "more cards"
-  },
-  "errors": {
-    "generic": "Something went wrong. Please try again.",
-    "network": "Network error. Please check your connection.",
-    "notFound": "The requested resource was not found.",
-    "unauthorized": "You are not authorized to perform this action.",
-    "validation": "Please check your input and try again."
-  },
-  "notifications": {
-    "deckCreated": "Deck created successfully!",
-    "deckCreatedWithName": "\"{{deckName}}\" created successfully!",
-    "deckUpdated": "Deck updated successfully!",
-    "deckUpdatedWithName": "\"{{deckName}}\" updated successfully!",
-    "cardAdded": "Card added successfully!",
-    "cardUpdated": "Card updated successfully!",
-    "cardDeleted": "Card deleted successfully!",
-    "settingsSaved": "Settings saved successfully!",
-    "studySessionCompleted": "Study session completed!",
-    "studySessionCompletedWithCount_one": "Study session complete! Reviewed {{count}} card.",
-    "studySessionCompletedWithCount_other": "Study session complete! Reviewed {{count}} cards.",
-    "networkError": "Network error. Please check your connection and try again.",
-    "temporaryError": "Something went wrong. Please try again in a moment.",
-    "privacyCustomize": "Customize privacy settings from the profile menu."
-  },
-  "postSessionSummary": {
-    "title": "Study Session Complete! 🎉",
-    "subtitle": "Great job on completing your study session!",
-    "stats": {
-      "cardsReviewed": "Cards Reviewed",
-      "timeSpent": "Time Spent",
-      "sessionDuration": "{{minutes}}m {{seconds}}s"
-    },
-    "nextSteps": {
-      "title": "What's Next?",
-      "spacedRepetition": "Come back later to continue your spaced repetition schedule.",
-      "basicMode": "You can study this deck again anytime or try other decks."
-    },
-    "actions": {
-      "returnToDashboard": "Return to Dashboard",
-      "continueStudying": "Continue Studying"
-    }
-  },
-  "deckView": {
-    "title": "Manage Cards",
-    "backToDashboard": "Back to Dashboard",
-    "editDeck": "Edit Deck",
-    "addCard": "Add Card",
-    "editCard": "Edit Card",
-    "deleteCard": "Delete Card",
-    "confirmDelete": "Are you sure you want to delete this card?",
-    "noCards": "No cards in this deck yet.",
-    "addFirstCard": "Add your first card to get started!"
-  },
-  "settings": {
-    "title": "Settings",
-    "close": "Close settings",
-    "tabs": {
-      "account": "Account",
-      "security": "Security"
-    },
-    "privacy": {
-      "title": "Privacy Settings",
-      "description": "Manage your privacy preferences and data collection settings."
-    },
-    "featureFlags": {
-      "title": "Feature Flags",
-      "description": "Enable or disable experimental features and development tools."
-    }
-  },
-  "knowledge": {
-    "title": "Knowledge Map",
-    "subtitle": "Explore connections in your learning",
-    "tabs": {
-      "clusters": "Concept Clusters",
-      "paths": "Learning Paths",
-      "graph": "Knowledge Graph"
-    },
-    "clusters": {
-      "description": "Related concepts grouped together based on content similarity",
-      "cards": "cards",
-      "mastered": "mastered",
-      "difficulty": "Difficulty"
-    },
-    "paths": {
-      "types": {
-        "prerequisite": "Prerequisite Path",
-        "sequential": "Sequential Path",
-        "conceptual": "Conceptual Path",
-        "difficulty_based": "Difficulty-Based Path"
-      },
-      "confidence": "confidence",
-      "noData": "Learning paths will appear when you have more cards in this deck"
-    },
-    "graph": {
-      "description": "Visual representation of connections between your cards and concepts",
-      "placeholder": "Interactive graph visualization would appear here",
-      "nodes": "Concepts",
-      "connections": "Connections",
-      "connectionTypes": "Connection Types",
-      "types": {
-        "related": "related"
-      }
-    },
-    "noData": {
-      "title": "Building Your Knowledge Map",
-      "description": "Add more cards to see connections and learning patterns"
-    },
-    "error": {
-      "title": "Unable to Load Knowledge Map",
-      "description": "There was an error loading your knowledge map. Please try refreshing the page.",
-      "retry": "Retry"
-    }
-  },
-  "reflection": {
-    "saveError": "Failed to save reflection. Please try again."
-  }
+	"app": {
+		"title": "Cognify",
+		"goToMainDashboard": "Go to main dashboard"
+	},
+	"navigation": {
+		"settings": "Settings",
+		"signOut": "Sign Out",
+		"selectLanguage": "Select language"
+	},
+	"auth": {
+		"welcome": "Welcome to {{appName}}",
+		"signInPrompt": "Sign in to create and manage your flashcard decks",
+		"signIn": "Sign In",
+		"signUp": "Sign Up"
+	},
+	"dashboard": {
+		"title": "My Flashcard Decks",
+		"subtitle": {
+			"empty": "Create your first deck to get started",
+			"withDecks_one": "{{count}} deck",
+			"withDecks_other": "{{count}} decks"
+		},
+		"buttons": {
+			"showStatistics": "Show Statistics",
+			"quickAddCard": "Quick Add Card",
+			"createDeck": "Create Deck"
+		}
+	},
+	"deck": {
+		"cardCount_one": "{{count}} card",
+		"cardCount_other": "{{count}} cards",
+		"studyNow": "Study Now",
+		"manageCards": "Manage Cards",
+		"editDeck": "Edit Deck",
+		"dueCards_one": "{{count}} due",
+		"dueCards_other": "{{count}} due",
+		"newCards_one": "{{count}} new",
+		"newCards_other": "{{count}} new",
+		"manageCardsAria": "Manage cards in {{deckName}} deck",
+		"studyAria": "Study {{deckName}} deck",
+		"editDeckAria": "Edit {{deckName}} deck",
+		"noDescription": "No description",
+		"createdOn": "Created {{date}}",
+		"lastStudied": "Last studied {{date}}",
+		"status": {
+			"new": "New",
+			"inProgress": "In Progress",
+			"mastered": "Mastered",
+			"newAria": "This deck has not been studied yet",
+			"inProgressAria": "This deck is currently being studied",
+			"masteredAria": "This deck has been mastered"
+		},
+		"progress": {
+			"label": "Progress",
+			"aria": "{{percentage}}% complete"
+		}
+	},
+	"emptyState": {
+		"title": "No decks yet",
+		"description": "Create your first flashcard deck to start learning. You can add cards, study, and track your progress.",
+		"getStarted": "Get started by creating your first deck!"
+	},
+	"study": {
+		"flip": "Flip",
+		"next": "Next",
+		"previous": "Previous",
+		"showAnswer": "Show Answer",
+		"showFront": "Show Front",
+		"showBack": "Show Back",
+		"exitStudySession": "Exit Study Session",
+		"exitStudy": "Exit Study",
+		"spacedRepetitionMode": "Spaced Repetition Mode",
+		"cardProgress": "Card {{current}} of {{total}}",
+		"returnToDashboard": "Return to Dashboard",
+		"noCardsToReview": "No cards to review",
+		"progress": {
+			"cardPosition": "Card {{current}} of {{total}}",
+			"completed": "Complete",
+			"aria": "Study progress: {{current}} of {{total}} cards completed, {{percentage}}% done",
+			"completedAria": "Study session completed! All {{total}} cards reviewed.",
+			"inProgressAria": "Study session in progress: {{current}} of {{total}} cards completed"
+		},
+		"deckNotFound": {
+			"title": "Deck Not Found",
+			"message": "The deck you're looking for doesn't exist or you don't have access to it.",
+			"backToDashboard": "Back to Dashboard"
+		},
+		"emptyDeck": {
+			"title": "No cards in this deck",
+			"message": "Add some flashcards to this deck before starting a study session.",
+			"addCards": "Add Cards to Deck"
+		},
+		"allCaughtUp": {
+			"title": "All Caught Up! 🎉",
+			"sessionStats_one": "Great work! You've reviewed {{count}} card in this session.",
+			"sessionStats_other": "Great work! You've reviewed {{count}} cards in this session.",
+			"noCardsMessage": "You have no cards due for review right now. Excellent job staying on track with your studies!",
+			"emptyDeckMessage": "This deck is empty. Add some cards to start your learning journey!",
+			"nextReviewMessage": "Come back {{time}} for your next review session.",
+			"keepLearning": "Keep up the great work! Consistent daily practice is the key to long-term retention.",
+			"addCardsButton": "Add Cards to Deck"
+		},
+		"difficulty": {
+			"again": "Again",
+			"hard": "Hard",
+			"good": "Good",
+			"easy": "Easy"
+		},
+		"exit": "Exit",
+		"adaptive": "Adaptive",
+		"successRate": "Success Rate",
+		"learningVelocity": "Learning Velocity",
+		"cardsPerDay": "cards/day",
+		"clickToReveal": "Click to reveal",
+		"howConfident": "How confident are you?",
+		"keyboardShortcuts": "Keyboard shortcuts",
+		"toFlip": "to flip",
+		"toRate": "to rate",
+		"session": {
+			"completed": "Study Session Completed!",
+			"cardsReviewed_one": "Card reviewed: {{count}}",
+			"cardsReviewed_other": "Cards reviewed: {{count}}",
+			"returnToDashboard": "Return to Dashboard",
+			"allCaughtUp": "All Caught Up!",
+			"noCardsToReview": "No cards to review right now.",
+			"nextReview": "Next review in {{time}}"
+		},
+		"shortcuts": {
+			"title": "Keyboard Shortcuts",
+			"flip": "Flip card",
+			"next": "Next card",
+			"difficulty1": "Again (1)",
+			"difficulty2": "Hard (2)",
+			"difficulty3": "Good (3)",
+			"difficulty4": "Easy (4)",
+			"help": "Show shortcuts"
+		},
+		"modeSelector": {
+			"title": "Choose Study Mode",
+			"subtitle": "How would you like to study {{deckName}}?",
+			"basicStudy": {
+				"title": "Basic Study",
+				"description": "Simple sequential review of all cards in the deck. Perfect for initial learning or quick review sessions.",
+				"features": {
+					"sequential": "Sequential Order",
+					"simple": "Simple Interface",
+					"quick": "Quick Review"
+				}
+			},
+			"spacedRepetition": {
+				"title": "Spaced Repetition",
+				"subtitle": "Recommended",
+				"description": "Intelligent scheduling based on the SM-2 algorithm. Cards are shown at optimal intervals for long-term retention.",
+				"features": {
+					"algorithm": "SM-2 Algorithm",
+					"timing": "Optimal Timing",
+					"retention": "Long-term Retention"
+				}
+			},
+			"adaptiveLearning": {
+				"title": "Adaptive Learning",
+				"subtitle": "AI-Powered",
+				"description": "Personalized spaced repetition that adapts to your learning patterns, optimal study times, and individual performance.",
+				"features": {
+					"personalized": "Personalized",
+					"timeOptimized": "Time-Optimized",
+					"intelligent": "Intelligent"
+				}
+			},
+			"cancel": "Cancel",
+			"info": {
+				"title": "About Spaced Repetition",
+				"description": "Spaced repetition is a learning technique that increases intervals of time between subsequent review of previously learned material. It's scientifically proven to improve long-term retention and reduce study time."
+			}
+		}
+	},
+	"forms": {
+		"createDeck": {
+			"title": "Create New Deck",
+			"name": "Deck Name",
+			"namePlaceholder": "Enter deck name",
+			"description": "Description (optional)",
+			"descriptionPlaceholder": "Enter deck description",
+			"create": "Create Deck",
+			"creating": "Creating...",
+			"cancel": "Cancel",
+			"buttonLabel": "Create new deck",
+			"characterCount": "{{current}}/{{max}} characters"
+		},
+		"editDeck": {
+			"title": "Edit Deck",
+			"name": "Deck Name",
+			"namePlaceholder": "Enter deck name",
+			"description": "Description (optional)",
+			"descriptionPlaceholder": "Enter deck description",
+			"update": "Update Deck",
+			"updating": "Updating...",
+			"cancel": "Cancel",
+			"buttonLabel": "Edit deck",
+			"characterCount": "{{current}}/{{max}} characters"
+		},
+		"quickAddCard": {
+			"title": "Quick Add Card",
+			"selectDeck": "Select Deck",
+			"selectDeckPlaceholder": "Choose a deck",
+			"front": "Front (Question)",
+			"frontPlaceholder": "Enter the question or prompt",
+			"back": "Back (Answer)",
+			"backPlaceholder": "Enter the answer or explanation",
+			"add": "Add Card",
+			"adding": "Adding...",
+			"updating": "Updating...",
+			"cancel": "Cancel",
+			"buttonLabel": "Quick add card",
+			"characterCount": "{{current}}/{{max}} characters"
+		},
+		"validation": {
+			"required": "This field is required",
+			"deckNameRequired": "Deck name is required",
+			"frontRequired": "Front content is required",
+			"backRequired": "Back content is required",
+			"selectDeckRequired": "Please select a deck",
+			"maxLength": "{{field}} cannot exceed {{max}} characters"
+		}
+	},
+	"statistics": {
+		"title": "Statistics Dashboard",
+		"overview": {
+			"title": "Overview",
+			"totalDecks": "Total Decks",
+			"totalCards": "Total Cards",
+			"cardsReviewed": "Cards Reviewed",
+			"studyStreak": "Study Streak"
+		},
+		"performance": {
+			"title": "Performance",
+			"accuracy": "Accuracy",
+			"averageTime": "Avg. Time per Card",
+			"sessionsCompleted": "Sessions Completed"
+		},
+		"activity": {
+			"title": "Study Activity",
+			"last7Days": "Last 7 Days",
+			"last30Days": "Last 30 Days"
+		},
+		"cards": {
+			"totalDecks": "Total Decks",
+			"totalCards": "Total Cards",
+			"dueToday": "Due Today",
+			"currentStreak": "Current Streak",
+			"newCards": "New Cards",
+			"studySessions": "Study Sessions",
+			"averageInterval": "Average Interval",
+			"retentionRate": "Retention Rate",
+			"learningCollections": "Learning collections",
+			"flashcardsCreated": "Flashcards created",
+			"cardsToReview": "Cards to review",
+			"bestDays": "Best: {{count}} days",
+			"readyToLearn": "Ready to learn",
+			"totalCompleted": "Total completed",
+			"betweenReviews": "Between reviews",
+			"successRate": "Success rate",
+			"day": "day",
+			"days": "days"
+		},
+		"charts": {
+			"studyActivity": {
+				"title": "Study Activity Over Time",
+				"subtitle": "Track your learning consistency and progress patterns",
+				"cardsStudied": "Cards Studied",
+				"sessions": "Sessions",
+				"timeMinutes": "Time (min)",
+				"totalCards": "Total cards studied: {{count}}",
+				"totalSessions": "Total sessions: {{count}}",
+				"totalTime": "Total time: {{hours}}h {{minutes}}m",
+				"noData": "No study activity data available for the selected period."
+			},
+			"deckPerformance": {
+				"title": "Deck Performance Comparison",
+				"subtitle": "Compare mastery levels across your decks",
+				"masteryPercentage": "Mastery %",
+				"deckName": "Deck Name",
+				"totalCards": "Total Cards",
+				"masteredCards": "Mastered Cards",
+				"averageEase": "Average Ease",
+				"lastStudied": "Last Studied",
+				"clickToSelect": "Click to select/deselect deck",
+				"noData": "No deck performance data available."
+			},
+			"cardDistribution": {
+				"title": "Card Distribution",
+				"subtitle": "Overview of your cards across learning stages",
+				"newCards": "New Cards",
+				"learning": "Learning",
+				"review": "Review",
+				"due": "Due",
+				"mastered": "Mastered",
+				"neverStudied": "Cards never studied",
+				"beingLearned": "Cards being learned",
+				"inReviewCycle": "Cards in review cycle",
+				"dueForReview": "Cards due for review",
+				"wellLearned": "Well-learned cards",
+				"totalCardsInStage": "{{count}} cards in {{stage}} stage",
+				"percentageOfTotal": "{{percentage}}% of total cards",
+				"noData": "No cards available"
+			}
+		},
+		"widgets": {
+			"upcomingReviews": {
+				"title": "Upcoming Reviews",
+				"today": "Today",
+				"tomorrow": "Tomorrow",
+				"allCaughtUp": "All caught up!",
+				"noReviewsScheduled": "No reviews scheduled for the next week",
+				"moreReviewsScheduled_one": "+{{count}} more review scheduled",
+				"moreReviewsScheduled_other": "+{{count}} more reviews scheduled",
+				"totalCards": "Total Cards",
+				"reviewDays": "Review Days",
+				"card": "card",
+				"cards": "cards"
+			},
+			"learningStreak": {
+				"title": "Learning Streak",
+				"messages": {
+					"start": "Start your learning journey!",
+					"greatStart": "Great start! Keep it up!",
+					"buildingMomentum": "Building momentum!",
+					"onFire": "You're on fire! 🔥",
+					"incredibleDedication": "Incredible dedication!",
+					"legendaryLearner": "Legendary learner! 🏆"
+				},
+				"milestones": {
+					"daysToReach_one": "{{count}} day to {{milestone}}-day milestone",
+					"daysToReach_other": "{{count}} days to reach {{milestone}}-day milestone",
+					"progressTo": "Progress to {{milestone}} days"
+				},
+				"current": "Current",
+				"best": "Best",
+				"achievements": {
+					"weeklyWarrior": "Weekly Warrior!",
+					"monthlyMaster": "Monthly Master!",
+					"centuryClub": "Century Club!",
+					"yearLongLearner": "Year-Long Learner!",
+					"keepUpConsistency": "Keep up the amazing consistency!"
+				}
+			},
+			"spacedRepetition": {
+				"title": "Algorithm Insights",
+				"retentionRate": "Retention Rate",
+				"averageInterval": "Average Interval",
+				"newVsReviewBalance": "New vs Review Balance",
+				"newCards": "New Cards",
+				"dueCards": "Due Cards",
+				"reviewDays": "Review Days",
+				"dueToday": "Due Today",
+				"timeBetweenReviews": "Time between reviews",
+				"retentionMessages": {
+					"noData": "No data yet",
+					"excellent": "Excellent retention!",
+					"good": "Good retention",
+					"fair": "Fair retention",
+					"needsImprovement": "Needs improvement"
+				},
+				"intervalEfficiency": {
+					"unknown": "Unknown",
+					"excellent": "Excellent",
+					"good": "Good",
+					"fair": "Fair",
+					"learning": "Learning"
+				},
+				"algorithmTip": "Algorithm Tip",
+				"tips": {
+					"improveRetention": "Consider reviewing cards more frequently to improve retention.",
+					"frequentReviews": "Your cards are being reviewed frequently - great for learning new material!",
+					"balanceDueCards": "Focus on clearing due cards before adding new ones for better balance.",
+					"workingWell": "Your spaced repetition is working well! Keep up the consistent practice."
+				},
+				"balancePercentage": "{{newPercentage}}% new cards, {{reviewPercentage}}% reviews"
+			}
+		},
+		"heatmap": {
+			"title": "Study Activity",
+			"subtitle": "{{count}} days of study activity in the last year",
+			"legend": {
+				"less": "Less",
+				"more": "More"
+			},
+			"stats": {
+				"cardsStudied": "Cards studied",
+				"activeDays": "Active days",
+				"bestDay": "Best day",
+				"studyRate": "Study rate"
+			}
+		},
+		"loading": {
+			"dashboard": "Loading statistics dashboard",
+			"chartTitle": "Loading {{title}}..."
+		},
+		"table": {
+			"deckPerformance": {
+				"title": "Deck Performance Overview",
+				"headers": {
+					"deck": "Deck",
+					"cards": "Cards",
+					"mastered": "Mastered",
+					"progress": "Progress",
+					"avgEase": "Avg. Ease"
+				}
+			}
+		},
+		"dashboard": {
+			"title": "Learning Analytics",
+			"subtitle": "Comprehensive insights into your flashcard learning progress",
+			"backToDashboard": "Back to dashboard",
+			"dateRange": {
+				"last7Days": "Last 7 days",
+				"last30Days": "Last 30 days",
+				"last90Days": "Last 90 days",
+				"allTime": "All time"
+			},
+			"export": {
+				"exportData": "Export Data",
+				"exporting": "Exporting...",
+				"exportAsCSV": "Export as CSV",
+				"exportAsJSON": "Export as JSON",
+				"exportSuccess": "Statistics exported as {{format}}",
+				"exportError": "Failed to export statistics"
+			}
+		},
+		"analytics": {
+			"back": "Back",
+			"recommendations": {
+				"optimalTime": {
+					"title": "Optimize Your Study Time",
+					"description": "Your best performance is during {{time}} with {{successRate}}% success rate."
+				},
+				"difficultCards": {
+					"title": "Focus on Difficult Cards",
+					"description": "Consider shorter intervals or additional review techniques for challenging cards."
+				},
+				"slowLearning": {
+					"title": "Increase Study Frequency",
+					"description": "Your learning velocity is below optimal. Consider shorter, more frequent study sessions."
+				},
+				"fastLearning": {
+					"title": "Excellent Progress",
+					"description": "You're learning at an optimal pace. Keep up the great work!"
+				}
+			},
+			"metrics": {
+				"successRate": {
+					"title": "Success Rate",
+					"subtitle": "overall performance"
+				},
+				"learningVelocity": {
+					"title": "Learning Velocity",
+					"subtitle": "cards/day"
+				},
+				"dueCards": {
+					"title": "Due Cards",
+					"subtitle": "ready to review"
+				},
+				"averageInterval": {
+					"title": "Avg Interval",
+					"subtitle": "between reviews"
+				}
+			},
+			"timePerformance": {
+				"title": "Time-of-Day Performance"
+			},
+			"noData": {
+				"title": "Not Enough Data Yet",
+				"description": "Complete at least 20 reviews to see your learning analytics.",
+				"backButton": "Back to Dashboard"
+			}
+		}
+	},
+	"scheduling": {
+		"title": "Smart Scheduling",
+		"subtitle": "AI-powered study recommendations",
+		"showWeekly": "Show Weekly",
+		"showToday": "Show Today",
+		"currentTime": "Current Time Slot",
+		"timeSlots": {
+			"earlyMorning": "Early Morning",
+			"morning": "Morning",
+			"afternoon": "Afternoon",
+			"evening": "Evening",
+			"night": "Night",
+			"lateNight": "Late Night"
+		},
+		"suboptimal": "Sub-optimal",
+		"energyLevel": "Predicted Energy Level",
+		"energy": {
+			"medium": "medium"
+		},
+		"dueCards": "Due Cards",
+		"newCards": "New Cards",
+		"noWeeklyData": "Weekly schedule will appear after more study sessions"
+	},
+	"achievements": {
+		"title": "Achievements",
+		"points": "points",
+		"unlocked": "unlocked",
+		"showAll": "Show All",
+		"showSummary": "Show Summary",
+		"all": "All",
+		"inProgress": "In Progress",
+		"recent": "Recent Achievements",
+		"categoryProgress": "Category Progress",
+		"categories": {
+			"consistency": "consistency",
+			"exploration": "exploration",
+			"mastery": "mastery",
+			"social": "social",
+			"streak": "streak",
+			"velocity": "velocity"
+		},
+		"complete": "complete",
+		"nextToUnlock": "Next to Unlock",
+		"unlockedOn": "Unlocked on"
+	},
+	"analytics": {
+		"timeSlots": {
+			"earlyMorning": "5-9 AM",
+			"morning": "9 AM-1 PM",
+			"afternoon": "1-5 PM",
+			"evening": "5-9 PM",
+			"night": "9 PM-12 AM",
+			"lateNight": "12-5 AM"
+		}
+	},
+	"streak": {
+		"title": "Study Streak",
+		"days_one": "{{count}} day",
+		"days_other": "{{count}} days",
+		"keepItUp": "Keep it up!",
+		"startToday": "Start your streak today!",
+		"display": {
+			"title": "Study Streak",
+			"day": "day",
+			"days": "days",
+			"milestoneAchieved_one": "{{count}} day",
+			"milestoneAchieved_other": "{{count}} days",
+			"nextMilestone": "Next milestone",
+			"daysToGo_one": "{{count}} day to go",
+			"daysToGo_other": "{{count}} days to go",
+			"longestStreak": "Longest Streak",
+			"totalDays": "Total Days",
+			"milestonesAchieved": "Milestones Achieved",
+			"status": {
+				"startStreak": {
+					"title": "Start Your Streak! 🎯",
+					"message": "Study today to begin your learning journey"
+				},
+				"buildingMomentum": {
+					"title": "Building Momentum! 🌱",
+					"message": "Keep going to reach your first milestone"
+				},
+				"greatProgress": {
+					"title": "Great Progress! 🔥",
+					"message": "You're developing a strong habit"
+				},
+				"streakMaster": {
+					"title": "Streak Master! 🏆",
+					"message": "You're a dedicated learner"
+				}
+			}
+		}
+	},
+	"privacy": {
+		"banner": {
+			"title": {
+				"eu": "Your Privacy Matters",
+				"ca": "Privacy Notice",
+				"default": "Cookie Notice"
+			},
+			"message": {
+				"eu": "We use cookies and similar technologies to improve your experience, analyze usage, and provide personalized content. Under GDPR, we need your consent to process your personal data. You can withdraw consent at any time.",
+				"ca": "We collect and process personal information as described in our Privacy Policy. Under CCPA, you have the right to know what personal information we collect and to opt-out of its sale.",
+				"default": "We use cookies to enhance your experience and analyze site usage. By continuing to use our site, you agree to our use of cookies and data processing practices."
+			},
+			"buttons": {
+				"acceptAll": "Accept All",
+				"rejectAll": "Reject All",
+				"optOut": "Opt Out",
+				"customize": "Customize",
+				"processing": "Processing..."
+			}
+		}
+	},
+	"common": {
+		"loading": "Loading...",
+		"error": "Error",
+		"success": "Success",
+		"close": "Close",
+		"save": "Save",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"edit": "Edit",
+		"back": "Back",
+		"next": "Next",
+		"previous": "Previous",
+		"yes": "Yes",
+		"no": "No",
+		"from": "from",
+		"studyMode": "Study Mode",
+		"sessionDuration": "Session Duration",
+		"whatsNext": "What's Next?",
+		"continueStudying": "Continue Studying",
+		"moreCards_one": "more card",
+		"moreCards_other": "more cards"
+	},
+	"errors": {
+		"generic": "Something went wrong. Please try again.",
+		"network": "Network error. Please check your connection.",
+		"notFound": "The requested resource was not found.",
+		"unauthorized": "You are not authorized to perform this action.",
+		"validation": "Please check your input and try again."
+	},
+	"notifications": {
+		"deckCreated": "Deck created successfully!",
+		"deckCreatedWithName": "\"{{deckName}}\" created successfully!",
+		"deckUpdated": "Deck updated successfully!",
+		"deckUpdatedWithName": "\"{{deckName}}\" updated successfully!",
+		"cardAdded": "Card added successfully!",
+		"cardUpdated": "Card updated successfully!",
+		"cardDeleted": "Card deleted successfully!",
+		"settingsSaved": "Settings saved successfully!",
+		"studySessionCompleted": "Study session completed!",
+		"studySessionCompletedWithCount_one": "Study session complete! Reviewed {{count}} card.",
+		"studySessionCompletedWithCount_other": "Study session complete! Reviewed {{count}} cards.",
+		"networkError": "Network error. Please check your connection and try again.",
+		"temporaryError": "Something went wrong. Please try again in a moment.",
+		"privacyCustomize": "Customize privacy settings from the profile menu."
+	},
+	"postSessionSummary": {
+		"title": "Study Session Complete! 🎉",
+		"subtitle": "Great job on completing your study session!",
+		"stats": {
+			"cardsReviewed": "Cards Reviewed",
+			"timeSpent": "Time Spent",
+			"sessionDuration": "{{minutes}}m {{seconds}}s"
+		},
+		"nextSteps": {
+			"title": "What's Next?",
+			"spacedRepetition": "Come back later to continue your spaced repetition schedule.",
+			"basicMode": "You can study this deck again anytime or try other decks."
+		},
+		"actions": {
+			"returnToDashboard": "Return to Dashboard",
+			"continueStudying": "Continue Studying"
+		}
+	},
+	"deckView": {
+		"title": "Manage Cards",
+		"backToDashboard": "Back to Dashboard",
+		"editDeck": "Edit Deck",
+		"addCard": "Add Card",
+		"editCard": "Edit Card",
+		"deleteCard": "Delete Card",
+		"confirmDelete": "Are you sure you want to delete this card?",
+		"noCards": "No cards in this deck yet.",
+		"addFirstCard": "Add your first card to get started!"
+	},
+	"settings": {
+		"title": "Settings",
+		"close": "Close settings",
+		"tabs": {
+			"account": "Account",
+			"security": "Security"
+		},
+		"privacy": {
+			"title": "Privacy Settings",
+			"description": "Manage your privacy preferences and data collection settings."
+		},
+		"featureFlags": {
+			"title": "Feature Flags",
+			"description": "Enable or disable experimental features and development tools."
+		}
+	},
+	"knowledge": {
+		"title": "Knowledge Map",
+		"subtitle": "Explore connections in your learning",
+		"tabs": {
+			"clusters": "Concept Clusters",
+			"paths": "Learning Paths",
+			"graph": "Knowledge Graph"
+		},
+		"clusters": {
+			"description": "Related concepts grouped together based on content similarity",
+			"cards": "cards",
+			"mastered": "mastered",
+			"difficulty": "Difficulty"
+		},
+		"paths": {
+			"types": {
+				"prerequisite": "Prerequisite Path",
+				"sequential": "Sequential Path",
+				"conceptual": "Conceptual Path",
+				"difficulty_based": "Difficulty-Based Path"
+			},
+			"confidence": "confidence",
+			"noData": "Learning paths will appear when you have more cards in this deck"
+		},
+		"graph": {
+			"description": "Visual representation of connections between your cards and concepts",
+			"placeholder": "Interactive graph visualization would appear here",
+			"nodes": "Concepts",
+			"connections": "Connections",
+			"connectionTypes": "Connection Types",
+			"types": {
+				"related": "related"
+			}
+		},
+		"noData": {
+			"title": "Building Your Knowledge Map",
+			"description": "Add more cards to see connections and learning patterns"
+		},
+		"error": {
+			"title": "Unable to Load Knowledge Map",
+			"description": "There was an error loading your knowledge map. Please try refreshing the page.",
+			"retry": "Retry"
+		}
+	},
+	"reflection": {
+		"saveError": "Failed to save reflection. Please try again."
+	}
 }

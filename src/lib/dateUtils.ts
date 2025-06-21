@@ -8,7 +8,7 @@
  * @returns IANA timezone identifier (e.g., "America/New_York")
  */
 export function getUserTimeZone(): string {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+	return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
 /**
@@ -17,18 +17,19 @@ export function getUserTimeZone(): string {
  * @returns Date string in YYYY-MM-DD format
  */
 export function getLocalDateString(timeZone?: string): string {
-  const tz = timeZone || getUserTimeZone();
-  const now = new Date();
+	const tz = timeZone || getUserTimeZone();
+	const now = new Date();
 
-  // Use Intl.DateTimeFormat to get the date in the user's timezone
-  const formatter = new Intl.DateTimeFormat('en-CA', { // en-CA gives us YYYY-MM-DD format
-    timeZone: tz,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  });
+	// Use Intl.DateTimeFormat to get the date in the user's timezone
+	const formatter = new Intl.DateTimeFormat("en-CA", {
+		// en-CA gives us YYYY-MM-DD format
+		timeZone: tz,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	});
 
-  return formatter.format(now);
+	return formatter.format(now);
 }
 
 /**
@@ -37,66 +38,69 @@ export function getLocalDateString(timeZone?: string): string {
  * @param locale - Optional locale for date formatting (defaults to 'en')
  * @returns Formatted string like "Tomorrow", "in 3 hours", "on Dec 25", etc.
  */
-export function formatNextReviewTime(timestamp: number, locale: string = 'en'): string {
-  const now = Date.now();
-  const diffMs = timestamp - now;
-  
-  // If the time is in the past, return "now"
-  if (diffMs <= 0) {
-    return "now";
-  }
-  
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
-  // Less than 1 hour
-  if (diffMinutes < 60) {
-    if (diffMinutes === 0) {
-      return "now";
-    }
-    if (diffMinutes === 1) {
-      return "in 1 minute";
-    }
-    return `in ${diffMinutes} minutes`;
-  }
-  
-  // Less than 24 hours
-  if (diffHours < 24) {
-    if (diffHours === 1) {
-      return "in 1 hour";
-    }
-    return `in ${diffHours} hours`;
-  }
-  
-  // Tomorrow (next day)
-  if (diffDays === 1) {
-    return "tomorrow";
-  }
-  
-  // Within a week
-  if (diffDays < 7) {
-    return `in ${diffDays} days`;
-  }
-  
-  // More than a week - show specific date
-  const date = new Date(timestamp);
-  const today = new Date();
-  
-  // Same year - show month and day
-  if (date.getFullYear() === today.getFullYear()) {
-    return `on ${date.toLocaleDateString(locale, {
-      month: 'short',
-      day: 'numeric'
-    })}`;
-  }
+export function formatNextReviewTime(
+	timestamp: number,
+	locale: string = "en",
+): string {
+	const now = Date.now();
+	const diffMs = timestamp - now;
 
-  // Different year - show month, day, and year
-  return `on ${date.toLocaleDateString(locale, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  })}`;
+	// If the time is in the past, return "now"
+	if (diffMs <= 0) {
+		return "now";
+	}
+
+	const diffMinutes = Math.floor(diffMs / (1000 * 60));
+	const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+	const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+	// Less than 1 hour
+	if (diffMinutes < 60) {
+		if (diffMinutes === 0) {
+			return "now";
+		}
+		if (diffMinutes === 1) {
+			return "in 1 minute";
+		}
+		return `in ${diffMinutes} minutes`;
+	}
+
+	// Less than 24 hours
+	if (diffHours < 24) {
+		if (diffHours === 1) {
+			return "in 1 hour";
+		}
+		return `in ${diffHours} hours`;
+	}
+
+	// Tomorrow (next day)
+	if (diffDays === 1) {
+		return "tomorrow";
+	}
+
+	// Within a week
+	if (diffDays < 7) {
+		return `in ${diffDays} days`;
+	}
+
+	// More than a week - show specific date
+	const date = new Date(timestamp);
+	const today = new Date();
+
+	// Same year - show month and day
+	if (date.getFullYear() === today.getFullYear()) {
+		return `on ${date.toLocaleDateString(locale, {
+			month: "short",
+			day: "numeric",
+		})}`;
+	}
+
+	// Different year - show month, day, and year
+	return `on ${date.toLocaleDateString(locale, {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+	})}`;
 }
 
 /**
@@ -105,12 +109,14 @@ export function formatNextReviewTime(timestamp: number, locale: string = 'en'): 
  * @returns true if the timestamp is today in local timezone
  */
 export function isToday(timestamp: number): boolean {
-  const date = new Date(timestamp);
-  const today = new Date();
+	const date = new Date(timestamp);
+	const today = new Date();
 
-  return date.getDate() === today.getDate() &&
-         date.getMonth() === today.getMonth() &&
-         date.getFullYear() === today.getFullYear();
+	return (
+		date.getDate() === today.getDate() &&
+		date.getMonth() === today.getMonth() &&
+		date.getFullYear() === today.getFullYear()
+	);
 }
 
 /**
@@ -119,13 +125,15 @@ export function isToday(timestamp: number): boolean {
  * @returns true if the timestamp is tomorrow in local timezone
  */
 export function isTomorrow(timestamp: number): boolean {
-  const date = new Date(timestamp);
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
+	const date = new Date(timestamp);
+	const tomorrow = new Date();
+	tomorrow.setDate(tomorrow.getDate() + 1);
 
-  return date.getDate() === tomorrow.getDate() &&
-         date.getMonth() === tomorrow.getMonth() &&
-         date.getFullYear() === tomorrow.getFullYear();
+	return (
+		date.getDate() === tomorrow.getDate() &&
+		date.getMonth() === tomorrow.getMonth() &&
+		date.getFullYear() === tomorrow.getFullYear()
+	);
 }
 
 /**
@@ -134,9 +142,9 @@ export function isTomorrow(timestamp: number): boolean {
  * @deprecated Use getStartOfTodayLocal() for user's local timezone or rename usage to clarify UTC intent
  */
 export function getStartOfTodayUTC(): number {
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
-  return today.getTime();
+	const today = new Date();
+	today.setUTCHours(0, 0, 0, 0);
+	return today.getTime();
 }
 
 /**
@@ -145,9 +153,9 @@ export function getStartOfTodayUTC(): number {
  * @deprecated Use getEndOfTodayLocal() for user's local timezone or rename usage to clarify UTC intent
  */
 export function getEndOfTodayUTC(): number {
-  const today = new Date();
-  today.setUTCHours(23, 59, 59, 999);
-  return today.getTime();
+	const today = new Date();
+	today.setUTCHours(23, 59, 59, 999);
+	return today.getTime();
 }
 
 /**
@@ -156,39 +164,41 @@ export function getEndOfTodayUTC(): number {
  * @returns Unix timestamp for the start of today in the specified timezone
  */
 export function getStartOfTodayLocal(timeZone?: string): number {
-  const tz = timeZone || getUserTimeZone();
-  const localDateString = getLocalDateString(tz);
+	const tz = timeZone || getUserTimeZone();
+	const localDateString = getLocalDateString(tz);
 
-  // Parse the local date string (YYYY-MM-DD format)
-  const [year, month, day] = localDateString.split('-').map(Number);
+	// Parse the local date string (YYYY-MM-DD format)
+	const [year, month, day] = localDateString.split("-").map(Number);
 
-  // Create a date for midnight in the user's local timezone
-  // We use a trick: create the date as if it were UTC, then adjust for timezone
-  const utcMidnight = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+	// Create a date for midnight in the user's local timezone
+	// We use a trick: create the date as if it were UTC, then adjust for timezone
+	const utcMidnight = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
 
-  // Get the timezone offset for this specific date in the target timezone
-  const formatter = new Intl.DateTimeFormat('en', {
-    timeZone: tz,
-    timeZoneName: 'longOffset'
-  });
+	// Get the timezone offset for this specific date in the target timezone
+	const formatter = new Intl.DateTimeFormat("en", {
+		timeZone: tz,
+		timeZoneName: "longOffset",
+	});
 
-  const offsetString = formatter.formatToParts(utcMidnight)
-    .find(part => part.type === 'timeZoneName')?.value || '+00:00';
+	const offsetString =
+		formatter
+			.formatToParts(utcMidnight)
+			.find((part) => part.type === "timeZoneName")?.value || "+00:00";
 
-  // Parse the offset (e.g., "+05:00" or "-08:00")
-  const offsetMatch = offsetString.match(/([+-])(\d{2}):(\d{2})/);
-  if (!offsetMatch) {
-    // Fallback to UTC if we can't parse the offset
-    return utcMidnight.getTime();
-  }
+	// Parse the offset (e.g., "+05:00" or "-08:00")
+	const offsetMatch = offsetString.match(/([+-])(\d{2}):(\d{2})/);
+	if (!offsetMatch) {
+		// Fallback to UTC if we can't parse the offset
+		return utcMidnight.getTime();
+	}
 
-  const sign = offsetMatch[1] === '+' ? 1 : -1;
-  const offsetHours = parseInt(offsetMatch[2]);
-  const offsetMinutes = parseInt(offsetMatch[3]);
-  const offsetMs = sign * (offsetHours * 60 + offsetMinutes) * 60 * 1000;
+	const sign = offsetMatch[1] === "+" ? 1 : -1;
+	const offsetHours = parseInt(offsetMatch[2]);
+	const offsetMinutes = parseInt(offsetMatch[3]);
+	const offsetMs = sign * (offsetHours * 60 + offsetMinutes) * 60 * 1000;
 
-  // Subtract the offset to get the correct UTC timestamp for local midnight
-  return utcMidnight.getTime() - offsetMs;
+	// Subtract the offset to get the correct UTC timestamp for local midnight
+	return utcMidnight.getTime() - offsetMs;
 }
 
 /**
@@ -197,9 +207,9 @@ export function getStartOfTodayLocal(timeZone?: string): number {
  * @returns Unix timestamp for the end of today in the specified timezone
  */
 export function getEndOfTodayLocal(timeZone?: string): number {
-  const startOfDay = getStartOfTodayLocal(timeZone);
-  // Add 24 hours minus 1 millisecond to get end of day
-  return startOfDay + (24 * 60 * 60 * 1000) - 1;
+	const startOfDay = getStartOfTodayLocal(timeZone);
+	// Add 24 hours minus 1 millisecond to get end of day
+	return startOfDay + 24 * 60 * 60 * 1000 - 1;
 }
 
 // Keep the old function names for backward compatibility but mark as deprecated
@@ -207,14 +217,14 @@ export function getEndOfTodayLocal(timeZone?: string): number {
  * @deprecated Use getStartOfTodayUTC() or getStartOfTodayLocal() instead
  */
 export function getStartOfToday(): number {
-  return getStartOfTodayUTC();
+	return getStartOfTodayUTC();
 }
 
 /**
  * @deprecated Use getEndOfTodayUTC() or getEndOfTodayLocal() instead
  */
 export function getEndOfToday(): number {
-  return getEndOfTodayUTC();
+	return getEndOfTodayUTC();
 }
 
 /**
@@ -223,13 +233,13 @@ export function getEndOfToday(): number {
  * @returns Formatted string like "2m 30s" or "45s"
  */
 export function formatSessionDuration(durationMs: number): string {
-  const minutes = Math.floor(durationMs / 60000);
-  const seconds = Math.floor((durationMs % 60000) / 1000);
-  
-  if (minutes > 0) {
-    return `${minutes}m ${seconds}s`;
-  }
-  return `${seconds}s`;
+	const minutes = Math.floor(durationMs / 60000);
+	const seconds = Math.floor((durationMs % 60000) / 1000);
+
+	if (minutes > 0) {
+		return `${minutes}m ${seconds}s`;
+	}
+	return `${seconds}s`;
 }
 
 /**
@@ -239,6 +249,6 @@ export function formatSessionDuration(durationMs: number): string {
  * @returns Number of days between the timestamps (can be negative)
  */
 export function daysBetween(timestamp1: number, timestamp2: number): number {
-  const diffMs = timestamp2 - timestamp1;
-  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+	const diffMs = timestamp2 - timestamp1;
+	return Math.floor(diffMs / (1000 * 60 * 60 * 24));
 }

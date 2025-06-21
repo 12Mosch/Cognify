@@ -2,340 +2,330 @@
 
 /* Tailwind v4 Custom Theme Extensions */
 @theme {
-  --line-height-relaxed-plus: 1.75;
-  --letter-spacing-tight-plus: -0.05em;
+	--line-height-relaxed-plus: 1.75;
+	--letter-spacing-tight-plus: -0.05em;
 }
 
 :root {
-   --color-light: #ffffff;
-   --color-dark: #171717;
-   --font-family-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--color-light: #ffffff;
+	--color-dark: #171717;
+	--font-family-sans:
+		ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 @media (prefers-color-scheme: dark) {
-  body {
-    color: var(--color-light);
-    background: var(--color-dark);
-    font-family: var(--font-family-sans);
-  }
+	body {
+		color: var(--color-light);
+		background: var(--color-dark);
+		font-family: var(--font-family-sans);
+	}
 }
 
 @media (prefers-color-scheme: light) {
-  body {
-    color: var(--color-dark);
-    background: var(--color-light);
-    font-family: var(--font-family-sans);
-  }
+	body {
+		color: var(--color-dark);
+		background: var(--color-light);
+		font-family: var(--font-family-sans);
+	}
 }
 
 /* 3D Flip Animation Styles for Flashcards */
 
 /* Container for the 3D flip effect - provides perspective */
 .flashcard-container {
-  perspective: 1000px;
-  transform-style: preserve-3d;
-  /* Ensure container has proper positioning context */
-  position: relative;
-  /* Ensure minimum height is respected */
-  min-height: inherit;
-  /* Use full available height when flex-1 is applied */
-  height: 100%;
-  /* Temporary debug border to see container bounds */
-  /* border: 2px solid red; */
+	perspective: 1000px;
+	transform-style: preserve-3d;
+	/* Ensure container has proper positioning context */
+	position: relative;
+	/* Ensure minimum height is respected */
+	min-height: inherit;
+	/* Use full available height when flex-1 is applied */
+	height: 100%;
+	/* Temporary debug border to see container bounds */
+	/* border: 2px solid red; */
 }
 
 /* The inner wrapper that actually flips */
 .flashcard-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: inherit;
-  transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
-  transform-style: preserve-3d;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	min-height: inherit;
+	transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+	transform-style: preserve-3d;
 }
 
 /* When flipped, rotate the inner container */
 .flashcard-inner.flipped {
-  transform: rotateY(180deg);
+	transform: rotateY(180deg);
 }
 
 /* Common styles for both front and back sides */
 .flashcard-side {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  min-height: inherit;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  -moz-backface-visibility: hidden;
-  border-radius: 0.5rem; /* rounded-lg equivalent */
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	min-height: inherit;
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility: hidden;
+	border-radius: 0.5rem; /* rounded-lg equivalent */
 }
 
 /* Front side (question) - normal orientation */
 .flashcard-front {
-  transform: rotateY(0deg);
+	transform: rotateY(0deg);
 }
 
 /* Back side (answer) - pre-rotated 180 degrees */
 .flashcard-back {
-  transform: rotateY(180deg);
+	transform: rotateY(180deg);
 }
 
 /* Ensure proper layout and positioning for flashcard content */
 .flashcard-front,
 .flashcard-back {
-  /* Ensure the card background contains all content */
-  box-sizing: border-box;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  align-items: center !important;
-  /* Force the card to respect its container bounds */
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
+	/* Ensure the card background contains all content */
+	box-sizing: border-box;
+	display: flex !important;
+	flex-direction: column !important;
+	justify-content: center !important;
+	align-items: center !important;
+	/* Force the card to respect its container bounds */
+	position: absolute !important;
+	top: 0 !important;
+	left: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
 }
 
 /* Ensure text is properly positioned within the card */
 .flashcard-front .text-2xl,
 .flashcard-back .text-2xl {
-  /* Ensure text is visible and properly positioned */
-  color: inherit;
-  display: block;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  max-width: 100%;
-  /* Ensure text stays within the card bounds */
-  position: relative;
-  z-index: 1;
+	/* Ensure text is visible and properly positioned */
+	color: inherit;
+	display: block;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	max-width: 100%;
+	/* Ensure text stays within the card bounds */
+	position: relative;
+	z-index: 1;
 }
 
 /* Scrollable text content areas for long text */
 .flashcard-front .overflow-y-auto,
 .flashcard-back .overflow-y-auto {
-  /* Custom scrollbar styling for better UX */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
-  /* Ensure scrolling works properly within flex containers */
-  overflow-y: auto;
-  min-height: 0;
+	/* Custom scrollbar styling for better UX */
+	scrollbar-width: thin;
+	scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+	/* Ensure scrolling works properly within flex containers */
+	overflow-y: auto;
+	min-height: 0;
 }
 
 .flashcard-front .overflow-y-auto::-webkit-scrollbar,
 .flashcard-back .overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
+	width: 6px;
 }
 
 .flashcard-front .overflow-y-auto::-webkit-scrollbar-track,
 .flashcard-back .overflow-y-auto::-webkit-scrollbar-track {
-  background: transparent;
+	background: transparent;
 }
 
 .flashcard-front .overflow-y-auto::-webkit-scrollbar-thumb,
 .flashcard-back .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(148, 163, 184, 0.5);
-  border-radius: 3px;
+	background-color: rgba(148, 163, 184, 0.5);
+	border-radius: 3px;
 }
 
 .flashcard-front .overflow-y-auto::-webkit-scrollbar-thumb:hover,
 .flashcard-back .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(148, 163, 184, 0.7);
+	background-color: rgba(148, 163, 184, 0.7);
 }
 
 /* Ensure the content container has proper dimensions and positioning */
 .flashcard-front > div:first-child,
 .flashcard-back > div:first-child {
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  position: relative;
-  z-index: 1;
+	min-height: 100px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	position: relative;
+	z-index: 1;
 }
 
 /* Ensure smooth transitions work across browsers */
 @supports (transform-style: preserve-3d) {
-  .flashcard-container {
-    transform-style: preserve-3d;
-  }
+	.flashcard-container {
+		transform-style: preserve-3d;
+	}
 
-  .flashcard-inner {
-    transform-style: preserve-3d;
-  }
+	.flashcard-inner {
+		transform-style: preserve-3d;
+	}
 }
 
 /* Fallback for browsers that don't support 3D transforms */
 @supports not (transform-style: preserve-3d) {
-  .flashcard-inner {
-    transition: none;
-  }
+	.flashcard-inner {
+		transition: none;
+	}
 
-  .flashcard-side {
-    transition: opacity 0.3s ease-in-out;
-  }
+	.flashcard-side {
+		transition: opacity 0.3s ease-in-out;
+	}
 
-  .flashcard-inner.flipped .flashcard-front {
-    opacity: 0;
-    visibility: hidden;
-  }
+	.flashcard-inner.flipped .flashcard-front {
+		opacity: 0;
+		visibility: hidden;
+	}
 
-  .flashcard-inner:not(.flipped) .flashcard-back {
-    opacity: 0;
-    visibility: hidden;
-  }
+	.flashcard-inner:not(.flipped) .flashcard-back {
+		opacity: 0;
+		visibility: hidden;
+	}
 
-  .flashcard-inner.flipped .flashcard-back {
-    opacity: 1;
-    visibility: visible;
-  }
+	.flashcard-inner.flipped .flashcard-back {
+		opacity: 1;
+		visibility: visible;
+	}
 
-  .flashcard-inner:not(.flipped) .flashcard-front {
-    opacity: 1;
-    visibility: visible;
-  }
+	.flashcard-inner:not(.flipped) .flashcard-front {
+		opacity: 1;
+		visibility: visible;
+	}
 }
 
 /* Skeleton Loading Animations */
 
 /* Enhanced shimmer animation for skeleton loaders */
 @media (prefers-reduced-motion: no-preference) {
-  @keyframes shimmer {
-    0% {
-      background-position: -200px 0;
-    }
-    100% {
-      background-position: calc(200px + 100%) 0;
-    }
-  }
+	@keyframes shimmer {
+		0% {
+			background-position: -200px 0;
+		}
+		100% {
+			background-position: calc(200px + 100%) 0;
+		}
+	}
 
-  /* Alternative pulse animation for better performance on some devices */
-  @keyframes skeleton-pulse {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.7;
-    }
-  }
+	/* Alternative pulse animation for better performance on some devices */
+	@keyframes skeleton-pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.7;
+		}
+	}
 }
 
 /* Shimmer effect for skeleton elements */
 .animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 0px,
-    #e0e0e0 40px,
-    #f0f0f0 80px
-  );
-  background-size: 200px;
+	background: linear-gradient(90deg, #f0f0f0 0px, #e0e0e0 40px, #f0f0f0 80px);
+	background-size: 200px;
 }
 
 /* Only animate when motion is preferred */
 @media (prefers-reduced-motion: no-preference) {
-  .animate-shimmer {
-    animation: shimmer 1.5s ease-in-out infinite;
-  }
+	.animate-shimmer {
+		animation: shimmer 1.5s ease-in-out infinite;
+	}
 }
 
 /* Dark mode shimmer effect */
 @media (prefers-color-scheme: dark) {
-  .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      #374151 0px,
-      #4b5563 40px,
-      #374151 80px
-    );
-    background-size: 200px;
-  }
+	.animate-shimmer {
+		background: linear-gradient(90deg, #374151 0px, #4b5563 40px, #374151 80px);
+		background-size: 200px;
+	}
 }
 
 /* Pulse animation skeleton */
 .animate-skeleton-pulse {
-  /* Static fallback - slightly reduced opacity for loading indication */
-  opacity: 0.8;
+	/* Static fallback - slightly reduced opacity for loading indication */
+	opacity: 0.8;
 }
 
 /* Only animate when motion is preferred */
 @media (prefers-reduced-motion: no-preference) {
-  .animate-skeleton-pulse {
-    opacity: 1;
-    animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
+	.animate-skeleton-pulse {
+		opacity: 1;
+		animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
 }
 
 /* Typography Utilities */
 
 /* Enhanced text rendering for better readability */
 .text-render-optimized {
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 /* Apply optimized text rendering globally */
 * {
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 /* Deck Card Enhancements */
 
 /* Hover animations for metadata badges - only when motion is preferred */
 @media (prefers-reduced-motion: no-preference) {
-  .deck-metadata-badge {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+	.deck-metadata-badge {
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	}
 
-  .deck-metadata-badge:hover {
-    transform: translateY(-1px);
-  }
+	.deck-metadata-badge:hover {
+		transform: translateY(-1px);
+	}
 
-  /* Progress bar animation */
-  .progress-bar {
-    transition: width 0.5s ease-out;
-  }
+	/* Progress bar animation */
+	.progress-bar {
+		transition: width 0.5s ease-out;
+	}
 
-  /* Status badge hover effects */
-  .status-badge {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+	/* Status badge hover effects */
+	.status-badge {
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	}
 
-  .status-badge:hover {
-    transform: scale(1.05);
-  }
+	.status-badge:hover {
+		transform: scale(1.05);
+	}
 
-  /* Study progress bar animations */
-  .study-progress-bar {
-    transition: width 0.5s ease-out;
-  }
+	/* Study progress bar animations */
+	.study-progress-bar {
+		transition: width 0.5s ease-out;
+	}
 
-  .study-progress-container {
-    transition: opacity 0.3s ease-in-out;
-  }
+	.study-progress-container {
+		transition: opacity 0.3s ease-in-out;
+	}
 }
 
 /* Static fallbacks for reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .deck-metadata-badge,
-  .progress-bar,
-  .status-badge,
-  .study-progress-bar,
-  .study-progress-container {
-    transition: none;
-  }
+	.deck-metadata-badge,
+	.progress-bar,
+	.status-badge,
+	.study-progress-bar,
+	.study-progress-container {
+		transition: none;
+	}
 
-  .deck-metadata-badge:hover,
-  .status-badge:hover {
-    transform: none;
-  }
+	.deck-metadata-badge:hover,
+	.status-badge:hover {
+		transform: none;
+	}
 }
-
-

@@ -1,40 +1,40 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 /**
  * Get all decks for the currently authenticated user.
  * Returns an array of deck objects containing _id, userId, name, and description.
  */
 export const getDecksForUser = query({
-  args: {},
-  returns: v.array(
-    v.object({
-      _id: v.id("decks"),
-      _creationTime: v.number(),
-      userId: v.string(),
-      name: v.string(),
-      description: v.string(),
-      cardCount: v.number(),
-    })
-  ),
-  handler: async (ctx, _args) => {
-    // Get the current authenticated user
-    const identity = await ctx.auth.getUserIdentity();
-    
-    // Handle case where user is not authenticated
-    if (!identity) {
-      throw new Error("User must be authenticated to access decks");
-    }
+	args: {},
+	returns: v.array(
+		v.object({
+			_id: v.id("decks"),
+			_creationTime: v.number(),
+			userId: v.string(),
+			name: v.string(),
+			description: v.string(),
+			cardCount: v.number(),
+		}),
+	),
+	handler: async (ctx, _args) => {
+		// Get the current authenticated user
+		const identity = await ctx.auth.getUserIdentity();
 
-    // Query the decks collection for decks belonging to the current user
-    const decks = await ctx.db
-      .query("decks")
-      .filter((q) => q.eq(q.field("userId"), identity.subject))
-      .order("desc") // Most recently created first
-      .collect();
+		// Handle case where user is not authenticated
+		if (!identity) {
+			throw new Error("User must be authenticated to access decks");
+		}
 
-    return decks;
-  },
+		// Query the decks collection for decks belonging to the current user
+		const decks = await ctx.db
+			.query("decks")
+			.filter((q) => q.eq(q.field("userId"), identity.subject))
+			.order("desc") // Most recently created first
+			.collect();
+
+		return decks;
+	},
 });
 
 /**
@@ -42,43 +42,43 @@ export const getDecksForUser = query({
  * Validates input parameters and returns the ID of the newly created deck.
  */
 export const createDeck = mutation({
-  args: {
-    name: v.string(),
-    description: v.string(),
-  },
-  returns: v.id("decks"),
-  handler: async (ctx, args) => {
-    // Get the current authenticated user
-    const identity = await ctx.auth.getUserIdentity();
-    
-    // Handle case where user is not authenticated
-    if (!identity) {
-      throw new Error("User must be authenticated to create a deck");
-    }
+	args: {
+		name: v.string(),
+		description: v.string(),
+	},
+	returns: v.id("decks"),
+	handler: async (ctx, args) => {
+		// Get the current authenticated user
+		const identity = await ctx.auth.getUserIdentity();
 
-    // Validate input parameters
-    if (!args.name || args.name.trim().length === 0) {
-      throw new Error("Deck name cannot be empty");
-    }
+		// Handle case where user is not authenticated
+		if (!identity) {
+			throw new Error("User must be authenticated to create a deck");
+		}
 
-    if (args.name.length > 100) {
-      throw new Error("Deck name cannot exceed 100 characters");
-    }
+		// Validate input parameters
+		if (!args.name || args.name.trim().length === 0) {
+			throw new Error("Deck name cannot be empty");
+		}
 
-    if (args.description.length > 500) {
-      throw new Error("Deck description cannot exceed 500 characters");
-    }
+		if (args.name.length > 100) {
+			throw new Error("Deck name cannot exceed 100 characters");
+		}
 
-    // Insert the new deck into the database
-    const deckId = await ctx.db.insert("decks", {
-      userId: identity.subject,
-      name: args.name.trim(),
-      description: args.description.trim(),
-      cardCount: 0, // Initialize with zero cards
-    });
+		if (args.description.length > 500) {
+			throw new Error("Deck description cannot exceed 500 characters");
+		}
 
-    return deckId;
-  },
+		// Insert the new deck into the database
+		const deckId = await ctx.db.insert("decks", {
+			userId: identity.subject,
+			name: args.name.trim(),
+			description: args.description.trim(),
+			cardCount: 0, // Initialize with zero cards
+		});
+
+		return deckId;
+	},
 });
 
 /**
@@ -86,52 +86,52 @@ export const createDeck = mutation({
  * Only the owner of the deck can update it.
  */
 export const updateDeck = mutation({
-  args: {
-    deckId: v.id("decks"),
-    name: v.string(),
-    description: v.string(),
-  },
-  returns: v.null(),
-  handler: async (ctx, args) => {
-    // Get the current authenticated user
-    const identity = await ctx.auth.getUserIdentity();
-    
-    if (!identity) {
-      throw new Error("User must be authenticated to update a deck");
-    }
+	args: {
+		deckId: v.id("decks"),
+		name: v.string(),
+		description: v.string(),
+	},
+	returns: v.null(),
+	handler: async (ctx, args) => {
+		// Get the current authenticated user
+		const identity = await ctx.auth.getUserIdentity();
 
-    // Get the existing deck to verify ownership
-    const existingDeck = await ctx.db.get(args.deckId);
-    
-    if (!existingDeck) {
-      throw new Error("Deck not found");
-    }
+		if (!identity) {
+			throw new Error("User must be authenticated to update a deck");
+		}
 
-    if (existingDeck.userId !== identity.subject) {
-      throw new Error("You can only update your own decks");
-    }
+		// Get the existing deck to verify ownership
+		const existingDeck = await ctx.db.get(args.deckId);
 
-    // Validate input parameters
-    if (!args.name || args.name.trim().length === 0) {
-      throw new Error("Deck name cannot be empty");
-    }
+		if (!existingDeck) {
+			throw new Error("Deck not found");
+		}
 
-    if (args.name.length > 100) {
-      throw new Error("Deck name cannot exceed 100 characters");
-    }
+		if (existingDeck.userId !== identity.subject) {
+			throw new Error("You can only update your own decks");
+		}
 
-    if (args.description.length > 500) {
-      throw new Error("Deck description cannot exceed 500 characters");
-    }
+		// Validate input parameters
+		if (!args.name || args.name.trim().length === 0) {
+			throw new Error("Deck name cannot be empty");
+		}
 
-    // Update the deck
-    await ctx.db.patch(args.deckId, {
-      name: args.name.trim(),
-      description: args.description.trim(),
-    });
+		if (args.name.length > 100) {
+			throw new Error("Deck name cannot exceed 100 characters");
+		}
 
-    return null;
-  },
+		if (args.description.length > 500) {
+			throw new Error("Deck description cannot exceed 500 characters");
+		}
+
+		// Update the deck
+		await ctx.db.patch(args.deckId, {
+			name: args.name.trim(),
+			description: args.description.trim(),
+		});
+
+		return null;
+	},
 });
 
 /**
@@ -139,44 +139,44 @@ export const updateDeck = mutation({
  * Only the owner of the deck can delete it.
  */
 export const deleteDeck = mutation({
-  args: {
-    deckId: v.id("decks"),
-  },
-  returns: v.null(),
-  handler: async (ctx, args) => {
-    // Get the current authenticated user
-    const identity = await ctx.auth.getUserIdentity();
-    
-    if (!identity) {
-      throw new Error("User must be authenticated to delete a deck");
-    }
+	args: {
+		deckId: v.id("decks"),
+	},
+	returns: v.null(),
+	handler: async (ctx, args) => {
+		// Get the current authenticated user
+		const identity = await ctx.auth.getUserIdentity();
 
-    // Get the existing deck to verify ownership
-    const existingDeck = await ctx.db.get(args.deckId);
-    
-    if (!existingDeck) {
-      throw new Error("Deck not found");
-    }
+		if (!identity) {
+			throw new Error("User must be authenticated to delete a deck");
+		}
 
-    if (existingDeck.userId !== identity.subject) {
-      throw new Error("You can only delete your own decks");
-    }
+		// Get the existing deck to verify ownership
+		const existingDeck = await ctx.db.get(args.deckId);
 
-    // Delete all cards associated with this deck
-    const cards = await ctx.db
-      .query("cards")
-      .withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
-      .collect();
+		if (!existingDeck) {
+			throw new Error("Deck not found");
+		}
 
-    for (const card of cards) {
-      await ctx.db.delete(card._id);
-    }
+		if (existingDeck.userId !== identity.subject) {
+			throw new Error("You can only delete your own decks");
+		}
 
-    // Delete the deck itself
-    await ctx.db.delete(args.deckId);
+		// Delete all cards associated with this deck
+		const cards = await ctx.db
+			.query("cards")
+			.withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
+			.collect();
 
-    return null;
-  },
+		for (const card of cards) {
+			await ctx.db.delete(card._id);
+		}
+
+		// Delete the deck itself
+		await ctx.db.delete(args.deckId);
+
+		return null;
+	},
 });
 
 /**
@@ -184,40 +184,40 @@ export const deleteDeck = mutation({
  * Only the owner of the deck can access it.
  */
 export const getDeckById = query({
-  args: {
-    deckId: v.id("decks"),
-  },
-  returns: v.union(
-    v.object({
-      _id: v.id("decks"),
-      _creationTime: v.number(),
-      userId: v.string(),
-      name: v.string(),
-      description: v.string(),
-      cardCount: v.number(),
-    }),
-    v.null()
-  ),
-  handler: async (ctx, args) => {
-    // Get the current authenticated user
-    const identity = await ctx.auth.getUserIdentity();
-    
-    if (!identity) {
-      throw new Error("User must be authenticated to access deck");
-    }
+	args: {
+		deckId: v.id("decks"),
+	},
+	returns: v.union(
+		v.object({
+			_id: v.id("decks"),
+			_creationTime: v.number(),
+			userId: v.string(),
+			name: v.string(),
+			description: v.string(),
+			cardCount: v.number(),
+		}),
+		v.null(),
+	),
+	handler: async (ctx, args) => {
+		// Get the current authenticated user
+		const identity = await ctx.auth.getUserIdentity();
 
-    // Get the deck
-    const deck = await ctx.db.get(args.deckId);
-    
-    if (!deck) {
-      return null;
-    }
+		if (!identity) {
+			throw new Error("User must be authenticated to access deck");
+		}
 
-    // Verify ownership
-    if (deck.userId !== identity.subject) {
-      throw new Error("You can only access your own decks");
-    }
+		// Get the deck
+		const deck = await ctx.db.get(args.deckId);
 
-    return deck;
-  },
+		if (!deck) {
+			return null;
+		}
+
+		// Verify ownership
+		if (deck.userId !== identity.subject) {
+			throw new Error("You can only access your own decks");
+		}
+
+		return deck;
+	},
 });
