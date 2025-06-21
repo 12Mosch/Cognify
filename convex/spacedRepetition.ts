@@ -1,5 +1,6 @@
 import { v } from 'convex/values'
 import { mutation, query } from './_generated/server'
+import { CacheInvalidation } from "./utils/cache";
 
 /**
  * SM-2 Algorithm Implementation for Spaced Repetition
@@ -169,6 +170,9 @@ export const reviewCard = mutation({
       interval,
       dueDate,
     });
+
+    // Invalidate relevant caches after card review
+    await CacheInvalidation.onCardReview(ctx, identity.subject);
 
     return null;
   },

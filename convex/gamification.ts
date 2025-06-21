@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { getCachedData, setCachedData, CacheKeys, CACHE_TTL } from "./utils/cache";
 
 /**
  * Enhanced Gamification System
@@ -390,31 +391,43 @@ export const checkAchievements = mutation({
 
 /**
  * Calculate user statistics for achievement progress
+ * Optimized with parallel database queries and caching for better performance
  */
 async function calculateUserStats(ctx: any, userId: string) {
-  // Get streak data
-  const streakData = await ctx.db
-    .query("studyStreaks")
-    .withIndex("by_userId", (q: any) => q.eq("userId", userId))
-    .first();
+  // Try to get cached data first
+  const cacheKey = CacheKeys.userStats(userId);
+  const cached = await getCachedData(ctx, userId, cacheKey);
 
-  // Get study sessions
-  const studySessions = await ctx.db
-    .query("studySessions")
-    .withIndex("by_userId_and_date", (q: any) => q.eq("userId", userId))
-    .collect();
+  if (cached) {
+    return cached;
+  }
 
-  // Get decks
-  const decks = await ctx.db
-    .query("decks")
-    .withIndex("by_userId", (q: any) => q.eq("userId", userId))
-    .collect();
+  // Execute all database queries in parallel for better performance
+  const [streakData, studySessions, decks, reviews] = await Promise.all([
+    // Get streak data
+    ctx.db
+      .query("studyStreaks")
+      .withIndex("by_userId", (q: any) => q.eq("userId", userId))
+      .first(),
 
-  // Get cards and reviews
-  const reviews = await ctx.db
-    .query("cardReviews")
-    .withIndex("by_userId_and_date", (q: any) => q.eq("userId", userId))
-    .collect();
+    // Get study sessions
+    ctx.db
+      .query("studySessions")
+      .withIndex("by_userId_and_date", (q: any) => q.eq("userId", userId))
+      .collect(),
+
+    // Get decks
+    ctx.db
+      .query("decks")
+      .withIndex("by_userId", (q: any) => q.eq("userId", userId))
+      .collect(),
+
+    // Get card reviews
+    ctx.db
+      .query("cardReviews")
+      .withIndex("by_userId_and_date", (q: any) => q.eq("userId", userId))
+      .collect(),
+  ]);
 
   // Calculate stats
   const totalStudySessions = studySessions.length;
@@ -432,7 +445,7 @@ async function calculateUserStats(ctx: any, userId: string) {
     return reviewDate === today;
   });
 
-  return {
+  const stats = {
     totalStudySessions,
     currentStreak,
     longestStreak,
@@ -443,6 +456,11 @@ async function calculateUserStats(ctx: any, userId: string) {
     dailyCards: todayReviews.length,
     successRate: totalReviews > 0 ? successfulReviews / totalReviews : 0,
   };
+
+  // Cache the computed stats for future requests
+  await setCachedData(ctx, userId, cacheKey, stats, CACHE_TTL.USER_STATS);
+
+  return stats;
 }
 
 /**

@@ -94,7 +94,8 @@ export default defineSchema({
     .index("by_cardId_and_date", ["cardId", "reviewDate"])      // Index for card-specific review history
     .index("by_deckId_and_date", ["deckId", "reviewDate"])      // Index for deck-specific review analysis
     .index("by_userId_and_success", ["userId", "wasSuccessful"]) // Index for retention rate calculations
-    .index("by_userId_and_timeOfDay", ["userId", "timeOfDay"]), // Index for time-of-day performance analysis
+    .index("by_userId_and_timeOfDay", ["userId", "timeOfDay"])  // Index for time-of-day performance analysis
+    .index("by_userId_date_and_success", ["userId", "reviewDate", "wasSuccessful"]), // Composite index for filtered retention rate queries
 
   // Learning Patterns table - stores personalized learning analytics for adaptive algorithm
   learningPatterns: defineTable({
@@ -211,4 +212,16 @@ export default defineSchema({
   }).index("by_userId", ["userId"])      // Index for user calibration analysis
     .index("by_cardId", ["cardId"])      // Index for card-specific calibration
     .index("by_userId_and_timestamp", ["userId", "timestamp"]), // Index for temporal analysis
+
+  // Statistics Cache table - caches frequently accessed computed statistics for performance
+  statisticsCache: defineTable({
+    userId: v.string(),                  // ID of the user
+    cacheKey: v.string(),               // Unique key identifying the cached statistic (e.g., "user_stats", "retention_rate_30d")
+    data: v.any(),                      // Cached data (JSON serializable)
+    computedAt: v.number(),             // Unix timestamp when data was computed
+    expiresAt: v.number(),              // Unix timestamp when cache expires
+    version: v.number(),                // Version number for cache invalidation
+  }).index("by_userId_and_key", ["userId", "cacheKey"])  // Index for efficient cache lookups
+    .index("by_expiresAt", ["expiresAt"])                // Index for cache cleanup
+    .index("by_userId_and_expires", ["userId", "expiresAt"]), // Index for user-specific cache cleanup
 });

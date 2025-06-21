@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { CacheInvalidation } from "./utils/cache";
 
 /**
  * Study Sessions Tracking for Flashcard App
@@ -72,6 +73,9 @@ export const recordStudySession = mutation({
         userTimeZone: args.userTimeZone,
       });
     }
+
+    // Invalidate relevant caches after recording study session
+    await CacheInvalidation.onStudySessionComplete(ctx, identity.subject);
 
     return null;
   },

@@ -428,43 +428,46 @@ export const getSpacedRepetitionInsights = query({
 
     const now = Date.now();
 
-    for (const deck of decks) {
-      // Get cards for this deck
-      const cards = await ctx.db
+    // Fetch all cards for all decks in parallel for better performance
+    const allCardsPromises = decks.map(deck =>
+      ctx.db
         .query("cards")
         .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
-        .collect();
+        .collect()
+    );
 
-      for (const card of cards) {
-        const repetition = card.repetition || 0;
-        const dueDate = card.dueDate || now;
-        const interval = card.interval || 1;
+    const allCardsResults = await Promise.all(allCardsPromises);
+    const allCards = allCardsResults.flat();
 
-        // Count new cards
-        if (repetition === 0) {
-          totalNewCards++;
+    for (const card of allCards) {
+      const repetition = card.repetition || 0;
+      const dueDate = card.dueDate || now;
+      const interval = card.interval || 1;
+
+      // Count new cards
+      if (repetition === 0) {
+        totalNewCards++;
+      }
+
+      // Count due cards
+      if (dueDate <= now) {
+        totalDueCards++;
+      }
+
+      // Track upcoming reviews (next 7 days)
+      if (dueDate > now) {
+        const reviewDate = new Date(dueDate).toDateString();
+        const daysDiff = Math.floor((dueDate - now) / (1000 * 60 * 60 * 24));
+
+        if (daysDiff <= 7) {
+          upcomingReviews[reviewDate] = (upcomingReviews[reviewDate] || 0) + 1;
         }
+      }
 
-        // Count due cards
-        if (dueDate <= now) {
-          totalDueCards++;
-        }
-
-        // Track upcoming reviews (next 7 days)
-        if (dueDate > now) {
-          const reviewDate = new Date(dueDate).toDateString();
-          const daysDiff = Math.floor((dueDate - now) / (1000 * 60 * 60 * 24));
-          
-          if (daysDiff <= 7) {
-            upcomingReviews[reviewDate] = (upcomingReviews[reviewDate] || 0) + 1;
-          }
-        }
-
-        // Calculate average interval
-        if (card.interval && repetition > 0) {
-          totalInterval += interval;
-          cardsWithInterval++;
-        }
+      // Calculate average interval
+      if (card.interval && repetition > 0) {
+        totalInterval += interval;
+        cardsWithInterval++;
       }
     }
 
@@ -518,14 +521,22 @@ export const getDeckPerformanceComparison = query({
       .filter((q) => q.eq(q.field("userId"), identity.subject))
       .collect();
 
-    const deckPerformance = [];
-
-    for (const deck of decks) {
-      // Get cards for this deck
-      const cards = await ctx.db
-        .query("cards")
-        .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
-        .collect();
+    // Execute all deck performance calculations in parallel for better performance
+    const deckPerformancePromises = decks.map(async (deck) => {
+      // Execute card and session queries in parallel for each deck
+      const [cards, lastSession] = await Promise.all([
+        ctx.db
+          .query("cards")
+          .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
+          .collect(),
+        ctx.db
+          .query("studySessions")
+          .withIndex("by_userId_and_deckId", (q) =>
+            q.eq("userId", identity.subject).eq("deckId", deck._id)
+          )
+          .order("desc")
+          .first()
+      ]);
 
       let masteredCards = 0;
       let totalEaseFactor = 0;
@@ -546,26 +557,17 @@ export const getDeckPerformanceComparison = query({
         }
       }
 
-      const masteryPercentage = cards.length > 0 
-        ? (masteredCards / cards.length) * 100 
+      const masteryPercentage = cards.length > 0
+        ? (masteredCards / cards.length) * 100
         : 0;
 
       const averageEaseFactor = cardsWithEaseFactor > 0
         ? totalEaseFactor / cardsWithEaseFactor
         : undefined;
 
-      // Get last studied date for this deck
-      const lastSession = await ctx.db
-        .query("studySessions")
-        .withIndex("by_userId_and_deckId", (q) =>
-          q.eq("userId", identity.subject).eq("deckId", deck._id)
-        )
-        .order("desc")
-        .first();
-
       const lastStudied = lastSession ? new Date(lastSession.sessionDate).getTime() : undefined;
 
-      deckPerformance.push({
+      return {
         deckId: deck._id,
         deckName: deck.name,
         totalCards: cards.length,
@@ -573,9 +575,10 @@ export const getDeckPerformanceComparison = query({
         masteryPercentage,
         averageEaseFactor,
         lastStudied,
-      });
-    }
+      };
+    });
 
+    const deckPerformance = await Promise.all(deckPerformancePromises);
     return deckPerformance;
   },
 });
@@ -809,7 +812,7 @@ export const getDashboardData = query({
       totalStudyTime: totalStudyTime > 0 ? totalStudyTime : undefined,
     };
 
-    // Calculate spaced repetition insights
+    // Calculate spaced repetition insights with parallel card queries
     let totalDueCards = 0;
     let totalNewCards = 0;
     let totalInterval = 0;
@@ -818,30 +821,34 @@ export const getDashboardData = query({
 
     const now = Date.now();
 
-    for (const deck of decks) {
-      const cards = await ctx.db
+    // Fetch all cards for all decks in parallel
+    const allCardsPromises = decks.map(deck =>
+      ctx.db
         .query("cards")
         .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
-        .collect();
+        .collect()
+    );
 
-      for (const card of cards) {
-        if (!card.dueDate || card.dueDate <= now) {
-          if (card.repetition === 0 || !card.repetition) {
-            totalNewCards++;
-          } else {
-            totalDueCards++;
-          }
-        }
+    const allCardsResults = await Promise.all(allCardsPromises);
+    const allCards = allCardsResults.flat();
 
-        if (card.interval && card.interval > 0) {
-          totalInterval += card.interval;
-          cardsWithInterval++;
+    for (const card of allCards) {
+      if (!card.dueDate || card.dueDate <= now) {
+        if (card.repetition === 0 || !card.repetition) {
+          totalNewCards++;
+        } else {
+          totalDueCards++;
         }
+      }
 
-        if (card.dueDate && card.dueDate > now) {
-          const dueDate = new Date(card.dueDate).toISOString().split('T')[0];
-          upcomingReviews[dueDate] = (upcomingReviews[dueDate] || 0) + 1;
-        }
+      if (card.interval && card.interval > 0) {
+        totalInterval += card.interval;
+        cardsWithInterval++;
+      }
+
+      if (card.dueDate && card.dueDate > now) {
+        const dueDate = new Date(card.dueDate).toISOString().split('T')[0];
+        upcomingReviews[dueDate] = (upcomingReviews[dueDate] || 0) + 1;
       }
     }
 
@@ -865,13 +872,22 @@ export const getDashboardData = query({
       averageInterval,
     };
 
-    // Calculate deck performance
-    const deckPerformance = [];
-    for (const deck of decks) {
-      const cards = await ctx.db
-        .query("cards")
-        .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
-        .collect();
+    // Calculate deck performance with parallel queries
+    const deckPerformancePromises = decks.map(async (deck) => {
+      // Execute card and session queries in parallel for each deck
+      const [cards, lastSession] = await Promise.all([
+        ctx.db
+          .query("cards")
+          .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
+          .collect(),
+        ctx.db
+          .query("studySessions")
+          .withIndex("by_userId_and_deckId", (q) =>
+            q.eq("userId", identity.subject).eq("deckId", deck._id)
+          )
+          .order("desc")
+          .first()
+      ]);
 
       let masteredCards = 0;
       let totalEaseFactor = 0;
@@ -889,18 +905,9 @@ export const getDashboardData = query({
 
       const masteryPercentage = cards.length > 0 ? (masteredCards / cards.length) * 100 : 0;
       const averageEaseFactor = cardsWithEase > 0 ? totalEaseFactor / cardsWithEase : undefined;
-
-      const lastSession = await ctx.db
-        .query("studySessions")
-        .withIndex("by_userId_and_deckId", (q) =>
-          q.eq("userId", identity.subject).eq("deckId", deck._id)
-        )
-        .order("desc")
-        .first();
-
       const lastStudied = lastSession ? new Date(lastSession.sessionDate).getTime() : undefined;
 
-      deckPerformance.push({
+      return {
         deckId: deck._id,
         deckName: deck.name,
         totalCards: cards.length,
@@ -908,37 +915,31 @@ export const getDashboardData = query({
         masteryPercentage,
         averageEaseFactor,
         lastStudied,
-      });
-    }
+      };
+    });
 
-    // Calculate card distribution
+    const deckPerformance = await Promise.all(deckPerformancePromises);
+
+    // Calculate card distribution using already fetched cards from spaced repetition insights
+    // This reuses the allCards array to avoid duplicate queries
     let newCards = 0;
     let learningCards = 0;
     let reviewCards = 0;
     let dueCards = 0;
     let masteredCards = 0;
-    let totalCardsForDistribution = 0;
+    const totalCardsForDistribution = allCards.length;
 
-    for (const deck of decks) {
-      const cards = await ctx.db
-        .query("cards")
-        .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
-        .collect();
-
-      totalCardsForDistribution += cards.length;
-
-      for (const card of cards) {
-        if (!card.repetition || card.repetition === 0) {
-          newCards++;
-        } else if (card.repetition < 3) {
-          learningCards++;
-        } else if (card.dueDate && card.dueDate <= now) {
-          dueCards++;
-        } else if (card.easeFactor && card.easeFactor >= 2.5 && card.interval && card.interval >= 21) {
-          masteredCards++;
-        } else {
-          reviewCards++;
-        }
+    for (const card of allCards) {
+      if (!card.repetition || card.repetition === 0) {
+        newCards++;
+      } else if (card.repetition < 3) {
+        learningCards++;
+      } else if (card.dueDate && card.dueDate <= now) {
+        dueCards++;
+      } else if (card.easeFactor && card.easeFactor >= 2.5 && card.interval && card.interval >= 21) {
+        masteredCards++;
+      } else {
+        reviewCards++;
       }
     }
 
@@ -996,35 +997,38 @@ export const getCardDistributionData = query({
 
     const now = Date.now();
 
-    for (const deck of decks) {
-      // Get cards for this deck
-      const cards = await ctx.db
+    // Fetch all cards for all decks in parallel for better performance
+    const allCardsPromises = decks.map(deck =>
+      ctx.db
         .query("cards")
         .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
-        .collect();
+        .collect()
+    );
 
-      totalCards += cards.length;
+    const allCardsResults = await Promise.all(allCardsPromises);
+    const allCards = allCardsResults.flat();
 
-      for (const card of cards) {
-        const repetition = card.repetition || 0;
-        const dueDate = card.dueDate || now;
+    totalCards = allCards.length;
 
-        // Categorize cards by learning stage
-        if (repetition === 0) {
-          newCards++;
-        } else if (repetition < 3) {
-          learningCards++;
-        } else if (card.easeFactor && card.easeFactor >= 2.5 && card.interval && card.interval >= 21) {
-          // Consider cards mastered if they have good ease factor and long interval
-          masteredCards++;
-        } else {
-          reviewCards++;
-        }
+    for (const card of allCards) {
+      const repetition = card.repetition || 0;
+      const dueDate = card.dueDate || now;
 
-        // Count due cards (cards that need review now)
-        if (dueDate <= now && repetition > 0) {
-          dueCards++;
-        }
+      // Categorize cards by learning stage
+      if (repetition === 0) {
+        newCards++;
+      } else if (repetition < 3) {
+        learningCards++;
+      } else if (card.easeFactor && card.easeFactor >= 2.5 && card.interval && card.interval >= 21) {
+        // Consider cards mastered if they have good ease factor and long interval
+        masteredCards++;
+      } else {
+        reviewCards++;
+      }
+
+      // Count due cards (cards that need review now)
+      if (dueDate <= now && repetition > 0) {
+        dueCards++;
       }
     }
 
