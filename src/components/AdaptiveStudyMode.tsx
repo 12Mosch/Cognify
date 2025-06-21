@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
@@ -49,6 +49,9 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
     sessionStartTime: number;
   } | null>(null);
   const [reviewResults, setReviewResults] = useState<number[]>([]); // Track quality ratings for each review
+
+  // Ref to track timeout for personalized message cleanup
+  const messageTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Convex queries and mutations
   const decks = useQuery(api.decks.getDecksForUser);
@@ -109,6 +112,15 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
     }
   }, [deck, studyQueue, sessionStarted, trackStudySessionStarted, deckId]);
 
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Handle card flip
   const handleFlipCard = useCallback(() => {
     if (!isFlipped) {
@@ -122,6 +134,75 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
     setConfidenceRating(rating);
     setShowConfidenceRating(false);
   }, []);
+
+  // Handle study session achievements
+  const handleStudyAchievements = useCallback(async (quality: number, cardId: Id<"cards">) => {
+    try {
+      const newAchievements = await checkAchievements({
+        triggerType: "study_session",
+        triggerData: { quality, cardId, deckId },
+      });
+      showAchievementNotifications(newAchievements, "study session");
+    } catch (error) {
+      console.error("Error checking achievements:", error);
+    }
+  }, [checkAchievements, deckId, showAchievementNotifications]);
+
+  // Handle session completion achievements
+  const handleSessionCompletionAchievements = useCallback(async (cardsReviewed: number) => {
+    try {
+      const sessionAchievements = await checkAchievements({
+        triggerType: "session_complete",
+        triggerData: { deckId, cardsReviewed },
+      });
+      showAchievementNotifications(sessionAchievements, "session completion");
+    } catch (error) {
+      console.error("Error checking session achievements:", error);
+    }
+  }, [checkAchievements, deckId, showAchievementNotifications]);
+
+  // Move to next card in the study queue
+  const moveToNextCard = useCallback(() => {
+    setCurrentCardIndex(prev => prev + 1);
+    setIsFlipped(false);
+    setConfidenceRating(null);
+    setResponseStartTime(Date.now());
+
+    // Clear personalized message after a delay
+    if (messageTimeoutRef.current) {
+      clearTimeout(messageTimeoutRef.current);
+    }
+    messageTimeoutRef.current = setTimeout(() => setPersonalizedMessage(""), 3000);
+  }, []);
+
+  // Complete the study session
+  const completeSession = useCallback(async (finalQuality: number) => {
+    if (!sessionStats || !studyQueue) {
+      onExit();
+      return;
+    }
+
+    const sessionDuration = (Date.now() - sessionStats.sessionStartTime) / 1000 / 60; // minutes
+
+    // Calculate actual average success rate from review results
+    const finalReviewResults = [...reviewResults, finalQuality]; // Include the current review
+    const successfulReviews = finalReviewResults.filter(q => q >= SM2_SUCCESS_THRESHOLD).length;
+    const actualAverageSuccess = finalReviewResults.length > 0
+      ? successfulReviews / finalReviewResults.length
+      : 0;
+
+    const finalStats = {
+      ...sessionStats,
+      cardsReviewed: studyQueue.length,
+      sessionDuration,
+      averageSuccess: actualAverageSuccess,
+    };
+    setSessionStats(finalStats);
+    setShowReflectionModal(true);
+
+    // Check for session-based achievements
+    await handleSessionCompletionAchievements(studyQueue.length);
+  }, [sessionStats, studyQueue, reviewResults, onExit, handleSessionCompletionAchievements]);
 
   // Handle quality rating and card review
   const handleReview = useCallback(async (quality: number) => {
@@ -140,77 +221,33 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
       setPersonalizedMessage(result.personalizedMessage);
 
       // Track review result for session statistics
-      const updatedReviewResults = [...reviewResults, quality];
-      setReviewResults(updatedReviewResults);
+      setReviewResults(prev => [...prev, quality]);
 
-      // Check for achievements
-      try {
-        const newAchievements = await checkAchievements({
-          triggerType: "study_session",
-          triggerData: { quality, cardId: currentCard._id, deckId },
-        });
-
-        // Show achievement notifications if any were unlocked
-        showAchievementNotifications(newAchievements, "study session");
-      } catch (error) {
-        console.error("Error checking achievements:", error);
-      }
+      // Check for study session achievements
+      await handleStudyAchievements(quality, currentCard._id);
 
       // Move to next card or finish session
       if (currentCardIndex < studyQueue!.length - 1) {
-        setCurrentCardIndex(prev => prev + 1);
-        setIsFlipped(false);
-        setConfidenceRating(null);
-        setResponseStartTime(Date.now());
-
-        // Clear personalized message after a delay
-        setTimeout(() => setPersonalizedMessage(""), 3000);
+        moveToNextCard();
       } else {
-        // Session complete - calculate final stats and show reflection modal
-        if (sessionStats) {
-          const sessionDuration = (Date.now() - sessionStats.sessionStartTime) / 1000 / 60; // minutes
-
-          // Calculate actual average success rate from review results
-          const finalReviewResults = [...reviewResults, quality]; // Include the current review
-          const successfulReviews = finalReviewResults.filter(q => q >= SM2_SUCCESS_THRESHOLD).length;
-          const actualAverageSuccess = finalReviewResults.length > 0
-            ? successfulReviews / finalReviewResults.length
-            : 0;
-
-          const finalStats = {
-            ...sessionStats,
-            cardsReviewed: studyQueue!.length,
-            sessionDuration,
-            averageSuccess: actualAverageSuccess,
-          };
-          setSessionStats(finalStats);
-          setShowReflectionModal(true);
-        } else {
-          onExit();
-        }
-
-        // Check for session-based achievements
-        try {
-          const sessionAchievements = await checkAchievements({
-            triggerType: "session_complete",
-            triggerData: { deckId, cardsReviewed: studyQueue!.length },
-          });
-
-          // Show session achievement notifications if any were unlocked
-          showAchievementNotifications(sessionAchievements, "session completion");
-        } catch (error) {
-          console.error("Error checking session achievements:", error);
-        }
+        await completeSession(quality);
       }
     } catch (error) {
       console.error("Error reviewing card:", error);
     }
-  }, [currentCard, responseStartTime, confidenceRating, reviewCardAdaptive, currentCardIndex, studyQueue, onExit, checkAchievements, deckId, sessionStats, reviewResults, showAchievementNotifications]);
+  }, [currentCard, responseStartTime, confidenceRating, reviewCardAdaptive, currentCardIndex, studyQueue, handleStudyAchievements, moveToNextCard, completeSession]);
 
   // Handle keyboard-triggered review actions with error handling
   const handleKeyboardReview = useCallback((quality: number) => {
     handleReview(quality).catch(error => {
       console.error('Error handling keyboard review:', error);
+    });
+  }, [handleReview]);
+
+  // Handle button-triggered review actions with error handling
+  const handleButtonReview = useCallback((quality: number) => {
+    handleReview(quality).catch(error => {
+      console.error('Error handling button review:', error);
     });
   }, [handleReview]);
 
@@ -372,25 +409,25 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
           {isFlipped && !showConfidenceRating && (
             <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
               <button
-                onClick={() => void handleReview(0)}
+                onClick={() => handleButtonReview(0)}
                 className="p-4 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 text-red-700 dark:text-red-300 rounded-lg font-medium transition-colors"
               >
                 {t('study.again', 'Again')} (1)
               </button>
               <button
-                onClick={() => void handleReview(3)}
+                onClick={() => handleButtonReview(3)}
                 className="p-4 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:hover:bg-orange-800 text-orange-700 dark:text-orange-300 rounded-lg font-medium transition-colors"
               >
                 {t('study.hard', 'Hard')} (2)
               </button>
               <button
-                onClick={() => void handleReview(4)}
+                onClick={() => handleButtonReview(4)}
                 className="p-4 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-lg font-medium transition-colors"
               >
                 {t('study.good', 'Good')} (3)
               </button>
               <button
-                onClick={() => void handleReview(5)}
+                onClick={() => handleButtonReview(5)}
                 className="p-4 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800 text-green-700 dark:text-green-300 rounded-lg font-medium transition-colors"
               >
                 {t('study.easy', 'Easy')} (4)
