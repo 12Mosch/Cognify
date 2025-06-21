@@ -6,6 +6,7 @@ import { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
 import { FlashcardSkeleton } from "./skeletons/SkeletonComponents";
 import LearningReflectionModal from "./LearningReflectionModal";
+import { toastHelpers } from "../lib/toast";
 
 interface AdaptiveStudyModeProps {
   deckId: Id<"decks">;
@@ -56,6 +57,37 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
 
   // Get current card
   const currentCard = studyQueue && studyQueue.length > 0 ? studyQueue[currentCardIndex] : null;
+
+  // Helper function to show achievement notifications with staggered timing
+  const showAchievementNotifications = useCallback((
+    achievements: Array<{
+      achievementId: string;
+      achievement: {
+        name: string;
+        icon: string;
+      };
+    }>,
+    context: string = ""
+  ) => {
+    if (achievements.length === 0) return;
+
+    try {
+      // Show individual toast notifications for each achievement
+      // Use a staggered delay to prevent overwhelming the user
+      achievements.forEach((achievement, index) => {
+        setTimeout(() => {
+          toastHelpers.achievement(
+            achievement.achievement.name,
+            achievement.achievement.icon
+          );
+        }, index * 1500); // 1.5 second delay between each toast
+      });
+    } catch (toastError) {
+      // Fallback: log to console if toast system fails
+      console.error(`Failed to show ${context} achievement toast notifications:`, toastError);
+      console.log(`New ${context} achievements unlocked:`, achievements);
+    }
+  }, []);
 
   // Track session start
   useEffect(() => {
@@ -116,10 +148,7 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
         });
 
         // Show achievement notifications if any were unlocked
-        if (newAchievements.length > 0) {
-          // You could add a toast notification here for new achievements
-          console.log("New achievements unlocked:", newAchievements);
-        }
+        showAchievementNotifications(newAchievements, "study session");
       } catch (error) {
         console.error("Error checking achievements:", error);
       }
@@ -160,10 +189,13 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
 
         // Check for session-based achievements
         try {
-          await checkAchievements({
+          const sessionAchievements = await checkAchievements({
             triggerType: "session_complete",
             triggerData: { deckId, cardsReviewed: studyQueue!.length },
           });
+
+          // Show session achievement notifications if any were unlocked
+          showAchievementNotifications(sessionAchievements, "session completion");
         } catch (error) {
           console.error("Error checking session achievements:", error);
         }
@@ -171,7 +203,7 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
     } catch (error) {
       console.error("Error reviewing card:", error);
     }
-  }, [currentCard, responseStartTime, confidenceRating, reviewCardAdaptive, currentCardIndex, studyQueue, onExit, checkAchievements, deckId, sessionStats, reviewResults]);
+  }, [currentCard, responseStartTime, confidenceRating, reviewCardAdaptive, currentCardIndex, studyQueue, onExit, checkAchievements, deckId, sessionStats, reviewResults, showAchievementNotifications]);
 
   // Keyboard shortcuts
   useEffect(() => {

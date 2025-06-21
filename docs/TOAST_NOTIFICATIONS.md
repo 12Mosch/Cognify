@@ -48,10 +48,42 @@ toastHelpers.cardUpdated(); // Shows: Card updated successfully!
 toastHelpers.studySessionComplete(5); // Shows: Study session complete! Reviewed 5 cards.
 toastHelpers.studySessionComplete(); // Shows: Study session completed!
 
+// Achievement notifications
+toastHelpers.achievement('Week Warrior', '⚔️'); // Shows: Achievement Unlocked: Week Warrior
+toastHelpers.achievement('Getting Started'); // Shows: Achievement Unlocked: Getting Started (with default trophy icon)
+
 // Error handling
 toastHelpers.networkError(); // Shows: Network error. Please check your connection and try again.
 toastHelpers.temporaryError(); // Shows: Something went wrong. Please try again in a moment.
 ```
+
+### Achievement Notifications
+
+Achievement toasts have special styling and behavior to celebrate user accomplishments:
+
+```typescript
+import { toastHelpers } from '../lib/toast';
+
+// Single achievement
+toastHelpers.achievement('Week Warrior', '⚔️');
+
+// Multiple achievements (automatically staggered)
+newAchievements.forEach((achievement, index) => {
+  setTimeout(() => {
+    toastHelpers.achievement(
+      achievement.achievement.name,
+      achievement.achievement.icon
+    );
+  }, index * 1500); // 1.5 second delay between each toast
+});
+```
+
+**Features:**
+- **Golden gradient styling** with special border and shadow effects
+- **Longer duration** (6 seconds) to allow users to appreciate the achievement
+- **Custom icons** from achievement data or default trophy emoji
+- **Staggered display** when multiple achievements are unlocked simultaneously
+- **Error handling** with console fallback if toast system fails
 
 ## Implementation Details
 
@@ -72,6 +104,7 @@ Toasts are configured in `src/App.tsx` with the following settings:
 | Success | 4 seconds | ✅ | Positive feedback (deck created, card added) |
 | Error | 6 seconds | ❌ | Non-critical errors (network issues) |
 | Info | 4 seconds | ℹ️ | General information |
+| Achievement | 6 seconds | 🏆 (or custom) | Gamification achievements with golden styling |
 
 ### Accessibility
 

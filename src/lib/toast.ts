@@ -28,6 +28,10 @@ const TOAST_CONFIG = {
     duration: 4000, // 4 seconds for info messages
     icon: 'ℹ️',
   },
+  achievement: {
+    duration: 6000, // 6 seconds for achievements (longer to celebrate)
+    icon: '🏆',
+  },
 } as const;
 
 /**
@@ -82,6 +86,30 @@ export function showInfoToast(message: string): void {
       background: '#3b82f6', // blue-500
       color: '#ffffff',
       fontWeight: '500',
+    },
+    ariaProps: {
+      role: 'status',
+      'aria-live': 'polite',
+    },
+  });
+}
+
+/**
+ * Show an achievement toast notification
+ * Used for celebrating unlocked achievements with special styling
+ */
+export function showAchievementToast(achievementName: string, achievementIcon?: string): void {
+  const displayIcon = achievementIcon || TOAST_CONFIG.achievement.icon;
+
+  toast.success(`Achievement Unlocked: ${achievementName}`, {
+    duration: TOAST_CONFIG.achievement.duration,
+    icon: displayIcon,
+    style: {
+      background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', // golden gradient
+      color: '#ffffff',
+      fontWeight: '600',
+      border: '2px solid #d97706',
+      boxShadow: '0 10px 25px rgba(251, 191, 36, 0.3)',
     },
     ariaProps: {
       role: 'status',
@@ -151,4 +179,8 @@ export const toastHelpers = {
 
   error: (message: string) =>
     showErrorToast(message),
+
+  // Achievement notification
+  achievement: (achievementName: string, achievementIcon?: string) =>
+    showAchievementToast(achievementName, achievementIcon),
 } as const;
