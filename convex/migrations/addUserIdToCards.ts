@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 import { internalMutation } from "../_generated/server";
-import { Id } from "../_generated/dataModel";
 
 /**
  * Migration to add userId field to existing cards for performance optimization.
@@ -15,7 +14,7 @@ export const addUserIdToExistingCards = internalMutation({
   args: {
     batchSize: v.optional(v.number()), // Process cards in batches to avoid timeouts
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const batchSize = args.batchSize || 100;
     let processedCount = 0;
     let updatedCount = 0;
@@ -24,17 +23,17 @@ export const addUserIdToExistingCards = internalMutation({
 
     // Process cards in batches to avoid timeout issues
     let hasMore = true;
-    let lastId: Id<"cards"> | undefined = undefined;
+    let lastId: any = undefined;
 
     while (hasMore) {
       // Get a batch of cards that don't have userId field
       const query = ctx.db.query("cards");
       const cardsQuery = lastId
-        ? query.filter((q) => q.gt(q.field("_id"), lastId!))
+        ? query.filter((q: any) => q.gt(q.field("_id"), lastId))
         : query;
 
       const cards = await cardsQuery
-        .filter((q) => q.eq(q.field("userId"), undefined))
+        .filter((q: any) => q.eq(q.field("userId"), undefined))
         .take(batchSize);
 
       if (cards.length === 0) {
@@ -90,11 +89,11 @@ export const addUserIdToExistingCards = internalMutation({
  */
 export const verifyUserIdMigration = internalMutation({
   args: {},
-  handler: async (ctx, _args) => {
+  handler: async (ctx: any, _args: any) => {
     // Count cards without userId
     const cardsWithoutUserId = await ctx.db
       .query("cards")
-      .filter((q) => q.eq(q.field("userId"), undefined))
+      .filter((q: any) => q.eq(q.field("userId"), undefined))
       .collect();
 
     // Count total cards
