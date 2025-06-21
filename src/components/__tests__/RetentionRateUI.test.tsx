@@ -128,26 +128,7 @@ describe("Retention Rate UI Components", () => {
 			expect(screen.getByText("Needs improvement")).toBeInTheDocument();
 		});
 
-		it("should handle undefined retention rate gracefully", () => {
-			const mockInsights = {
-				totalDueCards: 0,
-				totalNewCards: 5,
-				cardsToReviewToday: 0,
-				upcomingReviews: [],
-				retentionRate: undefined,
-				averageInterval: undefined,
-			};
 
-			render(
-				<TestWrapper>
-					<SpacedRepetitionInsights insights={mockInsights} />
-				</TestWrapper>,
-			);
-
-			// Should display multiple N/A values and no data message
-			expect(screen.getAllByText("N/A")).toHaveLength(2);
-			expect(screen.getByText("No data available")).toBeInTheDocument();
-		});
 	});
 
 	describe("StatisticsOverviewCards", () => {

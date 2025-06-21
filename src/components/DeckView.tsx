@@ -72,7 +72,7 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
 		}
 	}, [cards, errorTracked.cards, trackConvexQuery, user?.id, deckId]);
 
-	// Reset error tracking when deckId changes
+	// Reset error tracking on component mount
 	useEffect(() => {
 		setErrorTracked({});
 	}, []);
