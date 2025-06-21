@@ -1,8 +1,32 @@
 import { TFunction } from 'i18next';
 
 /**
+ * Time slot definitions for scheduling and performance analysis
+ */
+export type TimeSlot = 'early_morning' | 'morning' | 'afternoon' | 'evening' | 'night' | 'late_night';
+
+/**
+ * Get time slot from hour of day (0-23)
+ *
+ * @param hour - Hour of day (0-23)
+ * @returns TimeSlot identifier
+ *
+ * @example
+ * getTimeSlot(7) // returns 'early_morning'
+ * getTimeSlot(14) // returns 'afternoon'
+ * getTimeSlot(22) // returns 'night'
+ */
+export function getTimeSlot(hour: number): TimeSlot {
+  if (hour >= 5 && hour < 9) return 'early_morning';
+  if (hour >= 9 && hour < 13) return 'morning';
+  if (hour >= 13 && hour < 17) return 'afternoon';
+  if (hour >= 17 && hour < 21) return 'evening';
+  if (hour >= 21 && hour < 24) return 'night';
+  return 'late_night';
+}
+
+/**
  * Formats a time slot identifier into a human-readable string
- * 
  * @param slot - The time slot identifier (e.g., 'early_morning', 'afternoon')
  * @param t - The translation function from react-i18next
  * @param context - Optional context for different translation namespaces ('scheduling' or 'analytics')

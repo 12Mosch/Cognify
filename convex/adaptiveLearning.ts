@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { api } from "./_generated/api";
+import { TimeSlot, getTimeSlot } from "../src/utils/scheduling";
 
 /**
  * Adaptive Learning Algorithm for Personalized Spaced Repetition
@@ -23,11 +24,6 @@ const PERFORMANCE_HISTORY_LIMIT = 100; // Recent reviews to consider
 const MIN_REVIEWS_FOR_ADAPTATION = 20; // Minimum reviews before personalizing
 
 /**
- * Time slots for performance analysis
- */
-type TimeSlot = 'early_morning' | 'morning' | 'afternoon' | 'evening' | 'night' | 'late_night';
-
-/**
  * Learning pattern data structure
  */
 interface LearningPattern {
@@ -47,18 +43,6 @@ interface LearningPattern {
   personalEaseFactorBias: number; // Adjustment to base ease factor
   retentionCurve: Array<{ interval: number; retentionRate: number }>;
   lastUpdated: number;
-}
-
-/**
- * Get time slot from hour of day
- */
-function getTimeSlot(hour: number): TimeSlot {
-  if (hour >= 5 && hour < 9) return 'early_morning';
-  if (hour >= 9 && hour < 13) return 'morning';
-  if (hour >= 13 && hour < 17) return 'afternoon';
-  if (hour >= 17 && hour < 21) return 'evening';
-  if (hour >= 21 && hour < 24) return 'night';
-  return 'late_night';
 }
 
 /**

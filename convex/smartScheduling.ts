@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { TimeSlot, getTimeSlot } from "../src/utils/scheduling";
 
 /**
  * Smart Study Scheduling System
@@ -12,9 +13,6 @@ import { query, mutation } from "./_generated/server";
  * - Available time slots
  * - Learning velocity and capacity
  */
-
-// Time slot definitions for scheduling
-type TimeSlot = 'early_morning' | 'morning' | 'afternoon' | 'evening' | 'night' | 'late_night';
 
 // Time slot to hour mappings for consistent scheduling
 const TIME_SLOT_HOURS: Record<TimeSlot, number> = {
@@ -44,17 +42,7 @@ interface StudySchedule {
   optimalTimeSlot: TimeSlot;
 }
 
-/**
- * Get time slot from hour (0-23)
- */
-function getTimeSlot(hour: number): TimeSlot {
-  if (hour >= 5 && hour < 9) return 'early_morning';
-  if (hour >= 9 && hour < 13) return 'morning';
-  if (hour >= 13 && hour < 17) return 'afternoon';
-  if (hour >= 17 && hour < 21) return 'evening';
-  if (hour >= 21 && hour < 24) return 'night';
-  return 'late_night';
-}
+
 
 /**
  * Get human-readable time slot name
