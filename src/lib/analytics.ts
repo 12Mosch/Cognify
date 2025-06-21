@@ -73,6 +73,106 @@ export function getEnvironmentMode(): string {
   return 'production';
 }
 
+/**
+ * PostHog configuration validation result
+ */
+export interface PostHogConfigValidation {
+  isValid: boolean;
+  missingKey: boolean;
+  missingHost: boolean;
+  warnings: string[];
+}
+
+/**
+ * Validates PostHog configuration and returns detailed validation results
+ */
+export function validatePostHogConfig(): PostHogConfigValidation {
+  // Safely get environment variables using the same pattern as getEnvironmentMode
+  let posthogKey: string | undefined;
+  let posthogHost: string | undefined;
+
+  // Check for test environment first
+  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+    // In test environment, check global mock first, then process.env
+    if (typeof global !== 'undefined' && (global as any).import?.meta?.env) {
+      posthogKey = (global as any).import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
+      posthogHost = (global as any).import.meta.env.VITE_PUBLIC_POSTHOG_HOST;
+    } else {
+      posthogKey = process.env.VITE_PUBLIC_POSTHOG_KEY;
+      posthogHost = process.env.VITE_PUBLIC_POSTHOG_HOST;
+    }
+  } else {
+    // Try to access Vite's import.meta.env using eval to avoid Jest parsing issues
+    try {
+      const importMeta = eval('import.meta');
+      posthogKey = importMeta?.env?.VITE_PUBLIC_POSTHOG_KEY;
+      posthogHost = importMeta?.env?.VITE_PUBLIC_POSTHOG_HOST;
+    } catch {
+      // Fallback to process.env if available
+      posthogKey = typeof process !== 'undefined' ? process.env.VITE_PUBLIC_POSTHOG_KEY : undefined;
+      posthogHost = typeof process !== 'undefined' ? process.env.VITE_PUBLIC_POSTHOG_HOST : undefined;
+    }
+  }
+
+  const missingKey = !posthogKey || posthogKey.trim() === '' || posthogKey === 'your_posthog_project_api_key_here';
+  const missingHost = !posthogHost || posthogHost.trim() === '';
+
+  const warnings: string[] = [];
+
+  if (missingKey && missingHost) {
+    warnings.push('PostHog analytics is not configured. Both VITE_PUBLIC_POSTHOG_KEY and VITE_PUBLIC_POSTHOG_HOST are missing.');
+  } else if (missingKey) {
+    warnings.push('PostHog analytics is not configured. VITE_PUBLIC_POSTHOG_KEY is missing or invalid.');
+  } else if (missingHost) {
+    warnings.push('PostHog analytics is not configured. VITE_PUBLIC_POSTHOG_HOST is missing.');
+  }
+
+  if (warnings.length > 0) {
+    warnings.push('Analytics tracking will be disabled. Add the missing environment variables to enable analytics.');
+    warnings.push('See .env.example for configuration details.');
+  }
+
+  return {
+    isValid: !missingKey && !missingHost,
+    missingKey,
+    missingHost,
+    warnings
+  };
+}
+
+/**
+ * Displays PostHog configuration warnings to developers
+ * Only shows warnings in development mode to avoid cluttering production logs
+ */
+export function displayPostHogConfigWarnings(): void {
+  const validation = validatePostHogConfig();
+
+  if (!validation.isValid) {
+    const isDevelopment = getEnvironmentMode() === 'development';
+
+    if (isDevelopment) {
+      // Show detailed warnings in development
+      console.group('⚠️ PostHog Configuration Warning');
+      validation.warnings.forEach(warning => {
+        console.warn(warning);
+      });
+
+      if (validation.missingKey) {
+        console.warn('Missing: VITE_PUBLIC_POSTHOG_KEY=your_posthog_project_api_key_here');
+      }
+      if (validation.missingHost) {
+        console.warn('Missing: VITE_PUBLIC_POSTHOG_HOST=https://app.posthog.com');
+      }
+
+      console.warn('Add these to your .env.local file to enable analytics tracking.');
+      console.groupEnd();
+    } else {
+      // Show minimal warning in production/staging
+      console.warn('PostHog analytics not configured - tracking disabled');
+    }
+  }
+}
+
 // Privacy and consent types
 export type ConsentStatus = 'granted' | 'denied' | 'pending';
 
@@ -1684,9 +1784,12 @@ export function identifyUserWithCohorts(
  */
 export function useAnalytics() {
   const posthog = usePostHog();
+  const configValidation = validatePostHogConfig();
 
   return {
     posthog,
+    isConfigured: configValidation.isValid,
+    configValidation,
     trackUserSignUp: () => trackUserSignUp(posthog),
     trackDeckCreated: (deckId?: string, deckName?: string) =>
       trackDeckCreated(posthog, deckId, deckName),
@@ -1767,6 +1870,7 @@ export function useAnalytics() {
  */
 export function useAnalyticsEnhanced() {
   const posthog = usePostHog();
+  const configValidation = validatePostHogConfig();
   const queueRef = useRef<AnalyticsQueue | null>(null);
 
   useEffect(() => {
@@ -1813,6 +1917,8 @@ export function useAnalyticsEnhanced() {
 
   return {
     posthog,
+    isConfigured: configValidation.isValid,
+    configValidation,
     trackEventBatched,
     trackFeatureFlag,
     identifyUser,

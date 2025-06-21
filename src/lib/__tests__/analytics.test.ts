@@ -27,6 +27,8 @@ const {
   getUserStudyPersona,
   anonymizeUserData,
   anonymizeUserDataSync,
+  validatePostHogConfig,
+  displayPostHogConfigWarnings,
 } = analytics;
 
 // Mock PostHog React hook
@@ -666,6 +668,189 @@ describe("Analytics Utilities", () => {
         const result = anonymizeUserDataSync(testData);
 
         expect(result).toEqual(testData); // Data should be unchanged
+      });
+    });
+  });
+
+  describe("PostHog Configuration Validation", () => {
+    const originalImportMeta = (global as any).import;
+
+    beforeEach(() => {
+      // Mock import.meta.env
+      (global as any).import = {
+        meta: {
+          env: {}
+        }
+      };
+
+      // Clear console methods
+      jest.clearAllMocks();
+      console.warn = jest.fn();
+      console.group = jest.fn();
+      console.groupEnd = jest.fn();
+    });
+
+    afterEach(() => {
+      (global as any).import = originalImportMeta;
+    });
+
+    describe("validatePostHogConfig", () => {
+      it("should return valid when both key and host are provided", () => {
+        (global as any).import = {
+          meta: {
+            env: {
+              VITE_PUBLIC_POSTHOG_KEY: 'test-key',
+              VITE_PUBLIC_POSTHOG_HOST: 'https://app.posthog.com'
+            }
+          }
+        };
+        process.env = { ...process.env, NODE_ENV: 'test' };
+
+        const result = validatePostHogConfig();
+
+        expect(result.isValid).toBe(true);
+        expect(result.missingKey).toBe(false);
+        expect(result.missingHost).toBe(false);
+        expect(result.warnings).toHaveLength(0);
+      });
+
+      it("should return invalid when key is missing", () => {
+        (global as any).import = {
+          meta: {
+            env: {
+              VITE_PUBLIC_POSTHOG_HOST: 'https://app.posthog.com'
+            }
+          }
+        };
+        process.env = { ...process.env, NODE_ENV: 'test' };
+
+        const result = validatePostHogConfig();
+
+        expect(result.isValid).toBe(false);
+        expect(result.missingKey).toBe(true);
+        expect(result.missingHost).toBe(false);
+        expect(result.warnings).toContain('PostHog analytics is not configured. VITE_PUBLIC_POSTHOG_KEY is missing or invalid.');
+      });
+
+      it("should return invalid when host is missing", () => {
+        (global as any).import = {
+          meta: {
+            env: {
+              VITE_PUBLIC_POSTHOG_KEY: 'test-key'
+            }
+          }
+        };
+        process.env = { ...process.env, NODE_ENV: 'test' };
+
+        const result = validatePostHogConfig();
+
+        expect(result.isValid).toBe(false);
+        expect(result.missingKey).toBe(false);
+        expect(result.missingHost).toBe(true);
+        expect(result.warnings).toContain('PostHog analytics is not configured. VITE_PUBLIC_POSTHOG_HOST is missing.');
+      });
+
+      it("should return invalid when both key and host are missing", () => {
+        (global as any).import = {
+          meta: {
+            env: {}
+          }
+        };
+        process.env = { ...process.env, NODE_ENV: 'test' };
+
+        const result = validatePostHogConfig();
+
+        expect(result.isValid).toBe(false);
+        expect(result.missingKey).toBe(true);
+        expect(result.missingHost).toBe(true);
+        expect(result.warnings).toContain('PostHog analytics is not configured. Both VITE_PUBLIC_POSTHOG_KEY and VITE_PUBLIC_POSTHOG_HOST are missing.');
+      });
+
+      it("should treat placeholder key as missing", () => {
+        (global as any).import = {
+          meta: {
+            env: {
+              VITE_PUBLIC_POSTHOG_KEY: 'your_posthog_project_api_key_here',
+              VITE_PUBLIC_POSTHOG_HOST: 'https://app.posthog.com'
+            }
+          }
+        };
+        process.env = { ...process.env, NODE_ENV: 'test' };
+
+        const result = validatePostHogConfig();
+
+        expect(result.isValid).toBe(false);
+        expect(result.missingKey).toBe(true);
+        expect(result.missingHost).toBe(false);
+      });
+
+      it("should treat empty strings as missing", () => {
+        (global as any).import = {
+          meta: {
+            env: {
+              VITE_PUBLIC_POSTHOG_KEY: '',
+              VITE_PUBLIC_POSTHOG_HOST: '   '
+            }
+          }
+        };
+        process.env = { ...process.env, NODE_ENV: 'test' };
+
+        const result = validatePostHogConfig();
+
+        expect(result.isValid).toBe(false);
+        expect(result.missingKey).toBe(true);
+        expect(result.missingHost).toBe(true);
+      });
+    });
+
+    describe("displayPostHogConfigWarnings", () => {
+      it("should display detailed warnings in development mode", () => {
+        (global as any).import = {
+          meta: {
+            env: {}
+          }
+        };
+        process.env = { ...process.env, NODE_ENV: 'development' };
+
+        displayPostHogConfigWarnings();
+
+        expect(console.group).toHaveBeenCalledWith('⚠️ PostHog Configuration Warning');
+        expect(console.warn).toHaveBeenCalledWith('PostHog analytics is not configured. Both VITE_PUBLIC_POSTHOG_KEY and VITE_PUBLIC_POSTHOG_HOST are missing.');
+        expect(console.warn).toHaveBeenCalledWith('Missing: VITE_PUBLIC_POSTHOG_KEY=your_posthog_project_api_key_here');
+        expect(console.warn).toHaveBeenCalledWith('Missing: VITE_PUBLIC_POSTHOG_HOST=https://app.posthog.com');
+        expect(console.groupEnd).toHaveBeenCalled();
+      });
+
+      it("should display minimal warning in production mode", () => {
+        (global as any).import = {
+          meta: {
+            env: {}
+          }
+        };
+        process.env = { ...process.env, NODE_ENV: 'production' };
+
+        displayPostHogConfigWarnings();
+
+        expect(console.warn).toHaveBeenCalledWith('PostHog analytics not configured - tracking disabled');
+        expect(console.group).not.toHaveBeenCalled();
+      });
+
+      it("should not display warnings when configuration is valid", () => {
+        (global as any).import = {
+          meta: {
+            env: {
+              VITE_PUBLIC_POSTHOG_KEY: 'test-key',
+              VITE_PUBLIC_POSTHOG_HOST: 'https://app.posthog.com'
+            }
+          }
+        };
+        // Ensure we're in test environment
+        process.env = { ...process.env, NODE_ENV: 'test' };
+
+        displayPostHogConfigWarnings();
+
+        expect(console.warn).not.toHaveBeenCalled();
+        expect(console.group).not.toHaveBeenCalled();
       });
     });
   });

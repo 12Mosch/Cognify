@@ -7,9 +7,13 @@ import { PostHogProvider } from "posthog-js/react";
 import "./index.css";
 import App from "./App.tsx";
 import { ErrorBoundary } from "./ErrorBoundary.tsx";
+import { displayPostHogConfigWarnings } from "./lib/analytics.ts";
 import "./i18n";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
+
+// Display PostHog configuration warnings during app initialization
+displayPostHogConfigWarnings();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
