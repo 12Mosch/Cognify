@@ -5,17 +5,17 @@
  * study interface, including swipe detection, haptic feedback, and visual feedback.
  */
 
-import { useSwipeable, SwipeableHandlers, SwipeEventData } from 'react-swipeable';
+import { SwipeableHandlers, SwipeEventData, useSwipeable } from 'react-swipeable'
 
 export interface GestureConfig {
-  onSwipeLeft?: () => void;
-  onSwipeRight?: () => void;
-  onSwipeUp?: () => void;
-  onSwipeDown?: () => void;
-  threshold?: number;
-  trackMouse?: boolean;
-  trackTouch?: boolean;
-  disabled?: boolean;
+  onSwipeLeft?: () => void
+  onSwipeRight?: () => void
+  onSwipeUp?: () => void
+  onSwipeDown?: () => void
+  threshold?: number
+  trackMouse?: boolean
+  trackTouch?: boolean
+  disabled?: boolean
 }
 
 export type GestureHandlers = SwipeableHandlers;
@@ -38,7 +38,7 @@ export function useGestures(config: GestureConfig): GestureHandlers {
     disabled = false,
   } = config;
 
-  const handlers = useSwipeable({
+  return useSwipeable({
     onSwipedLeft: (_eventData: SwipeEventData) => {
       if (disabled) return;
 
@@ -87,8 +87,6 @@ export function useGestures(config: GestureConfig): GestureHandlers {
     trackMouse,
     trackTouch,
   });
-
-  return handlers;
 }
 
 /**

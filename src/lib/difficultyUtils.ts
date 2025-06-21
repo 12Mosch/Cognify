@@ -230,7 +230,7 @@ export function isCardDifficult(
     return false;
   }
 
-  // Cards with low ease factor after multiple attempts are difficult
+  // Cards with low ease factor after multiple attempts are challenging
   const currentEaseFactor = easeFactor ?? 2.5;
   
   // If ease factor is significantly below default after several repetitions
@@ -239,9 +239,5 @@ export function isCardDifficult(
   }
 
   // If ease factor is very low
-  if (currentEaseFactor < 1.6) {
-    return true;
-  }
-
-  return false;
+  return currentEaseFactor < 1.6;
 }

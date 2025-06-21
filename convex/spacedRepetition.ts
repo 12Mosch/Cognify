@@ -1,5 +1,5 @@
-import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { v } from 'convex/values'
+import { mutation, query } from './_generated/server'
 
 /**
  * SM-2 Algorithm Implementation for Spaced Repetition
@@ -43,9 +43,9 @@ function calculateSM2(
   interval: number;
   dueDate: number;
 } {
-  let newRepetition = repetition;
+  let newRepetition: number;
   let newEaseFactor = easeFactor;
-  let newInterval = interval;
+  let newInterval: number;
 
   // If quality < 3, reset the card (failed review)
   if (quality < 3) {
@@ -217,14 +217,10 @@ export const getDueCardsForDeck = query({
     const now = Date.now();
 
     // Get cards that are due for review (dueDate <= now)
-    const dueCards = await ctx.db
-      .query("cards")
-      .withIndex("by_deckId_and_dueDate", (q) => 
-        q.eq("deckId", args.deckId).lte("dueDate", now)
-      )
-      .collect();
-
-    return dueCards;
+    return await ctx.db
+      .query('cards')
+      .withIndex('by_deckId_and_dueDate', (q) => q.eq('deckId', args.deckId).lte('dueDate', now))
+      .collect()
   },
 });
 
@@ -359,14 +355,10 @@ export const getNewCardsForDeck = query({
     // Get cards that have never been reviewed (repetition = 0) using efficient database index
     // This query uses the compound index to find new cards directly in the database
     // Note: Cards should be initialized with repetition = 0 when created for this to work efficiently
-    const newCards = await ctx.db
-      .query("cards")
-      .withIndex("by_deckId_and_repetition", (q) =>
-        q.eq("deckId", args.deckId).eq("repetition", 0)
-      )
-      .take(limit);
-
-    return newCards;
+    return await ctx.db
+      .query('cards')
+      .withIndex('by_deckId_and_repetition', (q) => q.eq('deckId', args.deckId).eq('repetition', 0))
+      .take(limit)
   },
 });
 

@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useQuery } from 'convex/react';
 import StreakDisplay from '../StreakDisplay';
-import { useAnalytics } from '../../lib/analytics';
+import { useAnalytics } from '@/lib/analytics.ts';
 
 // Mock dependencies
 jest.mock('convex/react');

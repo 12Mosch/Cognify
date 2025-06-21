@@ -112,9 +112,9 @@ function calculateAdaptiveSM2(
   dueDate: number;
   confidence: number;
 } {
-  let newRepetition = repetition;
+  let newRepetition: number;
   let newEaseFactor = easeFactor;
-  let newInterval = interval;
+  let newInterval: number;
   let confidence = 0.5; // Default confidence
 
   // Standard SM-2 logic

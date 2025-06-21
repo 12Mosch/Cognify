@@ -100,7 +100,7 @@ export declare const httpAction: HttpActionBuilder;
  * The query context is passed as the first argument to any Convex query
  * function run on the server.
  *
- * This differs from the {@link MutationCtx} because all of the services are
+ * This differs from the {@link MutationCtx} because all the services are
  * read-only.
  */
 export type QueryCtx = GenericQueryCtx<DataModel>;

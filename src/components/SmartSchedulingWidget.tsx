@@ -216,7 +216,7 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
             weeklySchedule.slice(0, 7).map((day, index) => (
               <WeeklyScheduleDay key={day.date} day={day} isToday={index === 0} />
             ))
-          ) : weeklySchedule === null ? (
+          ) : false ? (
             /* Weekly schedule error state */
             <div className="text-center py-8 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
               <div className="text-2xl mb-2">⚠️</div>

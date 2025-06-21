@@ -1,5 +1,5 @@
-import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { v } from 'convex/values'
+import { mutation, query } from './_generated/server'
 
 /**
  * Get all cards for a specific deck.
@@ -44,13 +44,11 @@ export const getCardsForDeck = query({
     }
 
     // Query all cards for this deck using the index
-    const cards = await ctx.db
-      .query("cards")
-      .withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
-      .order("desc") // Most recently created first
-      .collect();
-
-    return cards;
+    return await ctx.db
+      .query('cards')
+      .withIndex('by_deckId', (q) => q.eq('deckId', args.deckId))
+      .order('desc') // Most recently created first
+      .collect()
   },
 });
 

@@ -26,7 +26,7 @@ import {
   formatTooltipContent,
   getDayLabels,
   calculateHeatmapStats,
-} from '../../lib/heatmapUtils';
+} from '@/lib/heatmapUtils.ts';
 
 const mockGenerateHeatmapGrid = generateHeatmapGrid as jest.Mock;
 const mockGetActivityLevelClasses = getActivityLevelClasses as jest.Mock;

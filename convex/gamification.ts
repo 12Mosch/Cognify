@@ -449,7 +449,7 @@ async function calculateUserStats(ctx: any, userId: string) {
  * Calculate progress toward a specific achievement
  */
 function calculateAchievementProgress(achievement: Achievement, userStats: any) {
-  let currentValue = 0;
+  let currentValue: number;
   const targetValue = achievement.criteria.value;
 
   switch (achievement.criteria.type) {

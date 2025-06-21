@@ -5,7 +5,7 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import KeyboardShortcutsModal from '../KeyboardShortcutsModal';
-import { getKeyboardShortcuts } from '../../types/keyboard';
+import { getKeyboardShortcuts } from '@/types/keyboard.ts';
 
 const mockOnClose = jest.fn();
 
