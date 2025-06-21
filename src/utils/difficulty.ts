@@ -16,6 +16,9 @@ export type DifficultyLevel = 'hard' | 'medium' | 'easy';
  * calculateDifficulty(0.9) // returns 'easy'
  */
 export const calculateDifficulty = (averageSuccess: number): DifficultyLevel => {
+  if (averageSuccess < 0 || averageSuccess > 1) {
+    throw new Error('averageSuccess must be between 0 and 1');
+  }
   if (averageSuccess < 0.6) return 'hard';
   if (averageSuccess > 0.8) return 'easy';
   return 'medium';
