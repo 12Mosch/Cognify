@@ -9,9 +9,9 @@
  */
 
 import type {
-	ApiFromModules,
-	FilterApi,
-	FunctionReference,
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
 } from "convex/server";
 import type * as adaptiveLearning from "../adaptiveLearning.js";
 import type * as cacheCleanup from "../cacheCleanup.js";
@@ -39,28 +39,28 @@ import type * as utils_cache from "../utils/cache.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
-	adaptiveLearning: typeof adaptiveLearning;
-	cacheCleanup: typeof cacheCleanup;
-	cards: typeof cards;
-	contextualLearning: typeof contextualLearning;
-	decks: typeof decks;
-	gamification: typeof gamification;
-	metacognition: typeof metacognition;
-	"migrations/addCardCountToDecks": typeof migrations_addCardCountToDecks;
-	"migrations/addUserIdToCards": typeof migrations_addUserIdToCards;
-	"migrations/migrateStudySessionsDateField": typeof migrations_migrateStudySessionsDateField;
-	smartScheduling: typeof smartScheduling;
-	spacedRepetition: typeof spacedRepetition;
-	statistics: typeof statistics;
-	streaks: typeof streaks;
-	studySessions: typeof studySessions;
-	"utils/cache": typeof utils_cache;
+  adaptiveLearning: typeof adaptiveLearning;
+  cacheCleanup: typeof cacheCleanup;
+  cards: typeof cards;
+  contextualLearning: typeof contextualLearning;
+  decks: typeof decks;
+  gamification: typeof gamification;
+  metacognition: typeof metacognition;
+  "migrations/addCardCountToDecks": typeof migrations_addCardCountToDecks;
+  "migrations/addUserIdToCards": typeof migrations_addUserIdToCards;
+  "migrations/migrateStudySessionsDateField": typeof migrations_migrateStudySessionsDateField;
+  smartScheduling: typeof smartScheduling;
+  spacedRepetition: typeof spacedRepetition;
+  statistics: typeof statistics;
+  streaks: typeof streaks;
+  studySessions: typeof studySessions;
+  "utils/cache": typeof utils_cache;
 }>;
 export declare const api: FilterApi<
-	typeof fullApi,
-	FunctionReference<any, "public">
+  typeof fullApi,
+  FunctionReference<any, "public">
 >;
 export declare const internal: FilterApi<
-	typeof fullApi,
-	FunctionReference<any, "internal">
+  typeof fullApi,
+  FunctionReference<any, "internal">
 >;
