@@ -245,38 +245,40 @@ export const getConceptClusters = query({
     }
 
     // Calculate mastery levels for clusters
-    return clusters.map(cluster => {
-      const cardMasteries = cluster.cardIds.map(cardId => {
-        const cardReviews = reviewsByCard.get(cardId) || [];
-        if (cardReviews.length === 0) return 0;
-        
-        const successRate = cardReviews.filter((r: any) => r.wasSuccessful).length / cardReviews.length;
-        const repetitions = Math.max(...cardReviews.map((r: any) => r.repetitionAfter));
-        return Math.min(1, (successRate * 0.7) + (Math.min(repetitions, 5) / 5 * 0.3));
-      });
+    return clusters
+      .map(cluster => {
+        const cardMasteries = cluster.cardIds.map(cardId => {
+          const cardReviews = reviewsByCard.get(cardId) || [];
+          if (cardReviews.length === 0) return 0;
 
-      const averageMastery = cardMasteries.reduce((sum, m) => sum + m, 0) / cardMasteries.length;
-      const centerCard = cards.find(c => c._id === cluster.centerCard);
-      if (!centerCard) {
-        console.error('Center card §{cluster.centerCard} not found in cards array');
-        continue; // Skip this cluster
-      }
+          const successRate = cardReviews.filter((r: any) => r.wasSuccessful).length / cardReviews.length;
+          const repetitions = Math.max(...cardReviews.map((r: any) => r.repetitionAfter));
+          return Math.min(1, (successRate * 0.7) + (Math.min(repetitions, 5) / 5 * 0.3));
+        });
 
-      return {
-        id: cluster.id,
-        name: cluster.name,
-        description: cluster.description,
-        cardCount: cluster.cardIds.length,
-        averageDifficulty: cluster.difficulty,
-        masteryLevel: averageMastery,
-        centerCard: {
-          _id: centerCard._id,
-          front: centerCard.front,
-          back: centerCard.back,
-        },
-        relatedClusters: [], // Simplified for now
-      };
-    });
+        const averageMastery = cardMasteries.reduce((sum, m) => sum + m, 0) / cardMasteries.length;
+        const centerCard = cards.find(c => c._id === cluster.centerCard);
+        if (!centerCard) {
+          console.error(`Center card ${cluster.centerCard} not found in cards array`);
+          return null; // Return null for invalid clusters
+        }
+
+        return {
+          id: cluster.id,
+          name: cluster.name,
+          description: cluster.description,
+          cardCount: cluster.cardIds.length,
+          averageDifficulty: cluster.difficulty,
+          masteryLevel: averageMastery,
+          centerCard: {
+            _id: centerCard._id,
+            front: centerCard.front,
+            back: centerCard.back,
+          },
+          relatedClusters: [], // Simplified for now
+        };
+      })
+      .filter((cluster): cluster is NonNullable<typeof cluster> => cluster !== null);
   },
 });
 
