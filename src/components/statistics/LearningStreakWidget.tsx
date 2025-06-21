@@ -60,20 +60,20 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
   const progressPercentage = currentStreak > 0 ? (currentStreak / nextMilestone) * 100 : 0;
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
+    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg dark:hover:shadow-slate-900/20 transition-all duration-300 group">
       {/* Widget Header */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
+        <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 group-hover:text-slate-700 dark:group-hover:text-slate-100 transition-colors">
           {t('statistics.widgets.learningStreak.title')}
         </h3>
-        <span className="text-2xl" role="img" aria-label="Streak">
+        <span className="text-2xl hover:scale-110 transition-transform duration-200" role="img" aria-label="Streak">
           {getStreakIcon(currentStreak)}
         </span>
       </div>
 
       {/* Circular Progress */}
       <div className="flex justify-center mb-6">
-        <div className="relative">
+        <div className="relative hover:scale-105 transition-transform duration-200 cursor-pointer">
           {/* Background Circle */}
           <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
             <circle
@@ -99,14 +99,14 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
               strokeLinecap="round"
             />
           </svg>
-          
+
           {/* Center Content */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <div className={`text-2xl font-bold ${getStreakColor(currentStreak)}`}>
+              <div className={`text-2xl font-bold ${getStreakColor(currentStreak)} hover:scale-110 transition-transform duration-200`}>
                 {currentStreak}
               </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">
+              <div className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-400 dark:hover:text-slate-300 transition-colors">
                 {currentStreak === 1 ? t('statistics.cards.day') : t('statistics.cards.days')}
               </div>
             </div>
@@ -128,17 +128,17 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
 
       {/* Streak Stats */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="text-center p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-          <div className={`text-xl font-bold ${getStreakColor(currentStreak)}`}>
+        <div className="text-center p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md hover:scale-105 transition-all duration-200 cursor-pointer">
+          <div className={`text-xl font-bold ${getStreakColor(currentStreak)} hover:scale-110 transition-transform duration-200`}>
             {currentStreak}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400">{t('statistics.widgets.learningStreak.current')}</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{t('statistics.widgets.learningStreak.current')}</div>
         </div>
-        <div className="text-center p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-          <div className="text-xl font-bold text-purple-500 dark:text-purple-400">
+        <div className="text-center p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md hover:scale-105 transition-all duration-200 cursor-pointer">
+          <div className="text-xl font-bold text-purple-500 dark:text-purple-400 hover:scale-110 transition-transform duration-200">
             {longestStreak}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400">{t('statistics.widgets.learningStreak.best')}</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{t('statistics.widgets.learningStreak.best')}</div>
         </div>
       </div>
 
@@ -165,17 +165,17 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
 
       {/* Achievement Badge */}
       {currentStreak >= 7 && (
-        <div className="mt-6 p-3 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+        <div className="mt-6 p-3 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800 hover:from-purple-200 hover:to-pink-200 dark:hover:from-purple-900/30 dark:hover:to-pink-900/30 hover:border-purple-300 dark:hover:border-purple-700 hover:scale-105 transition-all duration-200 cursor-pointer">
           <div className="flex items-center gap-2">
-            <span className="text-lg">🏆</span>
+            <span className="text-lg hover:scale-110 transition-transform duration-200">🏆</span>
             <div>
-              <div className="text-sm font-semibold text-purple-700 dark:text-purple-300">
+              <div className="text-sm font-semibold text-purple-700 dark:text-purple-300 hover:text-purple-600 dark:hover:text-purple-200 transition-colors">
                 {currentStreak >= 365 ? t('statistics.widgets.learningStreak.achievements.yearLongLearner') :
                  currentStreak >= 100 ? t('statistics.widgets.learningStreak.achievements.centuryClub') :
                  currentStreak >= 30 ? t('statistics.widgets.learningStreak.achievements.monthlyMaster') :
                  t('statistics.widgets.learningStreak.achievements.weeklyWarrior')}
               </div>
-              <div className="text-xs text-purple-600 dark:text-purple-400">
+              <div className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors">
                 {t('statistics.widgets.learningStreak.achievements.keepUpConsistency')}
               </div>
             </div>

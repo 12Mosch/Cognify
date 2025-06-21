@@ -112,18 +112,18 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
   ];
 
   return (
-    <div className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 ${className}`}>
+    <div className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg dark:hover:shadow-slate-900/20 transition-all duration-300 group ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
             <span className="text-white text-lg">🗺️</span>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">
               {t('knowledge.title', 'Knowledge Map')}
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-500 dark:group-hover:text-slate-300 transition-colors">
               {t('knowledge.subtitle', 'Explore connections in your learning')}
             </p>
           </div>
@@ -136,13 +136,13 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-105 ${
               activeTab === tab.id
-                ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-slate-100 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-slate-100 shadow-sm hover:shadow-md'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-600'
             }`}
           >
-            <span>{tab.icon}</span>
+            <span className="hover:scale-110 transition-transform duration-200">{tab.icon}</span>
             <span className="hidden sm:inline">{tab.label}</span>
           </button>
         ))}
@@ -193,27 +193,27 @@ const ConceptClustersView = memo(function ConceptClustersView({
       {clusters.map((cluster) => (
         <div
           key={cluster.id}
-          className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${
+          className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md ${
             selectedCluster === cluster.id
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-              : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-slate-50 dark:bg-slate-700'
+              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-600'
+              : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600'
           }`}
           onClick={() => onSelectCluster(selectedCluster === cluster.id ? null : cluster.id)}
         >
           <div className="flex items-start justify-between mb-3">
             <div>
-              <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
+              <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-1 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
                 {cluster.name}
               </h4>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
                 {cluster.description}
               </p>
             </div>
             <div className="text-right">
-              <div className="text-sm font-medium text-slate-900 dark:text-slate-100">
+              <div className="text-sm font-medium text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
                 {cluster.cardCount} {t('knowledge.clusters.cards', 'cards')}
               </div>
-              <div className="text-xs text-slate-600 dark:text-slate-400">
+              <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
                 {Math.round(cluster.masteryLevel * 100)}% {t('knowledge.clusters.mastered', 'mastered')}
               </div>
             </div>
@@ -221,14 +221,14 @@ const ConceptClustersView = memo(function ConceptClustersView({
 
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
-              <span className="text-slate-600 dark:text-slate-400">📊</span>
-              <span className="text-slate-700 dark:text-slate-300">
+              <span className="text-slate-600 dark:text-slate-400 hover:scale-110 transition-transform duration-200">📊</span>
+              <span className="text-slate-700 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                 {t('knowledge.clusters.difficulty', 'Difficulty')}: {Math.round(cluster.averageDifficulty * 100)}%
               </span>
             </div>
-            <div className="flex-1 bg-slate-200 dark:bg-slate-600 rounded-full h-2">
+            <div className="flex-1 bg-slate-200 dark:bg-slate-600 rounded-full h-2 hover:h-2.5 transition-all duration-200">
               <div
-                className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-green-500 to-blue-500 h-full rounded-full transition-all duration-500"
                 style={{ width: `${cluster.masteryLevel * 100}%` }}
               />
             </div>
@@ -237,14 +237,14 @@ const ConceptClustersView = memo(function ConceptClustersView({
           {selectedCluster === cluster.id && (
             <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
               <div className="mb-3">
-                <h5 className="font-medium text-slate-900 dark:text-slate-100 mb-2">
+                <h5 className="font-medium text-slate-900 dark:text-slate-100 mb-2 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
                   {t('knowledge.clusters.centerCard', 'Representative Card')}
                 </h5>
-                <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-                  <div className="text-sm text-slate-900 dark:text-slate-100 font-medium mb-1">
+                <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md transition-all duration-200 cursor-pointer">
+                  <div className="text-sm text-slate-900 dark:text-slate-100 font-medium mb-1 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
                     {cluster.centerCard.front}
                   </div>
-                  <div className="text-xs text-slate-600 dark:text-slate-400">
+                  <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
                     {cluster.centerCard.back.substring(0, 100)}
                     {cluster.centerCard.back.length > 100 ? '...' : ''}
                   </div>
@@ -278,47 +278,47 @@ const LearningPathsView = memo(function LearningPathsView({
       </div>
 
       {paths.map((path, index: number) => (
-        <div key={index} className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+        <div key={index} className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 hover:scale-[1.02] transition-all duration-200 cursor-pointer hover:shadow-md">
           <div className="flex items-start justify-between mb-3">
             <div>
-              <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
+              <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-1 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
                 {t(`knowledge.paths.types.${path.pathType}`, path.pathType.replace(/_/g, ' '))}
               </h4>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
                 {path.description}
               </p>
             </div>
             <div className="text-right">
-              <div className="text-sm font-medium text-slate-900 dark:text-slate-100">
+              <div className="text-sm font-medium text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
                 ~{path.estimatedTime} min
               </div>
-              <div className="text-xs text-slate-600 dark:text-slate-400">
+              <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
                 {Math.round(path.confidence * 100)}% {t('knowledge.paths.confidence', 'confidence')}
               </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            <h5 className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
               {t('knowledge.paths.sequence', 'Learning Sequence')}:
             </h5>
             <div className="flex flex-wrap gap-2">
               {path.path.slice(0, 5).map((step, stepIndex: number) => (
                 <div
                   key={stepIndex}
-                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
+                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:scale-105 transition-all duration-200 cursor-pointer hover:shadow-sm"
                 >
-                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-400 dark:hover:text-slate-300 transition-colors">
                     {stepIndex + 1}
                   </span>
-                  <span className="text-sm text-slate-900 dark:text-slate-100">
+                  <span className="text-sm text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
                     {step.front.substring(0, 20)}
                     {step.front.length > 20 ? '...' : ''}
                   </span>
                 </div>
               ))}
               {path.path.length > 5 && (
-                <div className="flex items-center px-3 py-2 text-sm text-slate-500 dark:text-slate-400">
+                <div className="flex items-center px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-400 dark:hover:text-slate-300 transition-colors">
                   +{path.path.length - 5} more
                 </div>
               )}
@@ -351,19 +351,19 @@ const KnowledgeGraphView = memo(function KnowledgeGraphView({
 
       {/* Graph Statistics */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
-          <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+        <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 hover:scale-105 transition-all duration-200 cursor-pointer hover:shadow-md">
+          <div className="text-lg font-bold text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
             {graphData.nodes.length}
           </div>
-          <div className="text-sm text-slate-600 dark:text-slate-400">
+          <div className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
             {t('knowledge.graph.nodes', 'Concepts')}
           </div>
         </div>
-        <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
-          <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
+        <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 hover:scale-105 transition-all duration-200 cursor-pointer hover:shadow-md">
+          <div className="text-lg font-bold text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
             {graphData.edges.length}
           </div>
-          <div className="text-sm text-slate-600 dark:text-slate-400">
+          <div className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
             {t('knowledge.graph.connections', 'Connections')}
           </div>
         </div>
@@ -371,20 +371,20 @@ const KnowledgeGraphView = memo(function KnowledgeGraphView({
 
       {/* Connection Types */}
       <div>
-        <h5 className="font-medium text-slate-900 dark:text-slate-100 mb-2">
+        <h5 className="font-medium text-slate-900 dark:text-slate-100 mb-2 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
           {t('knowledge.graph.connectionTypes', 'Connection Types')}
         </h5>
         <div className="space-y-2">
           {['similar', 'related', 'prerequisite'].map((type) => {
             const count = graphData.edges.filter((edge) => edge.type === type).length;
             if (count === 0) return null;
-            
+
             return (
-              <div key={type} className="flex items-center justify-between text-sm">
-                <span className="text-slate-700 dark:text-slate-300 capitalize">
+              <div key={type} className="flex items-center justify-between text-sm hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
+                <span className="text-slate-700 dark:text-slate-300 capitalize hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                   {t(`knowledge.graph.types.${type}`, type)}
                 </span>
-                <span className="text-slate-600 dark:text-slate-400">{count}</span>
+                <span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{count}</span>
               </div>
             );
           })}

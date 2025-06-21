@@ -119,7 +119,7 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
   const headerActions = selectedDeckId ? (
     <button
       onClick={() => onDeckSelect(null)}
-      className="px-3 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+      className="px-3 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 hover:scale-105 transition-all duration-200"
     >
       Clear Selection
     </button>
@@ -130,21 +130,21 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
     <>
       {/* Performance Legend */}
       <div className="flex flex-wrap items-center gap-4 text-xs mb-6">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-red-500"></div>
-          <span className="text-slate-600 dark:text-slate-400">Needs Work (&lt;40%)</span>
+        <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer">
+          <div className="w-3 h-3 rounded bg-red-500 hover:scale-110 transition-transform duration-200"></div>
+          <span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">Needs Work (&lt;40%)</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-orange-500"></div>
-          <span className="text-slate-600 dark:text-slate-400">Fair (40-60%)</span>
+        <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer">
+          <div className="w-3 h-3 rounded bg-orange-500 hover:scale-110 transition-transform duration-200"></div>
+          <span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">Fair (40-60%)</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-yellow-500"></div>
-          <span className="text-slate-600 dark:text-slate-400">Good (60-80%)</span>
+        <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer">
+          <div className="w-3 h-3 rounded bg-yellow-500 hover:scale-110 transition-transform duration-200"></div>
+          <span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">Good (60-80%)</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-green-500"></div>
-          <span className="text-slate-600 dark:text-slate-400">Excellent (80%+)</span>
+        <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer">
+          <div className="w-3 h-3 rounded bg-green-500 hover:scale-110 transition-transform duration-200"></div>
+          <span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">Excellent (80%+)</span>
         </div>
       </div>
 
@@ -156,32 +156,32 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
             if (!selectedDeck) return null;
 
             return (
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-3">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200">
+                <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-3 hover:text-blue-700 dark:hover:text-blue-100 transition-colors">
                   {selectedDeck.deckName}
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <div className="text-slate-600 dark:text-slate-400">{t('statistics.charts.deckPerformance.totalCards')}</div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200">
+                  <div className="hover:bg-blue-100 dark:hover:bg-blue-800/30 p-2 rounded transition-colors duration-200">
+                    <div className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{t('statistics.charts.deckPerformance.totalCards')}</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-200 hover:text-slate-700 dark:hover:text-slate-100 transition-colors">
                       {selectedDeck.totalCards}
                     </div>
                   </div>
-                  <div>
-                    <div className="text-slate-600 dark:text-slate-400">{t('statistics.charts.deckPerformance.masteredCards')}</div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200">
+                  <div className="hover:bg-blue-100 dark:hover:bg-blue-800/30 p-2 rounded transition-colors duration-200">
+                    <div className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{t('statistics.charts.deckPerformance.masteredCards')}</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-200 hover:text-slate-700 dark:hover:text-slate-100 transition-colors">
                       {selectedDeck.masteredCards}
                     </div>
                   </div>
-                  <div>
-                    <div className="text-slate-600 dark:text-slate-400">{t('statistics.charts.deckPerformance.masteryPercentage')}</div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200">
+                  <div className="hover:bg-blue-100 dark:hover:bg-blue-800/30 p-2 rounded transition-colors duration-200">
+                    <div className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{t('statistics.charts.deckPerformance.masteryPercentage')}</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-200 hover:text-slate-700 dark:hover:text-slate-100 transition-colors">
                       {selectedDeck.masteryPercentage.toFixed(1)}%
                     </div>
                   </div>
-                  <div>
-                    <div className="text-slate-600 dark:text-slate-400">{t('statistics.charts.deckPerformance.averageEase')}</div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200">
+                  <div className="hover:bg-blue-100 dark:hover:bg-blue-800/30 p-2 rounded transition-colors duration-200">
+                    <div className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{t('statistics.charts.deckPerformance.averageEase')}</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-200 hover:text-slate-700 dark:hover:text-slate-100 transition-colors">
                       {selectedDeck.averageEaseFactor ? selectedDeck.averageEaseFactor.toFixed(2) : 'N/A'}
                     </div>
                   </div>

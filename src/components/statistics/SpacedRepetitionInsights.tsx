@@ -64,13 +64,13 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
   const workloadBalance = totalCards > 0 ? (insights.totalNewCards / totalCards) * 100 : 0;
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
+    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg dark:hover:shadow-slate-900/20 transition-all duration-300 group">
       {/* Widget Header */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
+        <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 group-hover:text-slate-700 dark:group-hover:text-slate-100 transition-colors">
           {t('statistics.widgets.spacedRepetition.title')}
         </h3>
-        <span className="text-2xl" role="img" aria-label="Brain">
+        <span className="text-2xl hover:scale-110 transition-transform duration-200" role="img" aria-label="Brain">
           🧠
         </span>
       </div>
@@ -78,25 +78,25 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
       {/* Key Metrics */}
       <div className="space-y-4">
         {/* Retention Rate */}
-        <div className="p-4 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+        <div className="p-4 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md hover:scale-[1.02] transition-all duration-200 cursor-pointer">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <span className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
               {t('statistics.widgets.spacedRepetition.retentionRate')}
             </span>
-            <span className="text-lg">🎯</span>
+            <span className="text-lg hover:scale-110 transition-transform duration-200">🎯</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className={`text-2xl font-bold ${getRetentionColor(insights.retentionRate)}`}>
+            <div className={`text-2xl font-bold ${getRetentionColor(insights.retentionRate)} hover:scale-105 transition-transform duration-200`}>
               {insights.retentionRate !== undefined ? `${insights.retentionRate.toFixed(1)}%` : 'N/A'}
             </div>
             <div className="flex-1">
-              <div className="text-xs text-slate-500 dark:text-slate-400">
+              <div className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-400 dark:hover:text-slate-300 transition-colors">
                 {getRetentionMessage(insights.retentionRate)}
               </div>
               {insights.retentionRate !== undefined && (
-                <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1.5 mt-1">
-                  <div 
-                    className={`h-1.5 rounded-full transition-all duration-500 ${
+                <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1.5 mt-1 hover:h-2 transition-all duration-200">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
                       insights.retentionRate >= 90 ? 'bg-green-500' :
                       insights.retentionRate >= 80 ? 'bg-blue-500' :
                       insights.retentionRate >= 70 ? 'bg-yellow-500' :
@@ -111,22 +111,22 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
         </div>
 
         {/* Average Interval */}
-        <div className="p-4 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+        <div className="p-4 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md hover:scale-[1.02] transition-all duration-200 cursor-pointer">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <span className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
               {t('statistics.widgets.spacedRepetition.averageInterval')}
             </span>
-            <span className="text-lg">⏱️</span>
+            <span className="text-lg hover:scale-110 transition-transform duration-200">⏱️</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className={`text-2xl font-bold ${intervalEfficiency.color}`}>
+            <div className={`text-2xl font-bold ${intervalEfficiency.color} hover:scale-105 transition-transform duration-200`}>
               {insights.averageInterval ? `${insights.averageInterval.toFixed(1)}d` : 'N/A'}
             </div>
             <div className="flex-1">
-              <div className={`text-xs font-medium ${intervalEfficiency.color}`}>
+              <div className={`text-xs font-medium ${intervalEfficiency.color} hover:opacity-80 transition-opacity`}>
                 {intervalEfficiency.level}
               </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">
+              <div className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-400 dark:hover:text-slate-300 transition-colors">
                 {t('statistics.widgets.spacedRepetition.timeBetweenReviews')}
               </div>
             </div>
@@ -134,31 +134,31 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
         </div>
 
         {/* Workload Balance */}
-        <div className="p-4 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+        <div className="p-4 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:shadow-md hover:scale-[1.02] transition-all duration-200 cursor-pointer">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <span className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
               {t('statistics.widgets.spacedRepetition.newVsReviewBalance')}
             </span>
-            <span className="text-lg">⚖️</span>
+            <span className="text-lg hover:scale-110 transition-transform duration-200">⚖️</span>
           </div>
           <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-blue-600 dark:text-blue-400">{t('statistics.widgets.spacedRepetition.newCards')}</span>
-              <span className="font-semibold">{insights.totalNewCards}</span>
+            <div className="flex justify-between text-sm hover:bg-slate-50 dark:hover:bg-slate-600 p-1 rounded transition-colors duration-200">
+              <span className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors">{t('statistics.widgets.spacedRepetition.newCards')}</span>
+              <span className="font-semibold hover:scale-105 transition-transform duration-200">{insights.totalNewCards}</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-red-600 dark:text-red-400">{t('statistics.widgets.spacedRepetition.dueCards')}</span>
-              <span className="font-semibold">{insights.totalDueCards}</span>
+            <div className="flex justify-between text-sm hover:bg-slate-50 dark:hover:bg-slate-600 p-1 rounded transition-colors duration-200">
+              <span className="text-red-600 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300 transition-colors">{t('statistics.widgets.spacedRepetition.dueCards')}</span>
+              <span className="font-semibold hover:scale-105 transition-transform duration-200">{insights.totalDueCards}</span>
             </div>
-            <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2 mt-2">
-              <div className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-red-500 relative">
-                <div 
-                  className="absolute top-0 left-0 h-2 bg-blue-500 rounded-l-full transition-all duration-500"
+            <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2 mt-2 hover:h-2.5 transition-all duration-200">
+              <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-red-500 relative">
+                <div
+                  className="absolute top-0 left-0 h-full bg-blue-500 rounded-l-full transition-all duration-500"
                   style={{ width: `${workloadBalance}%` }}
                 ></div>
               </div>
             </div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 text-center">
+            <div className="text-xs text-slate-500 dark:text-slate-400 text-center hover:text-slate-400 dark:hover:text-slate-300 transition-colors">
               {t('statistics.widgets.spacedRepetition.balancePercentage', {
                 newPercentage: workloadBalance.toFixed(0),
                 reviewPercentage: (100 - workloadBalance).toFixed(0)
@@ -169,14 +169,14 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
       </div>
 
       {/* Algorithm Tips */}
-      <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-900/30 dark:hover:to-cyan-900/30 hover:border-blue-300 dark:hover:border-blue-700 hover:scale-[1.02] transition-all duration-200 cursor-pointer">
         <div className="flex items-start gap-3">
-          <span className="text-lg mt-0.5">💡</span>
+          <span className="text-lg mt-0.5 hover:scale-110 transition-transform duration-200">💡</span>
           <div>
-            <div className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">
+            <div className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1 hover:text-blue-600 dark:hover:text-blue-200 transition-colors">
               {t('statistics.widgets.spacedRepetition.algorithmTip')}
             </div>
-            <div className="text-xs text-blue-600 dark:text-blue-400">
+            <div className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors">
               {insights.retentionRate !== undefined && insights.retentionRate < 80 ?
                 t('statistics.widgets.spacedRepetition.tips.improveRetention') :
                 insights.averageInterval && insights.averageInterval < 7 ?
@@ -192,17 +192,17 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
 
       {/* Quick Stats */}
       <div className="mt-6 grid grid-cols-2 gap-4">
-        <div className="text-center">
-          <div className="text-lg font-bold text-cyan-500 dark:text-cyan-400">
+        <div className="text-center hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
+          <div className="text-lg font-bold text-cyan-500 dark:text-cyan-400 hover:scale-105 transition-transform duration-200">
             {insights.upcomingReviews.length}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400">{t('statistics.widgets.spacedRepetition.reviewDays')}</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{t('statistics.widgets.spacedRepetition.reviewDays')}</div>
         </div>
-        <div className="text-center">
-          <div className="text-lg font-bold text-purple-500 dark:text-purple-400">
+        <div className="text-center hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
+          <div className="text-lg font-bold text-purple-500 dark:text-purple-400 hover:scale-105 transition-transform duration-200">
             {insights.cardsToReviewToday}
           </div>
-          <div className="text-xs text-slate-600 dark:text-slate-400">{t('statistics.widgets.spacedRepetition.dueToday')}</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{t('statistics.widgets.spacedRepetition.dueToday')}</div>
         </div>
       </div>
     </div>

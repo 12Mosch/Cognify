@@ -211,35 +211,35 @@ const StatisticsCard = memo(function StatisticsCard({
   return (
     <div className={`
       ${colorClasses.bg} ${colorClasses.border} ${colorClasses.glow}
-      p-6 rounded-lg border-2 transition-all duration-300 hover:shadow-lg hover:scale-105
-      bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-750
+      p-6 rounded-lg border-2 transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer group
+      bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600
     `}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+        <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide group-hover:text-slate-500 dark:group-hover:text-slate-300 transition-colors">
           {title}
         </h3>
-        <span className="text-2xl" role="img" aria-label={title}>
+        <span className="text-2xl hover:scale-110 transition-transform duration-200" role="img" aria-label={title}>
           {icon}
         </span>
       </div>
-      
+
       {/* Main Value */}
       <div className="mb-2">
-        <span className={`text-3xl font-bold ${colorClasses.text}`}>
+        <span className={`text-3xl font-bold ${colorClasses.text} group-hover:scale-105 transition-transform duration-200 inline-block`}>
           {typeof value === 'number' ? value.toLocaleString() : value}
         </span>
       </div>
-      
+
       {/* Subtitle and Trend */}
       <div className="flex items-center justify-between">
-        <span className="text-sm text-slate-500 dark:text-slate-400">
+        <span className="text-sm text-slate-500 dark:text-slate-400 group-hover:text-slate-400 dark:group-hover:text-slate-300 transition-colors">
           {subtitle}
         </span>
         {trend && (
-          <div className={`flex items-center gap-1 text-xs font-medium ${
-            trend.isPositive 
-              ? 'text-green-600 dark:text-green-400' 
+          <div className={`flex items-center gap-1 text-xs font-medium hover:scale-105 transition-transform duration-200 ${
+            trend.isPositive
+              ? 'text-green-600 dark:text-green-400'
               : 'text-red-600 dark:text-red-400'
           }`}>
             <span>{trend.isPositive ? '↗' : '↘'}</span>

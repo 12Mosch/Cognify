@@ -116,17 +116,17 @@ const StudyActivityChart = memo(function StudyActivityChart({ dateRange }: Study
     >
       {/* Chart Legend */}
       <div className="flex items-center gap-4 text-sm mb-6">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-blue-400"></div>
-          <span className="text-slate-600 dark:text-slate-400">{t('statistics.charts.studyActivity.cardsStudied')}</span>
+        <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer">
+          <div className="w-3 h-3 rounded-full bg-blue-400 hover:scale-110 transition-transform duration-200"></div>
+          <span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{t('statistics.charts.studyActivity.cardsStudied')}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-cyan-400"></div>
-          <span className="text-slate-600 dark:text-slate-400">{t('statistics.charts.studyActivity.sessions')}</span>
+        <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer">
+          <div className="w-3 h-3 rounded-full bg-cyan-400 hover:scale-110 transition-transform duration-200"></div>
+          <span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{t('statistics.charts.studyActivity.sessions')}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-green-400"></div>
-          <span className="text-slate-600 dark:text-slate-400">{t('statistics.charts.studyActivity.timeMinutes')}</span>
+        <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer">
+          <div className="w-3 h-3 rounded-full bg-green-400 hover:scale-110 transition-transform duration-200"></div>
+          <span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">{t('statistics.charts.studyActivity.timeMinutes')}</span>
         </div>
       </div>
 

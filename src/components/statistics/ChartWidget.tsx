@@ -58,20 +58,20 @@ export default function ChartWidget({
   className = ""
 }: ChartWidgetProps) {
   return (
-    <div className={`bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 ${className}`}>
+    <div className={`bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg dark:hover:shadow-slate-900/20 transition-all duration-300 group ${className}`}>
       {/* Chart Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-1">
+          <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-1 group-hover:text-slate-700 dark:group-hover:text-slate-100 transition-colors">
             {title}
           </h3>
           {subtitle && (
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-500 dark:group-hover:text-slate-300 transition-colors">
               {subtitle}
             </p>
           )}
         </div>
-        
+
         {headerActions && (
           <div className="flex items-center gap-2">
             {headerActions}

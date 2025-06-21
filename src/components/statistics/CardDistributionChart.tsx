@@ -157,21 +157,21 @@ const CardDistributionChart = memo(function CardDistributionChart({
       {/* Legend */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {chartData.map((item, index) => (
-          <div key={index} className="flex items-center gap-3">
+          <div key={index} className="flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
             <div
-              className="w-4 h-4 rounded-full flex-shrink-0"
+              className="w-4 h-4 rounded-full flex-shrink-0 hover:scale-110 transition-transform duration-200"
               style={{ backgroundColor: item.color }}
             ></div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                   {item.name}
                 </span>
-                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 ml-2">
+                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 ml-2 hover:text-slate-700 dark:hover:text-slate-100 transition-colors">
                   {item.value}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate hover:text-slate-400 dark:hover:text-slate-300 transition-colors">
                 {item.description}
               </p>
             </div>
@@ -182,29 +182,29 @@ const CardDistributionChart = memo(function CardDistributionChart({
       {/* Summary Stats */}
       <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-          <div>
-            <div className="text-lg font-bold text-slate-800 dark:text-slate-200">
+          <div className="hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
+            <div className="text-lg font-bold text-slate-800 dark:text-slate-200 hover:text-slate-700 dark:hover:text-slate-100 transition-colors">
               {cardDistribution.totalCards}
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400">Total Cards</div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">Total Cards</div>
           </div>
-          <div>
-            <div className="text-lg font-bold text-blue-500 dark:text-blue-400">
+          <div className="hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
+            <div className="text-lg font-bold text-blue-500 dark:text-blue-400 hover:scale-105 transition-transform duration-200">
               {spacedRepetitionInsights.totalNewCards}
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400">New</div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">New</div>
           </div>
-          <div>
-            <div className="text-lg font-bold text-red-500 dark:text-red-400">
+          <div className="hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
+            <div className="text-lg font-bold text-red-500 dark:text-red-400 hover:scale-105 transition-transform duration-200">
               {spacedRepetitionInsights.totalDueCards}
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400">Due</div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">Due</div>
           </div>
-          <div>
-            <div className="text-lg font-bold text-green-500 dark:text-green-400">
+          <div className="hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
+            <div className="text-lg font-bold text-green-500 dark:text-green-400 hover:scale-105 transition-transform duration-200">
               {cardDistribution.masteredCards}
             </div>
-            <div className="text-xs text-slate-600 dark:text-slate-400">Mastered</div>
+            <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">Mastered</div>
           </div>
         </div>
       </div>
