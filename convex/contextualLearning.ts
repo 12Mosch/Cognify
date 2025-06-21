@@ -3,7 +3,7 @@ import { query } from "./_generated/server";
 
 /**
  * Contextual Learning Features
- * 
+ *
  * This module provides features to enhance learning through context and connections:
  * - Related card suggestions based on content similarity
  * - Concept clustering and knowledge mapping
@@ -11,6 +11,13 @@ import { query } from "./_generated/server";
  * - Knowledge graph visualization data
  * - Semantic relationships between topics
  * - Learning path recommendations
+ *
+ * Performance Optimizations:
+ * - Limited card comparisons to prevent O(n²) performance issues
+ * - Prioritizes same-deck cards (most likely to be related)
+ * - Samples from other decks rather than loading all cards
+ * - Implements pagination and limits for large collections
+ * - Uses efficient similarity thresholds to reduce computation
  */
 
 // interface CardRelationship {
@@ -93,19 +100,33 @@ export const getRelatedCards = query({
       throw new Error("You can only get related cards for your own cards");
     }
 
-    // Get all user's cards for comparison
-    const userDecks = await ctx.db
+    // Optimized card loading: limit scope to same deck and sample from other decks
+    const allCards = [];
+
+    // 1. Get all cards from the same deck (most likely to be related)
+    const sameDeckCards = await ctx.db
+      .query("cards")
+      .withIndex("by_deckId", (q) => q.eq("deckId", sourceCard.deckId))
+      .filter((q) => q.neq(q.field("_id"), args.cardId))
+      .take(50); // Limit to 50 cards from same deck
+
+    for (const card of sameDeckCards) {
+      allCards.push({ ...card, deckName: sourceDeck.name });
+    }
+
+    // 2. Sample cards from other decks (up to 5 decks, 20 cards each)
+    const otherDecks = await ctx.db
       .query("decks")
       .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
-      .collect();
+      .filter((q) => q.neq(q.field("_id"), sourceCard.deckId))
+      .take(5); // Limit to 5 other decks
 
-    const allCards = [];
-    for (const deck of userDecks) {
+    for (const deck of otherDecks) {
       const deckCards = await ctx.db
         .query("cards")
         .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
-        .collect();
-      
+        .take(20); // Sample 20 cards per deck
+
       for (const card of deckCards) {
         if (card._id !== args.cardId) {
           allCards.push({ ...card, deckName: deck.name });
@@ -182,18 +203,23 @@ export const getConceptClusters = query({
         .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
         .collect();
     } else {
-      // Get all user's cards
+      // Get cards from user's decks (optimized: limit to prevent performance issues)
       const userDecks = await ctx.db
         .query("decks")
         .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
-        .collect();
+        .take(10); // Limit to 10 most recent decks
 
       for (const deck of userDecks) {
         const deckCards = await ctx.db
           .query("cards")
           .withIndex("by_deckId", (q) => q.eq("deckId", deck._id))
-          .collect();
+          .take(50); // Limit to 50 cards per deck
         cards.push(...deckCards);
+      }
+
+      // If we have too many cards, sample them
+      if (cards.length > 200) {
+        cards = cards.slice(0, 200); // Limit total cards for clustering
       }
     }
 
@@ -352,14 +378,20 @@ export const getKnowledgeGraphData = query({
       }
     }
 
-    // Calculate relationships between cards
-    for (let i = 0; i < allCards.length; i++) {
-      for (let j = i + 1; j < allCards.length; j++) {
-        const relationship = calculateCardRelationship(allCards[i], allCards[j]);
+    // Calculate relationships between cards (optimized for performance)
+    // Limit the number of comparisons to prevent O(n²) performance issues
+    const maxCards = 100; // Limit total cards for relationship calculation
+    const cardsForRelationships = allCards.slice(0, maxCards);
+
+    for (let i = 0; i < cardsForRelationships.length; i++) {
+      // Only compare with next 20 cards to limit comparisons
+      const maxComparisons = Math.min(i + 20, cardsForRelationships.length);
+      for (let j = i + 1; j < maxComparisons; j++) {
+        const relationship = calculateCardRelationship(cardsForRelationships[i], cardsForRelationships[j]);
         if (relationship.strength > 0.4) { // Higher threshold for graph
           edges.push({
-            source: `card_${allCards[i]._id}`,
-            target: `card_${allCards[j]._id}`,
+            source: `card_${cardsForRelationships[i]._id}`,
+            target: `card_${cardsForRelationships[j]._id}`,
             type: relationship.type as 'similar' | 'prerequisite' | 'related' | 'contains',
             weight: relationship.strength,
             label: relationship.type,
@@ -495,40 +527,61 @@ export const getLearningPathRecommendations = query({
 // Helper functions
 
 function calculateCardRelationship(card1: any, card2: any): { type: string; strength: number; reason: string } {
-  // Simple text similarity calculation
+  // Optimized text similarity calculation with early termination
   const text1 = (card1.front + ' ' + card1.back).toLowerCase();
   const text2 = (card2.front + ' ' + card2.back).toLowerCase();
-  
-  const words1 = new Set(text1.split(/\s+/));
-  const words2 = new Set(text2.split(/\s+/));
+
+  // Early termination for very short texts or identical cards
+  if (text1.length < 3 || text2.length < 3 || text1 === text2) {
+    return { type: 'unrelated', strength: 0, reason: 'Insufficient content' };
+  }
+
+  const words1 = new Set(text1.split(/\s+/).filter(word => word.length > 2)); // Filter short words
+  const words2 = new Set(text2.split(/\s+/).filter(word => word.length > 2));
+
+  // Early termination if no meaningful words
+  if (words1.size === 0 || words2.size === 0) {
+    return { type: 'unrelated', strength: 0, reason: 'No meaningful content' };
+  }
 
   const intersection = new Set(Array.from(words1).filter(x => words2.has(x)));
+
+  // Early termination if no common words
+  if (intersection.size === 0) {
+    return { type: 'unrelated', strength: 0, reason: 'No common terms' };
+  }
+
   const union = new Set([...Array.from(words1), ...Array.from(words2)]);
-  
   const similarity = intersection.size / union.size;
-  
+
   let type = 'related';
   let reason = 'Shares common terms';
-  
+
   if (similarity > 0.6) {
     type = 'similar';
     reason = 'Very similar content';
   } else if (similarity > 0.3) {
     type = 'related';
     reason = 'Related concepts';
+  } else {
+    type = 'weakly_related';
+    reason = 'Few common terms';
   }
-  
+
   return { type, strength: similarity, reason };
 }
 
 function performSimpleClustering(cards: any[]): ConceptCluster[] {
-  // Simple clustering based on text similarity
+  // Optimized clustering based on text similarity with performance limits
   const clusters: ConceptCluster[] = [];
   const used = new Set();
-  
-  for (let i = 0; i < cards.length; i++) {
+
+  // Limit clustering to prevent performance issues
+  const maxCards = Math.min(cards.length, 100);
+
+  for (let i = 0; i < maxCards; i++) {
     if (used.has(cards[i]._id)) continue;
-    
+
     const cluster: ConceptCluster = {
       id: `cluster_${i}`,
       name: `Concept Group ${i + 1}`,
@@ -538,25 +591,32 @@ function performSimpleClustering(cards: any[]): ConceptCluster[] {
       difficulty: 0.5,
       masteryLevel: 0,
     };
-    
+
     used.add(cards[i]._id);
-    
-    // Find similar cards
-    for (let j = i + 1; j < cards.length; j++) {
+
+    // Find similar cards (limit comparisons for performance)
+    const maxComparisons = Math.min(i + 30, maxCards);
+    for (let j = i + 1; j < maxComparisons; j++) {
       if (used.has(cards[j]._id)) continue;
-      
+
       const relationship = calculateCardRelationship(cards[i], cards[j]);
       if (relationship.strength > 0.4) {
         cluster.cardIds.push(cards[j]._id);
         used.add(cards[j]._id);
+
+        // Limit cluster size to prevent overly large clusters
+        if (cluster.cardIds.length >= 10) break;
       }
     }
-    
+
     if (cluster.cardIds.length >= 2) {
       clusters.push(cluster);
     }
+
+    // Limit total number of clusters
+    if (clusters.length >= 20) break;
   }
-  
+
   return clusters;
 }
 
