@@ -8,6 +8,9 @@ import { FlashcardSkeleton } from "./skeletons/SkeletonComponents";
 import LearningReflectionModal from "./LearningReflectionModal";
 import { toastHelpers } from "../lib/toast";
 
+// SM-2 algorithm considers quality >= 3 as successful
+const SM2_SUCCESS_THRESHOLD = 3;
+
 interface AdaptiveStudyModeProps {
   deckId: Id<"decks">;
   onExit: () => void;
@@ -168,9 +171,8 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
           const sessionDuration = (Date.now() - sessionStats.sessionStartTime) / 1000 / 60; // minutes
 
           // Calculate actual average success rate from review results
-          // A review is considered successful if quality >= 3 (based on SM-2 algorithm)
           const finalReviewResults = [...reviewResults, quality]; // Include the current review
-          const successfulReviews = finalReviewResults.filter(q => q >= 3).length;
+          const successfulReviews = finalReviewResults.filter(q => q >= SM2_SUCCESS_THRESHOLD).length;
           const actualAverageSuccess = finalReviewResults.length > 0
             ? successfulReviews / finalReviewResults.length
             : 0;
@@ -205,6 +207,13 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
     }
   }, [currentCard, responseStartTime, confidenceRating, reviewCardAdaptive, currentCardIndex, studyQueue, onExit, checkAchievements, deckId, sessionStats, reviewResults, showAchievementNotifications]);
 
+  // Handle keyboard-triggered review actions with error handling
+  const handleKeyboardReview = useCallback((quality: number) => {
+    handleReview(quality).catch(error => {
+      console.error('Error handling keyboard review:', error);
+    });
+  }, [handleReview]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -221,23 +230,23 @@ export default function AdaptiveStudyMode({ deckId, onExit }: AdaptiveStudyModeP
           }
           break;
         case '1':
-          if (isFlipped && !showConfidenceRating) void handleReview(0);
+          if (isFlipped && !showConfidenceRating) handleKeyboardReview(0);
           break;
         case '2':
-          if (isFlipped && !showConfidenceRating) void handleReview(3);
+          if (isFlipped && !showConfidenceRating) handleKeyboardReview(3);
           break;
         case '3':
-          if (isFlipped && !showConfidenceRating) void handleReview(4);
+          if (isFlipped && !showConfidenceRating) handleKeyboardReview(4);
           break;
         case '4':
-          if (isFlipped && !showConfidenceRating) void handleReview(5);
+          if (isFlipped && !showConfidenceRating) handleKeyboardReview(5);
           break;
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isFlipped, showConfidenceRating, handleFlipCard, handleReview]);
+  }, [isFlipped, showConfidenceRating, handleFlipCard, handleKeyboardReview]);
 
   // Loading states
   if (!deck || !studyQueue) {
