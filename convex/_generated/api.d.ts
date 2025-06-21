@@ -14,6 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as adaptiveLearning from "../adaptiveLearning.js";
+import type * as cacheCleanup from "../cacheCleanup.js";
 import type * as cards from "../cards.js";
 import type * as contextualLearning from "../contextualLearning.js";
 import type * as decks from "../decks.js";
@@ -27,6 +28,7 @@ import type * as spacedRepetition from "../spacedRepetition.js";
 import type * as statistics from "../statistics.js";
 import type * as streaks from "../streaks.js";
 import type * as studySessions from "../studySessions.js";
+import type * as utils_cache from "../utils/cache.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -38,6 +40,7 @@ import type * as studySessions from "../studySessions.js";
  */
 declare const fullApi: ApiFromModules<{
   adaptiveLearning: typeof adaptiveLearning;
+  cacheCleanup: typeof cacheCleanup;
   cards: typeof cards;
   contextualLearning: typeof contextualLearning;
   decks: typeof decks;
@@ -51,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   statistics: typeof statistics;
   streaks: typeof streaks;
   studySessions: typeof studySessions;
+  "utils/cache": typeof utils_cache;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

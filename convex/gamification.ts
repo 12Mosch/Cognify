@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { QueryCtx, MutationCtx } from "./_generated/server";
 import { getCachedData, setCachedData, CacheKeys, CACHE_TTL } from "./utils/cache";
 
 /**
@@ -269,7 +270,7 @@ export const getUserAchievements = query({
     const availableAchievements = ACHIEVEMENTS.filter(a => !unlockedIds.has(a.id) && !a.isSecret);
 
     // Get user stats for progress calculation
-    const userStats = await calculateUserStats(ctx, identity.subject);
+    const userStats = await calculateUserStatsQuery(ctx, identity.subject);
     
     const nextAchievements = availableAchievements.map(achievement => {
       const { progress, currentValue, targetValue } = calculateAchievementProgress(achievement, userStats);
@@ -351,7 +352,7 @@ export const checkAchievements = mutation({
     const unlockedIds = new Set(userAchievements.map(ua => ua.achievementId));
 
     // Get user stats
-    const userStats = await calculateUserStats(ctx, identity.subject);
+    const userStats = await calculateUserStatsMutation(ctx, identity.subject);
 
     // Check each achievement
     const newlyUnlocked = [];
@@ -390,10 +391,9 @@ export const checkAchievements = mutation({
 });
 
 /**
- * Calculate user statistics for achievement progress
- * Optimized with parallel database queries and caching for better performance
+ * Calculate user statistics for achievement progress (query context - no caching)
  */
-async function calculateUserStats(ctx: any, userId: string) {
+async function calculateUserStatsQuery(ctx: QueryCtx, userId: string) {
   // Try to get cached data first
   const cacheKey = CacheKeys.userStats(userId);
   const cached = await getCachedData(ctx, userId, cacheKey);
@@ -401,6 +401,34 @@ async function calculateUserStats(ctx: any, userId: string) {
   if (cached) {
     return cached;
   }
+
+  return await computeUserStats(ctx, userId);
+}
+
+/**
+ * Calculate user statistics for achievement progress (mutation context - with caching)
+ */
+async function calculateUserStatsMutation(ctx: MutationCtx, userId: string) {
+  // Try to get cached data first
+  const cacheKey = CacheKeys.userStats(userId);
+  const cached = await getCachedData(ctx, userId, cacheKey);
+
+  if (cached) {
+    return cached;
+  }
+
+  const stats = await computeUserStats(ctx, userId);
+
+  // Cache the computed stats for future requests
+  await setCachedData(ctx, userId, cacheKey, stats, CACHE_TTL.USER_STATS);
+
+  return stats;
+}
+
+/**
+ * Core computation logic for user statistics
+ */
+async function computeUserStats(ctx: QueryCtx | MutationCtx, userId: string) {
 
   // Execute all database queries in parallel for better performance
   const [streakData, studySessions, decks, reviews] = await Promise.all([
@@ -445,7 +473,7 @@ async function calculateUserStats(ctx: any, userId: string) {
     return reviewDate === today;
   });
 
-  const stats = {
+  return {
     totalStudySessions,
     currentStreak,
     longestStreak,
@@ -456,11 +484,6 @@ async function calculateUserStats(ctx: any, userId: string) {
     dailyCards: todayReviews.length,
     successRate: totalReviews > 0 ? successfulReviews / totalReviews : 0,
   };
-
-  // Cache the computed stats for future requests
-  await setCachedData(ctx, userId, cacheKey, stats, CACHE_TTL.USER_STATS);
-
-  return stats;
 }
 
 /**
