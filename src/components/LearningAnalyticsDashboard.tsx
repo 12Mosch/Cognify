@@ -8,9 +8,14 @@ interface LearningAnalyticsDashboardProps {
   onBack: () => void;
 }
 
+// Learning velocity thresholds
+const SLOW_LEARNING_THRESHOLD = 0.5;
+const FAST_LEARNING_THRESHOLD = 2.0;
+const LEARNING_VELOCITY_TREND_THRESHOLD = 1.0;
+
 /**
  * Learning Analytics Dashboard Component
- * 
+ *
  * Provides comprehensive learning insights and analytics including:
  * - Personal learning patterns and performance metrics
  * - Retention curves and difficulty analysis
@@ -19,8 +24,8 @@ interface LearningAnalyticsDashboardProps {
  * - Personalized study recommendations
  * - Learning velocity tracking
  */
-const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({ 
-  onBack 
+const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
+  onBack
 }: LearningAnalyticsDashboardProps) {
   const { t } = useTranslation();
   const [selectedTimeRange, setSelectedTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
@@ -99,14 +104,14 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
     }
 
     // Learning velocity recommendations
-    if (learningPattern.learningVelocity < 0.5) {
+    if (learningPattern.learningVelocity < SLOW_LEARNING_THRESHOLD) {
       recommendations.push({
         type: 'velocity',
         title: t('statistics.analytics.recommendations.slowLearning.title'),
         description: t('statistics.analytics.recommendations.slowLearning.description'),
         priority: 'low' as const,
       });
-    } else if (learningPattern.learningVelocity > 2.0) {
+    } else if (learningPattern.learningVelocity > FAST_LEARNING_THRESHOLD) {
       recommendations.push({
         type: 'velocity',
         title: t('statistics.analytics.recommendations.fastLearning.title'),
@@ -178,7 +183,7 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
             title={t('analytics.metrics.learningVelocity.title', 'Learning Velocity')}
             value={`${learningPattern.learningVelocity.toFixed(1)}`}
             subtitle={t('analytics.metrics.learningVelocity.subtitle', 'cards/day')}
-            trend={learningPattern.learningVelocity > 1 ? "up" : "down"}
+            trend={learningPattern.learningVelocity > LEARNING_VELOCITY_TREND_THRESHOLD ? "up" : "down"}
             icon="⚡"
           />
           <MetricCard
@@ -285,7 +290,7 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
                 <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-3">
                   <div
                     className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500"
-                    style={{ width: `${point.retentionRate * 100}%` }}
+                    style={{ width: `${Math.max(0, Math.min(100, point.retentionRate * 100))}%` }}
                   />
                 </div>
                 <div className="w-16 text-sm font-medium text-slate-900 dark:text-slate-100">
