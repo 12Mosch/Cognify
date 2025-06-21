@@ -154,14 +154,12 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-            <button
-              onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-              aria-label={t('common.close', 'Close')}
-              type="button"
-            >
-              ✕
-            </button>
+                <span className="text-white text-xl">🧠</span>
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  {t('reflection.title', 'Learning Reflection')}
+                </h2>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                   {currentStep === 'prompts' && t('reflection.subtitle.prompts', 'Reflect on your learning experience')}
                   {currentStep === 'strategies' && t('reflection.subtitle.strategies', 'Discover effective study strategies')}
