@@ -3,6 +3,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
+import { showErrorToast } from '../lib/toast';
 
 interface LearningReflectionModalProps {
   isOpen: boolean;
@@ -100,6 +101,8 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
       }
     } catch (error) {
       console.error('Error saving reflection:', error);
+      // Show user-facing error notification
+      showErrorToast(t('reflection.saveError', 'Failed to save reflection. Please try again.'));
     } finally {
       setIsSubmitting(false);
     }

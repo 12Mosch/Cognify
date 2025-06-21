@@ -723,5 +723,8 @@
       "description": "There was an error loading your knowledge map. Please try refreshing the page.",
       "retry": "Retry"
     }
+  },
+  "reflection": {
+    "saveError": "Failed to save reflection. Please try again."
   }
 }
