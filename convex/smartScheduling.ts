@@ -16,6 +16,16 @@ import { query, mutation } from "./_generated/server";
 // Time slot definitions for scheduling
 type TimeSlot = 'early_morning' | 'morning' | 'afternoon' | 'evening' | 'night' | 'late_night';
 
+// Time slot to hour mappings for consistent scheduling
+const TIME_SLOT_HOURS: Record<TimeSlot, number> = {
+  early_morning: 7,
+  morning: 10,
+  afternoon: 14,
+  evening: 18,
+  night: 20,
+  late_night: 1,
+};
+
 interface StudyRecommendation {
   timeSlot: TimeSlot;
   startTime: string; // HH:MM format
@@ -180,7 +190,6 @@ export const getStudyRecommendations = query({
         .withIndex("by_userId_and_dueDate", (q) =>
           q.eq("userId", identity.subject).lte("dueDate", dayEnd.getTime())
         )
-        .filter((q) => q.gte(q.field("dueDate"), 0))
         .collect();
 
       // Generate recommendations for this day
@@ -202,16 +211,7 @@ export const getStudyRecommendations = query({
 
         if (expectedCards > 0) {
           // Determine start time for the slot
-          const slotHours = {
-            early_morning: 7,
-            morning: 10,
-            afternoon: 14,
-            evening: 18,
-            night: 20,
-            late_night: 1,
-          };
-
-          const startHour = slotHours[timeSlot];
+          const startHour = TIME_SLOT_HOURS[timeSlot];
           const startTime = `${startHour.toString().padStart(2, '0')}:00`;
 
           // Calculate confidence based on performance and available data
@@ -316,10 +316,7 @@ export const getTodayStudyRecommendations = query({
     // Find next optimal time
     const futureSlots = Object.entries(learningPattern.timeOfDayPerformance)
       .filter(([slot, data]) => {
-        const slotHour = {
-          early_morning: 7, morning: 10, afternoon: 14,
-          evening: 18, night: 20, late_night: 1,
-        }[slot as TimeSlot];
+        const slotHour = TIME_SLOT_HOURS[slot as TimeSlot];
         return slotHour > currentHour && data.successRate > 0.7 && data.reviewCount >= 3;
       })
       .sort(([_, a], [__, b]) => b.successRate - a.successRate);
