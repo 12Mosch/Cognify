@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../convex/_generated/api';
+import { t } from 'i18next';
 
 interface AchievementsWidgetProps {
   className?: string;
@@ -71,6 +72,7 @@ const AchievementsWidget = memo(function AchievementsWidget({
 
   const categories = Object.entries(categoryProgress);
   const recentAchievements = unlockedAchievements
+    .filter(a => a.unlockedAt !== undefined)
     .sort((a, b) => b.unlockedAt - a.unlockedAt)
     .slice(0, 3);
 
@@ -146,7 +148,7 @@ const AchievementsWidget = memo(function AchievementsWidget({
                   <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2">
                     <div
                       className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${progress * 100}%` }}
+                      style={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }}
                     />
                   </div>
                   <div className="text-xs text-slate-600 dark:text-slate-400 mt-1 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
@@ -347,7 +349,7 @@ const ProgressAchievementCard = memo(function ProgressAchievementCard({
           <div className="flex-1 bg-slate-200 dark:bg-slate-600 rounded-full h-2 hover:h-2.5 transition-all duration-200">
             <div
               className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full transition-all duration-500"
-              style={{ width: `${progress * 100}%` }}
+              style={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }}
             />
           </div>
           <span className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
@@ -360,7 +362,7 @@ const ProgressAchievementCard = memo(function ProgressAchievementCard({
           +{achievement.points}
         </div>
         <div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
-          points
+          {t('achievements.points', 'points')}
         </div>
       </div>
     </div>
