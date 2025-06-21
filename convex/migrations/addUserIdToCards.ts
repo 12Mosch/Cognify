@@ -29,12 +29,12 @@ export const addUserIdToExistingCards = internalMutation({
     while (hasMore) {
       // Get a batch of cards that don't have userId field
       const query = ctx.db.query("cards");
-      const cardsQuery: any = lastId
-        ? query.filter((q: any) => q.gt(q.field("_id"), lastId!))
+      const cardsQuery = lastId
+        ? query.filter((q) => q.gt(q.field("_id"), lastId!))
         : query;
 
-      const cards: any[] = await cardsQuery
-        .filter((q: any) => q.eq(q.field("userId"), undefined))
+      const cards = await cardsQuery
+        .filter((q) => q.eq(q.field("userId"), undefined))
         .take(batchSize);
 
       if (cards.length === 0) {
@@ -66,8 +66,13 @@ export const addUserIdToExistingCards = internalMutation({
 
       // Update lastId for next batch
       lastId = cards[cards.length - 1]._id;
-      
+
       console.log(`Processed ${processedCount} cards, updated ${updatedCount} cards`);
+
+      // Add small delay between batches to reduce database load
+      if (cards.length === batchSize) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
     }
 
     console.log(`Migration completed: Processed ${processedCount} cards, updated ${updatedCount} cards`);
@@ -89,7 +94,7 @@ export const verifyUserIdMigration = internalMutation({
     // Count cards without userId
     const cardsWithoutUserId = await ctx.db
       .query("cards")
-      .filter((q: any) => q.eq(q.field("userId"), undefined))
+      .filter((q) => q.eq(q.field("userId"), undefined))
       .collect();
 
     // Count total cards
