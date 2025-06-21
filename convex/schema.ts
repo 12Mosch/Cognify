@@ -224,4 +224,16 @@ export default defineSchema({
   }).index("by_userId_and_key", ["userId", "cacheKey"])  // Index for efficient cache lookups
     .index("by_expiresAt", ["expiresAt"])                // Index for cache cleanup
     .index("by_userId_and_expires", ["userId", "expiresAt"]), // Index for user-specific cache cleanup
+
+  // Cache Metrics table - tracks cache hit/miss statistics for performance monitoring
+  cacheMetrics: defineTable({
+    timestamp: v.number(),              // Unix timestamp when metric was recorded
+    cacheKey: v.string(),               // Cache key that was accessed
+    userId: v.optional(v.string()),     // User ID (optional for global metrics)
+    hitType: v.union(v.literal("hit"), v.literal("miss"), v.literal("expired")), // Type of cache access
+    computationTimeMs: v.optional(v.number()), // Time taken to compute data on cache miss (ms)
+    ttlMs: v.optional(v.number()),      // TTL used for cache entry (ms)
+  }).index("by_timestamp", ["timestamp"])               // Index for time-based queries
+    .index("by_cacheKey_and_timestamp", ["cacheKey", "timestamp"]) // Index for key-specific metrics
+    .index("by_userId_and_timestamp", ["userId", "timestamp"]),    // Index for user-specific metrics
 });

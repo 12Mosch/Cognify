@@ -36,15 +36,20 @@ export async function getCachedData<T>(
     .first();
 
   if (!cached) {
+    // Record cache miss - but only in mutation context to avoid read/write mixing
+    // This will be handled by the calling function that has mutation context
     return null;
   }
 
   // Check if cache is expired or version mismatch
   if (cached.expiresAt <= now || cached.version !== CACHE_VERSION) {
-    // Return null for expired cache - cleanup will be handled by periodic cleanup
+    // Record expired cache access - but only in mutation context
+    // This will be handled by the calling function that has mutation context
     return null;
   }
 
+  // Record cache hit - but only in mutation context
+  // This will be handled by the calling function that has mutation context
   return cached.data as T;
 }
 
@@ -56,7 +61,8 @@ export async function setCachedData<T>(
   userId: string,
   cacheKey: string,
   data: T,
-  ttlMs: number
+  ttlMs: number,
+  computationTimeMs?: number
 ): Promise<void> {
   const now = Date.now();
   const expiresAt = now + ttlMs;
@@ -64,7 +70,7 @@ export async function setCachedData<T>(
   // Check if cache entry already exists
   const existing = await ctx.db
     .query("statisticsCache")
-    .withIndex("by_userId_and_key", (q) => 
+    .withIndex("by_userId_and_key", (q) =>
       q.eq("userId", userId).eq("cacheKey", cacheKey)
     )
     .first();
@@ -88,6 +94,9 @@ export async function setCachedData<T>(
       version: CACHE_VERSION,
     });
   }
+
+  // Record cache miss metric (since we're storing new/updated data)
+  await recordCacheMetric(ctx, cacheKey, userId, "miss", computationTimeMs, ttlMs);
 }
 
 /**
@@ -198,3 +207,133 @@ export const CacheInvalidation = {
     ]);
   },
 } as const;
+
+/**
+ * Record cache access metrics for performance monitoring
+ */
+export async function recordCacheMetric(
+  ctx: MutationCtx,
+  cacheKey: string,
+  userId: string | undefined,
+  hitType: "hit" | "miss" | "expired",
+  computationTimeMs?: number,
+  ttlMs?: number
+): Promise<void> {
+  await ctx.db.insert("cacheMetrics", {
+    timestamp: Date.now(),
+    cacheKey,
+    userId,
+    hitType,
+    computationTimeMs,
+    ttlMs,
+  });
+}
+
+/**
+ * Enhanced cache data retrieval with metrics tracking
+ * Use this in mutation contexts where you can record metrics
+ */
+export async function getCachedDataWithMetrics<T>(
+  ctx: MutationCtx,
+  userId: string,
+  cacheKey: string
+): Promise<T | null> {
+  const now = Date.now();
+
+  const cached = await ctx.db
+    .query("statisticsCache")
+    .withIndex("by_userId_and_key", (q) =>
+      q.eq("userId", userId).eq("cacheKey", cacheKey)
+    )
+    .first();
+
+  if (!cached) {
+    // Don't record miss here - it will be recorded when setCachedData is called
+    return null;
+  }
+
+  // Check if cache is expired or version mismatch
+  if (cached.expiresAt <= now || cached.version !== CACHE_VERSION) {
+    // Record expired cache access
+    await recordCacheMetric(ctx, cacheKey, userId, "expired");
+    return null;
+  }
+
+  // Record cache hit
+  await recordCacheMetric(ctx, cacheKey, userId, "hit");
+  return cached.data as T;
+}
+
+/**
+ * Calculate cache hit rate for a specific time period
+ */
+export async function calculateCacheHitRate(
+  ctx: QueryCtx | MutationCtx,
+  timeWindowMs: number = 24 * 60 * 60 * 1000, // Default: 24 hours
+  cacheKey?: string,
+  userId?: string
+): Promise<number> {
+  const now = Date.now();
+  const startTime = now - timeWindowMs;
+
+  const query = ctx.db
+    .query("cacheMetrics")
+    .withIndex("by_timestamp", (q) => q.gte("timestamp", startTime));
+
+  // Apply filters if provided
+  if (cacheKey) {
+    const metrics = await query.collect();
+    const filteredMetrics = metrics.filter(m => m.cacheKey === cacheKey);
+    return calculateHitRateFromMetrics(filteredMetrics);
+  }
+
+  if (userId) {
+    const metrics = await query.collect();
+    const filteredMetrics = metrics.filter(m => m.userId === userId);
+    return calculateHitRateFromMetrics(filteredMetrics);
+  }
+
+  const metrics = await query.collect();
+  return calculateHitRateFromMetrics(metrics);
+}
+
+/**
+ * Helper function to calculate hit rate from metrics array
+ */
+function calculateHitRateFromMetrics(metrics: Array<{ hitType: "hit" | "miss" | "expired" }>): number {
+  if (metrics.length === 0) return 0;
+
+  const hits = metrics.filter(m => m.hitType === "hit").length;
+  const total = metrics.length;
+
+  return hits / total;
+}
+
+/**
+ * Wrapper function for cache-aware data computation
+ * Handles cache lookup, computation, and storage with metrics tracking
+ */
+export async function withCache<T>(
+  ctx: MutationCtx,
+  userId: string,
+  cacheKey: string,
+  ttlMs: number,
+  computeFn: () => Promise<T>
+): Promise<T> {
+  // Try to get cached data with metrics
+  const cached = await getCachedDataWithMetrics<T>(ctx, userId, cacheKey);
+
+  if (cached !== null) {
+    return cached;
+  }
+
+  // Compute data and track time
+  const startTime = Date.now();
+  const data = await computeFn();
+  const computationTimeMs = Date.now() - startTime;
+
+  // Store in cache with metrics
+  await setCachedData(ctx, userId, cacheKey, data, ttlMs, computationTimeMs);
+
+  return data;
+}

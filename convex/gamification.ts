@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { QueryCtx, MutationCtx } from "./_generated/server";
-import { getCachedData, setCachedData, CacheKeys, CACHE_TTL } from "./utils/cache";
+import { getCachedData, withCache, CacheKeys, CACHE_TTL } from "./utils/cache";
 
 /**
  * Enhanced Gamification System
@@ -409,20 +409,13 @@ async function calculateUserStatsQuery(ctx: QueryCtx, userId: string) {
  * Calculate user statistics for achievement progress (mutation context - with caching)
  */
 async function calculateUserStatsMutation(ctx: MutationCtx, userId: string) {
-  // Try to get cached data first
-  const cacheKey = CacheKeys.userStats(userId);
-  const cached = await getCachedData(ctx, userId, cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
-  const stats = await computeUserStats(ctx, userId);
-
-  // Cache the computed stats for future requests
-  await setCachedData(ctx, userId, cacheKey, stats, CACHE_TTL.USER_STATS);
-
-  return stats;
+  return await withCache(
+    ctx,
+    userId,
+    CacheKeys.userStats(userId),
+    CACHE_TTL.USER_STATS,
+    () => computeUserStats(ctx, userId)
+  );
 }
 
 /**
