@@ -217,7 +217,7 @@ const StatisticsCard = memo(function StatisticsCard({
 	return (
 		<div
 			className={`
-      ${colorClasses.bg} ${colorClasses.border} ${colorClasses.glow}p-6 group cursor-pointer rounded-lg border-2 bg-slate-50 transition-all duration-300 hover:scale-105 hover:border-slate-300 hover:bg-white hover:shadow-lg dark:bg-slate-800 dark:hover:border-slate-600 dark:hover:bg-slate-750 `}
+      ${colorClasses.bg} ${colorClasses.border} ${colorClasses.glow} group cursor-pointer rounded-lg border-2 bg-slate-50 p-6 transition-all duration-300 hover:scale-105 hover:border-slate-300 hover:bg-white hover:shadow-lg dark:bg-slate-800 dark:hover:border-slate-600 dark:hover:bg-slate-750 `}
 		>
 			{/* Header */}
 			<div className="mb-4 flex items-center justify-between">
