@@ -245,20 +245,20 @@ function DashboardContent({
 	};
 
 	return (
-		<div className="flex flex-col gap-8 max-w-6xl mx-auto">
+		<div className="mx-auto flex max-w-6xl flex-col gap-8">
 			{/* Header */}
-			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+			<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 				<div>
-					<h1 className="text-3xl font-bold tracking-tight">
+					<h1 className="font-bold text-3xl tracking-tight">
 						{t("dashboard.title")}
 					</h1>
-					<p className="text-slate-700 dark:text-slate-300 mt-1 font-medium">
+					<p className="mt-1 font-medium text-slate-700 dark:text-slate-300">
 						{decks.length === 0
 							? t("dashboard.subtitle.empty")
 							: t("dashboard.subtitle.withDecks", { count: decks.length })}
 					</p>
 				</div>
-				<div className="flex flex-col sm:flex-row gap-3 items-center">
+				<div className="flex flex-col items-center gap-3 sm:flex-row">
 					{/* Primary CTA - Create Deck */}
 					<CreateDeckForm onSuccess={handleCreateSuccess} />
 
@@ -268,11 +268,11 @@ function DashboardContent({
 					{/* Tertiary Action - Statistics Link */}
 					<button
 						onClick={onShowStatistics}
-						className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-medium transition-colors flex items-center gap-2 px-6 py-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+						className="flex items-center gap-2 rounded-lg px-6 py-3 font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 dark:text-slate-400 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-200"
 						aria-label={t("dashboard.buttons.showStatistics")}
 					>
 						<svg
-							className="w-4 h-4"
+							className="h-4 w-4"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -290,7 +290,7 @@ function DashboardContent({
 			</div>
 
 			{/* Streak Display, Smart Scheduling, and Achievements */}
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+			<div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
 				<StreakDisplay />
 				<SmartSchedulingWidget />
 				<AchievementsWidget />
@@ -303,7 +303,7 @@ function DashboardContent({
 			{decks.length === 0 ? (
 				<EmptyState />
 			) : (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{decks.map((deck) => {
 						const progressData = deckProgressData.find(
 							(p) => p.deckId === deck._id,
@@ -331,11 +331,11 @@ const EmptyState = memo(function EmptyState() {
 	const { t } = useTranslation();
 
 	return (
-		<div className="flex flex-col items-center justify-center py-16 px-4">
-			<div className="text-center max-w-md">
-				<div className="w-24 h-24 mx-auto mb-6 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+		<div className="flex flex-col items-center justify-center px-4 py-16">
+			<div className="max-w-md text-center">
+				<div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
 					<svg
-						className="w-12 h-12 text-slate-400 dark:text-slate-500"
+						className="h-12 w-12 text-slate-400 dark:text-slate-500"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -349,13 +349,13 @@ const EmptyState = memo(function EmptyState() {
 						/>
 					</svg>
 				</div>
-				<h3 className="text-2xl font-bold mb-3 tracking-tight">
+				<h3 className="mb-3 font-bold text-2xl tracking-tight">
 					{t("emptyState.title")}
 				</h3>
-				<p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+				<p className="mb-6 text-slate-600 leading-relaxed dark:text-slate-400">
 					{t("emptyState.description")}
 				</p>
-				<div className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+				<div className="font-medium text-slate-500 text-sm dark:text-slate-400">
 					{t("emptyState.getStarted")}
 				</div>
 			</div>
@@ -416,7 +416,7 @@ const DeckCard = memo(function DeckCard({
 		const config = badgeConfig[status];
 		return (
 			<div
-				className={`status-badge absolute top-3 right-3 px-2 py-1 text-xs font-medium rounded-md border ${config.className} transition-colors duration-200`}
+				className={`status-badge absolute top-3 right-3 rounded-md border px-2 py-1 font-medium text-xs ${config.className} transition-colors duration-200`}
 				aria-label={config.ariaLabel}
 			>
 				{config.text}
@@ -450,20 +450,20 @@ const DeckCard = memo(function DeckCard({
 	const progressConfig = getProgressConfig();
 
 	return (
-		<div className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 p-8 rounded-xl border border-slate-200/60 dark:border-slate-700/60 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg dark:hover:shadow-slate-900/20 transition-all duration-300 group shadow-sm">
+		<div className="group relative rounded-xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50 p-8 shadow-sm transition-all duration-300 hover:border-slate-300 hover:shadow-lg dark:border-slate-700/60 dark:from-slate-800 dark:to-slate-900 dark:hover:border-slate-600 dark:hover:shadow-slate-900/20">
 			{/* Status Badge */}
 			{getStatusBadge()}
 
-			<div className="flex flex-col h-full">
+			<div className="flex h-full flex-col">
 				{/* Deck Header */}
-				<div className="flex-1 mb-6 pr-16">
+				<div className="mb-6 flex-1 pr-16">
 					{" "}
 					{/* Add right padding to avoid status badge overlap */}
-					<h3 className="text-xl font-bold mb-4 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors line-clamp-2 tracking-tight">
+					<h3 className="mb-4 line-clamp-2 font-bold text-xl tracking-tight transition-colors group-hover:text-slate-900 dark:group-hover:text-slate-100">
 						{deck.name}
 					</h3>
 					{deck.description && (
-						<p className="text-slate-600 dark:text-slate-400 text-sm mb-0 line-clamp-3 font-normal leading-relaxed">
+						<p className="mb-0 line-clamp-3 font-normal text-slate-600 text-sm leading-relaxed dark:text-slate-400">
 							{deck.description}
 						</p>
 					)}
@@ -472,19 +472,19 @@ const DeckCard = memo(function DeckCard({
 				{/* Progress Bar */}
 				{progressConfig && (
 					<div className="mb-4">
-						<div className="flex items-center justify-between mb-2">
-							<span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+						<div className="mb-2 flex items-center justify-between">
+							<span className="font-medium text-slate-600 text-xs dark:text-slate-400">
 								{t("deck.progress.label")}
 							</span>
 							<span
-								className={`text-xs font-semibold ${progressConfig.textColor}`}
+								className={`font-semibold text-xs ${progressConfig.textColor}`}
 							>
 								{progressConfig.percentage}%
 							</span>
 						</div>
-						<div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+						<div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
 							<div
-								className={`progress-bar h-full ${progressConfig.barColor} transition-all duration-500 ease-out rounded-full`}
+								className={`progress-bar h-full ${progressConfig.barColor} rounded-full transition-all duration-500 ease-out`}
 								style={{ width: `${progressConfig.percentage}%` }}
 								role="progressbar"
 								aria-valuenow={progressConfig.percentage}
@@ -499,19 +499,19 @@ const DeckCard = memo(function DeckCard({
 				)}
 
 				{/* Deck Metadata */}
-				<div className="flex items-center justify-between mb-4 pt-4 border-t border-slate-200/60 dark:border-slate-700/60">
-					<div className="flex items-center gap-3 flex-wrap">
-						<span className="deck-metadata-badge text-xs bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 px-2.5 py-1.5 rounded-md font-medium border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200">
+				<div className="mb-4 flex items-center justify-between border-slate-200/60 border-t pt-4 dark:border-slate-700/60">
+					<div className="flex flex-wrap items-center gap-3">
+						<span className="deck-metadata-badge rounded-md border border-slate-200/50 bg-slate-100 px-2.5 py-1.5 font-medium text-slate-600 text-xs transition-colors duration-200 hover:bg-slate-200 dark:border-slate-600/50 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:bg-slate-700">
 							{t("deck.cardCount", { count: deck.cardCount })}
 						</span>
 						{progressData?.lastStudied && (
-							<span className="deck-metadata-badge text-xs bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 px-2.5 py-1.5 rounded-md font-medium border border-slate-200/50 dark:border-slate-600/50 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200">
+							<span className="deck-metadata-badge rounded-md border border-slate-200/50 bg-slate-100 px-2.5 py-1.5 font-medium text-slate-600 text-xs transition-colors duration-200 hover:bg-slate-200 dark:border-slate-600/50 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:bg-slate-700">
 								{t("deck.lastStudied", {
 									date: formatDate(progressData.lastStudied),
 								})}
 							</span>
 						)}
-						<span className="deck-metadata-badge text-xs text-slate-500 dark:text-slate-400 font-medium hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-200">
+						<span className="deck-metadata-badge font-medium text-slate-500 text-xs transition-colors duration-200 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
 							{t("deck.createdOn", { date: formatDate(deck._creationTime) })}
 						</span>
 					</div>
@@ -521,14 +521,14 @@ const DeckCard = memo(function DeckCard({
 				<div className="flex items-center gap-2">
 					<button
 						onClick={onManageCards}
-						className="flex-1 text-sm bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 font-medium border border-slate-200/50 dark:border-slate-600/50 hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+						className="flex-1 rounded-lg border border-slate-200/50 bg-slate-100 px-4 py-2.5 font-medium text-slate-700 text-sm transition-all duration-200 hover:scale-[1.01] hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 dark:border-slate-600/50 dark:bg-slate-700/50 dark:text-slate-300 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-900 dark:hover:bg-slate-700"
 						aria-label={t("deck.manageCardsAria", { deckName: deck.name })}
 					>
 						{t("deck.manageCards")}
 					</button>
 					<button
 						onClick={onStartStudy}
-						className="flex-1 text-sm bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-4 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+						className="flex-1 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 px-4 py-2.5 font-semibold text-sm text-white shadow-md transition-all duration-200 hover:scale-[1.02] hover:from-blue-700 hover:to-cyan-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
 						aria-label={t("deck.studyAria", { deckName: deck.name })}
 					>
 						{t("deck.studyNow")}

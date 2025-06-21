@@ -158,12 +158,12 @@ function PostSessionSummary({
 	};
 
 	return (
-		<div className="flex flex-col gap-8 max-w-2xl mx-auto">
+		<div className="mx-auto flex max-w-2xl flex-col gap-8">
 			{/* Success Icon and Header */}
 			<div className="text-center">
-				<div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
+				<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
 					<svg
-						className="w-8 h-8 text-green-600 dark:text-green-400"
+						className="h-8 w-8 text-green-600 dark:text-green-400"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -178,7 +178,7 @@ function PostSessionSummary({
 					</svg>
 				</div>
 				<h1
-					className="text-3xl font-bold mb-2 text-slate-900 dark:text-slate-100"
+					className="mb-2 font-bold text-3xl text-slate-900 dark:text-slate-100"
 					data-testid="session-complete-heading"
 					tabIndex={-1}
 				>
@@ -197,7 +197,7 @@ function PostSessionSummary({
 			</div>
 
 			{/* Session Statistics */}
-			<div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
+			<div className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
 				<div className="grid gap-4">
 					{/* Cards Reviewed */}
 					<div className="flex items-center justify-between">
@@ -236,10 +236,10 @@ function PostSessionSummary({
 			</div>
 
 			{/* Next Study Recommendation */}
-			<div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+			<div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950">
 				<div className="flex items-start gap-3">
 					<svg
-						className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0"
+						className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -253,10 +253,10 @@ function PostSessionSummary({
 						/>
 					</svg>
 					<div>
-						<h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">
+						<h3 className="mb-1 font-semibold text-blue-800 text-sm dark:text-blue-200">
 							{t("common.whatsNext")}
 						</h3>
-						<p className="text-xs text-blue-700 dark:text-blue-300">
+						<p className="text-blue-700 text-xs dark:text-blue-300">
 							{getNextStudyMessage()}
 						</p>
 					</div>
@@ -267,7 +267,7 @@ function PostSessionSummary({
 			<div className="flex flex-col gap-3">
 				<button
 					onClick={onReturnToDashboard}
-					className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+					className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
 					autoFocus
 				>
 					{t("postSessionSummary.actions.returnToDashboard")}
@@ -280,7 +280,7 @@ function PostSessionSummary({
 					onContinueStudying && (
 						<button
 							onClick={onContinueStudying}
-							className="bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 font-medium py-3 px-6 rounded-lg border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+							className="rounded-lg border-2 border-slate-300 bg-slate-200 px-6 py-3 font-medium text-slate-900 transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:focus:ring-offset-slate-900"
 						>
 							{t("postSessionSummary.actions.continueStudying")} (
 							{studyQueueStats.dueCount}{" "}
@@ -291,7 +291,7 @@ function PostSessionSummary({
 
 			{/* Motivational Message */}
 			<div className="text-center">
-				<p className="text-slate-500 dark:text-slate-400 text-sm">
+				<p className="text-slate-500 text-sm dark:text-slate-400">
 					{studyMode === "spaced-repetition"
 						? "Keep up the great work! Consistent practice leads to long-term retention."
 						: "Great job studying! Regular review helps reinforce your learning."}

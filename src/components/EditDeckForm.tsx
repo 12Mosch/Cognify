@@ -231,7 +231,7 @@ export function EditDeckForm({
 					storeTriggerElement();
 					setShowForm(true);
 				}}
-				className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity font-medium"
+				className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 font-medium text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 				aria-label={t("forms.editDeck.buttonLabel")}
 			>
 				{t("deck.editDeck")}
@@ -243,22 +243,22 @@ export function EditDeckForm({
 		<>
 			{/* Modal Overlay */}
 			<div
-				className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4"
+				className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 p-4"
 				onClick={handleCancel}
 				aria-hidden="true"
 			/>
 
 			{/* Modal Content */}
-			<div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+			<div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
 				<FocusLock>
 					<div
-						className="bg-slate-100 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 max-w-md w-full pointer-events-auto"
+						className="pointer-events-auto w-full max-w-md rounded-lg border-2 border-slate-200 bg-slate-100 p-6 dark:border-slate-700 dark:bg-slate-800"
 						role="dialog"
 						aria-modal="true"
 						aria-labelledby="edit-deck-title"
 						onClick={(e) => e.stopPropagation()}
 					>
-						<h3 id="edit-deck-title" className="text-lg font-bold mb-4">
+						<h3 id="edit-deck-title" className="mb-4 font-bold text-lg">
 							{t("forms.editDeck.title")}
 						</h3>
 
@@ -266,7 +266,7 @@ export function EditDeckForm({
 							<div>
 								<label
 									htmlFor="edit-deck-name"
-									className="block text-sm font-medium mb-2"
+									className="mb-2 block font-medium text-sm"
 								>
 									{t("forms.editDeck.name")} *
 								</label>
@@ -277,12 +277,12 @@ export function EditDeckForm({
 									value={name}
 									onChange={(e) => setName(e.target.value)}
 									placeholder={t("forms.editDeck.namePlaceholder")}
-									className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400"
+									className="w-full rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
 									maxLength={100}
 									required
 									aria-describedby={error ? "form-error" : undefined}
 								/>
-								<div className="text-xs text-slate-500 mt-1">
+								<div className="mt-1 text-slate-500 text-xs">
 									{t("forms.editDeck.characterCount", {
 										current: name.length,
 										max: 100,
@@ -293,7 +293,7 @@ export function EditDeckForm({
 							<div>
 								<label
 									htmlFor="edit-deck-description"
-									className="block text-sm font-medium mb-2"
+									className="mb-2 block font-medium text-sm"
 								>
 									{t("forms.editDeck.description")}
 								</label>
@@ -303,11 +303,11 @@ export function EditDeckForm({
 									onChange={(e) => setDescription(e.target.value)}
 									placeholder={t("forms.editDeck.descriptionPlaceholder")}
 									rows={3}
-									className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-vertical"
+									className="resize-vertical w-full rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
 									maxLength={500}
 									aria-describedby={error ? "form-error" : undefined}
 								/>
-								<div className="text-xs text-slate-500 mt-1">
+								<div className="mt-1 text-slate-500 text-xs">
 									{t("forms.editDeck.characterCount", {
 										current: description.length,
 										max: 500,
@@ -318,7 +318,7 @@ export function EditDeckForm({
 							{error && (
 								<div
 									id="form-error"
-									className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-200 dark:border-red-800"
+									className="rounded-md border border-red-200 bg-red-50 p-3 text-red-600 text-sm dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
 									role="alert"
 									aria-live="polite"
 								>
@@ -330,7 +330,7 @@ export function EditDeckForm({
 								<button
 									type="submit"
 									disabled={isSubmitting || !name.trim()}
-									className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+									className="rounded-md border-2 bg-dark px-4 py-2 font-medium text-light text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-light dark:text-dark"
 									aria-label={
 										isSubmitting
 											? t("forms.editDeck.updating")
@@ -346,7 +346,7 @@ export function EditDeckForm({
 									type="button"
 									onClick={handleCancel}
 									disabled={isSubmitting}
-									className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+									className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 									aria-label={t("forms.editDeck.cancel")}
 								>
 									{t("forms.editDeck.cancel")}

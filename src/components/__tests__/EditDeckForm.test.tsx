@@ -366,6 +366,7 @@ describe("EditDeckForm", () => {
 			const submitButton = screen.getByRole("button", { name: /Update Deck/i });
 
 			// Make the mutation hang
+			// biome-ignore lint/suspicious/noEmptyBlockStatements: Intentionally empty to create a hanging promise for testing loading states
 			mockUpdateDeck.mockImplementation(() => new Promise(() => {}));
 
 			await user.click(submitButton);

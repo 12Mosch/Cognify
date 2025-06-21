@@ -153,19 +153,19 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 	};
 
 	return (
-		<div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t-2 border-slate-200 dark:border-slate-700 shadow-lg">
-			<div className="max-w-6xl mx-auto p-4">
-				<div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
+		<div className="fixed right-0 bottom-0 left-0 z-50 border-slate-200 border-t-2 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
+			<div className="mx-auto max-w-6xl p-4">
+				<div className="flex flex-col items-start gap-4 lg:flex-row lg:items-center">
 					{/* Privacy message */}
 					<div className="flex-1">
-						<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+						<h3 className="mb-2 font-semibold text-lg text-slate-900 dark:text-slate-100">
 							{isEU
 								? "Your Privacy Matters"
 								: isCA
 									? "Privacy Notice"
 									: "Cookie Notice"}
 						</h3>
-						<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+						<p className="text-slate-600 text-sm leading-relaxed dark:text-slate-400">
 							{isEU ? (
 								<>
 									We use cookies and similar technologies to improve your
@@ -191,7 +191,7 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 						<div className="mt-2">
 							<a
 								href="/privacy-policy"
-								className="text-blue-600 dark:text-blue-400 hover:underline text-sm"
+								className="text-blue-600 text-sm hover:underline dark:text-blue-400"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
@@ -200,7 +200,7 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 							{" • "}
 							<a
 								href="/cookie-policy"
-								className="text-blue-600 dark:text-blue-400 hover:underline text-sm"
+								className="text-blue-600 text-sm hover:underline dark:text-blue-400"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
@@ -210,11 +210,11 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 					</div>
 
 					{/* Action buttons */}
-					<div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+					<div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
 						<button
 							onClick={handleCustomize}
 							disabled={isLoading}
-							className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+							className="rounded-md border border-slate-300 px-4 py-2 font-medium text-slate-600 text-sm transition-colors hover:bg-slate-50 hover:text-slate-800 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
 						>
 							Customize
 						</button>
@@ -224,14 +224,14 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 								<button
 									onClick={handleRejectAll}
 									disabled={isLoading}
-									className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+									className="rounded-md border border-slate-300 px-4 py-2 font-medium text-slate-600 text-sm transition-colors hover:bg-slate-50 hover:text-slate-800 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
 								>
 									{isCA ? "Opt Out" : "Reject All"}
 								</button>
 								<button
 									onClick={handleAcceptAll}
 									disabled={isLoading}
-									className="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+									className="rounded-md bg-blue-600 px-6 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 								>
 									{isLoading ? "Processing..." : "Accept All"}
 								</button>
@@ -240,7 +240,7 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 							<button
 								onClick={handleAcceptAll}
 								disabled={isLoading}
-								className="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								className="rounded-md bg-blue-600 px-6 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								{isLoading ? "Processing..." : "Accept"}
 							</button>

@@ -182,6 +182,7 @@ describe("LearningReflectionModal Error Handling", () => {
 		mockUseMutation.mockReturnValue(mockSaveReflection);
 
 		// Spy on console.warn to verify warning is logged
+		// biome-ignore lint/suspicious/noEmptyBlockStatements: Intentionally empty to mock console.warn without output
 		const consoleSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
 
 		render(<LearningReflectionModal {...mockProps} />);

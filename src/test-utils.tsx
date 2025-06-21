@@ -1,6 +1,11 @@
 import { ClerkProvider } from "@clerk/clerk-react";
 import { RenderOptions, render } from "@testing-library/react";
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import {
+	ConvexProvider,
+	ConvexReactClient,
+	useMutation,
+	useQuery,
+} from "convex/react";
 import React, { ReactElement } from "react";
 import { I18nextProvider } from "react-i18next";
 import testI18n from "./test-i18n";
@@ -80,15 +85,11 @@ export const createMockStudySession = () => ({
 
 // Mock implementations for common hooks
 export const mockUseQuery = (returnValue: any) => {
-	// eslint-disable-next-line @typescript-eslint/no-require-imports
-	const { useQuery } = require("convex/react");
-	return useQuery.mockReturnValue(returnValue);
+	return (useQuery as jest.Mock).mockReturnValue(returnValue);
 };
 
 export const mockUseMutation = (mockFn: jest.Mock = jest.fn()) => {
-	// eslint-disable-next-line @typescript-eslint/no-require-imports
-	const { useMutation } = require("convex/react");
-	return useMutation.mockReturnValue(mockFn);
+	return (useMutation as jest.Mock).mockReturnValue(mockFn);
 };
 
 // Helper to wait for async operations

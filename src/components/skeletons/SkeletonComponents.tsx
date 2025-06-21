@@ -18,7 +18,7 @@ const SkeletonElement = memo(function SkeletonElement({
 }) {
 	return (
 		<div
-			className={`bg-slate-200 dark:bg-slate-700 animate-shimmer rounded ${className}`}
+			className={`animate-shimmer rounded bg-slate-200 dark:bg-slate-700 ${className}`}
 			aria-label={ariaLabel}
 			aria-hidden="true"
 		/>
@@ -31,24 +31,24 @@ const SkeletonElement = memo(function SkeletonElement({
 export const DeckCardSkeleton = memo(function DeckCardSkeleton() {
 	return (
 		<div
-			className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 p-8 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm"
+			className="rounded-xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50 p-8 shadow-sm dark:border-slate-700/60 dark:from-slate-800 dark:to-slate-900"
 			role="status"
 			aria-busy="true"
 			aria-label="Loading deck"
 		>
-			<div className="flex flex-col h-full">
+			<div className="flex h-full flex-col">
 				{/* Deck Header */}
-				<div className="flex-1 mb-6">
+				<div className="mb-6 flex-1">
 					{/* Deck title */}
-					<SkeletonElement className="h-7 w-3/4 mb-4" />
+					<SkeletonElement className="mb-4 h-7 w-3/4" />
 
 					{/* Deck description */}
-					<SkeletonElement className="h-4 w-full mb-2" />
+					<SkeletonElement className="mb-2 h-4 w-full" />
 					<SkeletonElement className="h-4 w-2/3" />
 				</div>
 
 				{/* Deck Metadata */}
-				<div className="flex items-center justify-between mb-4 pt-4 border-t border-slate-200/60 dark:border-slate-700/60">
+				<div className="mb-4 flex items-center justify-between border-slate-200/60 border-t pt-4 dark:border-slate-700/60">
 					<div className="flex items-center gap-3">
 						<SkeletonElement className="h-7 w-16 rounded-md" />
 						<SkeletonElement className="h-4 w-24" />
@@ -57,8 +57,8 @@ export const DeckCardSkeleton = memo(function DeckCardSkeleton() {
 
 				{/* Action Buttons */}
 				<div className="flex items-center gap-3">
-					<SkeletonElement className="flex-1 h-10 rounded-lg" />
-					<SkeletonElement className="flex-1 h-10 rounded-lg" />
+					<SkeletonElement className="h-10 flex-1 rounded-lg" />
+					<SkeletonElement className="h-10 flex-1 rounded-lg" />
 				</div>
 			</div>
 		</div>
@@ -75,25 +75,25 @@ export const DeckListSkeleton = memo(function DeckListSkeleton({
 }) {
 	return (
 		<div
-			className="flex flex-col gap-8 max-w-6xl mx-auto"
+			className="mx-auto flex max-w-6xl flex-col gap-8"
 			role="status"
 			aria-busy="true"
 			aria-label="Loading decks"
 		>
 			{/* Header skeleton */}
-			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+			<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 				<div>
-					<SkeletonElement className="h-9 w-64 mb-2" />
+					<SkeletonElement className="mb-2 h-9 w-64" />
 					<SkeletonElement className="h-5 w-32" />
 				</div>
-				<div className="flex flex-col sm:flex-row gap-3">
+				<div className="flex flex-col gap-3 sm:flex-row">
 					<SkeletonElement className="h-12 w-36" />
 					<SkeletonElement className="h-12 w-32" />
 				</div>
 			</div>
 
 			{/* Deck grid skeleton */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{Array.from({ length: count }, (_, i) => (
 					<DeckCardSkeleton key={i} />
 				))}
@@ -108,7 +108,7 @@ export const DeckListSkeleton = memo(function DeckListSkeleton({
 export const FlashcardSkeleton = memo(function FlashcardSkeleton() {
 	return (
 		<div
-			className="flex flex-col gap-8 max-w-4xl mx-auto"
+			className="mx-auto flex max-w-4xl flex-col gap-8"
 			role="status"
 			aria-busy="true"
 			aria-label="Loading flashcard"
@@ -128,11 +128,11 @@ export const FlashcardSkeleton = memo(function FlashcardSkeleton() {
 			</div>
 
 			{/* Flashcard skeleton */}
-			<div className="min-h-[400px] bg-slate-50 dark:bg-slate-800 p-8 border-2 border-slate-200 dark:border-slate-700 rounded-lg">
-				<div className="flex flex-col justify-center items-center text-center h-full">
-					<SkeletonElement className="h-6 w-20 mb-6" />
-					<SkeletonElement className="h-8 w-3/4 mb-4" />
-					<SkeletonElement className="h-6 w-1/2 mb-2" />
+			<div className="min-h-[400px] rounded-lg border-2 border-slate-200 bg-slate-50 p-8 dark:border-slate-700 dark:bg-slate-800">
+				<div className="flex h-full flex-col items-center justify-center text-center">
+					<SkeletonElement className="mb-6 h-6 w-20" />
+					<SkeletonElement className="mb-4 h-8 w-3/4" />
+					<SkeletonElement className="mb-2 h-6 w-1/2" />
 					<SkeletonElement className="h-6 w-2/3" />
 				</div>
 			</div>
@@ -156,18 +156,18 @@ export const DeckViewSkeleton = memo(function DeckViewSkeleton({
 }) {
 	return (
 		<div
-			className="flex flex-col gap-8 max-w-6xl mx-auto"
+			className="mx-auto flex max-w-6xl flex-col gap-8"
 			role="status"
 			aria-busy="true"
 			aria-label="Loading deck view"
 		>
 			{/* Header skeleton */}
-			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+			<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 				<div className="flex items-center gap-4">
 					<SkeletonElement className="h-6 w-16" />
 					<div>
-						<SkeletonElement className="h-9 w-48 mb-2" />
-						<SkeletonElement className="h-5 w-32 mb-1" />
+						<SkeletonElement className="mb-2 h-9 w-48" />
+						<SkeletonElement className="mb-1 h-5 w-32" />
 						<SkeletonElement className="h-4 w-20" />
 					</div>
 				</div>
@@ -175,7 +175,7 @@ export const DeckViewSkeleton = memo(function DeckViewSkeleton({
 			</div>
 
 			{/* Cards grid skeleton */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{Array.from({ length: cardCount }, (_, i) => (
 					<CardItemSkeleton key={i} />
 				))}
@@ -190,22 +190,22 @@ export const DeckViewSkeleton = memo(function DeckViewSkeleton({
 const CardItemSkeleton = memo(function CardItemSkeleton() {
 	return (
 		<div
-			className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700"
+			className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800"
 			role="status"
 			aria-busy="true"
 			aria-label="Loading card"
 		>
-			<div className="flex flex-col h-full min-h-[200px]">
+			<div className="flex h-full min-h-[200px] flex-col">
 				{/* Card content skeleton */}
-				<div className="flex-1 mb-4">
-					<SkeletonElement className="h-4 w-12 mb-2" />
-					<SkeletonElement className="h-6 w-full mb-2" />
-					<SkeletonElement className="h-6 w-3/4 mb-2" />
+				<div className="mb-4 flex-1">
+					<SkeletonElement className="mb-2 h-4 w-12" />
+					<SkeletonElement className="mb-2 h-6 w-full" />
+					<SkeletonElement className="mb-2 h-6 w-3/4" />
 					<SkeletonElement className="h-6 w-1/2" />
 				</div>
 
 				{/* Card actions skeleton */}
-				<div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700">
+				<div className="flex items-center justify-between border-slate-200 border-t pt-4 dark:border-slate-700">
 					<SkeletonElement className="h-4 w-20" />
 					<div className="flex gap-2">
 						<SkeletonElement className="h-4 w-8" />
@@ -261,14 +261,14 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 
 	return (
 		<div
-			className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700"
+			className="rounded-lg border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800"
 			role="status"
 			aria-busy="true"
 			aria-label="Loading study history heatmap"
 		>
 			{/* Header */}
 			<div className="mb-6">
-				<SkeletonElement className="h-6 w-48 mb-2" />
+				<SkeletonElement className="mb-2 h-6 w-48" />
 				<SkeletonElement className="h-4 w-64" />
 			</div>
 
@@ -276,7 +276,7 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 			<div className="overflow-x-auto">
 				<div className="min-w-[800px]">
 					{/* Month Labels */}
-					<div className="flex mb-2 ml-8 relative">
+					<div className="relative mb-2 ml-8 flex">
 						{skeletonMonths.map((month) => (
 							<div
 								key={month.name}
@@ -294,9 +294,9 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 					{/* Grid Container */}
 					<div className="flex">
 						{/* Day Labels */}
-						<div className="flex flex-col mr-2">
+						<div className="mr-2 flex flex-col">
 							{days.map((_, dayIndex) => (
-								<div key={dayIndex} className="h-3 mb-1 flex items-center">
+								<div key={dayIndex} className="mb-1 flex h-3 items-center">
 									{dayIndex % 2 === 1 && (
 										<SkeletonElement className="h-3 w-3" />
 									)}
@@ -320,7 +320,7 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 					</div>
 
 					{/* Legend */}
-					<div className="flex items-center justify-between mt-4">
+					<div className="mt-4 flex items-center justify-between">
 						<SkeletonElement className="h-4 w-32" />
 						<div className="flex items-center gap-1">
 							<SkeletonElement className="h-3 w-8" />
@@ -334,11 +334,11 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 			</div>
 
 			{/* Stats Summary */}
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+			<div className="mt-6 grid grid-cols-2 gap-4 border-slate-200 border-t pt-6 md:grid-cols-4 dark:border-slate-700">
 				{Array.from({ length: 4 }).map((_, index) => (
 					<div key={index} className="text-center">
-						<SkeletonElement className="h-6 w-12 mx-auto mb-1" />
-						<SkeletonElement className="h-4 w-16 mx-auto" />
+						<SkeletonElement className="mx-auto mb-1 h-6 w-12" />
+						<SkeletonElement className="mx-auto h-4 w-16" />
 					</div>
 				))}
 			</div>
@@ -364,15 +364,15 @@ export const GenericSkeleton = memo(function GenericSkeleton({
 		default:
 			return (
 				<div
-					className="flex flex-col gap-8 max-w-4xl mx-auto"
+					className="mx-auto flex max-w-4xl flex-col gap-8"
 					role="status"
 					aria-busy="true"
 					aria-label="Loading"
 				>
 					<div className="flex items-center justify-center py-12">
 						<div className="text-center">
-							<SkeletonElement className="h-8 w-48 mx-auto mb-4" />
-							<SkeletonElement className="h-4 w-32 mx-auto" />
+							<SkeletonElement className="mx-auto mb-4 h-8 w-48" />
+							<SkeletonElement className="mx-auto h-4 w-32" />
 						</div>
 					</div>
 				</div>

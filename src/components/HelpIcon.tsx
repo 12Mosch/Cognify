@@ -11,17 +11,7 @@ function HelpIcon({ onClick, className = "" }: HelpIconProps) {
 	return (
 		<button
 			onClick={onClick}
-			className={`
-        inline-flex items-center justify-center
-        w-8 h-8 rounded-full
-        bg-slate-200 dark:bg-slate-700
-        hover:bg-slate-300 dark:hover:bg-slate-600
-        text-slate-600 dark:text-slate-400
-        hover:text-slate-800 dark:hover:text-slate-200
-        transition-colors duration-200
-        focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500
-        ${className}
-      `}
+			className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-slate-600 transition-colors duration-200 hover:bg-slate-300 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:bg-slate-700 dark:text-slate-400 dark:focus:ring-slate-500 dark:hover:bg-slate-600 dark:hover:text-slate-200 ${className} `}
 			aria-label="Show keyboard shortcuts help"
 			title="Keyboard shortcuts (?)"
 		>

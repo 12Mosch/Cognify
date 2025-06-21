@@ -78,19 +78,19 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 
 	return (
 		<div
-			className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg dark:hover:shadow-slate-900/20 transition-all duration-300 group ${className}`}
+			className={`group rounded-xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-slate-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 dark:hover:shadow-slate-900/20 ${className}`}
 		>
 			{/* Header */}
-			<div className="flex items-center justify-between mb-6">
+			<div className="mb-6 flex items-center justify-between">
 				<div className="flex items-center gap-3">
-					<div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-						<span className="text-white text-lg">🧠</span>
+					<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 transition-transform duration-200 group-hover:scale-105">
+						<span className="text-lg text-white">🧠</span>
 					</div>
 					<div>
-						<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">
+						<h3 className="font-semibold text-lg text-slate-900 transition-colors group-hover:text-slate-700 dark:text-slate-100 dark:group-hover:text-slate-200">
 							{t("scheduling.title", "Smart Scheduling")}
 						</h3>
-						<p className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-500 dark:group-hover:text-slate-300 transition-colors">
+						<p className="text-slate-600 text-sm transition-colors group-hover:text-slate-500 dark:text-slate-400 dark:group-hover:text-slate-300">
 							{t("scheduling.subtitle", "AI-powered study recommendations")}
 						</p>
 					</div>
@@ -98,7 +98,7 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 
 				<button
 					onClick={() => setShowWeeklySchedule(!showWeeklySchedule)}
-					className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:scale-105 transition-all duration-200 px-3 py-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20"
+					className="rounded-md px-3 py-1 text-blue-600 text-sm transition-all duration-200 hover:scale-105 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-300"
 				>
 					{showWeeklySchedule
 						? t("scheduling.showToday", "Show Today")
@@ -110,9 +110,9 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 				/* Today's Recommendations */
 				<div className="space-y-4">
 					{/* Current Status */}
-					<div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors duration-200 cursor-pointer">
+					<div className="flex cursor-pointer items-center justify-between rounded-lg bg-slate-50 p-4 transition-colors duration-200 hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600">
 						<div>
-							<div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+							<div className="mb-1 text-slate-600 text-sm dark:text-slate-400">
 								{t("scheduling.currentTime", "Current Time Slot")}
 							</div>
 							<div className="font-medium text-slate-900 dark:text-slate-100">
@@ -121,10 +121,10 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 						</div>
 						<div className="flex items-center gap-2">
 							<div
-								className={`px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200 hover:scale-105 ${
+								className={`rounded-full border px-3 py-1 font-medium text-xs transition-all duration-200 hover:scale-105 ${
 									isOptimalTime
-										? "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800"
-										: "bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800"
+										? "border-green-200 bg-green-100 text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300"
+										: "border-orange-200 bg-orange-100 text-orange-700 dark:border-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
 								}`}
 							>
 								{isOptimalTime
@@ -135,13 +135,13 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 					</div>
 
 					{/* Energy Level */}
-					<div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors duration-200 cursor-pointer">
+					<div className="flex cursor-pointer items-center justify-between rounded-lg bg-slate-50 p-4 transition-colors duration-200 hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600">
 						<div>
-							<div className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+							<div className="mb-1 text-slate-600 text-sm dark:text-slate-400">
 								{t("scheduling.energyLevel", "Predicted Energy Level")}
 							</div>
 							<div
-								className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium border transition-all duration-200 hover:scale-105 ${getEnergyLevelStyle(energyLevelPrediction)}`}
+								className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 font-medium text-sm transition-all duration-200 hover:scale-105 ${getEnergyLevelStyle(energyLevelPrediction)}`}
 							>
 								<span>
 									{energyLevelPrediction === "high"
@@ -160,19 +160,19 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 
 					{/* Cards Available */}
 					<div className="grid grid-cols-2 gap-4">
-						<div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-700 hover:scale-105 transition-all duration-200 cursor-pointer">
-							<div className="text-2xl font-bold text-blue-700 dark:text-blue-300 mb-1">
+						<div className="cursor-pointer rounded-lg border border-blue-200 bg-blue-50 p-4 transition-all duration-200 hover:scale-105 hover:border-blue-300 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/20 dark:hover:border-blue-700 dark:hover:bg-blue-900/30">
+							<div className="mb-1 font-bold text-2xl text-blue-700 dark:text-blue-300">
 								{dueCardsCount}
 							</div>
-							<div className="text-sm text-blue-600 dark:text-blue-400">
+							<div className="text-blue-600 text-sm dark:text-blue-400">
 								{t("scheduling.dueCards", "Due Cards")}
 							</div>
 						</div>
-						<div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/30 hover:border-green-300 dark:hover:border-green-700 hover:scale-105 transition-all duration-200 cursor-pointer">
-							<div className="text-2xl font-bold text-green-700 dark:text-green-300 mb-1">
+						<div className="cursor-pointer rounded-lg border border-green-200 bg-green-50 p-4 transition-all duration-200 hover:scale-105 hover:border-green-300 hover:bg-green-100 dark:border-green-800 dark:bg-green-900/20 dark:hover:border-green-700 dark:hover:bg-green-900/30">
+							<div className="mb-1 font-bold text-2xl text-green-700 dark:text-green-300">
 								{newCardsAvailable}
 							</div>
-							<div className="text-sm text-green-600 dark:text-green-400">
+							<div className="text-green-600 text-sm dark:text-green-400">
 								{t("scheduling.newCards", "New Cards")}
 							</div>
 						</div>
@@ -180,27 +180,27 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 
 					{/* Immediate Recommendation */}
 					{immediateRecommendation && (
-						<div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-800 hover:from-purple-100 hover:to-blue-100 dark:hover:from-purple-900/30 dark:hover:to-blue-900/30 hover:border-purple-300 dark:hover:border-purple-700 hover:scale-[1.02] transition-all duration-200 cursor-pointer">
+						<div className="cursor-pointer rounded-lg border border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50 p-4 transition-all duration-200 hover:scale-[1.02] hover:border-purple-300 hover:from-purple-100 hover:to-blue-100 dark:border-purple-800 dark:from-purple-900/20 dark:to-blue-900/20 dark:hover:border-purple-700 dark:hover:from-purple-900/30 dark:hover:to-blue-900/30">
 							<div className="flex items-start gap-3">
-								<div className="text-2xl hover:scale-110 transition-transform duration-200">
+								<div className="text-2xl transition-transform duration-200 hover:scale-110">
 									💡
 								</div>
 								<div className="flex-1">
-									<h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-1 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+									<h4 className="mb-1 font-semibold text-slate-900 transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
 										{immediateRecommendation.action}
 									</h4>
-									<p className="text-sm text-slate-600 dark:text-slate-400 mb-3 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+									<p className="mb-3 text-slate-600 text-sm transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 										{immediateRecommendation.reasoning}
 									</p>
 									{immediateRecommendation.estimatedDuration > 0 && (
 										<div className="flex items-center gap-4 text-sm">
-											<span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+											<span className="text-slate-600 transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 												⏱️ {immediateRecommendation.estimatedDuration} min
 											</span>
-											<span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+											<span className="text-slate-600 transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 												📚 {immediateRecommendation.expectedCards} cards
 											</span>
-											<span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+											<span className="text-slate-600 transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 												🎯{" "}
 												{Math.round(immediateRecommendation.confidence * 100)}%
 												confidence
@@ -214,12 +214,12 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 
 					{/* Next Optimal Time */}
 					{nextOptimalTime && !isOptimalTime && (
-						<div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 hover:border-yellow-300 dark:hover:border-yellow-700 hover:scale-[1.02] transition-all duration-200 cursor-pointer">
+						<div className="cursor-pointer rounded-lg border border-yellow-200 bg-yellow-50 p-4 transition-all duration-200 hover:scale-[1.02] hover:border-yellow-300 hover:bg-yellow-100 dark:border-yellow-800 dark:bg-yellow-900/20 dark:hover:border-yellow-700 dark:hover:bg-yellow-900/30">
 							<div className="flex items-center gap-2">
-								<span className="text-yellow-600 dark:text-yellow-400 hover:scale-110 transition-transform duration-200">
+								<span className="text-yellow-600 transition-transform duration-200 hover:scale-110 dark:text-yellow-400">
 									⏰
 								</span>
-								<span className="text-sm text-yellow-700 dark:text-yellow-300 hover:text-yellow-600 dark:hover:text-yellow-200 transition-colors">
+								<span className="text-sm text-yellow-700 transition-colors hover:text-yellow-600 dark:text-yellow-300 dark:hover:text-yellow-200">
 									{t("scheduling.nextOptimal", "Next optimal time")}:{" "}
 									<strong>{nextOptimalTime}</strong>
 								</span>
@@ -242,15 +242,15 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 							))
 					) : weeklySchedule === null ? (
 						/* Weekly schedule error state */
-						<div className="text-center py-8 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-							<div className="text-2xl mb-2">⚠️</div>
-							<div className="text-red-700 dark:text-red-300 font-medium mb-1">
+						<div className="rounded-lg border border-red-200 bg-red-50 p-4 py-8 text-center dark:border-red-800 dark:bg-red-900/20">
+							<div className="mb-2 text-2xl">⚠️</div>
+							<div className="mb-1 font-medium text-red-700 dark:text-red-300">
 								{t(
 									"scheduling.weeklyError.title",
 									"Unable to load weekly schedule",
 								)}
 							</div>
-							<div className="text-sm text-red-600 dark:text-red-400">
+							<div className="text-red-600 text-sm dark:text-red-400">
 								{t(
 									"scheduling.weeklyError.description",
 									"Today's recommendations are still available above",
@@ -258,7 +258,7 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 							</div>
 						</div>
 					) : (
-						<div className="text-center py-8 text-slate-500 dark:text-slate-400">
+						<div className="py-8 text-center text-slate-500 dark:text-slate-400">
 							{t(
 								"scheduling.noWeeklyData",
 								"Weekly schedule will appear after more study sessions",
@@ -297,28 +297,28 @@ const WeeklyScheduleDay = memo(function WeeklyScheduleDay({
 
 	return (
 		<div
-			className={`p-4 rounded-lg border transition-all duration-200 hover:scale-[1.02] cursor-pointer ${
+			className={`cursor-pointer rounded-lg border p-4 transition-all duration-200 hover:scale-[1.02] ${
 				isToday
-					? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-700"
-					: "bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 hover:border-slate-300 dark:hover:border-slate-500"
+					? "border-blue-200 bg-blue-50 hover:border-blue-300 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/20 dark:hover:border-blue-700 dark:hover:bg-blue-900/30"
+					: "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-700 dark:hover:border-slate-500 dark:hover:bg-slate-600"
 			}`}
 		>
-			<div className="flex items-center justify-between mb-3">
+			<div className="mb-3 flex items-center justify-between">
 				<div className="flex items-center gap-3">
 					<div
-						className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-transform duration-200 hover:scale-110 ${
+						className={`flex h-8 w-8 items-center justify-center rounded-full font-medium text-sm transition-transform duration-200 hover:scale-110 ${
 							isToday
 								? "bg-blue-600 text-white"
-								: "bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300"
+								: "bg-slate-200 text-slate-700 dark:bg-slate-600 dark:text-slate-300"
 						}`}
 					>
 						{dayNumber}
 					</div>
 					<div>
-						<div className="font-medium text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+						<div className="font-medium text-slate-900 transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
 							{dayName}
 							{isToday && (
-								<span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
+								<span className="ml-2 text-blue-600 text-xs dark:text-blue-400">
 									Today
 								</span>
 							)}
@@ -326,10 +326,10 @@ const WeeklyScheduleDay = memo(function WeeklyScheduleDay({
 					</div>
 				</div>
 				<div className="text-right">
-					<div className="text-sm font-medium text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+					<div className="font-medium text-slate-900 text-sm transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
 						{day.totalEstimatedCards} cards
 					</div>
-					<div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+					<div className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 						{day.estimatedStudyTime} min
 					</div>
 				</div>
@@ -340,18 +340,18 @@ const WeeklyScheduleDay = memo(function WeeklyScheduleDay({
 					{day.recommendations.slice(0, 2).map((rec, index) => (
 						<div
 							key={index}
-							className="flex items-center justify-between text-sm hover:bg-slate-100 dark:hover:bg-slate-600 p-2 rounded transition-colors duration-200"
+							className="flex items-center justify-between rounded p-2 text-sm transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-600"
 						>
-							<span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+							<span className="text-slate-600 transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 								{rec.startTime} • {rec.duration}min
 							</span>
 							<span
-								className={`px-2 py-1 rounded text-xs transition-all duration-200 hover:scale-105 ${
+								className={`rounded px-2 py-1 text-xs transition-all duration-200 hover:scale-105 ${
 									rec.priority === "high"
-										? "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300"
+										? "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300"
 										: rec.priority === "medium"
-											? "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300"
-											: "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300"
+											? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300"
+											: "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300"
 								}`}
 							>
 								{rec.expectedCards} cards
@@ -371,15 +371,15 @@ const SchedulingWidgetSkeleton = memo(function SchedulingWidgetSkeleton({
 }) {
 	return (
 		<div
-			className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 ${className}`}
+			className={`rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800 ${className}`}
 		>
 			<div className="animate-pulse space-y-4">
-				<div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
-				<div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-				<div className="h-12 bg-slate-200 dark:bg-slate-700 rounded" />
+				<div className="h-6 w-1/3 rounded bg-slate-200 dark:bg-slate-700" />
+				<div className="h-16 rounded bg-slate-200 dark:bg-slate-700" />
+				<div className="h-12 rounded bg-slate-200 dark:bg-slate-700" />
 				<div className="grid grid-cols-2 gap-4">
-					<div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-					<div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+					<div className="h-16 rounded bg-slate-200 dark:bg-slate-700" />
+					<div className="h-16 rounded bg-slate-200 dark:bg-slate-700" />
 				</div>
 			</div>
 		</div>
@@ -395,14 +395,14 @@ const NoSchedulingDataState = memo(function NoSchedulingDataState({
 
 	return (
 		<div
-			className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 ${className}`}
+			className={`rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800 ${className}`}
 		>
-			<div className="text-center py-8">
-				<div className="text-4xl mb-3">🧠</div>
-				<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+			<div className="py-8 text-center">
+				<div className="mb-3 text-4xl">🧠</div>
+				<h3 className="mb-2 font-semibold text-lg text-slate-900 dark:text-slate-100">
 					{t("scheduling.noData.title", "Building Your Schedule")}
 				</h3>
-				<p className="text-sm text-slate-600 dark:text-slate-400">
+				<p className="text-slate-600 text-sm dark:text-slate-400">
 					{t(
 						"scheduling.noData.description",
 						"Complete a few study sessions to get personalized recommendations",
@@ -422,19 +422,19 @@ const SchedulingErrorState = memo(function SchedulingErrorState({
 
 	return (
 		<div
-			className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-red-200 dark:border-red-700 ${className}`}
+			className={`rounded-xl border border-red-200 bg-white p-6 dark:border-red-700 dark:bg-slate-800 ${className}`}
 		>
-			<div className="text-center py-8">
-				<div className="text-4xl mb-3">⚠️</div>
-				<h3 className="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">
+			<div className="py-8 text-center">
+				<div className="mb-3 text-4xl">⚠️</div>
+				<h3 className="mb-2 font-semibold text-lg text-red-900 dark:text-red-100">
 					{t("scheduling.error.title", "Unable to load recommendations")}
 				</h3>
-				<p className="text-sm text-red-600 dark:text-red-400 mb-4">
+				<p className="mb-4 text-red-600 text-sm dark:text-red-400">
 					{t("scheduling.error.description", "Please try again later")}
 				</p>
 				<button
 					onClick={() => window.location.reload()}
-					className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+					className="rounded-lg bg-red-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-red-700"
 				>
 					{t("scheduling.error.retry", "Retry")}
 				</button>

@@ -97,13 +97,13 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 	};
 
 	return (
-		<div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700">
+		<div className="rounded-lg border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
 			{/* Header */}
 			<div className="mb-6">
-				<h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
+				<h2 className="mb-2 font-semibold text-slate-900 text-xl dark:text-slate-100">
 					{t("statistics.heatmap.title")}
 				</h2>
-				<p className="text-sm text-slate-600 dark:text-slate-400">
+				<p className="text-slate-600 text-sm dark:text-slate-400">
 					{t("statistics.heatmap.subtitle", { count: stats.activeDays })}
 				</p>
 			</div>
@@ -112,11 +112,11 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 			<div className="overflow-x-auto">
 				<div className="min-w-[800px]">
 					{/* Month Labels */}
-					<div className="flex mb-2 ml-8">
+					<div className="mb-2 ml-8 flex">
 						{heatmapData.months.map((month) => (
 							<div
 								key={`${month.name}-${month.weekStart}`}
-								className="text-xs text-slate-500 dark:text-slate-400"
+								className="text-slate-500 text-xs dark:text-slate-400"
 								style={{
 									marginLeft: `${month.weekStart * 14}px`,
 									width: `${month.weekSpan * 14}px`,
@@ -130,11 +130,11 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 					{/* Grid Container */}
 					<div className="flex">
 						{/* Day Labels */}
-						<div className="flex flex-col mr-2">
+						<div className="mr-2 flex flex-col">
 							{dayLabels.map((label, dayIndex) => (
 								<div
 									key={dayIndex}
-									className="h-3 mb-1 flex items-center text-xs text-slate-500 dark:text-slate-400"
+									className="mb-1 flex h-3 items-center text-slate-500 text-xs dark:text-slate-400"
 								>
 									{dayIndex % 2 === 1 && (
 										<span className="w-3 text-center">{label}</span>
@@ -150,10 +150,7 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 									{week.days.map((day) => (
 										<div
 											key={`${week.weekIndex}-${day.dayIndex}`}
-											className={`
-                        h-3 w-3 rounded-sm border cursor-pointer transition-all duration-200 hover:scale-110
-                        ${getActivityLevelClasses(day.level)}
-                      `}
+											className={`h-3 w-3 cursor-pointer rounded-sm border transition-all duration-200 hover:scale-110 ${getActivityLevelClasses(day.level)} `}
 											onMouseEnter={(e) => handleDayMouseEnter(day, e)}
 											onMouseLeave={handleDayMouseLeave}
 											onFocus={(e) => handleDayFocus(day, e)}
@@ -170,8 +167,8 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 					</div>
 
 					{/* Legend */}
-					<div className="flex items-center justify-between mt-4">
-						<div className="text-xs text-slate-500 dark:text-slate-400">
+					<div className="mt-4 flex items-center justify-between">
+						<div className="text-slate-500 text-xs dark:text-slate-400">
 							{t("statistics.heatmap.legend.less")}
 						</div>
 						<div className="flex items-center gap-1">
@@ -183,7 +180,7 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 								/>
 							))}
 						</div>
-						<div className="text-xs text-slate-500 dark:text-slate-400">
+						<div className="text-slate-500 text-xs dark:text-slate-400">
 							{t("statistics.heatmap.legend.more")}
 						</div>
 					</div>
@@ -191,39 +188,39 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 			</div>
 
 			{/* Summary Statistics */}
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+			<div className="mt-6 grid grid-cols-2 gap-4 border-slate-200 border-t pt-6 md:grid-cols-4 dark:border-slate-700">
 				<div className="text-center">
-					<div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+					<div className="font-bold text-2xl text-slate-900 dark:text-slate-100">
 						{stats.totalCards}
 					</div>
-					<div className="text-sm text-slate-600 dark:text-slate-400">
+					<div className="text-slate-600 text-sm dark:text-slate-400">
 						{t("statistics.heatmap.stats.cardsStudied")}
 					</div>
 				</div>
 
 				<div className="text-center">
-					<div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+					<div className="font-bold text-2xl text-slate-900 dark:text-slate-100">
 						{stats.activeDays}
 					</div>
-					<div className="text-sm text-slate-600 dark:text-slate-400">
+					<div className="text-slate-600 text-sm dark:text-slate-400">
 						{t("statistics.heatmap.stats.activeDays")}
 					</div>
 				</div>
 
 				<div className="text-center">
-					<div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+					<div className="font-bold text-2xl text-slate-900 dark:text-slate-100">
 						{stats.maxCardsInDay}
 					</div>
-					<div className="text-sm text-slate-600 dark:text-slate-400">
+					<div className="text-slate-600 text-sm dark:text-slate-400">
 						{t("statistics.heatmap.stats.bestDay")}
 					</div>
 				</div>
 
 				<div className="text-center">
-					<div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+					<div className="font-bold text-2xl text-slate-900 dark:text-slate-100">
 						{stats.studyRate}%
 					</div>
-					<div className="text-sm text-slate-600 dark:text-slate-400">
+					<div className="text-slate-600 text-sm dark:text-slate-400">
 						{t("statistics.heatmap.stats.studyRate")}
 					</div>
 				</div>
@@ -232,7 +229,7 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 			{/* Tooltip */}
 			{hoveredDay && (
 				<div
-					className="fixed z-50 px-3 py-2 text-sm bg-slate-900 dark:bg-slate-700 text-white rounded-lg shadow-lg pointer-events-none"
+					className="pointer-events-none fixed z-50 rounded-lg bg-slate-900 px-3 py-2 text-sm text-white shadow-lg dark:bg-slate-700"
 					style={{
 						left: `${tooltipPosition.x}px`,
 						top: `${tooltipPosition.y}px`,
@@ -243,7 +240,7 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 						{formatTooltipContent(hoveredDay)}
 					</div>
 					{/* Tooltip arrow */}
-					<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900 dark:border-t-slate-700" />
+					<div className="-translate-x-1/2 absolute top-full left-1/2 h-0 w-0 transform border-transparent border-t-4 border-t-slate-900 border-r-4 border-l-4 dark:border-t-slate-700" />
 				</div>
 			)}
 		</div>

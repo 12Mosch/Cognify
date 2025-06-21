@@ -10,10 +10,18 @@ global.IntersectionObserver = class IntersectionObserver {
 	rootMargin = "";
 	thresholds = [];
 
-	constructor() {}
-	disconnect() {}
-	observe() {}
-	unobserve() {}
+	constructor() {
+		// Mock constructor - intentionally empty
+	}
+	disconnect() {
+		// Mock method - intentionally empty
+	}
+	observe() {
+		// Mock method - intentionally empty
+	}
+	unobserve() {
+		// Mock method - intentionally empty
+	}
 	takeRecords() {
 		return [];
 	}
@@ -21,10 +29,18 @@ global.IntersectionObserver = class IntersectionObserver {
 
 // Mock ResizeObserver for components that use it (like charts)
 global.ResizeObserver = class ResizeObserver {
-	constructor() {}
-	disconnect() {}
-	observe() {}
-	unobserve() {}
+	constructor() {
+		// Mock constructor - intentionally empty
+	}
+	disconnect() {
+		// Mock method - intentionally empty
+	}
+	observe() {
+		// Mock method - intentionally empty
+	}
+	unobserve() {
+		// Mock method - intentionally empty
+	}
 } as any;
 
 // Mock matchMedia for responsive components

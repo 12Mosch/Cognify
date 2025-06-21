@@ -147,13 +147,13 @@ export default function PrivacySettings({
 		title: string;
 		description: string;
 	}) => (
-		<div className="border-b border-slate-200 dark:border-slate-700 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
-			<div className="flex items-start justify-between mb-3">
+		<div className="mb-6 border-slate-200 border-b pb-6 last:mb-0 last:border-b-0 last:pb-0 dark:border-slate-700">
+			<div className="mb-3 flex items-start justify-between">
 				<div className="flex-1">
-					<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+					<h3 className="mb-2 font-semibold text-lg text-slate-900 dark:text-slate-100">
 						{title}
 					</h3>
-					<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+					<p className="text-slate-600 text-sm leading-relaxed dark:text-slate-400">
 						{description}
 					</p>
 				</div>
@@ -161,26 +161,26 @@ export default function PrivacySettings({
 					<div className="flex gap-2">
 						<button
 							onClick={() => handleConsentChange(type, "granted")}
-							className={`px-3 py-1 text-sm rounded-md transition-colors ${
+							className={`rounded-md px-3 py-1 text-sm transition-colors ${
 								localSettings[type] === "granted"
 									? "bg-green-500 text-white"
-									: "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-green-100 dark:hover:bg-green-900"
+									: "bg-slate-200 text-slate-600 hover:bg-green-100 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-green-900"
 							}`}
 						>
 							Allow
 						</button>
 						<button
 							onClick={() => handleConsentChange(type, "denied")}
-							className={`px-3 py-1 text-sm rounded-md transition-colors ${
+							className={`rounded-md px-3 py-1 text-sm transition-colors ${
 								localSettings[type] === "denied"
 									? "bg-red-500 text-white"
-									: "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-red-100 dark:hover:bg-red-900"
+									: "bg-slate-200 text-slate-600 hover:bg-red-100 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-red-900"
 							}`}
 						>
 							Deny
 						</button>
 					</div>
-					<div className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-center">
+					<div className="mt-1 text-center text-slate-500 text-xs dark:text-slate-400">
 						Current: {localSettings[type]}
 					</div>
 				</div>
@@ -190,7 +190,7 @@ export default function PrivacySettings({
 
 	const content = (
 		<div className={embedded ? "" : "p-6"}>
-			<p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+			<p className="mb-6 text-slate-600 leading-relaxed dark:text-slate-400">
 				We respect your privacy and want to be transparent about how we collect
 				and use your data. You can control what information we collect by
 				adjusting the settings below.
@@ -217,15 +217,15 @@ export default function PrivacySettings({
 			</div>
 
 			{!embedded && (
-				<div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
-					<div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
-						<div className="text-sm text-slate-500 dark:text-slate-400">
+				<div className="mt-8 border-slate-200 border-t pt-6 dark:border-slate-700">
+					<div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+						<div className="text-slate-500 text-sm dark:text-slate-400">
 							<p>Changes take effect immediately.</p>
 							<p>You can update these settings anytime.</p>
 						</div>
 						<button
 							onClick={onClose}
-							className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition-colors font-medium"
+							className="rounded-md bg-blue-500 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-600"
 						>
 							Done
 						</button>
@@ -241,30 +241,30 @@ export default function PrivacySettings({
 
 	return (
 		<div
-			className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+			className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="privacy-settings-modal-title"
 		>
 			<div
 				ref={modalRef}
-				className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+				className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-xl dark:bg-slate-800"
 			>
 				{/* Header */}
-				<div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+				<div className="flex items-center justify-between border-slate-200 border-b p-6 dark:border-slate-700">
 					<h2
 						id="privacy-settings-modal-title"
-						className="text-2xl font-bold text-slate-900 dark:text-slate-100"
+						className="font-bold text-2xl text-slate-900 dark:text-slate-100"
 					>
 						Privacy Settings
 					</h2>
 					<button
 						onClick={onClose}
-						className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+						className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200"
 						aria-label="Close privacy settings"
 					>
 						<svg
-							className="w-6 h-6"
+							className="h-6 w-6"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"

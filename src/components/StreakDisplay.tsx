@@ -21,12 +21,12 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 	if (streakData === undefined) {
 		return (
 			<div
-				className={`bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-6 ${className}`}
+				className={`rounded-lg border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800 ${className}`}
 			>
 				<div className="animate-pulse" data-testid="streak-loading">
-					<div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-32 mb-4"></div>
-					<div className="h-12 bg-slate-200 dark:bg-slate-700 rounded w-20 mb-2"></div>
-					<div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-48"></div>
+					<div className="mb-4 h-6 w-32 rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="mb-2 h-12 w-20 rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 w-48 rounded bg-slate-200 dark:bg-slate-700"></div>
 				</div>
 			</div>
 		);
@@ -115,32 +115,32 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 
 	return (
 		<div
-			className={`bg-gradient-to-r ${status.bgColor} border ${status.borderColor} rounded-lg p-6 cursor-pointer hover:shadow-lg dark:hover:shadow-slate-900/20 hover:border-slate-300 dark:hover:border-slate-500 transition-all duration-300 group ${className}`}
+			className={`bg-gradient-to-r ${status.bgColor} border ${status.borderColor} group cursor-pointer rounded-lg p-6 transition-all duration-300 hover:border-slate-300 hover:shadow-lg dark:hover:border-slate-500 dark:hover:shadow-slate-900/20 ${className}`}
 			onClick={handleStreakClick}
 			data-testid="streak-display"
 		>
 			{/* Header */}
-			<div className="flex items-center justify-between mb-4">
-				<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">
+			<div className="mb-4 flex items-center justify-between">
+				<h3 className="font-semibold text-lg text-slate-900 transition-colors group-hover:text-slate-700 dark:text-slate-100 dark:group-hover:text-slate-200">
 					{t("streak.display.title")}
 				</h3>
 				{lastMilestone && (
-					<div className="flex items-center gap-1 text-xs font-medium px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 rounded-full hover:scale-105 transition-transform duration-200">
+					<div className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 font-medium text-amber-800 text-xs transition-transform duration-200 hover:scale-105 dark:bg-amber-900/30 dark:text-amber-200">
 						🏅 {t("streak.display.milestoneAchieved", { count: lastMilestone })}
 					</div>
 				)}
 			</div>
 
 			{/* Current streak display */}
-			<div className="text-center mb-4">
+			<div className="mb-4 text-center">
 				<div
-					className={`text-4xl font-bold ${status.streakColor} mb-1 group-hover:scale-110 transition-transform duration-200`}
+					className={`font-bold text-4xl ${status.streakColor} mb-1 transition-transform duration-200 group-hover:scale-110`}
 					data-testid="current-streak"
 				>
 					{currentStreak}
 				</div>
 				<div
-					className={`text-sm font-medium ${status.textColor} group-hover:text-slate-500 dark:group-hover:text-slate-300 transition-colors`}
+					className={`font-medium text-sm ${status.textColor} transition-colors group-hover:text-slate-500 dark:group-hover:text-slate-300`}
 				>
 					{currentStreak === 1
 						? t("streak.display.day")
@@ -149,12 +149,12 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 			</div>
 
 			{/* Status message */}
-			<div className="text-center mb-4">
-				<div className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">
+			<div className="mb-4 text-center">
+				<div className="mb-1 font-semibold text-lg text-slate-900 transition-colors group-hover:text-slate-700 dark:text-slate-100 dark:group-hover:text-slate-200">
 					{status.title}
 				</div>
 				<div
-					className={`text-sm ${status.textColor} group-hover:text-slate-500 dark:group-hover:text-slate-300 transition-colors`}
+					className={`text-sm ${status.textColor} transition-colors group-hover:text-slate-500 dark:group-hover:text-slate-300`}
 				>
 					{status.message}
 				</div>
@@ -163,21 +163,21 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 			{/* Progress to next milestone */}
 			{nextMilestone && currentStreak > 0 && (
 				<div className="mb-4">
-					<div className="flex justify-between text-xs text-slate-600 dark:text-slate-400 mb-1 group-hover:text-slate-500 dark:group-hover:text-slate-300 transition-colors">
+					<div className="mb-1 flex justify-between text-slate-600 text-xs transition-colors group-hover:text-slate-500 dark:text-slate-400 dark:group-hover:text-slate-300">
 						<span>{t("streak.display.nextMilestone")}</span>
 						<span>
 							{t("streak.display.milestoneAchieved", { count: nextMilestone })}
 						</span>
 					</div>
-					<div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 group-hover:h-2.5 transition-all duration-200">
+					<div className="h-2 w-full rounded-full bg-slate-200 transition-all duration-200 group-hover:h-2.5 dark:bg-slate-700">
 						<div
-							className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full transition-all duration-300"
+							className="h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
 							style={{
 								width: `${Math.min((currentStreak / nextMilestone) * 100, 100)}%`,
 							}}
 						></div>
 					</div>
-					<div className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-center group-hover:text-slate-400 dark:group-hover:text-slate-300 transition-colors">
+					<div className="mt-1 text-center text-slate-500 text-xs transition-colors group-hover:text-slate-400 dark:text-slate-400 dark:group-hover:text-slate-300">
 						{t("streak.display.daysToGo", {
 							count: nextMilestone - currentStreak,
 						})}
@@ -186,20 +186,20 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 			)}
 
 			{/* Statistics */}
-			<div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-600">
-				<div className="text-center hover:bg-slate-100 dark:hover:bg-slate-700/50 p-2 rounded-lg transition-colors duration-200">
-					<div className="text-lg font-bold text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+			<div className="grid grid-cols-2 gap-4 border-slate-200 border-t pt-4 dark:border-slate-600">
+				<div className="rounded-lg p-2 text-center transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-700/50">
+					<div className="font-bold text-lg text-slate-900 transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
 						{longestStreak}
 					</div>
-					<div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+					<div className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 						{t("streak.display.longestStreak")}
 					</div>
 				</div>
-				<div className="text-center hover:bg-slate-100 dark:hover:bg-slate-700/50 p-2 rounded-lg transition-colors duration-200">
-					<div className="text-lg font-bold text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+				<div className="rounded-lg p-2 text-center transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-700/50">
+					<div className="font-bold text-lg text-slate-900 transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
 						{totalStudyDays}
 					</div>
-					<div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+					<div className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 						{t("streak.display.totalDays")}
 					</div>
 				</div>
@@ -207,15 +207,15 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 
 			{/* Milestones achieved */}
 			{milestonesReached.length > 0 && (
-				<div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
-					<div className="text-xs text-slate-600 dark:text-slate-400 mb-2 group-hover:text-slate-500 dark:group-hover:text-slate-300 transition-colors">
+				<div className="mt-4 border-slate-200 border-t pt-4 dark:border-slate-600">
+					<div className="mb-2 text-slate-600 text-xs transition-colors group-hover:text-slate-500 dark:text-slate-400 dark:group-hover:text-slate-300">
 						{t("streak.display.milestonesAchieved")}
 					</div>
 					<div className="flex flex-wrap gap-1">
 						{milestonesReached.map((milestone: number) => (
 							<span
 								key={milestone}
-								className="inline-flex items-center px-2 py-1 text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded-full hover:scale-105 hover:bg-yellow-200 dark:hover:bg-yellow-900/40 transition-all duration-200 cursor-pointer"
+								className="inline-flex cursor-pointer items-center rounded-full bg-yellow-100 px-2 py-1 font-medium text-xs text-yellow-800 transition-all duration-200 hover:scale-105 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-200 dark:hover:bg-yellow-900/40"
 							>
 								🏅 {milestone}
 							</span>

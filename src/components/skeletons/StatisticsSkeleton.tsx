@@ -10,32 +10,32 @@ export const StatisticsDashboardSkeleton = memo(
 
 		return (
 			<div
-				className="flex flex-col gap-8 max-w-7xl mx-auto"
+				className="mx-auto flex max-w-7xl flex-col gap-8"
 				role="status"
 				aria-busy="true"
 				aria-label={t("statistics.loading.dashboard")}
 			>
 				{/* Header Skeleton */}
-				<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+				<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 					<div>
-						<div className="h-8 w-64 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse mb-2"></div>
-						<div className="h-4 w-48 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
+						<div className="mb-2 h-8 w-64 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+						<div className="h-4 w-48 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 					</div>
 					<div className="flex gap-3">
-						<div className="h-10 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
-						<div className="h-10 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
+						<div className="h-10 w-32 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+						<div className="h-10 w-24 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 					</div>
 				</div>
 
 				{/* Overview Cards Grid */}
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 					{Array.from({ length: 4 }).map((_, index) => (
 						<StatisticsCardSkeleton key={index} />
 					))}
 				</div>
 
 				{/* Charts Section */}
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+				<div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
 					{/* Large Chart Skeleton */}
 					<div className="lg:col-span-2">
 						<ChartSkeleton height="h-80" title="Study Activity Over Time" />
@@ -47,7 +47,7 @@ export const StatisticsDashboardSkeleton = memo(
 				</div>
 
 				{/* Additional Metrics */}
-				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
 					<StatisticsCardSkeleton />
 					<StatisticsCardSkeleton />
 					<StatisticsCardSkeleton />
@@ -62,18 +62,18 @@ export const StatisticsDashboardSkeleton = memo(
  */
 export const StatisticsCardSkeleton = memo(function StatisticsCardSkeleton() {
 	return (
-		<div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
+		<div className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
 			{/* Card Header */}
-			<div className="flex items-center justify-between mb-4">
-				<div className="h-5 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
-				<div className="h-6 w-6 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
+			<div className="mb-4 flex items-center justify-between">
+				<div className="h-5 w-24 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+				<div className="h-6 w-6 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 			</div>
 
 			{/* Main Value */}
-			<div className="h-8 w-16 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse mb-2"></div>
+			<div className="mb-2 h-8 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 
 			{/* Subtitle/Change */}
-			<div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
+			<div className="h-4 w-32 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 		</div>
 	);
 });
@@ -93,28 +93,28 @@ export const ChartSkeleton = memo(function ChartSkeleton({
 	const { t } = useTranslation();
 
 	return (
-		<div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
+		<div className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
 			{/* Chart Title */}
-			<div className="flex items-center justify-between mb-6">
-				<div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
-				<div className="h-8 w-20 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
+			<div className="mb-6 flex items-center justify-between">
+				<div className="h-6 w-48 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+				<div className="h-8 w-20 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 			</div>
 
 			{/* Chart Area */}
 			<div
-				className={`${height} bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse flex items-center justify-center`}
+				className={`${height} flex animate-skeleton-pulse items-center justify-center rounded bg-slate-200 dark:bg-slate-700`}
 			>
-				<div className="text-slate-400 dark:text-slate-500 text-sm">
+				<div className="text-slate-400 text-sm dark:text-slate-500">
 					{t("statistics.loading.chartTitle", { title })}
 				</div>
 			</div>
 
 			{/* Chart Legend/Footer */}
-			<div className="flex justify-center gap-4 mt-4">
+			<div className="mt-4 flex justify-center gap-4">
 				{Array.from({ length: 3 }).map((_, index) => (
 					<div key={index} className="flex items-center gap-2">
-						<div className="h-3 w-3 bg-slate-200 dark:bg-slate-700 rounded-full animate-skeleton-pulse"></div>
-						<div className="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
+						<div className="h-3 w-3 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
+						<div className="h-4 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 					</div>
 				))}
 			</div>
@@ -128,16 +128,16 @@ export const ChartSkeleton = memo(function ChartSkeleton({
 export const DeckPerformanceTableSkeleton = memo(
 	function DeckPerformanceTableSkeleton() {
 		return (
-			<div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
+			<div className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
 				{/* Table Header */}
-				<div className="h-6 w-48 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse mb-6"></div>
+				<div className="mb-6 h-6 w-48 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 
 				{/* Table Headers */}
-				<div className="grid grid-cols-5 gap-4 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">
+				<div className="mb-4 grid grid-cols-5 gap-4 border-slate-200 border-b pb-2 dark:border-slate-700">
 					{Array.from({ length: 5 }).map((_, index) => (
 						<div
 							key={index}
-							className="h-4 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"
+							className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"
 						></div>
 					))}
 				</div>
@@ -146,12 +146,12 @@ export const DeckPerformanceTableSkeleton = memo(
 				{Array.from({ length: 4 }).map((_, rowIndex) => (
 					<div
 						key={rowIndex}
-						className="grid grid-cols-5 gap-4 py-3 border-b border-slate-100 dark:border-slate-800"
+						className="grid grid-cols-5 gap-4 border-slate-100 border-b py-3 dark:border-slate-800"
 					>
 						{Array.from({ length: 5 }).map((_, colIndex) => (
 							<div
 								key={colIndex}
-								className="h-4 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"
+								className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"
 							></div>
 						))}
 					</div>
@@ -166,24 +166,24 @@ export const DeckPerformanceTableSkeleton = memo(
  */
 export const UpcomingReviewsSkeleton = memo(function UpcomingReviewsSkeleton() {
 	return (
-		<div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
+		<div className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
 			{/* Widget Title */}
-			<div className="h-6 w-40 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse mb-6"></div>
+			<div className="mb-6 h-6 w-40 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 
 			{/* Review Items */}
 			{Array.from({ length: 5 }).map((_, index) => (
 				<div
 					key={index}
-					className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800 last:border-b-0"
+					className="flex items-center justify-between border-slate-100 border-b py-3 last:border-b-0 dark:border-slate-800"
 				>
 					<div className="flex items-center gap-3">
-						<div className="h-10 w-10 bg-slate-200 dark:bg-slate-700 rounded-full animate-skeleton-pulse"></div>
+						<div className="h-10 w-10 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
 						<div>
-							<div className="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse mb-1"></div>
-							<div className="h-3 w-16 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
+							<div className="mb-1 h-4 w-20 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+							<div className="h-3 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 						</div>
 					</div>
-					<div className="h-6 w-8 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse"></div>
+					<div className="h-6 w-8 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 				</div>
 			))}
 		</div>
@@ -195,26 +195,26 @@ export const UpcomingReviewsSkeleton = memo(function UpcomingReviewsSkeleton() {
  */
 export const LearningStreakSkeleton = memo(function LearningStreakSkeleton() {
 	return (
-		<div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
+		<div className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
 			{/* Widget Title */}
-			<div className="h-6 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse mb-6"></div>
+			<div className="mb-6 h-6 w-32 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 
 			{/* Streak Visualization */}
-			<div className="flex justify-center mb-6">
-				<div className="h-20 w-20 bg-slate-200 dark:bg-slate-700 rounded-full animate-skeleton-pulse flex items-center justify-center">
-					<div className="h-8 w-8 bg-slate-300 dark:bg-slate-600 rounded animate-skeleton-pulse"></div>
+			<div className="mb-6 flex justify-center">
+				<div className="flex h-20 w-20 animate-skeleton-pulse items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700">
+					<div className="h-8 w-8 animate-skeleton-pulse rounded bg-slate-300 dark:bg-slate-600"></div>
 				</div>
 			</div>
 
 			{/* Streak Stats */}
 			<div className="grid grid-cols-2 gap-4">
 				<div className="text-center">
-					<div className="h-6 w-8 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse mx-auto mb-2"></div>
-					<div className="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse mx-auto"></div>
+					<div className="mx-auto mb-2 h-6 w-8 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="mx-auto h-4 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 				</div>
 				<div className="text-center">
-					<div className="h-6 w-8 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse mx-auto mb-2"></div>
-					<div className="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded animate-skeleton-pulse mx-auto"></div>
+					<div className="mx-auto mb-2 h-6 w-8 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="mx-auto h-4 w-20 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 				</div>
 			</div>
 		</div>

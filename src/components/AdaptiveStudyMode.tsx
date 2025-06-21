@@ -350,18 +350,18 @@ export default function AdaptiveStudyMode({
 
 	if (studyQueue.length === 0) {
 		return (
-			<div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+			<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4 dark:from-slate-900 dark:to-slate-800">
 				<div className="text-center">
-					<div className="text-6xl mb-4">🎉</div>
-					<h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+					<div className="mb-4 text-6xl">🎉</div>
+					<h2 className="mb-2 font-bold text-2xl text-slate-900 dark:text-slate-100">
 						{t("study.noCardsToReview", "No cards to review")}
 					</h2>
-					<p className="text-slate-600 dark:text-slate-400 mb-6">
+					<p className="mb-6 text-slate-600 dark:text-slate-400">
 						{t("study.allCaughtUp.noCardsMessage")}
 					</p>
 					<button
 						onClick={onExit}
-						className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+						className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
 					>
 						{t("study.returnToDashboard", "Return to Dashboard")}
 					</button>
@@ -371,31 +371,31 @@ export default function AdaptiveStudyMode({
 	}
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex flex-col">
+		<div className="flex min-h-screen flex-col bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
 			{/* Header */}
-			<div className="flex items-center justify-between p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700">
+			<div className="flex items-center justify-between border-slate-200 border-b bg-white/80 p-4 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80">
 				<div className="flex items-center gap-4">
 					<button
 						onClick={onExit}
-						className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+						className="text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
 					>
 						← {t("study.exit", "Exit")}
 					</button>
-					<h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+					<h1 className="font-semibold text-slate-900 text-xl dark:text-slate-100">
 						{deck.name}
 					</h1>
-					<span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm rounded-full">
+					<span className="rounded-full bg-blue-100 px-2 py-1 text-blue-700 text-sm dark:bg-blue-900 dark:text-blue-300">
 						{t("study.adaptive", "Adaptive")}
 					</span>
 				</div>
-				<div className="text-sm text-slate-600 dark:text-slate-400">
+				<div className="text-slate-600 text-sm dark:text-slate-400">
 					{currentCardIndex + 1} / {studyQueue.length}
 				</div>
 			</div>
 
 			{/* Learning Pattern Insights */}
 			{learningPattern && (
-				<div className="p-4 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800">
+				<div className="border-blue-200 border-b bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
 					<div className="flex items-center gap-4 text-sm">
 						<div className="flex items-center gap-2">
 							<span className="text-blue-600 dark:text-blue-400">📊</span>
@@ -418,7 +418,7 @@ export default function AdaptiveStudyMode({
 
 			{/* Personalized Message */}
 			{personalizedMessage && (
-				<div className="p-4 bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800">
+				<div className="border-green-200 border-b bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
 					<div className="flex items-center gap-2">
 						<span className="text-green-600 dark:text-green-400">💡</span>
 						<span className="text-green-700 dark:text-green-300">
@@ -429,19 +429,19 @@ export default function AdaptiveStudyMode({
 			)}
 
 			{/* Main Card Area */}
-			<div className="flex-1 flex items-center justify-center p-8">
+			<div className="flex flex-1 items-center justify-center p-8">
 				<div className="w-full max-w-2xl">
 					{/* Flashcard */}
 					<div
-						className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 min-h-[300px] flex items-center justify-center cursor-pointer transition-all duration-300 hover:shadow-xl"
+						className="flex min-h-[300px] cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white shadow-lg transition-all duration-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800"
 						onClick={handleFlipCard}
 					>
 						<div className="p-8 text-center">
-							<div className="text-lg text-slate-900 dark:text-slate-100 leading-relaxed">
+							<div className="text-lg text-slate-900 leading-relaxed dark:text-slate-100">
 								{isFlipped ? currentCard.back : currentCard.front}
 							</div>
 							{!isFlipped && (
-								<div className="mt-6 text-sm text-slate-500 dark:text-slate-400">
+								<div className="mt-6 text-slate-500 text-sm dark:text-slate-400">
 									{t("study.clickToReveal", "Click to reveal")}
 								</div>
 							)}
@@ -450,8 +450,8 @@ export default function AdaptiveStudyMode({
 
 					{/* Confidence Rating */}
 					{showConfidenceRating && (
-						<div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-							<p className="text-sm text-yellow-800 dark:text-yellow-200 mb-3">
+						<div className="mt-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
+							<p className="mb-3 text-sm text-yellow-800 dark:text-yellow-200">
 								{t("study.howConfident", "How confident are you?")}
 							</p>
 							<div className="flex gap-2">
@@ -459,7 +459,7 @@ export default function AdaptiveStudyMode({
 									<button
 										key={rating}
 										onClick={() => handleConfidenceRating(rating)}
-										className="px-3 py-2 bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-800 dark:hover:bg-yellow-700 text-yellow-800 dark:text-yellow-200 rounded-lg text-sm transition-colors"
+										className="rounded-lg bg-yellow-100 px-3 py-2 text-sm text-yellow-800 transition-colors hover:bg-yellow-200 dark:bg-yellow-800 dark:text-yellow-200 dark:hover:bg-yellow-700"
 									>
 										{rating}
 									</button>
@@ -470,28 +470,28 @@ export default function AdaptiveStudyMode({
 
 					{/* Quality Rating Buttons */}
 					{isFlipped && !showConfidenceRating && (
-						<div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+						<div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
 							<button
 								onClick={() => handleButtonReview(0)}
-								className="p-4 bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 text-red-700 dark:text-red-300 rounded-lg font-medium transition-colors"
+								className="rounded-lg bg-red-100 p-4 font-medium text-red-700 transition-colors hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
 							>
 								{t("study.again", "Again")} (1)
 							</button>
 							<button
 								onClick={() => handleButtonReview(3)}
-								className="p-4 bg-orange-100 hover:bg-orange-200 dark:bg-orange-900 dark:hover:bg-orange-800 text-orange-700 dark:text-orange-300 rounded-lg font-medium transition-colors"
+								className="rounded-lg bg-orange-100 p-4 font-medium text-orange-700 transition-colors hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800"
 							>
 								{t("study.hard", "Hard")} (2)
 							</button>
 							<button
 								onClick={() => handleButtonReview(4)}
-								className="p-4 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 rounded-lg font-medium transition-colors"
+								className="rounded-lg bg-blue-100 p-4 font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
 							>
 								{t("study.good", "Good")} (3)
 							</button>
 							<button
 								onClick={() => handleButtonReview(5)}
-								className="p-4 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800 text-green-700 dark:text-green-300 rounded-lg font-medium transition-colors"
+								className="rounded-lg bg-green-100 p-4 font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800"
 							>
 								{t("study.easy", "Easy")} (4)
 							</button>
@@ -501,8 +501,8 @@ export default function AdaptiveStudyMode({
 			</div>
 
 			{/* Footer with keyboard shortcuts */}
-			<div className="p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-t border-slate-200 dark:border-slate-700">
-				<div className="text-center text-sm text-slate-600 dark:text-slate-400">
+			<div className="border-slate-200 border-t bg-white/80 p-4 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80">
+				<div className="text-center text-slate-600 text-sm dark:text-slate-400">
 					{t("study.keyboardShortcuts", "Keyboard shortcuts")}: Space/Enter{" "}
 					{t("study.toFlip", "to flip")}, 1-4 {t("study.toRate", "to rate")}
 				</div>

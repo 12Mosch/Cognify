@@ -75,7 +75,7 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
 	// Reset error tracking when deckId changes
 	useEffect(() => {
 		setErrorTracked({});
-	}, [deckId]);
+	}, []);
 
 	// Success handler for deck editing
 	const handleEditDeckSuccess = (deckName?: string) => {
@@ -91,18 +91,18 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
 	// Deck not found
 	if (!deck) {
 		return (
-			<div className="flex flex-col gap-8 max-w-6xl mx-auto">
+			<div className="mx-auto flex max-w-6xl flex-col gap-8">
 				<div className="flex items-center justify-center py-12">
 					<div className="text-center">
-						<h2 className="text-2xl font-bold mb-4">
+						<h2 className="mb-4 font-bold text-2xl">
 							{t("study.deckNotFound.title")}
 						</h2>
-						<p className="text-slate-600 dark:text-slate-400 mb-6">
+						<p className="mb-6 text-slate-600 dark:text-slate-400">
 							{t("study.deckNotFound.message")}
 						</p>
 						<button
 							onClick={onBack}
-							className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
+							className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
 						>
 							{t("deckView.backToDashboard")}
 						</button>
@@ -113,23 +113,23 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
 	}
 
 	return (
-		<div className="flex flex-col gap-8 max-w-6xl mx-auto">
+		<div className="mx-auto flex max-w-6xl flex-col gap-8">
 			{/* Header */}
-			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+			<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 				<div className="flex items-center gap-4">
 					<button
 						onClick={onBack}
-						className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+						className="text-slate-600 transition-colors hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
 						aria-label={t("deckView.backToDashboard")}
 					>
 						← {t("common.back")}
 					</button>
 					<div>
-						<h1 className="text-3xl font-bold tracking-tight">{deck.name}</h1>
-						<p className="text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
+						<h1 className="font-bold text-3xl tracking-tight">{deck.name}</h1>
+						<p className="mt-2 text-slate-600 leading-relaxed dark:text-slate-400">
 							{deck.description || t("deck.noDescription")}
 						</p>
-						<p className="text-sm text-slate-500 mt-2 font-medium">
+						<p className="mt-2 font-medium text-slate-500 text-sm">
 							{t("deck.cardCount", { count: cards.length })}
 						</p>
 					</div>
@@ -137,14 +137,14 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
 				<div className="flex items-center gap-3">
 					<button
 						onClick={() => setShowEditDeckForm(true)}
-						className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-3 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity font-medium"
+						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-3 font-medium text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 						aria-label={t("deck.editDeckAria", { deckName: deck.name })}
 					>
 						{t("deckView.editDeck")}
 					</button>
 					<button
 						onClick={() => setShowAddForm(true)}
-						className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium"
+						className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
 					>
 						+ {t("deckView.addCard")}
 					</button>
@@ -189,7 +189,7 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
 			{cards.length === 0 ? (
 				<EmptyState />
 			) : (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{cards.map((card) => (
 						<CardItem
 							key={card._id}
@@ -208,12 +208,12 @@ const EmptyState = memo(function EmptyState() {
 
 	return (
 		<div className="flex items-center justify-center py-16">
-			<div className="text-center max-w-md">
-				<div className="text-6xl mb-4">📚</div>
-				<h3 className="text-2xl font-bold mb-3 tracking-tight">
+			<div className="max-w-md text-center">
+				<div className="mb-4 text-6xl">📚</div>
+				<h3 className="mb-3 font-bold text-2xl tracking-tight">
 					{t("deckView.noCards")}
 				</h3>
-				<p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+				<p className="mb-6 text-slate-600 leading-relaxed dark:text-slate-400">
 					{t("deckView.addFirstCard")}
 				</p>
 			</div>
@@ -283,11 +283,11 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
 	};
 
 	return (
-		<div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
-			<div className="flex flex-col h-full min-h-[200px]">
+		<div className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600">
+			<div className="flex h-full min-h-[200px] flex-col">
 				{/* Card Content with 3D Flip Animation */}
 				<div
-					className="flashcard-container flex-1 mb-4 cursor-pointer"
+					className="flashcard-container mb-4 flex-1 cursor-pointer"
 					onClick={handleFlipCard}
 					onKeyDown={handleKeyDown}
 					tabIndex={0}
@@ -297,20 +297,20 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
 					<div className={`flashcard-inner ${isFlipped ? "flipped" : ""}`}>
 						{/* Front side */}
 						<div className="flashcard-side flashcard-front flex flex-col justify-center">
-							<div className="text-xs text-slate-500 mb-2 uppercase tracking-wide pointer-events-none">
+							<div className="pointer-events-none mb-2 text-slate-500 text-xs uppercase tracking-wide">
 								{t("forms.quickAddCard.front")}
 							</div>
-							<div className="text-sm leading-relaxed pointer-events-none">
+							<div className="pointer-events-none text-sm leading-relaxed">
 								{card.front}
 							</div>
 						</div>
 
 						{/* Back side */}
 						<div className="flashcard-side flashcard-back flex flex-col justify-center">
-							<div className="text-xs text-slate-500 mb-2 uppercase tracking-wide pointer-events-none">
+							<div className="pointer-events-none mb-2 text-slate-500 text-xs uppercase tracking-wide">
 								{t("forms.quickAddCard.back")}
 							</div>
-							<div className="text-sm leading-relaxed pointer-events-none">
+							<div className="pointer-events-none text-sm leading-relaxed">
 								{card.back}
 							</div>
 						</div>
@@ -318,11 +318,11 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
 				</div>
 
 				{/* Card Actions */}
-				<div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700">
+				<div className="flex items-center justify-between border-slate-200 border-t pt-4 dark:border-slate-700">
 					<div className="flex items-center gap-3">
 						<button
 							onClick={handleFlipCard}
-							className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+							className="text-slate-500 text-xs transition-colors hover:text-slate-700 dark:hover:text-slate-300"
 						>
 							{isFlipped ? t("study.showFront") : t("study.showBack")}
 						</button>
@@ -338,13 +338,13 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
 					<div className="flex gap-2">
 						<button
 							onClick={onEdit}
-							className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors"
+							className="text-blue-600 text-xs transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
 						>
 							{t("deckView.editCard")}
 						</button>
 						<button
 							onClick={() => setShowDeleteConfirm(true)}
-							className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 transition-colors"
+							className="text-red-600 text-xs transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
 						>
 							{t("deckView.deleteCard")}
 						</button>
@@ -354,24 +354,24 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
 
 			{/* Delete Confirmation */}
 			{showDeleteConfirm && (
-				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-					<div className="bg-light dark:bg-dark p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 max-w-sm mx-4">
-						<h3 className="text-lg font-semibold mb-4">
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+					<div className="mx-4 max-w-sm rounded-lg border-2 border-slate-200 bg-light p-6 dark:border-slate-700 dark:bg-dark">
+						<h3 className="mb-4 font-semibold text-lg">
 							{t("deckView.deleteCard")}?
 						</h3>
-						<p className="text-slate-600 dark:text-slate-400 mb-6">
+						<p className="mb-6 text-slate-600 dark:text-slate-400">
 							{t("deckView.confirmDelete")}
 						</p>
 						<div className="flex gap-3">
 							<button
 								onClick={() => setShowDeleteConfirm(false)}
-								className="flex-1 bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
+								className="flex-1 rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 							>
 								{t("common.cancel")}
 							</button>
 							<button
 								onClick={() => void handleDelete()}
-								className="flex-1 bg-red-600 text-white text-sm px-4 py-2 rounded-md border-2 border-red-600 hover:opacity-80 transition-opacity"
+								className="flex-1 rounded-md border-2 border-red-600 bg-red-600 px-4 py-2 text-sm text-white transition-opacity hover:opacity-80"
 							>
 								{t("common.delete")}
 							</button>
@@ -523,14 +523,14 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 	};
 
 	return (
-		<div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-			<h3 className="text-lg font-bold mb-4">{t("deckView.addCard")}</h3>
+		<div className="rounded-lg border-2 border-slate-200 bg-slate-100 p-6 dark:border-slate-700 dark:bg-slate-800">
+			<h3 className="mb-4 font-bold text-lg">{t("deckView.addCard")}</h3>
 
 			<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
 					<label
 						htmlFor="card-front"
-						className="block text-sm font-medium mb-2"
+						className="mb-2 block font-medium text-sm"
 					>
 						{t("forms.quickAddCard.front")} *
 					</label>
@@ -539,12 +539,12 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 						value={front}
 						onChange={(e) => setFront(e.target.value)}
 						placeholder={t("forms.quickAddCard.frontPlaceholder")}
-						className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-vertical"
+						className="resize-vertical w-full rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
 						rows={3}
 						maxLength={1000}
 						required
 					/>
-					<div className="text-xs text-slate-500 mt-1">
+					<div className="mt-1 text-slate-500 text-xs">
 						{t("forms.quickAddCard.characterCount", {
 							current: front.length,
 							max: 1000,
@@ -553,7 +553,7 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 				</div>
 
 				<div>
-					<label htmlFor="card-back" className="block text-sm font-medium mb-2">
+					<label htmlFor="card-back" className="mb-2 block font-medium text-sm">
 						{t("forms.quickAddCard.back")} *
 					</label>
 					<textarea
@@ -561,12 +561,12 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 						value={back}
 						onChange={(e) => setBack(e.target.value)}
 						placeholder={t("forms.quickAddCard.backPlaceholder")}
-						className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-vertical"
+						className="resize-vertical w-full rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
 						rows={3}
 						maxLength={1000}
 						required
 					/>
-					<div className="text-xs text-slate-500 mt-1">
+					<div className="mt-1 text-slate-500 text-xs">
 						{t("forms.quickAddCard.characterCount", {
 							current: back.length,
 							max: 1000,
@@ -575,7 +575,7 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 				</div>
 
 				{error && (
-					<div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-200 dark:border-red-800">
+					<div className="rounded-md border border-red-200 bg-red-50 p-3 text-red-600 text-sm dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
 						{error}
 					</div>
 				)}
@@ -584,7 +584,7 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 					<button
 						type="submit"
 						disabled={isSubmitting || !front.trim() || !back.trim()}
-						className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+						className="rounded-md border-2 bg-dark px-4 py-2 font-medium text-light text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-light dark:text-dark"
 					>
 						{isSubmitting
 							? t("forms.quickAddCard.adding")
@@ -593,7 +593,7 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 					<button
 						type="button"
 						onClick={onCancel}
-						className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
+						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 					>
 						{t("common.cancel")}
 					</button>
@@ -743,14 +743,14 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 	};
 
 	return (
-		<div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-			<h3 className="text-lg font-bold mb-4">{t("deckView.editCard")}</h3>
+		<div className="rounded-lg border-2 border-slate-200 bg-slate-100 p-6 dark:border-slate-700 dark:bg-slate-800">
+			<h3 className="mb-4 font-bold text-lg">{t("deckView.editCard")}</h3>
 
 			<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
 					<label
 						htmlFor="edit-card-front"
-						className="block text-sm font-medium mb-2"
+						className="mb-2 block font-medium text-sm"
 					>
 						{t("forms.quickAddCard.front")} *
 					</label>
@@ -758,12 +758,12 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 						id="edit-card-front"
 						value={front}
 						onChange={(e) => setFront(e.target.value)}
-						className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-vertical"
+						className="resize-vertical w-full rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
 						rows={3}
 						maxLength={1000}
 						required
 					/>
-					<div className="text-xs text-slate-500 mt-1">
+					<div className="mt-1 text-slate-500 text-xs">
 						{t("forms.quickAddCard.characterCount", {
 							current: front.length,
 							max: 1000,
@@ -774,7 +774,7 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 				<div>
 					<label
 						htmlFor="edit-card-back"
-						className="block text-sm font-medium mb-2"
+						className="mb-2 block font-medium text-sm"
 					>
 						{t("forms.quickAddCard.back")} *
 					</label>
@@ -782,12 +782,12 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 						id="edit-card-back"
 						value={back}
 						onChange={(e) => setBack(e.target.value)}
-						className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-vertical"
+						className="resize-vertical w-full rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
 						rows={3}
 						maxLength={1000}
 						required
 					/>
-					<div className="text-xs text-slate-500 mt-1">
+					<div className="mt-1 text-slate-500 text-xs">
 						{t("forms.quickAddCard.characterCount", {
 							current: back.length,
 							max: 1000,
@@ -796,7 +796,7 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 				</div>
 
 				{error && (
-					<div className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-200 dark:border-red-800">
+					<div className="rounded-md border border-red-200 bg-red-50 p-3 text-red-600 text-sm dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
 						{error}
 					</div>
 				)}
@@ -805,7 +805,7 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 					<button
 						type="submit"
 						disabled={isSubmitting || !front.trim() || !back.trim()}
-						className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+						className="rounded-md border-2 bg-dark px-4 py-2 font-medium text-light text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-light dark:text-dark"
 					>
 						{isSubmitting
 							? t("forms.quickAddCard.updating")
@@ -814,7 +814,7 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 					<button
 						type="button"
 						onClick={onCancel}
-						className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
+						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 					>
 						{t("common.cancel")}
 					</button>

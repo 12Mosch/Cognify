@@ -110,30 +110,30 @@ export function GestureTutorial({
 	};
 
 	return (
-		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-			<div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden">
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+			<div className="mx-4 w-full max-w-md overflow-hidden rounded-lg bg-white shadow-xl dark:bg-slate-800">
 				{/* Header */}
-				<div className="bg-blue-500 dark:bg-blue-600 text-white p-6 text-center">
-					<div className="text-4xl mb-2">{currentStepData.gesture}</div>
-					<h2 className="text-xl font-bold">{currentStepData.title}</h2>
-					<p className="text-blue-100 mt-2">{currentStepData.description}</p>
+				<div className="bg-blue-500 p-6 text-center text-white dark:bg-blue-600">
+					<div className="mb-2 text-4xl">{currentStepData.gesture}</div>
+					<h2 className="font-bold text-xl">{currentStepData.title}</h2>
+					<p className="mt-2 text-blue-100">{currentStepData.description}</p>
 				</div>
 
 				{/* Content */}
 				<div className="p-6">
-					<div className="text-center mb-6">
-						<p className="text-slate-700 dark:text-slate-300 text-lg leading-relaxed">
+					<div className="mb-6 text-center">
+						<p className="text-lg text-slate-700 leading-relaxed dark:text-slate-300">
 							{currentStepData.instruction}
 						</p>
 					</div>
 
 					{/* Progress indicator */}
-					<div className="flex justify-center mb-6">
+					<div className="mb-6 flex justify-center">
 						<div className="flex space-x-2">
 							{steps.map((_, index) => (
 								<div
 									key={index}
-									className={`w-2 h-2 rounded-full transition-colors ${
+									className={`h-2 w-2 rounded-full transition-colors ${
 										index === currentStep
 											? "bg-blue-500"
 											: index < currentStep
@@ -146,10 +146,10 @@ export function GestureTutorial({
 					</div>
 
 					{/* Navigation buttons */}
-					<div className="flex justify-between items-center">
+					<div className="flex items-center justify-between">
 						<button
 							onClick={handleSkip}
-							className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors text-sm"
+							className="text-slate-500 text-sm transition-colors hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
 						>
 							Skip Tutorial
 						</button>
@@ -158,7 +158,7 @@ export function GestureTutorial({
 							{currentStep > 0 && (
 								<button
 									onClick={handlePrevious}
-									className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors text-sm"
+									className="px-4 py-2 text-slate-600 text-sm transition-colors hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
 								>
 									Previous
 								</button>
@@ -166,7 +166,7 @@ export function GestureTutorial({
 
 							<button
 								onClick={handleNext}
-								className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition-colors font-medium"
+								className="rounded-md bg-blue-500 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-600"
 							>
 								{currentStep === steps.length - 1 ? "Get Started!" : "Next"}
 							</button>

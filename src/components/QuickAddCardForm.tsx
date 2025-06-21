@@ -253,7 +253,7 @@ export function QuickAddCardForm({
 					storeTriggerElement();
 					setShowForm(true);
 				}}
-				className="border-2 border-slate-400 dark:border-slate-500 text-slate-700 dark:text-slate-300 hover:border-slate-600 dark:hover:border-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 px-6 py-3 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+				className="rounded-lg border-2 border-slate-400 px-6 py-3 font-semibold text-slate-700 transition-all duration-200 hover:border-slate-600 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 dark:border-slate-500 dark:text-slate-300 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-900 dark:hover:border-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
 				aria-label={t("forms.quickAddCard.buttonLabel")}
 			>
 				+ {t("forms.quickAddCard.add")}
@@ -265,22 +265,22 @@ export function QuickAddCardForm({
 		<>
 			{/* Modal Overlay */}
 			<div
-				className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4"
+				className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 p-4"
 				onClick={handleCancel}
 				aria-hidden="true"
 			/>
 
 			{/* Modal Content */}
-			<div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+			<div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
 				<FocusLock>
 					<div
-						className="bg-slate-100 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 max-w-md w-full pointer-events-auto max-h-[90vh] overflow-y-auto"
+						className="pointer-events-auto max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg border-2 border-slate-200 bg-slate-100 p-6 dark:border-slate-700 dark:bg-slate-800"
 						role="dialog"
 						aria-modal="true"
 						aria-labelledby="quick-add-card-title"
 						onClick={(e) => e.stopPropagation()}
 					>
-						<h3 id="quick-add-card-title" className="text-lg font-bold mb-4">
+						<h3 id="quick-add-card-title" className="mb-4 font-bold text-lg">
 							{t("forms.quickAddCard.title")}
 						</h3>
 
@@ -289,7 +289,7 @@ export function QuickAddCardForm({
 							<div>
 								<label
 									htmlFor="deck-select"
-									className="block text-sm font-medium mb-2"
+									className="mb-2 block font-medium text-sm"
 								>
 									{t("forms.quickAddCard.selectDeck")} *
 								</label>
@@ -302,7 +302,7 @@ export function QuickAddCardForm({
 											e.target.value ? (e.target.value as Id<"decks">) : null,
 										)
 									}
-									className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400"
+									className="w-full rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
 									required
 									aria-describedby={error ? "form-error" : undefined}
 								>
@@ -321,7 +321,7 @@ export function QuickAddCardForm({
 							<div>
 								<label
 									htmlFor="card-front"
-									className="block text-sm font-medium mb-2"
+									className="mb-2 block font-medium text-sm"
 								>
 									{t("forms.quickAddCard.front")} *
 								</label>
@@ -330,13 +330,13 @@ export function QuickAddCardForm({
 									value={front}
 									onChange={(e) => setFront(e.target.value)}
 									placeholder={t("forms.quickAddCard.frontPlaceholder")}
-									className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-none"
+									className="w-full resize-none rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
 									rows={3}
 									maxLength={1000}
 									required
 									aria-describedby={error ? "form-error" : undefined}
 								/>
-								<div className="text-xs text-slate-500 mt-1">
+								<div className="mt-1 text-slate-500 text-xs">
 									{t("forms.quickAddCard.characterCount", {
 										current: front.length,
 										max: 1000,
@@ -348,7 +348,7 @@ export function QuickAddCardForm({
 							<div>
 								<label
 									htmlFor="card-back"
-									className="block text-sm font-medium mb-2"
+									className="mb-2 block font-medium text-sm"
 								>
 									{t("forms.quickAddCard.back")} *
 								</label>
@@ -357,13 +357,13 @@ export function QuickAddCardForm({
 									value={back}
 									onChange={(e) => setBack(e.target.value)}
 									placeholder={t("forms.quickAddCard.backPlaceholder")}
-									className="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-md bg-light dark:bg-dark text-dark dark:text-light focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 resize-none"
+									className="w-full resize-none rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
 									rows={3}
 									maxLength={1000}
 									required
 									aria-describedby={error ? "form-error" : undefined}
 								/>
-								<div className="text-xs text-slate-500 mt-1">
+								<div className="mt-1 text-slate-500 text-xs">
 									{t("forms.quickAddCard.characterCount", {
 										current: back.length,
 										max: 1000,
@@ -374,7 +374,7 @@ export function QuickAddCardForm({
 							{error && (
 								<div
 									id="form-error"
-									className="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-200 dark:border-red-800"
+									className="rounded-md border border-red-200 bg-red-50 p-3 text-red-600 text-sm dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
 									role="alert"
 									aria-live="polite"
 								>
@@ -391,7 +391,7 @@ export function QuickAddCardForm({
 										!front.trim() ||
 										!back.trim()
 									}
-									className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-4 py-2 rounded-md border-2 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+									className="rounded-md border-2 bg-dark px-4 py-2 font-medium text-light text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-light dark:text-dark"
 								>
 									{isSubmitting
 										? t("forms.quickAddCard.adding")
@@ -400,7 +400,7 @@ export function QuickAddCardForm({
 								<button
 									type="button"
 									onClick={handleCancel}
-									className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-4 py-2 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity"
+									className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 								>
 									{t("forms.quickAddCard.cancel")}
 								</button>

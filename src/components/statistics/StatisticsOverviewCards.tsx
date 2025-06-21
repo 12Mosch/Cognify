@@ -123,7 +123,7 @@ export const StatisticsOverviewCards = memo(function StatisticsOverviewCards({
 	];
 
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+		<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 			{cards.map((card, index) => (
 				<StatisticsCard key={index} {...card} />
 			))}
@@ -217,18 +217,15 @@ const StatisticsCard = memo(function StatisticsCard({
 	return (
 		<div
 			className={`
-      ${colorClasses.bg} ${colorClasses.border} ${colorClasses.glow}
-      p-6 rounded-lg border-2 transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer group
-      bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600
-    `}
+      ${colorClasses.bg} ${colorClasses.border} ${colorClasses.glow}p-6 group cursor-pointer rounded-lg border-2 bg-slate-50 transition-all duration-300 hover:scale-105 hover:border-slate-300 hover:bg-white hover:shadow-lg dark:bg-slate-800 dark:hover:border-slate-600 dark:hover:bg-slate-750 `}
 		>
 			{/* Header */}
-			<div className="flex items-center justify-between mb-4">
-				<h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide group-hover:text-slate-500 dark:group-hover:text-slate-300 transition-colors">
+			<div className="mb-4 flex items-center justify-between">
+				<h3 className="font-semibold text-slate-600 text-sm uppercase tracking-wide transition-colors group-hover:text-slate-500 dark:text-slate-400 dark:group-hover:text-slate-300">
 					{title}
 				</h3>
 				<span
-					className="text-2xl hover:scale-110 transition-transform duration-200"
+					className="text-2xl transition-transform duration-200 hover:scale-110"
 					role="img"
 					aria-label={title}
 				>
@@ -239,7 +236,7 @@ const StatisticsCard = memo(function StatisticsCard({
 			{/* Main Value */}
 			<div className="mb-2">
 				<span
-					className={`text-3xl font-bold ${colorClasses.text} group-hover:scale-105 transition-transform duration-200 inline-block`}
+					className={`font-bold text-3xl ${colorClasses.text} inline-block transition-transform duration-200 group-hover:scale-105`}
 				>
 					{typeof value === "number" ? value.toLocaleString() : value}
 				</span>
@@ -247,12 +244,12 @@ const StatisticsCard = memo(function StatisticsCard({
 
 			{/* Subtitle and Trend */}
 			<div className="flex items-center justify-between">
-				<span className="text-sm text-slate-500 dark:text-slate-400 group-hover:text-slate-400 dark:group-hover:text-slate-300 transition-colors">
+				<span className="text-slate-500 text-sm transition-colors group-hover:text-slate-400 dark:text-slate-400 dark:group-hover:text-slate-300">
 					{subtitle}
 				</span>
 				{trend && (
 					<div
-						className={`flex items-center gap-1 text-xs font-medium hover:scale-105 transition-transform duration-200 ${
+						className={`flex items-center gap-1 font-medium text-xs transition-transform duration-200 hover:scale-105 ${
 							trend.isPositive
 								? "text-green-600 dark:text-green-400"
 								: "text-red-600 dark:text-red-400"

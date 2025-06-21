@@ -88,24 +88,24 @@ const CardDistributionChart = memo(function CardDistributionChart({
 					: "0";
 
 			return (
-				<div className="bg-slate-800 dark:bg-slate-900 p-4 rounded-lg border border-slate-600 shadow-lg">
-					<div className="flex items-center gap-2 mb-2">
+				<div className="rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-lg dark:bg-slate-900">
+					<div className="mb-2 flex items-center gap-2">
 						<div
-							className="w-3 h-3 rounded-full"
+							className="h-3 w-3 rounded-full"
 							style={{ backgroundColor: data.color }}
 						></div>
-						<p className="text-slate-200 font-semibold">{data.name}</p>
+						<p className="font-semibold text-slate-200">{data.name}</p>
 					</div>
-					<div className="text-sm space-y-1">
+					<div className="space-y-1 text-sm">
 						<div className="flex justify-between gap-4">
 							<span className="text-slate-300">Cards:</span>
-							<span className="text-white font-semibold">{data.value}</span>
+							<span className="font-semibold text-white">{data.value}</span>
 						</div>
 						<div className="flex justify-between gap-4">
 							<span className="text-slate-300">Percentage:</span>
-							<span className="text-white font-semibold">{percentage}%</span>
+							<span className="font-semibold text-white">{percentage}%</span>
 						</div>
-						<p className="text-xs text-slate-400 mt-2">{data.description}</p>
+						<p className="mt-2 text-slate-400 text-xs">{data.description}</p>
 					</div>
 				</div>
 			);
@@ -151,9 +151,9 @@ const CardDistributionChart = memo(function CardDistributionChart({
 				subtitle={t("statistics.charts.cardDistribution.subtitle")}
 				chartHeight="h-64"
 			>
-				<div className="flex items-center justify-center h-full text-slate-500 dark:text-slate-400">
+				<div className="flex h-full items-center justify-center text-slate-500 dark:text-slate-400">
 					<div className="text-center">
-						<div className="text-4xl mb-4">🃏</div>
+						<div className="mb-4 text-4xl">🃏</div>
 						<p>{t("statistics.charts.cardDistribution.noData")}</p>
 					</div>
 				</div>
@@ -165,26 +165,26 @@ const CardDistributionChart = memo(function CardDistributionChart({
 	const footerContent = (
 		<>
 			{/* Legend */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				{chartData.map((item, index) => (
 					<div
 						key={index}
-						className="flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer"
+						className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-700"
 					>
 						<div
-							className="w-4 h-4 rounded-full flex-shrink-0 hover:scale-110 transition-transform duration-200"
+							className="h-4 w-4 flex-shrink-0 rounded-full transition-transform duration-200 hover:scale-110"
 							style={{ backgroundColor: item.color }}
 						></div>
-						<div className="flex-1 min-w-0">
+						<div className="min-w-0 flex-1">
 							<div className="flex items-center justify-between">
-								<span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+								<span className="truncate font-medium text-slate-700 text-sm transition-colors hover:text-slate-600 dark:text-slate-300 dark:hover:text-slate-200">
 									{item.name}
 								</span>
-								<span className="text-sm font-semibold text-slate-800 dark:text-slate-200 ml-2 hover:text-slate-700 dark:hover:text-slate-100 transition-colors">
+								<span className="ml-2 font-semibold text-slate-800 text-sm transition-colors hover:text-slate-700 dark:text-slate-200 dark:hover:text-slate-100">
 									{item.value}
 								</span>
 							</div>
-							<p className="text-xs text-slate-500 dark:text-slate-400 truncate hover:text-slate-400 dark:hover:text-slate-300 transition-colors">
+							<p className="truncate text-slate-500 text-xs transition-colors hover:text-slate-400 dark:text-slate-400 dark:hover:text-slate-300">
 								{item.description}
 							</p>
 						</div>
@@ -193,37 +193,37 @@ const CardDistributionChart = memo(function CardDistributionChart({
 			</div>
 
 			{/* Summary Stats */}
-			<div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-				<div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-					<div className="hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
-						<div className="text-lg font-bold text-slate-800 dark:text-slate-200 hover:text-slate-700 dark:hover:text-slate-100 transition-colors">
+			<div className="mt-6 border-slate-200 border-t pt-6 dark:border-slate-700">
+				<div className="grid grid-cols-2 gap-4 text-center sm:grid-cols-4">
+					<div className="cursor-pointer rounded p-2 transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-700">
+						<div className="font-bold text-lg text-slate-800 transition-colors hover:text-slate-700 dark:text-slate-200 dark:hover:text-slate-100">
 							{cardDistribution.totalCards}
 						</div>
-						<div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+						<div className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 							Total Cards
 						</div>
 					</div>
-					<div className="hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
-						<div className="text-lg font-bold text-blue-500 dark:text-blue-400 hover:scale-105 transition-transform duration-200">
+					<div className="cursor-pointer rounded p-2 transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-700">
+						<div className="font-bold text-blue-500 text-lg transition-transform duration-200 hover:scale-105 dark:text-blue-400">
 							{spacedRepetitionInsights.totalNewCards}
 						</div>
-						<div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+						<div className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 							New
 						</div>
 					</div>
-					<div className="hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
-						<div className="text-lg font-bold text-red-500 dark:text-red-400 hover:scale-105 transition-transform duration-200">
+					<div className="cursor-pointer rounded p-2 transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-700">
+						<div className="font-bold text-lg text-red-500 transition-transform duration-200 hover:scale-105 dark:text-red-400">
 							{spacedRepetitionInsights.totalDueCards}
 						</div>
-						<div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+						<div className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 							Due
 						</div>
 					</div>
-					<div className="hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded transition-colors duration-200 cursor-pointer">
-						<div className="text-lg font-bold text-green-500 dark:text-green-400 hover:scale-105 transition-transform duration-200">
+					<div className="cursor-pointer rounded p-2 transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-700">
+						<div className="font-bold text-green-500 text-lg transition-transform duration-200 hover:scale-105 dark:text-green-400">
 							{cardDistribution.masteredCards}
 						</div>
-						<div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+						<div className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 							Mastered
 						</div>
 					</div>
@@ -257,7 +257,7 @@ const CardDistributionChart = memo(function CardDistributionChart({
 							<Cell
 								key={`cell-${index}`}
 								fill={entry.color}
-								className="hover:opacity-80 transition-opacity cursor-pointer"
+								className="cursor-pointer transition-opacity hover:opacity-80"
 							/>
 						))}
 					</Pie>

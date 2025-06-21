@@ -34,7 +34,7 @@ export default function LanguageSwitcher({
 		<div className={`relative ${className}`}>
 			<button
 				onClick={() => setIsOpen(!isOpen)}
-				className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
+				className="flex items-center gap-2 rounded-md px-3 py-2 font-medium text-slate-700 text-sm transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
 				aria-label={t("navigation.selectLanguage")}
 				aria-expanded={isOpen}
 				aria-haspopup="true"
@@ -42,7 +42,7 @@ export default function LanguageSwitcher({
 				<span className="text-lg">{currentLanguage.flag}</span>
 				<span className="hidden sm:inline">{currentLanguage.name}</span>
 				<svg
-					className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
+					className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
 					fill="none"
 					stroke="currentColor"
 					viewBox="0 0 24 24"
@@ -66,15 +66,15 @@ export default function LanguageSwitcher({
 					/>
 
 					{/* Dropdown */}
-					<div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg z-20">
+					<div className="absolute top-full right-0 z-20 mt-1 w-48 rounded-md border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
 						<div className="py-1" role="menu" aria-orientation="vertical">
 							{languages.map((language) => (
 								<button
 									key={language.code}
 									onClick={() => void handleLanguageChange(language.code)}
-									className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${
+									className={`flex w-full items-center gap-3 px-4 py-2 text-left text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 ${
 										language.code === langCode
-											? "bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+											? "bg-slate-50 text-slate-900 dark:bg-slate-700 dark:text-slate-100"
 											: "text-slate-700 dark:text-slate-300"
 									}`}
 									role="menuitem"
@@ -83,7 +83,7 @@ export default function LanguageSwitcher({
 									<span>{language.name}</span>
 									{language.code === langCode && (
 										<svg
-											className="w-4 h-4 ml-auto text-blue-600 dark:text-blue-400"
+											className="ml-auto h-4 w-4 text-blue-600 dark:text-blue-400"
 											fill="currentColor"
 											viewBox="0 0 20 20"
 										>

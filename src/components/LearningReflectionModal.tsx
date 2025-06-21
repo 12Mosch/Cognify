@@ -174,20 +174,20 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 	if (!isOpen) return null;
 
 	return (
-		<div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-			<div className="bg-white dark:bg-slate-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+			<div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white dark:bg-slate-800">
 				{/* Header */}
-				<div className="p-6 border-b border-slate-200 dark:border-slate-700">
+				<div className="border-slate-200 border-b p-6 dark:border-slate-700">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
-							<div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+							<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-blue-500">
 								<span className="text-white text-xl">🧠</span>
 							</div>
 							<div>
-								<h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+								<h2 className="font-semibold text-lg text-slate-900 dark:text-slate-100">
 									{t("reflection.title", "Learning Reflection")}
 								</h2>
-								<p className="text-sm text-slate-600 dark:text-slate-400">
+								<p className="text-slate-600 text-sm dark:text-slate-400">
 									{currentStep === "prompts" &&
 										t(
 											"reflection.subtitle.prompts",
@@ -208,7 +208,7 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 						</div>
 						<button
 							onClick={onClose}
-							className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+							className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
 							aria-label={t("common.close", "Close")}
 							type="button"
 						>
@@ -217,11 +217,11 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 					</div>
 
 					{/* Step indicator */}
-					<div className="flex items-center gap-2 mt-4">
+					<div className="mt-4 flex items-center gap-2">
 						{["prompts", "strategies", "calibration"].map((step, index) => (
 							<div key={step} className="flex items-center">
 								<div
-									className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+									className={`flex h-8 w-8 items-center justify-center rounded-full font-medium text-sm ${
 										currentStep === step
 											? "bg-blue-600 text-white"
 											: index <
@@ -229,14 +229,14 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 														currentStep,
 													)
 												? "bg-green-600 text-white"
-												: "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+												: "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400"
 									}`}
 								>
 									{index + 1}
 								</div>
 								{index < 2 && (
 									<div
-										className={`w-8 h-0.5 mx-2 ${
+										className={`mx-2 h-0.5 w-8 ${
 											index <
 											["prompts", "strategies", "calibration"].indexOf(
 												currentStep,
@@ -291,10 +291,10 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 
 				{/* Footer */}
 				{currentStep === "prompts" && (
-					<div className="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-between">
+					<div className="flex justify-between border-slate-200 border-t p-6 dark:border-slate-700">
 						<button
 							onClick={onClose}
-							className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+							className="px-4 py-2 text-slate-600 transition-colors hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
 						>
 							{t("reflection.skip", "Skip")}
 						</button>
@@ -303,7 +303,7 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 							disabled={
 								!selectedPrompt || !reflectionResponse.trim() || isSubmitting
 							}
-							className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 text-white rounded-lg font-medium transition-colors disabled:cursor-not-allowed"
+							className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-600"
 						>
 							{isSubmitting
 								? t("reflection.saving", "Saving...")
@@ -383,7 +383,7 @@ const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
 		<div className="space-y-6">
 			{/* Prompt Selection */}
 			<div>
-				<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">
+				<h3 className="mb-3 font-semibold text-lg text-slate-900 dark:text-slate-100">
 					{t("reflection.selectPrompt", "Choose a reflection prompt")}
 				</h3>
 				<div className="space-y-3">
@@ -391,7 +391,7 @@ const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
 						<button
 							key={index}
 							onClick={() => onSelectPrompt(prompt)}
-							className={`w-full p-4 rounded-lg border-2 text-left transition-colors ${
+							className={`w-full rounded-lg border-2 p-4 text-left transition-colors ${
 								selectedPrompt?.prompt === prompt.prompt
 									? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
 									: `${getPriorityStyle(prompt.priority)} hover:border-slate-300 dark:hover:border-slate-600`
@@ -402,20 +402,20 @@ const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
 									{getCategoryIcon(prompt.category)}
 								</span>
 								<div className="flex-1">
-									<div className="flex items-center gap-2 mb-1">
-										<span className="text-sm font-medium text-slate-900 dark:text-slate-100 capitalize">
+									<div className="mb-1 flex items-center gap-2">
+										<span className="font-medium text-slate-900 text-sm capitalize dark:text-slate-100">
 											{t(
 												`reflection.categories.${prompt.category}`,
 												prompt.category,
 											)}
 										</span>
 										<span
-											className={`px-2 py-1 text-xs rounded ${
+											className={`rounded px-2 py-1 text-xs ${
 												prompt.priority === "high"
-													? "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300"
+													? "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300"
 													: prompt.priority === "medium"
-														? "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300"
-														: "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+														? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300"
+														: "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
 											}`}
 										>
 											{prompt.priority}
@@ -434,7 +434,7 @@ const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
 			{/* Response Input */}
 			{selectedPrompt && (
 				<div>
-					<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">
+					<h3 className="mb-3 font-semibold text-lg text-slate-900 dark:text-slate-100">
 						{t("reflection.yourResponse", "Your reflection")}
 					</h3>
 					<textarea
@@ -444,12 +444,12 @@ const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
 							"reflection.responsePlaceholder",
 							"Share your thoughts and insights...",
 						)}
-						className="w-full h-32 p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+						className="h-32 w-full resize-none rounded-lg border border-slate-200 bg-white p-4 text-slate-900 placeholder-slate-500 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400"
 					/>
 
 					{/* Rating */}
 					<div className="mt-4">
-						<label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+						<label className="mb-2 block font-medium text-slate-700 text-sm dark:text-slate-300">
 							{t(
 								"reflection.rateExperience",
 								"How would you rate this learning experience?",
@@ -460,17 +460,17 @@ const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
 								<button
 									key={value}
 									onClick={() => onRatingChange(value)}
-									className={`w-10 h-10 rounded-full border-2 font-medium transition-colors ${
+									className={`h-10 w-10 rounded-full border-2 font-medium transition-colors ${
 										rating === value
 											? "border-blue-500 bg-blue-500 text-white"
-											: "border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-400 hover:border-blue-400"
+											: "border-slate-300 text-slate-600 hover:border-blue-400 dark:border-slate-600 dark:text-slate-400"
 									}`}
 								>
 									{value}
 								</button>
 							))}
 						</div>
-						<div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
+						<div className="mt-1 flex justify-between text-slate-500 text-xs dark:text-slate-400">
 							<span>{t("reflection.rating.poor", "Poor")}</span>
 							<span>{t("reflection.rating.excellent", "Excellent")}</span>
 						</div>
@@ -507,10 +507,10 @@ const StrategyRecommendationsStep = memo(function StrategyRecommendationsStep({
 	return (
 		<div className="space-y-6">
 			<div>
-				<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">
+				<h3 className="mb-3 font-semibold text-lg text-slate-900 dark:text-slate-100">
 					{t("reflection.strategies.title", "Recommended Study Strategies")}
 				</h3>
-				<p className="text-slate-600 dark:text-slate-400 mb-4">
+				<p className="mb-4 text-slate-600 dark:text-slate-400">
 					{t(
 						"reflection.strategies.subtitle",
 						"Based on your learning patterns, here are some strategies that might help:",
@@ -522,37 +522,37 @@ const StrategyRecommendationsStep = memo(function StrategyRecommendationsStep({
 				{strategies.slice(0, 3).map((rec) => (
 					<div
 						key={rec.strategy.id}
-						className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg"
+						className="rounded-lg bg-slate-50 p-4 dark:bg-slate-700"
 					>
-						<div className="flex items-start justify-between mb-2">
+						<div className="mb-2 flex items-start justify-between">
 							<h4 className="font-semibold text-slate-900 dark:text-slate-100">
 								{rec.strategy.name}
 							</h4>
 							<div className="flex items-center gap-2">
-								<span className="text-sm text-slate-600 dark:text-slate-400">
+								<span className="text-slate-600 text-sm dark:text-slate-400">
 									{Math.round(rec.relevanceScore * 100)}% match
 								</span>
 								<div
-									className={`px-2 py-1 text-xs rounded ${
+									className={`rounded px-2 py-1 text-xs ${
 										rec.strategy.difficulty === "beginner"
-											? "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300"
+											? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300"
 											: rec.strategy.difficulty === "intermediate"
-												? "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300"
-												: "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300"
+												? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300"
+												: "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300"
 									}`}
 								>
 									{rec.strategy.difficulty}
 								</div>
 							</div>
 						</div>
-						<p className="text-slate-600 dark:text-slate-400 mb-2">
+						<p className="mb-2 text-slate-600 dark:text-slate-400">
 							{rec.strategy.description}
 						</p>
-						<p className="text-sm text-slate-500 dark:text-slate-400">
+						<p className="text-slate-500 text-sm dark:text-slate-400">
 							{rec.reasoning}
 						</p>
 						{rec.strategy.timeRequired > 0 && (
-							<p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+							<p className="mt-1 text-slate-500 text-xs dark:text-slate-400">
 								⏱️ {rec.strategy.timeRequired} min additional time per session
 							</p>
 						)}
@@ -563,7 +563,7 @@ const StrategyRecommendationsStep = memo(function StrategyRecommendationsStep({
 			<div className="flex justify-end">
 				<button
 					onClick={onNext}
-					className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+					className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700"
 				>
 					{t("reflection.continue", "Continue")}
 				</button>
@@ -593,8 +593,8 @@ const CalibrationInsightsStep = memo(function CalibrationInsightsStep({
 }: CalibrationInsightsStepProps) {
 	if (!insights) {
 		return (
-			<div className="text-center py-8">
-				<div className="text-4xl mb-3">📊</div>
+			<div className="py-8 text-center">
+				<div className="mb-3 text-4xl">📊</div>
 				<p className="text-slate-600 dark:text-slate-400">
 					{t(
 						"reflection.calibration.loading",
@@ -608,10 +608,10 @@ const CalibrationInsightsStep = memo(function CalibrationInsightsStep({
 	return (
 		<div className="space-y-6">
 			<div>
-				<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">
+				<h3 className="mb-3 font-semibold text-lg text-slate-900 dark:text-slate-100">
 					{t("reflection.calibration.title", "Confidence Calibration Insights")}
 				</h3>
-				<p className="text-slate-600 dark:text-slate-400 mb-4">
+				<p className="mb-4 text-slate-600 dark:text-slate-400">
 					{t(
 						"reflection.calibration.subtitle",
 						"How well do you predict your own performance?",
@@ -619,12 +619,12 @@ const CalibrationInsightsStep = memo(function CalibrationInsightsStep({
 				</p>
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-					<div className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">
+			<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-700">
+					<div className="mb-1 font-bold text-2xl text-slate-900 dark:text-slate-100">
 						{Math.round(insights.averageCalibrationError * 100)}%
 					</div>
-					<div className="text-sm text-slate-600 dark:text-slate-400">
+					<div className="text-slate-600 text-sm dark:text-slate-400">
 						{t(
 							"reflection.calibration.averageError",
 							"Average Calibration Error",
@@ -632,15 +632,15 @@ const CalibrationInsightsStep = memo(function CalibrationInsightsStep({
 					</div>
 				</div>
 
-				<div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-					<div className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">
+				<div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-700">
+					<div className="mb-1 font-bold text-2xl text-slate-900 dark:text-slate-100">
 						{insights.calibrationTrend === "improving"
 							? "📈"
 							: insights.calibrationTrend === "declining"
 								? "📉"
 								: "➡️"}
 					</div>
-					<div className="text-sm text-slate-600 dark:text-slate-400">
+					<div className="text-slate-600 text-sm dark:text-slate-400">
 						{t(
 							`reflection.calibration.trend.${insights.calibrationTrend}`,
 							insights.calibrationTrend,
@@ -650,17 +650,17 @@ const CalibrationInsightsStep = memo(function CalibrationInsightsStep({
 			</div>
 
 			<div>
-				<h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-3">
+				<h4 className="mb-3 font-semibold text-slate-900 dark:text-slate-100">
 					{t("reflection.calibration.recommendations", "Recommendations")}
 				</h4>
 				<div className="space-y-2">
 					{insights.recommendations.map((rec: string, index: number) => (
 						<div
 							key={index}
-							className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+							className="flex items-start gap-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20"
 						>
 							<span className="text-blue-600 dark:text-blue-400">💡</span>
-							<span className="text-sm text-slate-700 dark:text-slate-300">
+							<span className="text-slate-700 text-sm dark:text-slate-300">
 								{rec}
 							</span>
 						</div>
@@ -671,7 +671,7 @@ const CalibrationInsightsStep = memo(function CalibrationInsightsStep({
 			<div className="flex justify-end">
 				<button
 					onClick={onClose}
-					className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+					className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700"
 				>
 					{t("reflection.complete", "Complete")}
 				</button>

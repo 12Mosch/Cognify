@@ -32,19 +32,19 @@ export default function FeatureFlagDemo() {
 	};
 
 	return (
-		<div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-			<h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+		<div className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
+			<h3 className="mb-4 font-bold text-slate-900 text-xl dark:text-slate-100">
 				🚩 Feature Flags Demo
 			</h3>
 
 			<div className="space-y-4">
 				{/* New Study Algorithm */}
 				{newStudyAlgorithm && (
-					<div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-						<h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+					<div className="rounded-md border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+						<h4 className="mb-2 font-semibold text-blue-900 dark:text-blue-100">
 							🧠 Enhanced Study Algorithm
 						</h4>
-						<p className="text-blue-700 dark:text-blue-300 text-sm mb-3">
+						<p className="mb-3 text-blue-700 text-sm dark:text-blue-300">
 							You have access to our experimental spaced repetition
 							improvements!
 						</p>
@@ -52,7 +52,7 @@ export default function FeatureFlagDemo() {
 							onClick={() =>
 								handleFeatureClick("new-study-algorithm", !!newStudyAlgorithm)
 							}
-							className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors"
+							className="rounded bg-blue-500 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-600"
 						>
 							Try Enhanced Algorithm
 						</button>
@@ -61,18 +61,18 @@ export default function FeatureFlagDemo() {
 
 				{/* Dark Mode Toggle */}
 				{darkModeToggle && (
-					<div className="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-md">
-						<h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-2">
+					<div className="rounded-md border border-purple-200 bg-purple-50 p-4 dark:border-purple-800 dark:bg-purple-900/20">
+						<h4 className="mb-2 font-semibold text-purple-900 dark:text-purple-100">
 							🌙 Dark Mode Controls
 						</h4>
-						<p className="text-purple-700 dark:text-purple-300 text-sm mb-3">
+						<p className="mb-3 text-purple-700 text-sm dark:text-purple-300">
 							Advanced dark mode customization is available.
 						</p>
 						<button
 							onClick={() =>
 								handleFeatureClick("dark-mode-toggle", !!darkModeToggle)
 							}
-							className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm transition-colors"
+							className="rounded bg-purple-500 px-3 py-1 text-sm text-white transition-colors hover:bg-purple-600"
 						>
 							Customize Theme
 						</button>
@@ -81,18 +81,18 @@ export default function FeatureFlagDemo() {
 
 				{/* Advanced Statistics */}
 				{advancedStatistics && (
-					<div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-						<h4 className="font-semibold text-green-900 dark:text-green-100 mb-2">
+					<div className="rounded-md border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+						<h4 className="mb-2 font-semibold text-green-900 dark:text-green-100">
 							📊 Advanced Analytics
 						</h4>
-						<p className="text-green-700 dark:text-green-300 text-sm mb-3">
+						<p className="mb-3 text-green-700 text-sm dark:text-green-300">
 							Detailed learning insights and progress tracking available.
 						</p>
 						<button
 							onClick={() =>
 								handleFeatureClick("advanced-statistics", !!advancedStatistics)
 							}
-							className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors"
+							className="rounded bg-green-500 px-3 py-1 text-sm text-white transition-colors hover:bg-green-600"
 						>
 							View Analytics
 						</button>
@@ -101,18 +101,18 @@ export default function FeatureFlagDemo() {
 
 				{/* Social Sharing */}
 				{socialSharing && (
-					<div className="p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-md">
-						<h4 className="font-semibold text-orange-900 dark:text-orange-100 mb-2">
+					<div className="rounded-md border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
+						<h4 className="mb-2 font-semibold text-orange-900 dark:text-orange-100">
 							🤝 Social Features
 						</h4>
-						<p className="text-orange-700 dark:text-orange-300 text-sm mb-3">
+						<p className="mb-3 text-orange-700 text-sm dark:text-orange-300">
 							Share your study progress and compete with friends.
 						</p>
 						<button
 							onClick={() =>
 								handleFeatureClick("social-sharing", !!socialSharing)
 							}
-							className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm transition-colors"
+							className="rounded bg-orange-500 px-3 py-1 text-sm text-white transition-colors hover:bg-orange-600"
 						>
 							Share Progress
 						</button>
@@ -124,11 +124,11 @@ export default function FeatureFlagDemo() {
 					!darkModeToggle &&
 					!advancedStatistics &&
 					!socialSharing && (
-						<div className="p-4 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-center">
+						<div className="rounded-md border border-slate-300 bg-slate-100 p-4 text-center dark:border-slate-600 dark:bg-slate-700">
 							<p className="text-slate-600 dark:text-slate-400">
 								No experimental features are currently enabled for your account.
 							</p>
-							<p className="text-sm text-slate-500 dark:text-slate-500 mt-2">
+							<p className="mt-2 text-slate-500 text-sm dark:text-slate-500">
 								Feature flags are managed through PostHog and may be enabled for
 								testing.
 							</p>
@@ -137,8 +137,8 @@ export default function FeatureFlagDemo() {
 			</div>
 
 			{/* Feature Flag Status */}
-			<div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
-				<h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+			<div className="mt-6 border-slate-200 border-t pt-4 dark:border-slate-700">
+				<h4 className="mb-2 font-semibold text-slate-700 text-sm dark:text-slate-300">
 					Feature Flag Status:
 				</h4>
 				<div className="grid grid-cols-2 gap-2 text-xs">

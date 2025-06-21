@@ -71,10 +71,10 @@ export default function App() {
 
 	return (
 		<>
-			<header className="sticky top-0 z-10 bg-white dark:bg-slate-900 p-4 border-b-2 border-slate-200 dark:border-slate-800 flex flex-row justify-between items-center backdrop-blur-sm">
+			<header className="sticky top-0 z-10 flex flex-row items-center justify-between border-slate-200 border-b-2 bg-white p-4 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900">
 				<button
 					onClick={handleGoHome}
-					className="text-xl font-bold hover:text-slate-700 dark:hover:text-slate-300 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 rounded-md px-2 py-1"
+					className="cursor-pointer rounded-md px-2 py-1 font-bold text-xl transition-colors hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 dark:hover:text-slate-300"
 					aria-label={t("app.goToMainDashboard")}
 					title={t("app.goToMainDashboard")}
 				>
@@ -88,7 +88,7 @@ export default function App() {
 								label={t("navigation.settings")}
 								labelIcon={
 									<svg
-										className="w-4 h-4"
+										className="h-4 w-4"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -114,7 +114,7 @@ export default function App() {
 					</UserButton>
 				</div>
 			</header>
-			<main className="pt-20 p-8">
+			<main className="p-8 pt-20">
 				<Authenticated>
 					<Dashboard
 						ref={dashboardRef}
@@ -180,9 +180,9 @@ function SignInForm() {
 	const { t } = useTranslation();
 
 	return (
-		<div className="flex flex-col gap-8 w-96 mx-auto text-center">
+		<div className="mx-auto flex w-96 flex-col gap-8 text-center">
 			<div>
-				<h2 className="text-2xl font-bold mb-4">
+				<h2 className="mb-4 font-bold text-2xl">
 					{t("auth.welcome", { appName: t("app.title") })}
 				</h2>
 				<p className="text-slate-600 dark:text-slate-400">
@@ -191,12 +191,12 @@ function SignInForm() {
 			</div>
 			<div className="flex flex-col gap-4">
 				<SignInButton mode="modal">
-					<button className="bg-dark dark:bg-light text-light dark:text-dark text-sm px-6 py-3 rounded-md border-2 hover:opacity-80 transition-opacity font-medium">
+					<button className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark">
 						{t("auth.signIn")}
 					</button>
 				</SignInButton>
 				<SignUpButton mode="modal">
-					<button className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-6 py-3 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity font-medium">
+					<button className="rounded-md border-2 border-slate-300 bg-slate-200 px-6 py-3 font-medium text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light">
 						{t("auth.signUp")}
 					</button>
 				</SignUpButton>

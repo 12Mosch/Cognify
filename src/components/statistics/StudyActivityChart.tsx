@@ -40,14 +40,14 @@ const StudyActivityChart = memo(function StudyActivityChart({
 	// Show loading state while data is being fetched
 	if (data === undefined) {
 		return (
-			<div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-				<div className="flex items-center justify-between mb-6">
-					<h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
+			<div className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
+				<div className="mb-6 flex items-center justify-between">
+					<h3 className="font-semibold text-slate-800 text-xl dark:text-slate-200">
 						{t("statistics.charts.studyActivity.title")}
 					</h3>
-					<div className="animate-pulse bg-slate-300 dark:bg-slate-600 h-4 w-20 rounded"></div>
+					<div className="h-4 w-20 animate-pulse rounded bg-slate-300 dark:bg-slate-600"></div>
 				</div>
-				<div className="h-64 flex items-center justify-center">
+				<div className="flex h-64 items-center justify-center">
 					<div className="animate-pulse text-slate-500 dark:text-slate-400">
 						{t("statistics.loading.chartTitle", {
 							title: t("statistics.charts.studyActivity.title"),
@@ -61,12 +61,12 @@ const StudyActivityChart = memo(function StudyActivityChart({
 	const CustomTooltip = ({ active, payload, label }: any) => {
 		if (active && payload && payload.length) {
 			return (
-				<div className="bg-slate-800 dark:bg-slate-900 p-4 rounded-lg border border-slate-600 shadow-lg">
-					<p className="text-slate-200 font-semibold mb-2">{label}</p>
+				<div className="rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-lg dark:bg-slate-900">
+					<p className="mb-2 font-semibold text-slate-200">{label}</p>
 					{payload.map((entry: any, index: number) => (
 						<div key={index} className="flex items-center gap-2 text-sm">
 							<div
-								className="w-3 h-3 rounded-full"
+								className="h-3 w-3 rounded-full"
 								style={{ backgroundColor: entry.color }}
 							></div>
 							<span className="text-slate-300">
@@ -94,32 +94,32 @@ const StudyActivityChart = memo(function StudyActivityChart({
 	const footerContent = (
 		<>
 			{/* Chart Summary */}
-			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+			<div className="grid grid-cols-1 gap-4 border-slate-200 border-t pt-6 sm:grid-cols-3 dark:border-slate-700">
 				<div className="text-center">
-					<div className="text-2xl font-bold text-blue-500 dark:text-blue-400">
+					<div className="font-bold text-2xl text-blue-500 dark:text-blue-400">
 						{totalCards}
 					</div>
-					<div className="text-sm text-slate-600 dark:text-slate-400">
+					<div className="text-slate-600 text-sm dark:text-slate-400">
 						{t("statistics.charts.studyActivity.totalCards", {
 							count: totalCards,
 						})}
 					</div>
 				</div>
 				<div className="text-center">
-					<div className="text-2xl font-bold text-cyan-500 dark:text-cyan-400">
+					<div className="font-bold text-2xl text-cyan-500 dark:text-cyan-400">
 						{totalSessions}
 					</div>
-					<div className="text-sm text-slate-600 dark:text-slate-400">
+					<div className="text-slate-600 text-sm dark:text-slate-400">
 						{t("statistics.charts.studyActivity.totalSessions", {
 							count: totalSessions,
 						})}
 					</div>
 				</div>
 				<div className="text-center">
-					<div className="text-2xl font-bold text-green-500 dark:text-green-400">
+					<div className="font-bold text-2xl text-green-500 dark:text-green-400">
 						{totalTimeHours}h {remainingMinutes}m
 					</div>
-					<div className="text-sm text-slate-600 dark:text-slate-400">
+					<div className="text-slate-600 text-sm dark:text-slate-400">
 						{t("statistics.charts.studyActivity.totalTime", {
 							hours: totalTimeHours,
 							minutes: remainingMinutes,
@@ -138,22 +138,22 @@ const StudyActivityChart = memo(function StudyActivityChart({
 			footer={footerContent}
 		>
 			{/* Chart Legend */}
-			<div className="flex items-center gap-4 text-sm mb-6">
-				<div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer">
-					<div className="w-3 h-3 rounded-full bg-blue-400 hover:scale-110 transition-transform duration-200"></div>
-					<span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+			<div className="mb-6 flex items-center gap-4 text-sm">
+				<div className="flex cursor-pointer items-center gap-2 transition-transform duration-200 hover:scale-105">
+					<div className="h-3 w-3 rounded-full bg-blue-400 transition-transform duration-200 hover:scale-110"></div>
+					<span className="text-slate-600 transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 						{t("statistics.charts.studyActivity.cardsStudied")}
 					</span>
 				</div>
-				<div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer">
-					<div className="w-3 h-3 rounded-full bg-cyan-400 hover:scale-110 transition-transform duration-200"></div>
-					<span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+				<div className="flex cursor-pointer items-center gap-2 transition-transform duration-200 hover:scale-105">
+					<div className="h-3 w-3 rounded-full bg-cyan-400 transition-transform duration-200 hover:scale-110"></div>
+					<span className="text-slate-600 transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 						{t("statistics.charts.studyActivity.sessions")}
 					</span>
 				</div>
-				<div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer">
-					<div className="w-3 h-3 rounded-full bg-green-400 hover:scale-110 transition-transform duration-200"></div>
-					<span className="text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+				<div className="flex cursor-pointer items-center gap-2 transition-transform duration-200 hover:scale-105">
+					<div className="h-3 w-3 rounded-full bg-green-400 transition-transform duration-200 hover:scale-110"></div>
+					<span className="text-slate-600 transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 						{t("statistics.charts.studyActivity.timeMinutes")}
 					</span>
 				</div>

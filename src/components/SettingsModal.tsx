@@ -100,30 +100,30 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
 	return (
 		<div
-			className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+			className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="settings-modal-title"
 		>
 			<div
 				ref={modalRef}
-				className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+				className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-xl dark:bg-slate-800"
 			>
 				{/* Header */}
-				<div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+				<div className="flex items-center justify-between border-slate-200 border-b p-6 dark:border-slate-700">
 					<h2
 						id="settings-modal-title"
-						className="text-2xl font-bold text-slate-900 dark:text-slate-100"
+						className="font-bold text-2xl text-slate-900 dark:text-slate-100"
 					>
 						{t("settings.title")}
 					</h2>
 					<button
 						onClick={onClose}
-						className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+						className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200"
 						aria-label={t("settings.close")}
 					>
 						<svg
-							className="w-6 h-6"
+							className="h-6 w-6"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -140,18 +140,18 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
 				<div className="flex h-full">
 					{/* Sidebar Navigation */}
-					<div className="w-64 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
-						<nav className="p-4 space-y-2">
+					<div className="w-64 border-slate-200 border-r bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+						<nav className="space-y-2 p-4">
 							<button
 								onClick={() => setActiveTab("account")}
-								className={`w-full text-left px-4 py-3 rounded-lg transition-colors flex items-center gap-3 ${
+								className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${
 									activeTab === "account"
-										? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-										: "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+										? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+										: "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
 								}`}
 							>
 								<svg
-									className="w-5 h-5"
+									className="h-5 w-5"
 									fill="none"
 									stroke="currentColor"
 									viewBox="0 0 24 24"
@@ -167,14 +167,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 							</button>
 							<button
 								onClick={() => setActiveTab("security")}
-								className={`w-full text-left px-4 py-3 rounded-lg transition-colors flex items-center gap-3 ${
+								className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${
 									activeTab === "security"
-										? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-										: "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+										? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+										: "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
 								}`}
 							>
 								<svg
-									className="w-5 h-5"
+									className="h-5 w-5"
 									fill="none"
 									stroke="currentColor"
 									viewBox="0 0 24 24"
@@ -196,16 +196,18 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 						{activeTab === "account" && (
 							<div className="p-6">
 								<div className="mb-6">
-									<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+									<h3 className="mb-2 font-semibold text-lg text-slate-900 dark:text-slate-100">
 										{t("settings.privacy.title")}
 									</h3>
-									<p className="text-slate-600 dark:text-slate-400 mb-4">
+									<p className="mb-4 text-slate-600 dark:text-slate-400">
 										{t("settings.privacy.description")}
 									</p>
 								</div>
 								<PrivacySettings
 									isOpen={true}
-									onClose={() => {}}
+									onClose={() => {
+										// Embedded component - no close action needed
+									}}
 									embedded={true}
 								/>
 							</div>
@@ -214,10 +216,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 						{activeTab === "security" && (
 							<div className="p-6">
 								<div className="mb-6">
-									<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+									<h3 className="mb-2 font-semibold text-lg text-slate-900 dark:text-slate-100">
 										{t("settings.featureFlags.title")}
 									</h3>
-									<p className="text-slate-600 dark:text-slate-400 mb-4">
+									<p className="mb-4 text-slate-600 dark:text-slate-400">
 										{t("settings.featureFlags.description")}
 									</p>
 								</div>

@@ -30,7 +30,7 @@ export function DifficultyIndicator({
 	if (variant === "badge") {
 		return (
 			<div
-				className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${difficultyInfo.color.bg} ${difficultyInfo.color.text} ${difficultyInfo.color.border} ${className}`}
+				className={`inline-flex items-center rounded-full border px-2 py-1 font-medium text-xs ${difficultyInfo.color.bg} ${difficultyInfo.color.text} ${difficultyInfo.color.border} ${className}`}
 				role="status"
 				aria-label={`Difficulty: ${difficultyInfo.label} - ${difficultyInfo.description}`}
 			>
@@ -48,7 +48,7 @@ export function DifficultyIndicator({
 				aria-label={`Learning progress: ${difficultyInfo.progress}% - ${difficultyInfo.description}`}
 			>
 				{showLabel && (
-					<div className="flex justify-between items-center text-xs">
+					<div className="flex items-center justify-between text-xs">
 						<span className={`font-medium ${difficultyInfo.color.text}`}>
 							{difficultyInfo.label}
 						</span>
@@ -57,7 +57,7 @@ export function DifficultyIndicator({
 						</span>
 					</div>
 				)}
-				<div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+				<div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
 					<div
 						className={`h-full transition-all duration-300 ease-out ${difficultyInfo.color.bg.replace("-100", "-500").replace("-900", "-500")}`}
 						style={{ width: `${difficultyInfo.progress}%` }}
@@ -81,7 +81,7 @@ export function DifficultyIndicator({
 				title={`${difficultyInfo.label} - ${difficultyInfo.description}`}
 			>
 				<div
-					className={`w-2 h-2 rounded-full ${difficultyInfo.color.bg.replace("-100", "-500").replace("-900", "-500")}`}
+					className={`h-2 w-2 rounded-full ${difficultyInfo.color.bg.replace("-100", "-500").replace("-900", "-500")}`}
 					aria-hidden="true"
 				/>
 				{showLabel && (
@@ -97,7 +97,7 @@ export function DifficultyIndicator({
 	if (variant === "detailed") {
 		return (
 			<div
-				className={`flex flex-col gap-2 p-3 rounded-lg border ${difficultyInfo.color.bg} ${difficultyInfo.color.border} ${className}`}
+				className={`flex flex-col gap-2 rounded-lg border p-3 ${difficultyInfo.color.bg} ${difficultyInfo.color.border} ${className}`}
 				role="status"
 				aria-label={`Difficulty details: ${difficultyInfo.label} - ${difficultyInfo.description}`}
 			>
@@ -107,12 +107,12 @@ export function DifficultyIndicator({
 					>
 						{difficultyInfo.label}
 					</span>
-					<span className="text-xs text-slate-500 dark:text-slate-400">
+					<span className="text-slate-500 text-xs dark:text-slate-400">
 						{Math.round(difficultyInfo.progress)}%
 					</span>
 				</div>
 
-				<div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+				<div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
 					<div
 						className={`h-full transition-all duration-300 ease-out ${difficultyInfo.color.bg.replace("-100", "-500").replace("-900", "-500")}`}
 						style={{ width: `${difficultyInfo.progress}%` }}
@@ -131,7 +131,7 @@ export function DifficultyIndicator({
 				{(repetition !== undefined ||
 					easeFactor !== undefined ||
 					interval !== undefined) && (
-					<div className="text-xs text-slate-500 dark:text-slate-400 space-y-1 border-t border-slate-200 dark:border-slate-600 pt-2">
+					<div className="space-y-1 border-slate-200 border-t pt-2 text-slate-500 text-xs dark:border-slate-600 dark:text-slate-400">
 						{repetition !== undefined && <div>Repetitions: {repetition}</div>}
 						{easeFactor !== undefined && (
 							<div>Ease Factor: {easeFactor.toFixed(2)}</div>
@@ -150,7 +150,7 @@ export function DifficultyIndicator({
 	// Fallback to badge variant
 	return (
 		<div
-			className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${difficultyInfo.color.bg} ${difficultyInfo.color.text} ${difficultyInfo.color.border} ${className}`}
+			className={`inline-flex items-center rounded-full border px-2 py-1 font-medium text-xs ${difficultyInfo.color.bg} ${difficultyInfo.color.text} ${difficultyInfo.color.border} ${className}`}
 			role="status"
 			aria-label={`Difficulty: ${difficultyInfo.label} - ${difficultyInfo.description}`}
 		>
@@ -191,7 +191,7 @@ export function DifficultyStars({
 			{Array.from({ length: maxStars }, (_, index) => (
 				<svg
 					key={index}
-					className={`w-3 h-3 ${
+					className={`h-3 w-3 ${
 						index < filledStars
 							? difficultyInfo.color.text
 									.replace("-700", "-500")

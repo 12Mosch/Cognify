@@ -340,18 +340,18 @@ class ErrorBoundaryClass extends Component<
 			: clerkDashboardUrl;
 
 		return (
-			<div className="bg-red-500/20 border border-red-500/50 p-8 flex flex-col gap-4 container mx-auto max-w-2xl">
-				<h1 className="text-xl font-bold text-red-700 dark:text-red-400">
+			<div className="container mx-auto flex max-w-2xl flex-col gap-4 border border-red-500/50 bg-red-500/20 p-8">
+				<h1 className="font-bold text-red-700 text-xl dark:text-red-400">
 					Authentication Configuration Error
 				</h1>
 				<div className="space-y-3">
 					<p>
 						Add{" "}
-						<code className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-sm">
+						<code className="rounded bg-slate-100 px-2 py-1 text-sm dark:bg-slate-800">
 							VITE_CLERK_PUBLISHABLE_KEY="{"<"}your publishable key{">"}"
 						</code>{" "}
 						to the{" "}
-						<code className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-sm">
+						<code className="rounded bg-slate-100 px-2 py-1 text-sm dark:bg-slate-800">
 							.env.local
 						</code>{" "}
 						file
@@ -360,7 +360,7 @@ class ErrorBoundaryClass extends Component<
 						<p>
 							You can find it at{" "}
 							<a
-								className="underline hover:no-underline text-blue-600 dark:text-blue-400"
+								className="text-blue-600 underline hover:no-underline dark:text-blue-400"
 								href={trimmedClerkDashboardUrl}
 								target="_blank"
 								rel="noopener noreferrer"
@@ -370,10 +370,10 @@ class ErrorBoundaryClass extends Component<
 						</p>
 					)}
 					<details className="mt-4">
-						<summary className="cursor-pointer text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+						<summary className="cursor-pointer text-slate-600 text-sm hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
 							Show technical details
 						</summary>
-						<pre className="mt-2 p-3 bg-slate-100 dark:bg-slate-800 rounded text-xs overflow-auto">
+						<pre className="mt-2 overflow-auto rounded bg-slate-100 p-3 text-xs dark:bg-slate-800">
 							{errorText}
 						</pre>
 					</details>
@@ -387,11 +387,11 @@ class ErrorBoundaryClass extends Component<
 		const canRetry = this.state.retryCount < 3;
 
 		return (
-			<div className="bg-red-500/20 border border-red-500/50 p-8 flex flex-col gap-6 container mx-auto max-w-2xl">
+			<div className="container mx-auto flex max-w-2xl flex-col gap-6 border border-red-500/50 bg-red-500/20 p-8">
 				<div className="flex items-center gap-3">
-					<div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+					<div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500">
 						<svg
-							className="w-5 h-5 text-white"
+							className="h-5 w-5 text-white"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -404,7 +404,7 @@ class ErrorBoundaryClass extends Component<
 							/>
 						</svg>
 					</div>
-					<h1 className="text-xl font-bold text-red-700 dark:text-red-400">
+					<h1 className="font-bold text-red-700 text-xl dark:text-red-400">
 						Something went wrong
 					</h1>
 				</div>
@@ -416,11 +416,11 @@ class ErrorBoundaryClass extends Component<
 							: "An unexpected error occurred. Please reload the page or contact support if the problem persists."}
 					</p>
 
-					<div className="flex flex-col sm:flex-row gap-3">
+					<div className="flex flex-col gap-3 sm:flex-row">
 						{isRecoverable && canRetry && (
 							<button
 								onClick={this.handleRetry}
-								className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors"
+								className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
 							>
 								Try Again{" "}
 								{this.state.retryCount > 0 && `(${this.state.retryCount}/3)`}
@@ -428,27 +428,27 @@ class ErrorBoundaryClass extends Component<
 						)}
 						<button
 							onClick={this.handleReload}
-							className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-md font-medium transition-colors"
+							className="rounded-md bg-slate-600 px-4 py-2 font-medium text-white transition-colors hover:bg-slate-700"
 						>
 							Reload Page
 						</button>
 					</div>
 
 					<details className="mt-4">
-						<summary className="cursor-pointer text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+						<summary className="cursor-pointer text-slate-600 text-sm hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
 							Show error details
 						</summary>
 						<div className="mt-2 space-y-2">
 							<div>
 								<h4 className="font-medium text-sm">Error Message:</h4>
-								<pre className="p-3 bg-slate-100 dark:bg-slate-800 rounded text-xs overflow-auto">
+								<pre className="overflow-auto rounded bg-slate-100 p-3 text-xs dark:bg-slate-800">
 									{error.message}
 								</pre>
 							</div>
 							{error.stack && (
 								<div>
 									<h4 className="font-medium text-sm">Stack Trace:</h4>
-									<pre className="p-3 bg-slate-100 dark:bg-slate-800 rounded text-xs overflow-auto max-h-40">
+									<pre className="max-h-40 overflow-auto rounded bg-slate-100 p-3 text-xs dark:bg-slate-800">
 										{error.stack}
 									</pre>
 								</div>
@@ -456,7 +456,7 @@ class ErrorBoundaryClass extends Component<
 							{this.state.errorInfo?.componentStack && (
 								<div>
 									<h4 className="font-medium text-sm">Component Stack:</h4>
-									<pre className="p-3 bg-slate-100 dark:bg-slate-800 rounded text-xs overflow-auto max-h-40">
+									<pre className="max-h-40 overflow-auto rounded bg-slate-100 p-3 text-xs dark:bg-slate-800">
 										{this.state.errorInfo?.componentStack}
 									</pre>
 								</div>

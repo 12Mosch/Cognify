@@ -25,10 +25,10 @@ function StudyModeSelector({
 	const { t } = useTranslation();
 
 	return (
-		<div className="flex flex-col gap-8 max-w-2xl mx-auto">
+		<div className="mx-auto flex max-w-2xl flex-col gap-8">
 			{/* Header */}
 			<div className="text-center">
-				<h1 className="text-3xl font-bold mb-2">
+				<h1 className="mb-2 font-bold text-3xl">
 					{t("study.modeSelector.title")}
 				</h1>
 				<p className="text-slate-600 dark:text-slate-400">
@@ -40,14 +40,14 @@ function StudyModeSelector({
 			<div className="grid gap-6">
 				{/* Basic Study Mode */}
 				<div
-					className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer group"
+					className="group cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
 					onClick={() => onSelectMode("basic")}
 					data-testid="basic-study-card"
 				>
 					<div className="flex items-start gap-4">
-						<div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0">
+						<div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
 							<svg
-								className="w-6 h-6 text-blue-600 dark:text-blue-400"
+								className="h-6 w-6 text-blue-600 dark:text-blue-400"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -62,20 +62,20 @@ function StudyModeSelector({
 							</svg>
 						</div>
 						<div className="flex-1">
-							<h3 className="text-lg font-semibold mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+							<h3 className="mb-2 font-semibold text-lg transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-300">
 								{t("study.modeSelector.basicStudy.title")}
 							</h3>
-							<p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
+							<p className="mb-3 text-slate-600 text-sm dark:text-slate-400">
 								{t("study.modeSelector.basicStudy.description")}
 							</p>
 							<div className="flex flex-wrap gap-2">
-								<span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
+								<span className="rounded bg-blue-100 px-2 py-1 text-blue-700 text-xs dark:bg-blue-900 dark:text-blue-300">
 									{t("study.modeSelector.basicStudy.features.sequential")}
 								</span>
-								<span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
+								<span className="rounded bg-blue-100 px-2 py-1 text-blue-700 text-xs dark:bg-blue-900 dark:text-blue-300">
 									{t("study.modeSelector.basicStudy.features.simple")}
 								</span>
-								<span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
+								<span className="rounded bg-blue-100 px-2 py-1 text-blue-700 text-xs dark:bg-blue-900 dark:text-blue-300">
 									{t("study.modeSelector.basicStudy.features.quick")}
 								</span>
 							</div>
@@ -85,14 +85,14 @@ function StudyModeSelector({
 
 				{/* Spaced Repetition Mode */}
 				<div
-					className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer group"
+					className="group cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
 					onClick={() => onSelectMode("spaced-repetition")}
 					data-testid="spaced-repetition-card"
 				>
 					<div className="flex items-start gap-4">
-						<div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center flex-shrink-0">
+						<div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900">
 							<svg
-								className="w-6 h-6 text-green-600 dark:text-green-400"
+								className="h-6 w-6 text-green-600 dark:text-green-400"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -107,23 +107,23 @@ function StudyModeSelector({
 							</svg>
 						</div>
 						<div className="flex-1">
-							<h3 className="text-lg font-semibold mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+							<h3 className="mb-2 font-semibold text-lg transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-300">
 								{t("study.modeSelector.spacedRepetition.title")}
-								<span className="ml-2 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded">
+								<span className="ml-2 rounded bg-green-100 px-2 py-1 text-green-700 text-xs dark:bg-green-900 dark:text-green-300">
 									{t("study.modeSelector.spacedRepetition.subtitle")}
 								</span>
 							</h3>
-							<p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
+							<p className="mb-3 text-slate-600 text-sm dark:text-slate-400">
 								{t("study.modeSelector.spacedRepetition.description")}
 							</p>
 							<div className="flex flex-wrap gap-2">
-								<span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded">
+								<span className="rounded bg-green-100 px-2 py-1 text-green-700 text-xs dark:bg-green-900 dark:text-green-300">
 									{t("study.modeSelector.spacedRepetition.features.algorithm")}
 								</span>
-								<span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded">
+								<span className="rounded bg-green-100 px-2 py-1 text-green-700 text-xs dark:bg-green-900 dark:text-green-300">
 									{t("study.modeSelector.spacedRepetition.features.timing")}
 								</span>
-								<span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded">
+								<span className="rounded bg-green-100 px-2 py-1 text-green-700 text-xs dark:bg-green-900 dark:text-green-300">
 									{t("study.modeSelector.spacedRepetition.features.retention")}
 								</span>
 							</div>
@@ -133,14 +133,14 @@ function StudyModeSelector({
 
 				{/* Adaptive Learning Mode */}
 				<div
-					className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer group"
+					className="group cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
 					onClick={() => onSelectMode("adaptive")}
 					data-testid="adaptive-learning-card"
 				>
 					<div className="flex items-start gap-4">
-						<div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center flex-shrink-0">
+						<div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900">
 							<svg
-								className="w-6 h-6 text-purple-600 dark:text-purple-400"
+								className="h-6 w-6 text-purple-600 dark:text-purple-400"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -155,38 +155,38 @@ function StudyModeSelector({
 							</svg>
 						</div>
 						<div className="flex-1">
-							<h3 className="text-lg font-semibold mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">
+							<h3 className="mb-2 font-semibold text-lg transition-colors group-hover:text-slate-700 dark:group-hover:text-slate-300">
 								{t(
 									"study.modeSelector.adaptiveLearning.title",
 									"Adaptive Learning",
 								)}
-								<span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+								<span className="ml-2 rounded bg-purple-100 px-2 py-1 text-purple-700 text-xs dark:bg-purple-900 dark:text-purple-300">
 									{t(
 										"study.modeSelector.adaptiveLearning.subtitle",
 										"AI-Powered",
 									)}
 								</span>
 							</h3>
-							<p className="text-slate-600 dark:text-slate-400 text-sm mb-3">
+							<p className="mb-3 text-slate-600 text-sm dark:text-slate-400">
 								{t(
 									"study.modeSelector.adaptiveLearning.description",
 									"Personalized spaced repetition that adapts to your learning patterns, optimal study times, and individual performance.",
 								)}
 							</p>
 							<div className="flex flex-wrap gap-2">
-								<span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+								<span className="rounded bg-purple-100 px-2 py-1 text-purple-700 text-xs dark:bg-purple-900 dark:text-purple-300">
 									{t(
 										"study.modeSelector.adaptiveLearning.features.personalized",
 										"Personalized",
 									)}
 								</span>
-								<span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+								<span className="rounded bg-purple-100 px-2 py-1 text-purple-700 text-xs dark:bg-purple-900 dark:text-purple-300">
 									{t(
 										"study.modeSelector.adaptiveLearning.features.timeOptimized",
 										"Time-Optimized",
 									)}
 								</span>
-								<span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded">
+								<span className="rounded bg-purple-100 px-2 py-1 text-purple-700 text-xs dark:bg-purple-900 dark:text-purple-300">
 									{t(
 										"study.modeSelector.adaptiveLearning.features.intelligent",
 										"Intelligent",
@@ -202,17 +202,17 @@ function StudyModeSelector({
 			<div className="text-center">
 				<button
 					onClick={onCancel}
-					className="bg-slate-200 dark:bg-slate-700 text-dark dark:text-light text-sm px-6 py-3 rounded-md border-2 border-slate-300 dark:border-slate-600 hover:opacity-80 transition-opacity font-medium"
+					className="rounded-md border-2 border-slate-300 bg-slate-200 px-6 py-3 font-medium text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 				>
 					{t("study.modeSelector.cancel")}
 				</button>
 			</div>
 
 			{/* Info Section */}
-			<div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+			<div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950">
 				<div className="flex items-start gap-3">
 					<svg
-						className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0"
+						className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -226,10 +226,10 @@ function StudyModeSelector({
 						/>
 					</svg>
 					<div>
-						<h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">
+						<h4 className="mb-1 font-semibold text-blue-800 text-sm dark:text-blue-200">
 							{t("study.modeSelector.info.title")}
 						</h4>
-						<p className="text-xs text-blue-700 dark:text-blue-300">
+						<p className="text-blue-700 text-xs dark:text-blue-300">
 							{t("study.modeSelector.info.description")}
 						</p>
 					</div>

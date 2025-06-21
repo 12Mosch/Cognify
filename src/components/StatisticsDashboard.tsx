@@ -209,18 +209,18 @@ export default function StatisticsDashboard({
 	};
 
 	return (
-		<div className="flex flex-col gap-8 max-w-7xl mx-auto">
+		<div className="mx-auto flex max-w-7xl flex-col gap-8">
 			{/* Header */}
-			<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+			<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 				<div>
-					<div className="flex items-center gap-3 mb-2">
+					<div className="mb-2 flex items-center gap-3">
 						<button
 							onClick={onBack}
-							className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+							className="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
 							aria-label={t("statistics.dashboard.backToDashboard")}
 						>
 							<svg
-								className="w-5 h-5"
+								className="h-5 w-5"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -233,7 +233,7 @@ export default function StatisticsDashboard({
 								/>
 							</svg>
 						</button>
-						<h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+						<h1 className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text font-bold text-3xl text-transparent">
 							{t("statistics.dashboard.title")}
 						</h1>
 					</div>
@@ -243,12 +243,12 @@ export default function StatisticsDashboard({
 				</div>
 
 				{/* Controls */}
-				<div className="flex flex-col sm:flex-row gap-3">
+				<div className="flex flex-col gap-3 sm:flex-row">
 					{/* Date Range Filter */}
 					<select
 						value={dateRange}
 						onChange={(e) => setDateRange(e.target.value as DateRange)}
-						className="px-4 py-2 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:border-blue-400 dark:focus:border-blue-400 transition-colors"
+						className="rounded-lg border-2 border-slate-200 bg-slate-50 px-4 py-2 transition-colors focus:border-blue-400 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:focus:border-blue-400"
 					>
 						<option value="7d">
 							{t("statistics.dashboard.dateRange.last7Days")}
@@ -274,7 +274,7 @@ export default function StatisticsDashboard({
 								}
 							}}
 							disabled={isExporting}
-							className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors cursor-pointer"
+							className="cursor-pointer rounded-lg bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-blue-300"
 						>
 							<option value="">
 								{isExporting
@@ -304,7 +304,7 @@ export default function StatisticsDashboard({
 			</div>
 
 			{/* Main Charts Section */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+			<div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
 				{/* Study Activity Chart - Full Width */}
 				<div className="lg:col-span-2">
 					<StudyActivityChart dateRange={dateRange} />
@@ -325,7 +325,7 @@ export default function StatisticsDashboard({
 			</div>
 
 			{/* Secondary Widgets */}
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
 				<UpcomingReviewsWidget
 					upcomingReviews={safeSpacedRepetitionInsights.upcomingReviews}
 				/>
@@ -340,27 +340,27 @@ export default function StatisticsDashboard({
 
 			{/* Deck Performance Table */}
 			{deckPerformance.length > 0 && (
-				<div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-lg border-2 border-slate-200 dark:border-slate-700">
-					<h3 className="text-xl font-semibold mb-6 text-slate-800 dark:text-slate-200">
+				<div className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
+					<h3 className="mb-6 font-semibold text-slate-800 text-xl dark:text-slate-200">
 						{t("statistics.table.deckPerformance.title")}
 					</h3>
 					<div className="overflow-x-auto">
 						<table className="w-full">
 							<thead>
-								<tr className="border-b border-slate-200 dark:border-slate-700">
-									<th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">
+								<tr className="border-slate-200 border-b dark:border-slate-700">
+									<th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">
 										{t("statistics.table.deckPerformance.headers.deck")}
 									</th>
-									<th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">
+									<th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">
 										{t("statistics.table.deckPerformance.headers.cards")}
 									</th>
-									<th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">
+									<th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">
 										{t("statistics.table.deckPerformance.headers.mastered")}
 									</th>
-									<th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">
+									<th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">
 										{t("statistics.table.deckPerformance.headers.progress")}
 									</th>
-									<th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">
+									<th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">
 										{t("statistics.table.deckPerformance.headers.avgEase")}
 									</th>
 								</tr>
@@ -395,33 +395,33 @@ export default function StatisticsDashboard({
 									return (
 										<tr
 											key={safeDeck.deckId}
-											className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+											className="border-slate-100 border-b transition-colors hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-700"
 										>
-											<td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200">
+											<td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200">
 												{safeDeck.deckName}
 											</td>
-											<td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+											<td className="px-4 py-3 text-slate-600 dark:text-slate-400">
 												{safeDeck.totalCards}
 											</td>
-											<td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+											<td className="px-4 py-3 text-slate-600 dark:text-slate-400">
 												{safeDeck.masteredCards}
 											</td>
-											<td className="py-3 px-4">
+											<td className="px-4 py-3">
 												<div className="flex items-center gap-2">
-													<div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+													<div className="h-2 flex-1 rounded-full bg-slate-200 dark:bg-slate-700">
 														<div
-															className="bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full transition-all duration-300"
+															className="h-2 rounded-full bg-gradient-to-r from-green-400 to-green-500 transition-all duration-300"
 															style={{
 																width: `${Math.min(Math.max(safeDeck.masteryPercentage, 0), 100)}%`,
 															}}
 														></div>
 													</div>
-													<span className="text-sm font-medium text-slate-600 dark:text-slate-400 min-w-[3rem]">
+													<span className="min-w-[3rem] font-medium text-slate-600 text-sm dark:text-slate-400">
 														{safeDeck.masteryPercentage.toFixed(1)}%
 													</span>
 												</div>
 											</td>
-											<td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+											<td className="px-4 py-3 text-slate-600 dark:text-slate-400">
 												{safeDeck.averageEaseFactor
 													? safeDeck.averageEaseFactor.toFixed(2)
 													: "N/A"}

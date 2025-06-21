@@ -85,19 +85,19 @@ const AchievementsWidget = memo(function AchievementsWidget({
 
 	return (
 		<div
-			className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg dark:hover:shadow-slate-900/20 transition-all duration-300 group ${className}`}
+			className={`group rounded-xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-slate-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 dark:hover:shadow-slate-900/20 ${className}`}
 		>
 			{/* Header */}
-			<div className="flex items-center justify-between mb-6">
+			<div className="mb-6 flex items-center justify-between">
 				<div className="flex items-center gap-3">
-					<div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-						<span className="text-white text-lg">🏆</span>
+					<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 transition-transform duration-200 group-hover:scale-105">
+						<span className="text-lg text-white">🏆</span>
 					</div>
 					<div>
-						<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">
+						<h3 className="font-semibold text-lg text-slate-900 transition-colors group-hover:text-slate-700 dark:text-slate-100 dark:group-hover:text-slate-200">
 							{t("achievements.title", "Achievements")}
 						</h3>
-						<p className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-500 dark:group-hover:text-slate-300 transition-colors">
+						<p className="text-slate-600 text-sm transition-colors group-hover:text-slate-500 dark:text-slate-400 dark:group-hover:text-slate-300">
 							{totalPoints} {t("achievements.points", "points")} •{" "}
 							{unlockedAchievements.length}{" "}
 							{t("achievements.unlocked", "unlocked")}
@@ -107,7 +107,7 @@ const AchievementsWidget = memo(function AchievementsWidget({
 
 				<button
 					onClick={() => setShowAllAchievements(!showAllAchievements)}
-					className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:scale-105 transition-all duration-200 px-3 py-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20"
+					className="rounded-md px-3 py-1 text-blue-600 text-sm transition-all duration-200 hover:scale-105 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-300"
 				>
 					{showAllAchievements
 						? t("achievements.showSummary", "Show Summary")
@@ -121,7 +121,7 @@ const AchievementsWidget = memo(function AchievementsWidget({
 					{/* Recent Achievements */}
 					{recentAchievements.length > 0 && (
 						<div>
-							<h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+							<h4 className="mb-3 font-medium text-slate-700 text-sm dark:text-slate-300">
 								{t("achievements.recent", "Recent Achievements")}
 							</h4>
 							<div className="space-y-2">
@@ -139,37 +139,37 @@ const AchievementsWidget = memo(function AchievementsWidget({
 
 					{/* Category Progress */}
 					<div>
-						<h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+						<h4 className="mb-3 font-medium text-slate-700 text-sm dark:text-slate-300">
 							{t("achievements.categoryProgress", "Category Progress")}
 						</h4>
 						<div className="grid grid-cols-2 gap-3">
 							{categories.map(([category, progress]) => (
 								<div
 									key={category}
-									className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 hover:scale-105 transition-all duration-200 hover:shadow-md"
+									className="cursor-pointer rounded-lg bg-slate-50 p-3 transition-all duration-200 hover:scale-105 hover:bg-slate-100 hover:shadow-md dark:bg-slate-700 dark:hover:bg-slate-600"
 									onClick={() =>
 										setSelectedCategory(
 											selectedCategory === category ? null : category,
 										)
 									}
 								>
-									<div className="flex items-center gap-2 mb-2">
-										<span className="text-lg hover:scale-110 transition-transform duration-200">
+									<div className="mb-2 flex items-center gap-2">
+										<span className="text-lg transition-transform duration-200 hover:scale-110">
 											{getCategoryIcon(category)}
 										</span>
-										<span className="text-sm font-medium text-slate-900 dark:text-slate-100 capitalize hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+										<span className="font-medium text-slate-900 text-sm capitalize transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
 											{t(`achievements.categories.${category}`, category)}
 										</span>
 									</div>
-									<div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2">
+									<div className="h-2 w-full rounded-full bg-slate-200 dark:bg-slate-600">
 										<div
-											className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+											className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
 											style={{
 												width: `${Math.max(0, Math.min(1, progress)) * 100}%`,
 											}}
 										/>
 									</div>
-									<div className="text-xs text-slate-600 dark:text-slate-400 mt-1 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+									<div className="mt-1 text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 										{Math.round(progress * 100)}%{" "}
 										{t("achievements.complete", "complete")}
 									</div>
@@ -181,7 +181,7 @@ const AchievementsWidget = memo(function AchievementsWidget({
 					{/* Next Achievements */}
 					{nextAchievements.length > 0 && (
 						<div>
-							<h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+							<h4 className="mb-3 font-medium text-slate-700 text-sm dark:text-slate-300">
 								{t("achievements.nextToUnlock", "Next to Unlock")}
 							</h4>
 							<div className="space-y-3">
@@ -206,10 +206,10 @@ const AchievementsWidget = memo(function AchievementsWidget({
 					<div className="flex flex-wrap gap-2">
 						<button
 							onClick={() => setSelectedCategory(null)}
-							className={`px-3 py-1 text-sm rounded-full transition-all duration-200 hover:scale-105 ${
+							className={`rounded-full px-3 py-1 text-sm transition-all duration-200 hover:scale-105 ${
 								selectedCategory === null
 									? "bg-blue-600 text-white hover:bg-blue-700"
-									: "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
+									: "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
 							}`}
 						>
 							{t("achievements.all", "All")}
@@ -218,13 +218,13 @@ const AchievementsWidget = memo(function AchievementsWidget({
 							<button
 								key={category}
 								onClick={() => setSelectedCategory(category)}
-								className={`px-3 py-1 text-sm rounded-full transition-all duration-200 flex items-center gap-1 hover:scale-105 ${
+								className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm transition-all duration-200 hover:scale-105 ${
 									selectedCategory === category
 										? "bg-blue-600 text-white hover:bg-blue-700"
-										: "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
+										: "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
 								}`}
 							>
-								<span className="hover:scale-110 transition-transform duration-200">
+								<span className="transition-transform duration-200 hover:scale-110">
 									{getCategoryIcon(category)}
 								</span>
 								<span className="capitalize">
@@ -236,7 +236,7 @@ const AchievementsWidget = memo(function AchievementsWidget({
 
 					{/* Unlocked Achievements */}
 					<div>
-						<h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+						<h4 className="mb-3 font-medium text-slate-700 text-sm dark:text-slate-300">
 							{t("achievements.unlocked", "Unlocked")} (
 							{unlockedAchievements.length})
 						</h4>
@@ -264,7 +264,7 @@ const AchievementsWidget = memo(function AchievementsWidget({
 							!selectedCategory || a.achievement.category === selectedCategory,
 					).length > 0 && (
 						<div>
-							<h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+							<h4 className="mb-3 font-medium text-slate-700 text-sm dark:text-slate-300">
 								{t("achievements.inProgress", "In Progress")}
 							</h4>
 							<div className="grid grid-cols-1 gap-3">
@@ -313,36 +313,36 @@ const AchievementCard = memo(function AchievementCard({
 	const { t } = useTranslation();
 
 	return (
-		<div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 hover:scale-[1.02] transition-all duration-200 cursor-pointer hover:shadow-md">
-			<div className="text-2xl hover:scale-110 transition-transform duration-200">
+		<div className="flex cursor-pointer items-center gap-3 rounded-lg bg-slate-50 p-3 transition-all duration-200 hover:scale-[1.02] hover:bg-slate-100 hover:shadow-md dark:bg-slate-700 dark:hover:bg-slate-600">
+			<div className="text-2xl transition-transform duration-200 hover:scale-110">
 				{achievement.icon}
 			</div>
 			<div className="flex-1">
-				<div className="flex items-center gap-2 mb-1">
-					<h5 className="font-medium text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+				<div className="mb-1 flex items-center gap-2">
+					<h5 className="font-medium text-slate-900 transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
 						{achievement.name}
 					</h5>
 					<span
-						className={`px-2 py-1 text-xs font-medium rounded border transition-all duration-200 hover:scale-105 ${getTierStyle(achievement.tier)}`}
+						className={`rounded border px-2 py-1 font-medium text-xs transition-all duration-200 hover:scale-105 ${getTierStyle(achievement.tier)}`}
 					>
 						{achievement.tier}
 					</span>
 				</div>
-				<p className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+				<p className="text-slate-600 text-sm transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 					{achievement.description}
 				</p>
 				{unlockedAt && (
-					<p className="text-xs text-slate-500 dark:text-slate-400 mt-1 hover:text-slate-400 dark:hover:text-slate-300 transition-colors">
+					<p className="mt-1 text-slate-500 text-xs transition-colors hover:text-slate-400 dark:text-slate-400 dark:hover:text-slate-300">
 						{t("achievements.unlockedOn", "Unlocked on")}{" "}
 						{new Date(unlockedAt).toLocaleDateString()}
 					</p>
 				)}
 			</div>
 			<div className="text-right">
-				<div className="text-sm font-medium text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+				<div className="font-medium text-slate-900 text-sm transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
 					+{achievement.points}
 				</div>
-				<div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+				<div className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 					{t("achievements.points", "points")}
 				</div>
 			</div>
@@ -371,41 +371,41 @@ const ProgressAchievementCard = memo(function ProgressAchievementCard({
 	getTierStyle: (tier: string) => string;
 }) {
 	return (
-		<div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 hover:scale-[1.02] transition-all duration-200 cursor-pointer hover:shadow-md">
-			<div className="text-2xl opacity-60 hover:opacity-80 hover:scale-110 transition-all duration-200">
+		<div className="flex cursor-pointer items-center gap-3 rounded-lg bg-slate-50 p-3 transition-all duration-200 hover:scale-[1.02] hover:bg-slate-100 hover:shadow-md dark:bg-slate-700 dark:hover:bg-slate-600">
+			<div className="text-2xl opacity-60 transition-all duration-200 hover:scale-110 hover:opacity-80">
 				{achievement.icon}
 			</div>
 			<div className="flex-1">
-				<div className="flex items-center gap-2 mb-1">
-					<h5 className="font-medium text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+				<div className="mb-1 flex items-center gap-2">
+					<h5 className="font-medium text-slate-900 transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
 						{achievement.name}
 					</h5>
 					<span
-						className={`px-2 py-1 text-xs font-medium rounded border transition-all duration-200 hover:scale-105 ${getTierStyle(achievement.tier)}`}
+						className={`rounded border px-2 py-1 font-medium text-xs transition-all duration-200 hover:scale-105 ${getTierStyle(achievement.tier)}`}
 					>
 						{achievement.tier}
 					</span>
 				</div>
-				<p className="text-sm text-slate-600 dark:text-slate-400 mb-2 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+				<p className="mb-2 text-slate-600 text-sm transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 					{achievement.description}
 				</p>
 				<div className="flex items-center gap-2">
-					<div className="flex-1 bg-slate-200 dark:bg-slate-600 rounded-full h-2 hover:h-2.5 transition-all duration-200">
+					<div className="h-2 flex-1 rounded-full bg-slate-200 transition-all duration-200 hover:h-2.5 dark:bg-slate-600">
 						<div
-							className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full transition-all duration-500"
+							className="h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
 							style={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }}
 						/>
 					</div>
-					<span className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+					<span className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 						{currentValue}/{targetValue}
 					</span>
 				</div>
 			</div>
 			<div className="text-right">
-				<div className="text-sm font-medium text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+				<div className="font-medium text-slate-900 text-sm transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
 					+{achievement.points}
 				</div>
-				<div className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 transition-colors">
+				<div className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 					{t("achievements.points", "points")}
 				</div>
 			</div>
@@ -420,15 +420,15 @@ const AchievementsWidgetSkeleton = memo(function AchievementsWidgetSkeleton({
 }) {
 	return (
 		<div
-			className={`bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 ${className}`}
+			className={`rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800 ${className}`}
 		>
 			<div className="animate-pulse space-y-4">
-				<div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
+				<div className="h-6 w-1/3 rounded bg-slate-200 dark:bg-slate-700" />
 				<div className="space-y-3">
 					{[...Array(3)].map((_, i) => (
 						<div
 							key={i}
-							className="h-16 bg-slate-200 dark:bg-slate-700 rounded"
+							className="h-16 rounded bg-slate-200 dark:bg-slate-700"
 						/>
 					))}
 				</div>
@@ -436,7 +436,7 @@ const AchievementsWidgetSkeleton = memo(function AchievementsWidgetSkeleton({
 					{[...Array(4)].map((_, i) => (
 						<div
 							key={i}
-							className="h-20 bg-slate-200 dark:bg-slate-700 rounded"
+							className="h-20 rounded bg-slate-200 dark:bg-slate-700"
 						/>
 					))}
 				</div>

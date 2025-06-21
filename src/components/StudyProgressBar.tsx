@@ -58,16 +58,16 @@ export function StudyProgressBar({
 	return (
 		<div className={`study-progress-container ${className}`}>
 			{/* Progress Header with Card Position and Percentage */}
-			<div className="flex items-center justify-between mb-3">
+			<div className="mb-3 flex items-center justify-between">
 				<div className="flex items-center gap-3">
-					<span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+					<span className="font-medium text-slate-700 text-sm dark:text-slate-300">
 						{t("study.progress.cardPosition", {
 							current: currentPosition,
 							total: totalCards,
 						})}
 					</span>
 					<span
-						className={`text-xs font-semibold px-2 py-1 rounded-md ${colors.bgColor} ${colors.textColor} ${colors.borderColor} border`}
+						className={`rounded-md px-2 py-1 font-semibold text-xs ${colors.bgColor} ${colors.textColor} ${colors.borderColor} border`}
 					>
 						{progressPercentage}%
 					</span>
@@ -77,7 +77,7 @@ export function StudyProgressBar({
 				{isCompleted && (
 					<div className="flex items-center gap-1">
 						<svg
-							className="w-4 h-4 text-green-600 dark:text-green-400"
+							className="h-4 w-4 text-green-600 dark:text-green-400"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -90,7 +90,7 @@ export function StudyProgressBar({
 								d="M5 13l4 4L19 7"
 							/>
 						</svg>
-						<span className="text-xs font-medium text-green-700 dark:text-green-300">
+						<span className="font-medium text-green-700 text-xs dark:text-green-300">
 							{t("study.progress.completed")}
 						</span>
 					</div>
@@ -98,9 +98,9 @@ export function StudyProgressBar({
 			</div>
 
 			{/* Visual Progress Bar */}
-			<div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+			<div className="h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
 				<div
-					className={`study-progress-bar h-full ${colors.barColor} transition-all duration-500 ease-out rounded-full`}
+					className={`study-progress-bar h-full ${colors.barColor} rounded-full transition-all duration-500 ease-out`}
 					style={{ width: `${progressPercentage}%` }}
 					role="progressbar"
 					aria-valuenow={progressPercentage}
