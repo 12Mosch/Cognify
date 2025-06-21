@@ -1,9 +1,11 @@
 import { memo, useState, useEffect } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
 import { showErrorToast } from '../lib/toast';
+import { calculateDifficulty } from '../utils/difficulty';
 
 interface LearningReflectionModalProps {
   isOpen: boolean;
@@ -36,11 +38,20 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
   const { t } = useTranslation();
 
   // Helper function to convert API prompt to selected prompt
-  const convertToSelectedPrompt = (prompt: ReflectionPrompt): SelectedPrompt => ({
-    category: prompt.category as ReflectionCategory,
-    prompt: prompt.prompt,
-    priority: prompt.priority,
-  });
+  const convertToSelectedPrompt = (prompt: ReflectionPrompt): SelectedPrompt => {
+    // Validate category and provide safe fallback
+    if (!isValidReflectionCategory(prompt.category)) {
+      console.warn(`Invalid reflection category received from API: "${prompt.category}". Using fallback: "understanding"`);
+    }
+
+    return {
+      category: isValidReflectionCategory(prompt.category)
+        ? prompt.category
+        : 'understanding', // Safe fallback - 'understanding' is a neutral, widely applicable category
+      prompt: prompt.prompt,
+      priority: prompt.priority,
+    };
+  };
 
   // Component state
   const [currentStep, setCurrentStep] = useState<'prompts' | 'strategies' | 'calibration'>('prompts');
@@ -56,8 +67,7 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
   
   const strategyRecommendations = useQuery(api.metacognition.getStrategyRecommendations, {
     context: sessionContext ? {
-      difficulty: sessionContext.averageSuccess < 0.6 ? 'hard' : 
-                 sessionContext.averageSuccess > 0.8 ? 'easy' : 'medium',
+      difficulty: calculateDifficulty(sessionContext.averageSuccess),
       learningGoal: 'understanding',
       timeAvailable: 30,
       userLevel: 'intermediate',
@@ -144,12 +154,14 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white text-lg">🧠</span>
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                  {t('reflection.title', 'Learning Reflection')}
-                </h2>
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              aria-label={t('common.close', 'Close')}
+              type="button"
+            >
+              ✕
+            </button>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                   {currentStep === 'prompts' && t('reflection.subtitle.prompts', 'Reflect on your learning experience')}
                   {currentStep === 'strategies' && t('reflection.subtitle.strategies', 'Discover effective study strategies')}
@@ -160,6 +172,8 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
             <button
               onClick={onClose}
               className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              aria-label={t('common.close', 'Close')}
+              type="button"
             >
               ✕
             </button>
@@ -251,6 +265,11 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 type ReflectionCategory = "difficulty" | "strategy" | "motivation" | "understanding" | "time_management" | "goals";
 type Priority = "high" | "medium" | "low";
 
+// Type guard function to validate reflection categories
+const isValidReflectionCategory = (category: string): category is ReflectionCategory => {
+  return ["difficulty", "strategy", "motivation", "understanding", "time_management", "goals"].includes(category);
+};
+
 interface ReflectionPrompt {
   category: string;
   prompt: string;
@@ -274,7 +293,7 @@ interface ReflectionPromptsStepProps {
   onRatingChange: (value: number) => void;
   getPriorityStyle: (priority: string) => string;
   getCategoryIcon: (category: string) => string;
-  t: any; // Using any for the complex i18next TFunction type
+  t: TFunction;
 }
 
 // Helper Components
@@ -390,7 +409,7 @@ interface StrategyRecommendationsStepProps {
     reasoning: string;
   }>;
   onNext: () => void;
-  t: any; // Using any for the complex i18next TFunction type
+  t: TFunction;
 }
 
 const StrategyRecommendationsStep = memo(function StrategyRecommendationsStep({
@@ -410,7 +429,7 @@ const StrategyRecommendationsStep = memo(function StrategyRecommendationsStep({
       </div>
 
       <div className="space-y-4">
-        {strategies.slice(0, 3).map((rec: any) => (
+        {strategies.slice(0, 3).map((rec) => (
           <div key={rec.strategy.id} className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
             <div className="flex items-start justify-between mb-2">
               <h4 className="font-semibold text-slate-900 dark:text-slate-100">
@@ -464,7 +483,7 @@ interface CalibrationInsightsStepProps {
     recommendations: string[];
   } | null | undefined;
   onClose: () => void;
-  t: any; // Using any for the complex i18next TFunction type
+  t: TFunction;
 }
 
 const CalibrationInsightsStep = memo(function CalibrationInsightsStep({
