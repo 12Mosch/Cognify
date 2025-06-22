@@ -32,9 +32,16 @@ export const migrateStudySessionsDateField = internalMutation({
 
 			if (sessionAny.date && !sessionAny.sessionDate) {
 				try {
+					// Validate that the date field is a string before copying
+					const dateValue = sessionAny.date;
+					if (typeof dateValue !== 'string') {
+						console.error(`Session ${session._id} has invalid date type: ${typeof dateValue}`);
+						continue;
+					}
+
 					// Copy the 'date' value to 'sessionDate' field
 					await ctx.db.patch(session._id, {
-						sessionDate: sessionAny.date,
+						sessionDate: dateValue,
 					});
 
 					console.log(

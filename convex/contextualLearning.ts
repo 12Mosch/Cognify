@@ -242,10 +242,10 @@ export const getConceptClusters = query({
 					if (cardReviews.length === 0) return 0;
 
 					const successRate =
-						cardReviews.filter((r) => r.wasSuccessful).length /
+						cardReviews.filter((r: Doc<"cardReviews">) => r.wasSuccessful).length /
 						cardReviews.length;
 					const repetitions = Math.max(
-						...cardReviews.map((r) => r.repetitionAfter),
+						...cardReviews.map((r: Doc<"cardReviews">) => r.repetitionAfter),
 					);
 					return Math.min(
 						1,
