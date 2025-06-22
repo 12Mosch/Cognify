@@ -309,8 +309,8 @@ describe("StudyHistoryHeatmap", () => {
 
 		expect(screen.getByText("More")).toBeInTheDocument();
 
-		// Check that legend squares are rendered
-		const legendSquares = screen.getAllByLabelText(/Activity level \d/);
+		// Check that legend squares are rendered with proper titles
+		const legendSquares = screen.getAllByTitle(/Activity level \d/);
 		expect(legendSquares).toHaveLength(5); // Levels 0-4
 	});
 

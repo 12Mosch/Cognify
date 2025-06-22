@@ -67,12 +67,14 @@ describe("SettingsModal", () => {
 		const dialog = screen.getByRole("dialog");
 		expect(dialog).toBeInTheDocument();
 		expect(dialog).toHaveAttribute("aria-modal", "true");
-		expect(dialog).toHaveAttribute("aria-labelledby", "settings-modal-title");
 
-		expect(screen.getByText("Settings")).toHaveAttribute(
-			"id",
-			"settings-modal-title",
-		);
+		// Get the title element and its ID
+		const titleElement = screen.getByText("Settings");
+		const titleId = titleElement.getAttribute("id");
+		expect(titleId).toBeTruthy();
+
+		// Check that the dialog is labeled by the title
+		expect(dialog).toHaveAttribute("aria-labelledby", titleId);
 	});
 
 	it("prevents background scroll when open", () => {
@@ -120,8 +122,8 @@ describe("SettingsModal", () => {
 		expect(screen.getByTestId("privacy-settings")).toBeInTheDocument();
 		expect(screen.queryByTestId("feature-flag-demo")).not.toBeInTheDocument();
 
-		// Click Security tab
-		const securityTab = screen.getByText("Security");
+		// Click Security tab - use role to be more specific and avoid SVG title
+		const securityTab = screen.getByRole("button", { name: /security/i });
 		fireEvent.click(securityTab);
 
 		// Should now show Feature Flags
@@ -129,7 +131,7 @@ describe("SettingsModal", () => {
 		expect(screen.getByTestId("feature-flag-demo")).toBeInTheDocument();
 
 		// Click Account tab again
-		const accountTab = screen.getByText("Account");
+		const accountTab = screen.getByRole("button", { name: /account/i });
 		fireEvent.click(accountTab);
 
 		// Should show Privacy Settings again

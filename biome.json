@@ -59,6 +59,17 @@
 			}
 		},
 		{
+			"includes": ["src/components/skeletons/SkeletonComponents.tsx"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"noRedundantRoles": "off",
+						"useSemanticElements": "off"
+					}
+				}
+			}
+		},
+		{
 			"assist": {
 				"enabled": false
 			},

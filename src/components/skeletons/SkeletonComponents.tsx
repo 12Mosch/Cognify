@@ -34,6 +34,7 @@ export const DeckCardSkeleton = memo(function DeckCardSkeleton() {
 			aria-busy="true"
 			aria-label="Loading deck"
 			className="rounded-xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50 p-8 shadow-sm dark:border-slate-700/60 dark:from-slate-800 dark:to-slate-900"
+			role="status"
 		>
 			<div className="flex h-full flex-col">
 				{/* Deck Header */}
@@ -77,6 +78,7 @@ export const DeckListSkeleton = memo(function DeckListSkeleton({
 			aria-busy="true"
 			aria-label="Loading decks"
 			className="mx-auto flex max-w-6xl flex-col gap-8"
+			role="status"
 		>
 			{/* Header skeleton */}
 			<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
@@ -109,6 +111,7 @@ export const FlashcardSkeleton = memo(function FlashcardSkeleton() {
 			aria-busy="true"
 			aria-label="Loading flashcard"
 			className="mx-auto flex max-w-4xl flex-col gap-8"
+			role="status"
 		>
 			{/* Header skeleton */}
 			<div className="flex items-center justify-between">
@@ -156,6 +159,7 @@ export const DeckViewSkeleton = memo(function DeckViewSkeleton({
 			aria-busy="true"
 			aria-label="Loading deck view"
 			className="mx-auto flex max-w-6xl flex-col gap-8"
+			role="status"
 		>
 			{/* Header skeleton */}
 			<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
@@ -221,6 +225,7 @@ export const StatsSkeleton = memo(function StatsSkeleton() {
 			aria-busy="true"
 			aria-label="Loading statistics"
 			className="flex items-center gap-2"
+			role="status"
 		>
 			<SkeletonElement className="h-4 w-8" />
 			<SkeletonElement className="h-4 w-12" />
@@ -258,6 +263,7 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 			aria-busy="true"
 			aria-label="Loading study history heatmap"
 			className="rounded-lg border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800"
+			role="status"
 		>
 			{/* Header */}
 			<div className="mb-6">
@@ -368,6 +374,7 @@ export const GenericSkeleton = memo(function GenericSkeleton({
 					aria-busy="true"
 					aria-label="Loading"
 					className="mx-auto flex max-w-4xl flex-col gap-8"
+					role="status"
 				>
 					<div className="flex items-center justify-center py-12">
 						<div className="text-center">
