@@ -9,8 +9,8 @@ import {
 jest.mock("react-hot-toast", () => ({
 	__esModule: true,
 	default: Object.assign(jest.fn(), {
-		success: jest.fn(),
 		error: jest.fn(),
+		success: jest.fn(),
 	}),
 }));
 
@@ -34,16 +34,16 @@ describe("Toast Utilities", () => {
 			showSuccessToast(message);
 
 			expect(mockedToastSuccess).toHaveBeenCalledWith(message, {
+				ariaProps: {
+					"aria-live": "polite",
+					role: "status",
+				},
 				duration: 4000,
 				icon: "✅",
 				style: {
 					background: "#10b981",
 					color: "#ffffff",
 					fontWeight: "500",
-				},
-				ariaProps: {
-					role: "status",
-					"aria-live": "polite",
 				},
 			});
 		});
@@ -55,16 +55,16 @@ describe("Toast Utilities", () => {
 			showErrorToast(message);
 
 			expect(mockedToastError).toHaveBeenCalledWith(message, {
+				ariaProps: {
+					"aria-live": "assertive",
+					role: "alert",
+				},
 				duration: 6000,
 				icon: "❌",
 				style: {
 					background: "#ef4444",
 					color: "#ffffff",
 					fontWeight: "500",
-				},
-				ariaProps: {
-					role: "alert",
-					"aria-live": "assertive",
 				},
 			});
 		});
@@ -76,16 +76,16 @@ describe("Toast Utilities", () => {
 			showInfoToast(message);
 
 			expect(mockedToast).toHaveBeenCalledWith(message, {
+				ariaProps: {
+					"aria-live": "polite",
+					role: "status",
+				},
 				duration: 4000,
 				icon: "ℹ️",
 				style: {
 					background: "#3b82f6",
 					color: "#ffffff",
 					fontWeight: "500",
-				},
-				ariaProps: {
-					role: "status",
-					"aria-live": "polite",
 				},
 			});
 		});
@@ -212,8 +212,8 @@ describe("Toast Utilities", () => {
 				"test",
 				expect.objectContaining({
 					ariaProps: {
-						role: "status",
 						"aria-live": "polite",
+						role: "status",
 					},
 				}),
 			);
@@ -225,8 +225,8 @@ describe("Toast Utilities", () => {
 				"test",
 				expect.objectContaining({
 					ariaProps: {
-						role: "alert",
 						"aria-live": "assertive",
+						role: "alert",
 					},
 				}),
 			);

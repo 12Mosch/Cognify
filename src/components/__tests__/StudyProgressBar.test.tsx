@@ -7,8 +7,8 @@ describe("StudyProgressBar", () => {
 		render(
 			<StudyProgressBar
 				currentPosition={5}
-				totalCards={20}
 				isCompleted={false}
+				totalCards={20}
 			/>,
 		);
 
@@ -29,8 +29,8 @@ describe("StudyProgressBar", () => {
 		render(
 			<StudyProgressBar
 				currentPosition={20}
-				totalCards={20}
 				isCompleted={true}
+				totalCards={20}
 			/>,
 		);
 
@@ -48,9 +48,9 @@ describe("StudyProgressBar", () => {
 	it("applies custom className", () => {
 		render(
 			<StudyProgressBar
+				className="custom-class"
 				currentPosition={1}
 				totalCards={10}
-				className="custom-class"
 			/>,
 		);
 
@@ -98,8 +98,8 @@ describe("StudyProgressBar", () => {
 		const { rerender } = render(
 			<StudyProgressBar
 				currentPosition={5}
-				totalCards={10}
 				isCompleted={false}
+				totalCards={10}
 			/>,
 		);
 
@@ -110,8 +110,8 @@ describe("StudyProgressBar", () => {
 		rerender(
 			<StudyProgressBar
 				currentPosition={10}
-				totalCards={10}
 				isCompleted={true}
+				totalCards={10}
 			/>,
 		);
 

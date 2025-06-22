@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import type { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
 import { toastHelpers } from "../lib/toast";
 import LearningReflectionModal from "./LearningReflectionModal";
@@ -118,9 +118,9 @@ export default function AdaptiveStudyMode({
 
 			// Initialize session stats
 			setSessionStats({
+				averageSuccess: 0,
 				cardsReviewed: 0,
 				sessionDuration: 0,
-				averageSuccess: 0,
 				sessionStartTime: Date.now(),
 			});
 		}
@@ -154,8 +154,8 @@ export default function AdaptiveStudyMode({
 		async (quality: number, cardId: Id<"cards">) => {
 			try {
 				const newAchievements = await checkAchievements({
+					triggerData: { cardId, deckId, quality },
 					triggerType: "study_session",
-					triggerData: { quality, cardId, deckId },
 				});
 				showAchievementNotifications(newAchievements, "study session");
 			} catch (error) {
@@ -170,8 +170,8 @@ export default function AdaptiveStudyMode({
 		async (cardsReviewed: number) => {
 			try {
 				const sessionAchievements = await checkAchievements({
+					triggerData: { cardsReviewed, deckId },
 					triggerType: "session_complete",
-					triggerData: { deckId, cardsReviewed },
 				});
 				showAchievementNotifications(sessionAchievements, "session completion");
 			} catch (error) {
@@ -221,9 +221,9 @@ export default function AdaptiveStudyMode({
 
 			const finalStats = {
 				...sessionStats,
+				averageSuccess: actualAverageSuccess,
 				cardsReviewed: studyQueue.length,
 				sessionDuration,
-				averageSuccess: actualAverageSuccess,
 			};
 			setSessionStats(finalStats);
 			setShowReflectionModal(true);
@@ -250,9 +250,9 @@ export default function AdaptiveStudyMode({
 			try {
 				const result = await reviewCardAdaptive({
 					cardId: currentCard._id,
+					confidenceRating: confidenceRating || undefined,
 					quality,
 					responseTime,
-					confidenceRating: confidenceRating || undefined,
 				});
 
 				setPersonalizedMessage(result.personalizedMessage);
@@ -264,7 +264,7 @@ export default function AdaptiveStudyMode({
 				await handleStudyAchievements(quality, currentCard._id);
 
 				// Move to next card or finish session
-				if (currentCardIndex < studyQueue!.length - 1) {
+				if (currentCardIndex < studyQueue?.length - 1) {
 					moveToNextCard();
 				} else {
 					await completeSession(quality);
@@ -360,8 +360,9 @@ export default function AdaptiveStudyMode({
 						{t("study.allCaughtUp.noCardsMessage")}
 					</p>
 					<button
-						onClick={onExit}
 						className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+						onClick={onExit}
+						type="button"
 					>
 						{t("study.returnToDashboard", "Return to Dashboard")}
 					</button>
@@ -376,8 +377,9 @@ export default function AdaptiveStudyMode({
 			<div className="flex items-center justify-between border-slate-200 border-b bg-white/80 p-4 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80">
 				<div className="flex items-center gap-4">
 					<button
-						onClick={onExit}
 						className="text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+						onClick={onExit}
+						type="button"
 					>
 						← {t("study.exit", "Exit")}
 					</button>
@@ -432,9 +434,10 @@ export default function AdaptiveStudyMode({
 			<div className="flex flex-1 items-center justify-center p-8">
 				<div className="w-full max-w-2xl">
 					{/* Flashcard */}
-					<div
-						className="flex min-h-[300px] cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white shadow-lg transition-all duration-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800"
+					<button
+						className="flex min-h-[300px] w-full cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white shadow-lg transition-all duration-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800"
 						onClick={handleFlipCard}
+						type="button"
 					>
 						<div className="p-8 text-center">
 							<div className="text-lg text-slate-900 leading-relaxed dark:text-slate-100">
@@ -446,7 +449,7 @@ export default function AdaptiveStudyMode({
 								</div>
 							)}
 						</div>
-					</div>
+					</button>
 
 					{/* Confidence Rating */}
 					{showConfidenceRating && (
@@ -457,9 +460,10 @@ export default function AdaptiveStudyMode({
 							<div className="flex gap-2">
 								{[1, 2, 3, 4, 5].map((rating) => (
 									<button
+										className="rounded-lg bg-yellow-100 px-3 py-2 text-sm text-yellow-800 transition-colors hover:bg-yellow-200 dark:bg-yellow-800 dark:text-yellow-200 dark:hover:bg-yellow-700"
 										key={rating}
 										onClick={() => handleConfidenceRating(rating)}
-										className="rounded-lg bg-yellow-100 px-3 py-2 text-sm text-yellow-800 transition-colors hover:bg-yellow-200 dark:bg-yellow-800 dark:text-yellow-200 dark:hover:bg-yellow-700"
+										type="button"
 									>
 										{rating}
 									</button>
@@ -472,26 +476,30 @@ export default function AdaptiveStudyMode({
 					{isFlipped && !showConfidenceRating && (
 						<div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
 							<button
-								onClick={() => handleButtonReview(0)}
 								className="rounded-lg bg-red-100 p-4 font-medium text-red-700 transition-colors hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
+								onClick={() => handleButtonReview(0)}
+								type="button"
 							>
 								{t("study.again", "Again")} (1)
 							</button>
 							<button
-								onClick={() => handleButtonReview(3)}
 								className="rounded-lg bg-orange-100 p-4 font-medium text-orange-700 transition-colors hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:hover:bg-orange-800"
+								onClick={() => handleButtonReview(3)}
+								type="button"
 							>
 								{t("study.hard", "Hard")} (2)
 							</button>
 							<button
-								onClick={() => handleButtonReview(4)}
 								className="rounded-lg bg-blue-100 p-4 font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
+								onClick={() => handleButtonReview(4)}
+								type="button"
 							>
 								{t("study.good", "Good")} (3)
 							</button>
 							<button
-								onClick={() => handleButtonReview(5)}
 								className="rounded-lg bg-green-100 p-4 font-medium text-green-700 transition-colors hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800"
+								onClick={() => handleButtonReview(5)}
+								type="button"
 							>
 								{t("study.easy", "Easy")} (4)
 							</button>
@@ -518,10 +526,10 @@ export default function AdaptiveStudyMode({
 				sessionContext={
 					sessionStats
 						? {
-								deckId,
-								cardsReviewed: sessionStats.cardsReviewed,
-								sessionDuration: sessionStats.sessionDuration,
 								averageSuccess: sessionStats.averageSuccess,
+								cardsReviewed: sessionStats.cardsReviewed,
+								deckId,
+								sessionDuration: sessionStats.sessionDuration,
 							}
 						: undefined
 				}

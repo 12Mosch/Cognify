@@ -3,6 +3,29 @@ import { useTranslation } from "react-i18next";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import ChartWidget from "./ChartWidget";
 
+// Types for Recharts components
+interface TooltipProps {
+	active?: boolean;
+	payload?: Array<{
+		payload: {
+			name: string;
+			value: number;
+			color: string;
+			description: string;
+			totalCards?: number;
+		};
+	}>;
+}
+
+interface LabelProps {
+	cx: number;
+	cy: number;
+	midAngle: number;
+	innerRadius: number;
+	outerRadius: number;
+	percent: number;
+}
+
 interface SpacedRepetitionInsights {
 	totalDueCards: number;
 	totalNewCards: number;
@@ -29,6 +52,71 @@ interface CardDistributionChartProps {
 	cardDistribution: CardDistribution;
 }
 
+// Custom Tooltip Component (moved outside to avoid nested component definition)
+const CustomTooltip = ({ active, payload }: TooltipProps) => {
+	if (active && payload && payload.length) {
+		const data = payload[0].payload;
+		const totalCards = data.totalCards || 1; // Fallback to prevent division by zero
+		const percentage = ((data.value / totalCards) * 100).toFixed(1);
+
+		return (
+			<div className="rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-lg dark:bg-slate-900">
+				<div className="mb-2 flex items-center gap-2">
+					<div
+						className="h-3 w-3 rounded-full"
+						style={{ backgroundColor: data.color }}
+					></div>
+					<p className="font-semibold text-slate-200">{data.name}</p>
+				</div>
+				<div className="space-y-1 text-sm">
+					<div className="flex justify-between gap-4">
+						<span className="text-slate-300">Cards:</span>
+						<span className="font-semibold text-white">{data.value}</span>
+					</div>
+					<div className="flex justify-between gap-4">
+						<span className="text-slate-300">Percentage:</span>
+						<span className="font-semibold text-white">{percentage}%</span>
+					</div>
+					<p className="mt-2 text-slate-400 text-xs">{data.description}</p>
+				</div>
+			</div>
+		);
+	}
+	return null;
+};
+
+// Custom Label Component (moved outside to avoid nested component definition)
+const CustomLabel = ({
+	cx,
+	cy,
+	midAngle,
+	innerRadius,
+	outerRadius,
+	percent,
+}: LabelProps) => {
+	if (percent < 0.05) return null; // Don't show labels for very small segments
+
+	const RADIAN = Math.PI / 180;
+	const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+	const x = cx + radius * Math.cos(-midAngle * RADIAN);
+	const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+	return (
+		<text
+			className="drop-shadow-lg"
+			dominantBaseline="central"
+			fill="white"
+			fontSize={12}
+			fontWeight="bold"
+			textAnchor={x > cx ? "start" : "end"}
+			x={x}
+			y={y}
+		>
+			{`${(percent * 100).toFixed(0)}%`}
+		</text>
+	);
+};
+
 /**
  * Card Distribution Chart Component
  *
@@ -48,108 +136,48 @@ const CardDistributionChart = memo(function CardDistributionChart({
 	// Use real data from Convex query
 	const chartData = [
 		{
-			name: t("statistics.charts.cardDistribution.newCards"),
-			value: cardDistribution.newCards,
-			color: "#60a5fa", // Blue
+			color: "#60a5fa",
 			description: t("statistics.charts.cardDistribution.neverStudied"),
+			name: t("statistics.charts.cardDistribution.newCards"), // Blue
+			totalCards: cardDistribution.totalCards,
+			value: cardDistribution.newCards,
 		},
 		{
-			name: t("statistics.charts.cardDistribution.learning"),
-			value: cardDistribution.learningCards,
-			color: "#f59e0b", // Amber
+			color: "#f59e0b",
 			description: t("statistics.charts.cardDistribution.beingLearned"),
+			name: t("statistics.charts.cardDistribution.learning"), // Amber
+			totalCards: cardDistribution.totalCards,
+			value: cardDistribution.learningCards,
 		},
 		{
-			name: t("statistics.charts.cardDistribution.review"),
-			value: cardDistribution.reviewCards,
-			color: "#8b5cf6", // Purple
+			color: "#8b5cf6",
 			description: t("statistics.charts.cardDistribution.inReviewCycle"),
+			name: t("statistics.charts.cardDistribution.review"), // Purple
+			totalCards: cardDistribution.totalCards,
+			value: cardDistribution.reviewCards,
 		},
 		{
-			name: t("statistics.charts.cardDistribution.due"),
-			value: cardDistribution.dueCards,
-			color: "#ef4444", // Red
+			color: "#ef4444",
 			description: t("statistics.charts.cardDistribution.dueForReview"),
+			name: t("statistics.charts.cardDistribution.due"), // Red
+			totalCards: cardDistribution.totalCards,
+			value: cardDistribution.dueCards,
 		},
 		{
-			name: t("statistics.charts.cardDistribution.mastered"),
-			value: cardDistribution.masteredCards,
-			color: "#10b981", // Green
+			color: "#10b981",
 			description: t("statistics.charts.cardDistribution.wellLearned"),
+			name: t("statistics.charts.cardDistribution.mastered"), // Green
+			totalCards: cardDistribution.totalCards,
+			value: cardDistribution.masteredCards,
 		},
 	].filter((item) => item.value > 0); // Only show categories with cards
-
-	const CustomTooltip = ({ active, payload }: any) => {
-		if (active && payload && payload.length) {
-			const data = payload[0].payload;
-			const percentage =
-				cardDistribution.totalCards > 0
-					? ((data.value / cardDistribution.totalCards) * 100).toFixed(1)
-					: "0";
-
-			return (
-				<div className="rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-lg dark:bg-slate-900">
-					<div className="mb-2 flex items-center gap-2">
-						<div
-							className="h-3 w-3 rounded-full"
-							style={{ backgroundColor: data.color }}
-						></div>
-						<p className="font-semibold text-slate-200">{data.name}</p>
-					</div>
-					<div className="space-y-1 text-sm">
-						<div className="flex justify-between gap-4">
-							<span className="text-slate-300">Cards:</span>
-							<span className="font-semibold text-white">{data.value}</span>
-						</div>
-						<div className="flex justify-between gap-4">
-							<span className="text-slate-300">Percentage:</span>
-							<span className="font-semibold text-white">{percentage}%</span>
-						</div>
-						<p className="mt-2 text-slate-400 text-xs">{data.description}</p>
-					</div>
-				</div>
-			);
-		}
-		return null;
-	};
-
-	const CustomLabel = ({
-		cx,
-		cy,
-		midAngle,
-		innerRadius,
-		outerRadius,
-		percent,
-	}: any) => {
-		if (percent < 0.05) return null; // Don't show labels for very small segments
-
-		const RADIAN = Math.PI / 180;
-		const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-		const x = cx + radius * Math.cos(-midAngle * RADIAN);
-		const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-		return (
-			<text
-				x={x}
-				y={y}
-				fill="white"
-				textAnchor={x > cx ? "start" : "end"}
-				dominantBaseline="central"
-				fontSize={12}
-				fontWeight="bold"
-				className="drop-shadow-lg"
-			>
-				{`${(percent * 100).toFixed(0)}%`}
-			</text>
-		);
-	};
 
 	if (cardDistribution.totalCards === 0) {
 		return (
 			<ChartWidget
-				title={t("statistics.charts.cardDistribution.title")}
-				subtitle={t("statistics.charts.cardDistribution.subtitle")}
 				chartHeight="h-64"
+				subtitle={t("statistics.charts.cardDistribution.subtitle")}
+				title={t("statistics.charts.cardDistribution.title")}
 			>
 				<div className="flex h-full items-center justify-center text-slate-500 dark:text-slate-400">
 					<div className="text-center">
@@ -166,10 +194,10 @@ const CardDistributionChart = memo(function CardDistributionChart({
 		<>
 			{/* Legend */}
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-				{chartData.map((item, index) => (
+				{chartData.map((item) => (
 					<div
-						key={index}
 						className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+						key={item.name}
 					>
 						<div
 							className="h-4 w-4 flex-shrink-0 rounded-full transition-transform duration-200 hover:scale-110"
@@ -234,30 +262,30 @@ const CardDistributionChart = memo(function CardDistributionChart({
 
 	return (
 		<ChartWidget
-			title={t("statistics.charts.cardDistribution.title")}
-			subtitle={t("statistics.charts.cardDistribution.subtitle")}
 			chartHeight="h-64"
 			footer={footerContent}
+			subtitle={t("statistics.charts.cardDistribution.subtitle")}
+			title={t("statistics.charts.cardDistribution.title")}
 		>
-			<ResponsiveContainer width="100%" height="100%">
+			<ResponsiveContainer height="100%" width="100%">
 				<PieChart>
 					<Pie
-						data={chartData}
 						cx="50%"
 						cy="50%"
-						labelLine={false}
-						label={CustomLabel}
-						outerRadius={80}
-						innerRadius={40}
-						fill="#8884d8"
+						data={chartData}
 						dataKey="value"
+						fill="#8884d8"
+						innerRadius={40}
+						label={CustomLabel}
+						labelLine={false}
+						outerRadius={80}
 						stroke="none"
 					>
-						{chartData.map((entry, index) => (
+						{chartData.map((entry) => (
 							<Cell
-								key={`cell-${index}`}
-								fill={entry.color}
 								className="cursor-pointer transition-opacity hover:opacity-80"
+								fill={entry.color}
+								key={`cell-${entry.name}`}
 							/>
 						))}
 					</Pie>

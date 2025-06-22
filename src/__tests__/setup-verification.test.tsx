@@ -3,7 +3,7 @@
  * These tests verify that our Jest + React Testing Library setup is working correctly
  */
 
-import React from "react";
+import type React from "react";
 import { render, screen } from "../test-utils";
 
 // Simple test component
@@ -13,7 +13,9 @@ const TestComponent: React.FC<{ message?: string }> = ({
 	return (
 		<div>
 			<h1>{message}</h1>
-			<button onClick={() => console.log("clicked")}>Click me</button>
+			<button onClick={() => console.log("clicked")} type="button">
+				Click me
+			</button>
 		</div>
 	);
 };

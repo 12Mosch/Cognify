@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { getTimeSlot, TimeSlot } from "../src/utils/scheduling";
+import { getTimeSlot, type TimeSlot } from "../src/utils/scheduling";
 import { api } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
 
@@ -163,11 +163,11 @@ function calculateAdaptiveSM2(
 	const dueDate = now + newInterval * millisecondsPerDay;
 
 	return {
-		repetition: newRepetition,
+		confidence,
+		dueDate,
 		easeFactor: newEaseFactor,
 		interval: newInterval,
-		dueDate,
-		confidence,
+		repetition: newRepetition,
 	};
 }
 
@@ -176,68 +176,6 @@ function calculateAdaptiveSM2(
  */
 export const getUserLearningPattern = query({
 	args: {},
-	returns: v.union(
-		v.object({
-			userId: v.string(),
-			averageSuccessRate: v.number(),
-			learningVelocity: v.number(),
-			timeOfDayPerformance: v.object({
-				early_morning: v.object({
-					successRate: v.number(),
-					reviewCount: v.number(),
-					averageResponseTime: v.number(),
-				}),
-				morning: v.object({
-					successRate: v.number(),
-					reviewCount: v.number(),
-					averageResponseTime: v.number(),
-				}),
-				afternoon: v.object({
-					successRate: v.number(),
-					reviewCount: v.number(),
-					averageResponseTime: v.number(),
-				}),
-				evening: v.object({
-					successRate: v.number(),
-					reviewCount: v.number(),
-					averageResponseTime: v.number(),
-				}),
-				night: v.object({
-					successRate: v.number(),
-					reviewCount: v.number(),
-					averageResponseTime: v.number(),
-				}),
-				late_night: v.object({
-					successRate: v.number(),
-					reviewCount: v.number(),
-					averageResponseTime: v.number(),
-				}),
-			}),
-			difficultyPatterns: v.object({
-				easyCards: v.object({
-					successRate: v.number(),
-					averageInterval: v.number(),
-				}),
-				mediumCards: v.object({
-					successRate: v.number(),
-					averageInterval: v.number(),
-				}),
-				hardCards: v.object({
-					successRate: v.number(),
-					averageInterval: v.number(),
-				}),
-			}),
-			personalEaseFactorBias: v.number(),
-			retentionCurve: v.array(
-				v.object({
-					interval: v.number(),
-					retentionRate: v.number(),
-				}),
-			),
-			lastUpdated: v.number(),
-		}),
-		v.null(),
-	),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -251,6 +189,68 @@ export const getUserLearningPattern = query({
 
 		return pattern || null;
 	},
+	returns: v.union(
+		v.object({
+			averageSuccessRate: v.number(),
+			difficultyPatterns: v.object({
+				easyCards: v.object({
+					averageInterval: v.number(),
+					successRate: v.number(),
+				}),
+				hardCards: v.object({
+					averageInterval: v.number(),
+					successRate: v.number(),
+				}),
+				mediumCards: v.object({
+					averageInterval: v.number(),
+					successRate: v.number(),
+				}),
+			}),
+			lastUpdated: v.number(),
+			learningVelocity: v.number(),
+			personalEaseFactorBias: v.number(),
+			retentionCurve: v.array(
+				v.object({
+					interval: v.number(),
+					retentionRate: v.number(),
+				}),
+			),
+			timeOfDayPerformance: v.object({
+				afternoon: v.object({
+					averageResponseTime: v.number(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				early_morning: v.object({
+					averageResponseTime: v.number(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				evening: v.object({
+					averageResponseTime: v.number(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				late_night: v.object({
+					averageResponseTime: v.number(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				morning: v.object({
+					averageResponseTime: v.number(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				night: v.object({
+					averageResponseTime: v.number(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+			}),
+			userId: v.string(),
+		}),
+		v.null(),
+	),
 });
 
 /**
@@ -259,16 +259,10 @@ export const getUserLearningPattern = query({
 export const reviewCardAdaptive = mutation({
 	args: {
 		cardId: v.id("cards"),
+		confidenceRating: v.optional(v.number()),
 		quality: v.number(),
 		responseTime: v.optional(v.number()),
-		confidenceRating: v.optional(v.number()),
 	},
-	returns: v.object({
-		success: v.boolean(),
-		nextReviewDate: v.number(),
-		confidence: v.number(),
-		personalizedMessage: v.string(),
-	}),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -308,31 +302,31 @@ export const reviewCardAdaptive = mutation({
 
 		// Update card
 		await ctx.db.patch(args.cardId, {
-			repetition: result.repetition,
+			dueDate: result.dueDate,
 			easeFactor: result.easeFactor,
 			interval: result.interval,
-			dueDate: result.dueDate,
+			repetition: result.repetition,
 		});
 
 		// Record detailed review for pattern analysis
 		await ctx.db.insert("cardReviews", {
-			userId: identity.subject,
 			cardId: args.cardId,
-			deckId: card.deckId,
-			reviewDate: Date.now(),
-			quality: args.quality,
-			wasSuccessful: args.quality >= 3,
-			repetitionBefore: currentRepetition,
-			repetitionAfter: result.repetition,
-			intervalBefore: currentInterval,
-			intervalAfter: result.interval,
-			easeFactorBefore: currentEaseFactor,
-			easeFactorAfter: result.easeFactor,
-			studyMode: "adaptive-spaced-repetition",
-			responseTime: args.responseTime,
 			confidenceRating: args.confidenceRating,
+			deckId: card.deckId,
+			easeFactorAfter: result.easeFactor,
+			easeFactorBefore: currentEaseFactor,
+			intervalAfter: result.interval,
+			intervalBefore: currentInterval,
 			predictedConfidence: result.confidence,
+			quality: args.quality,
+			repetitionAfter: result.repetition,
+			repetitionBefore: currentRepetition,
+			responseTime: args.responseTime,
+			reviewDate: Date.now(),
+			studyMode: "adaptive-spaced-repetition",
 			timeOfDay: new Date().getHours(),
+			userId: identity.subject,
+			wasSuccessful: args.quality >= 3,
 		});
 
 		// Generate personalized message
@@ -356,12 +350,18 @@ export const reviewCardAdaptive = mutation({
 		);
 
 		return {
-			success: true,
-			nextReviewDate: result.dueDate,
 			confidence: result.confidence,
+			nextReviewDate: result.dueDate,
 			personalizedMessage,
+			success: true,
 		};
 	},
+	returns: v.object({
+		confidence: v.number(),
+		nextReviewDate: v.number(),
+		personalizedMessage: v.string(),
+		success: v.boolean(),
+	}),
 });
 
 /**
@@ -372,7 +372,6 @@ export const updateLearningPattern = mutation({
 	args: {
 		userId: v.string(),
 	},
-	returns: v.null(),
 	handler: async (ctx, args) => {
 		// Get recent reviews for pattern analysis
 		const cutoffDate =
@@ -411,12 +410,12 @@ export const updateLearningPattern = mutation({
 			TimeSlot,
 			{ successes: number; total: number; totalResponseTime: number }
 		> = {
-			early_morning: { successes: 0, total: 0, totalResponseTime: 0 },
-			morning: { successes: 0, total: 0, totalResponseTime: 0 },
 			afternoon: { successes: 0, total: 0, totalResponseTime: 0 },
+			early_morning: { successes: 0, total: 0, totalResponseTime: 0 },
 			evening: { successes: 0, total: 0, totalResponseTime: 0 },
-			night: { successes: 0, total: 0, totalResponseTime: 0 },
 			late_night: { successes: 0, total: 0, totalResponseTime: 0 },
+			morning: { successes: 0, total: 0, totalResponseTime: 0 },
+			night: { successes: 0, total: 0, totalResponseTime: 0 },
 		};
 
 		for (const review of recentReviews) {
@@ -433,32 +432,32 @@ export const updateLearningPattern = mutation({
 		}
 
 		const timeOfDayPerformance: LearningPattern["timeOfDayPerformance"] = {
+			afternoon: { averageResponseTime: 0, reviewCount: 0, successRate: 0.5 },
 			early_morning: {
-				successRate: 0.5,
-				reviewCount: 0,
 				averageResponseTime: 0,
+				reviewCount: 0,
+				successRate: 0.5,
 			},
-			morning: { successRate: 0.5, reviewCount: 0, averageResponseTime: 0 },
-			afternoon: { successRate: 0.5, reviewCount: 0, averageResponseTime: 0 },
-			evening: { successRate: 0.5, reviewCount: 0, averageResponseTime: 0 },
-			night: { successRate: 0.5, reviewCount: 0, averageResponseTime: 0 },
-			late_night: { successRate: 0.5, reviewCount: 0, averageResponseTime: 0 },
+			evening: { averageResponseTime: 0, reviewCount: 0, successRate: 0.5 },
+			late_night: { averageResponseTime: 0, reviewCount: 0, successRate: 0.5 },
+			morning: { averageResponseTime: 0, reviewCount: 0, successRate: 0.5 },
+			night: { averageResponseTime: 0, reviewCount: 0, successRate: 0.5 },
 		};
 
 		for (const [slot, data] of Object.entries(timeSlotData)) {
 			timeOfDayPerformance[slot as TimeSlot] = {
-				successRate: data.total > 0 ? data.successes / data.total : 0.5,
-				reviewCount: data.total,
 				averageResponseTime:
 					data.total > 0 ? data.totalResponseTime / data.total : 0,
+				reviewCount: data.total,
+				successRate: data.total > 0 ? data.successes / data.total : 0.5,
 			};
 		}
 
 		// Analyze difficulty patterns
 		const difficultyData = {
 			easy: { successes: 0, total: 0, totalInterval: 0 },
-			medium: { successes: 0, total: 0, totalInterval: 0 },
 			hard: { successes: 0, total: 0, totalInterval: 0 },
+			medium: { successes: 0, total: 0, totalInterval: 0 },
 		};
 
 		for (const review of recentReviews) {
@@ -478,34 +477,34 @@ export const updateLearningPattern = mutation({
 
 		const difficultyPatterns: LearningPattern["difficultyPatterns"] = {
 			easyCards: {
-				successRate:
-					difficultyData.easy.total > 0
-						? difficultyData.easy.successes / difficultyData.easy.total
-						: 0.8,
 				averageInterval:
 					difficultyData.easy.total > 0
 						? difficultyData.easy.totalInterval / difficultyData.easy.total
 						: 7,
-			},
-			mediumCards: {
 				successRate:
-					difficultyData.medium.total > 0
-						? difficultyData.medium.successes / difficultyData.medium.total
-						: 0.7,
-				averageInterval:
-					difficultyData.medium.total > 0
-						? difficultyData.medium.totalInterval / difficultyData.medium.total
-						: 5,
+					difficultyData.easy.total > 0
+						? difficultyData.easy.successes / difficultyData.easy.total
+						: 0.8,
 			},
 			hardCards: {
-				successRate:
-					difficultyData.hard.total > 0
-						? difficultyData.hard.successes / difficultyData.hard.total
-						: 0.6,
 				averageInterval:
 					difficultyData.hard.total > 0
 						? difficultyData.hard.totalInterval / difficultyData.hard.total
 						: 3,
+				successRate:
+					difficultyData.hard.total > 0
+						? difficultyData.hard.successes / difficultyData.hard.total
+						: 0.6,
+			},
+			mediumCards: {
+				averageInterval:
+					difficultyData.medium.total > 0
+						? difficultyData.medium.totalInterval / difficultyData.medium.total
+						: 5,
+				successRate:
+					difficultyData.medium.total > 0
+						? difficultyData.medium.successes / difficultyData.medium.total
+						: 0.7,
 			},
 		};
 
@@ -534,12 +533,12 @@ export const updateLearningPattern = mutation({
 
 		const patternData: Omit<LearningPattern, "userId"> = {
 			averageSuccessRate,
-			learningVelocity,
-			timeOfDayPerformance,
 			difficultyPatterns,
+			lastUpdated: Date.now(),
+			learningVelocity,
 			personalEaseFactorBias,
 			retentionCurve,
-			lastUpdated: Date.now(),
+			timeOfDayPerformance,
 		};
 
 		if (existingPattern) {
@@ -553,6 +552,7 @@ export const updateLearningPattern = mutation({
 
 		return null;
 	},
+	returns: v.null(),
 });
 
 /**
@@ -569,99 +569,6 @@ export const getLearningInsights = query({
 			),
 		),
 	},
-	returns: v.object({
-		learningPattern: v.union(
-			v.object({
-				userId: v.string(),
-				averageSuccessRate: v.number(),
-				learningVelocity: v.number(),
-				timeOfDayPerformance: v.object({
-					early_morning: v.object({
-						successRate: v.number(),
-						reviewCount: v.number(),
-						averageResponseTime: v.number(),
-					}),
-					morning: v.object({
-						successRate: v.number(),
-						reviewCount: v.number(),
-						averageResponseTime: v.number(),
-					}),
-					afternoon: v.object({
-						successRate: v.number(),
-						reviewCount: v.number(),
-						averageResponseTime: v.number(),
-					}),
-					evening: v.object({
-						successRate: v.number(),
-						reviewCount: v.number(),
-						averageResponseTime: v.number(),
-					}),
-					night: v.object({
-						successRate: v.number(),
-						reviewCount: v.number(),
-						averageResponseTime: v.number(),
-					}),
-					late_night: v.object({
-						successRate: v.number(),
-						reviewCount: v.number(),
-						averageResponseTime: v.number(),
-					}),
-				}),
-				difficultyPatterns: v.object({
-					easyCards: v.object({
-						successRate: v.number(),
-						averageInterval: v.number(),
-					}),
-					mediumCards: v.object({
-						successRate: v.number(),
-						averageInterval: v.number(),
-					}),
-					hardCards: v.object({
-						successRate: v.number(),
-						averageInterval: v.number(),
-					}),
-				}),
-				personalEaseFactorBias: v.number(),
-				retentionCurve: v.array(
-					v.object({
-						interval: v.number(),
-						retentionRate: v.number(),
-					}),
-				),
-				lastUpdated: v.number(),
-			}),
-			v.null(),
-		),
-		recommendations: v.array(
-			v.object({
-				type: v.string(),
-				title: v.string(),
-				description: v.string(),
-				priority: v.union(
-					v.literal("high"),
-					v.literal("medium"),
-					v.literal("low"),
-				),
-				actionable: v.boolean(),
-			}),
-		),
-		trends: v.object({
-			successRateTrend: v.number(), // Percentage change
-			learningVelocityTrend: v.number(),
-			retentionTrend: v.number(),
-		}),
-		predictions: v.object({
-			masteryPrediction: v.array(
-				v.object({
-					deckId: v.id("decks"),
-					deckName: v.string(),
-					estimatedMasteryDate: v.number(),
-					confidence: v.number(),
-				}),
-			),
-			optimalStudyLoad: v.number(), // Recommended daily cards
-		}),
-	}),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -677,15 +584,15 @@ export const getLearningInsights = query({
 		if (!learningPattern) {
 			return {
 				learningPattern: null,
-				recommendations: [],
-				trends: {
-					successRateTrend: 0,
-					learningVelocityTrend: 0,
-					retentionTrend: 0,
-				},
 				predictions: {
 					masteryPrediction: [],
 					optimalStudyLoad: 20,
+				},
+				recommendations: [],
+				trends: {
+					learningVelocityTrend: 0,
+					retentionTrend: 0,
+					successRateTrend: 0,
 				},
 			};
 		}
@@ -721,11 +628,11 @@ export const getLearningInsights = query({
 		if (timePerformance.length > 0) {
 			const bestTime = timePerformance[0];
 			recommendations.push({
-				type: "time_optimization",
-				title: "Optimize Your Study Time",
+				actionable: true,
 				description: `Your best performance is during ${bestTime[0].replace(/_/g, " ")} with ${Math.round(bestTime[1].successRate * 100)}% success rate.`,
 				priority: "high" as const,
-				actionable: true,
+				title: "Optimize Your Study Time",
+				type: "time_optimization",
 			});
 		}
 
@@ -734,23 +641,23 @@ export const getLearningInsights = query({
 			learningPattern.difficultyPatterns.hardCards.successRate;
 		if (hardCardsSuccess < 0.6) {
 			recommendations.push({
-				type: "difficulty_management",
-				title: "Focus on Difficult Cards",
+				actionable: true,
 				description: `Your success rate with difficult cards is ${Math.round(hardCardsSuccess * 100)}%. Consider shorter intervals or additional review techniques.`,
 				priority: "medium" as const,
-				actionable: true,
+				title: "Focus on Difficult Cards",
+				type: "difficulty_management",
 			});
 		}
 
 		// Learning velocity recommendations
 		if (learningPattern.learningVelocity < 0.5) {
 			recommendations.push({
-				type: "velocity_improvement",
-				title: "Increase Study Frequency",
+				actionable: true,
 				description:
 					"Your learning velocity is below optimal. Consider shorter, more frequent study sessions.",
 				priority: "medium" as const,
-				actionable: true,
+				title: "Increase Study Frequency",
+				type: "velocity_improvement",
 			});
 		}
 
@@ -782,20 +689,14 @@ export const getLearningInsights = query({
 			.collect();
 
 		const masteryPredictions = userDecks.slice(0, 3).map((deck) => ({
-			deckId: deck._id,
-			deckName: deck.name,
-			estimatedMasteryDate: Date.now() + 30 * 24 * 60 * 60 * 1000, // Simplified: 30 days
 			confidence: 0.75,
+			deckId: deck._id,
+			deckName: deck.name, // Simplified: 30 days
+			estimatedMasteryDate: Date.now() + 30 * 24 * 60 * 60 * 1000,
 		}));
 
 		return {
 			learningPattern,
-			recommendations,
-			trends: {
-				successRateTrend,
-				learningVelocityTrend: 0, // Simplified
-				retentionTrend: 0, // Simplified
-			},
 			predictions: {
 				masteryPrediction: masteryPredictions,
 				optimalStudyLoad: Math.max(
@@ -803,6 +704,105 @@ export const getLearningInsights = query({
 					Math.min(50, Math.round(learningPattern.learningVelocity * 20)),
 				),
 			},
+			recommendations,
+			trends: {
+				learningVelocityTrend: 0,
+				retentionTrend: 0, // Simplified
+				successRateTrend, // Simplified
+			},
 		};
 	},
+	returns: v.object({
+		learningPattern: v.union(
+			v.object({
+				averageSuccessRate: v.number(),
+				difficultyPatterns: v.object({
+					easyCards: v.object({
+						averageInterval: v.number(),
+						successRate: v.number(),
+					}),
+					hardCards: v.object({
+						averageInterval: v.number(),
+						successRate: v.number(),
+					}),
+					mediumCards: v.object({
+						averageInterval: v.number(),
+						successRate: v.number(),
+					}),
+				}),
+				lastUpdated: v.number(),
+				learningVelocity: v.number(),
+				personalEaseFactorBias: v.number(),
+				retentionCurve: v.array(
+					v.object({
+						interval: v.number(),
+						retentionRate: v.number(),
+					}),
+				),
+				timeOfDayPerformance: v.object({
+					afternoon: v.object({
+						averageResponseTime: v.number(),
+						reviewCount: v.number(),
+						successRate: v.number(),
+					}),
+					early_morning: v.object({
+						averageResponseTime: v.number(),
+						reviewCount: v.number(),
+						successRate: v.number(),
+					}),
+					evening: v.object({
+						averageResponseTime: v.number(),
+						reviewCount: v.number(),
+						successRate: v.number(),
+					}),
+					late_night: v.object({
+						averageResponseTime: v.number(),
+						reviewCount: v.number(),
+						successRate: v.number(),
+					}),
+					morning: v.object({
+						averageResponseTime: v.number(),
+						reviewCount: v.number(),
+						successRate: v.number(),
+					}),
+					night: v.object({
+						averageResponseTime: v.number(),
+						reviewCount: v.number(),
+						successRate: v.number(),
+					}),
+				}),
+				userId: v.string(),
+			}),
+			v.null(),
+		),
+		predictions: v.object({
+			masteryPrediction: v.array(
+				v.object({
+					confidence: v.number(),
+					deckId: v.id("decks"),
+					deckName: v.string(),
+					estimatedMasteryDate: v.number(),
+				}),
+			),
+			optimalStudyLoad: v.number(), // Recommended daily cards
+		}),
+		recommendations: v.array(
+			v.object({
+				actionable: v.boolean(),
+				description: v.string(),
+				priority: v.union(
+					v.literal("high"),
+					v.literal("medium"),
+					v.literal("low"),
+				),
+				title: v.string(),
+				type: v.string(),
+			}),
+		),
+		trends: v.object({
+			learningVelocityTrend: v.number(), // Percentage change
+			retentionTrend: v.number(),
+			successRateTrend: v.number(),
+		}),
+	}),
 });

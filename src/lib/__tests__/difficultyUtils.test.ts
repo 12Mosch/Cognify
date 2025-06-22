@@ -102,12 +102,12 @@ describe("difficultyUtils", () => {
 
 	describe("getDifficultyStats", () => {
 		const mockCards = [
-			{ repetition: 0, easeFactor: 2.5, interval: 1 }, // new
-			{ repetition: 1, easeFactor: 2.5, interval: 1 }, // learning
-			{ repetition: 2, easeFactor: 2.5, interval: 6 }, // learning
-			{ repetition: 5, easeFactor: 2.5, interval: 15 }, // mature
-			{ repetition: 10, easeFactor: 3.0, interval: 60 }, // easy
-			{ repetition: 3, easeFactor: 2.0, interval: 3 }, // young
+			{ easeFactor: 2.5, interval: 1, repetition: 0 }, // new
+			{ easeFactor: 2.5, interval: 1, repetition: 1 }, // learning
+			{ easeFactor: 2.5, interval: 6, repetition: 2 }, // learning
+			{ easeFactor: 2.5, interval: 15, repetition: 5 }, // mature
+			{ easeFactor: 3.0, interval: 60, repetition: 10 }, // easy
+			{ easeFactor: 2.0, interval: 3, repetition: 3 }, // young
 		];
 
 		it("should count cards by difficulty level", () => {

@@ -2,8 +2,8 @@
  * KeyboardShortcutsModal Component - Modal displaying available keyboard shortcuts
  */
 
-import { useEffect } from "react";
-import { KeyboardShortcutGroup } from "../types/keyboard";
+import { useEffect, useId } from "react";
+import type { KeyboardShortcutGroup } from "../types/keyboard";
 
 interface KeyboardShortcutsModalProps {
 	isOpen: boolean;
@@ -18,6 +18,7 @@ function KeyboardShortcutsModal({
 	shortcuts,
 	studyMode,
 }: KeyboardShortcutsModalProps) {
+	const titleId = useId();
 	// Handle Escape key to close modal
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
@@ -47,42 +48,46 @@ function KeyboardShortcutsModal({
 		<div className="fixed inset-0 z-50 flex items-center justify-center">
 			{/* Backdrop */}
 			<div
-				className="absolute inset-0 bg-black bg-opacity-50"
-				onClick={onClose}
 				aria-hidden="true"
+				className="absolute inset-0 bg-black bg-opacity-50"
 				data-testid="modal-backdrop"
+				onClick={onClose}
 			/>
 
 			{/* Modal */}
 			<div
+				aria-labelledby={titleId}
+				aria-modal="true"
 				className="relative mx-4 max-h-[80vh] w-full max-w-md overflow-y-auto rounded-lg bg-white shadow-xl dark:bg-slate-800"
 				role="dialog"
-				aria-modal="true"
-				aria-labelledby="shortcuts-title"
 			>
 				{/* Header */}
 				<div className="flex items-center justify-between border-slate-200 border-b p-6 dark:border-slate-700">
 					<h2
-						id="shortcuts-title"
 						className="font-semibold text-slate-900 text-xl dark:text-slate-100"
+						id={titleId}
 					>
 						Keyboard Shortcuts
 					</h2>
 					<button
-						onClick={onClose}
-						className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
 						aria-label="Close shortcuts help"
+						className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
+						onClick={onClose}
+						type="button"
 					>
 						<svg
-							width="24"
-							height="24"
-							viewBox="0 0 24 24"
+							aria-label="Close icon"
 							fill="none"
+							height="24"
+							role="img"
 							stroke="currentColor"
 							strokeWidth="2"
+							viewBox="0 0 24 24"
+							width="24"
 						>
-							<line x1="18" y1="6" x2="6" y2="18" />
-							<line x1="6" y1="6" x2="18" y2="18" />
+							<title>Close icon</title>
+							<line x1="18" x2="6" y1="6" y2="18" />
+							<line x1="6" x2="18" y1="6" y2="18" />
 						</svg>
 					</button>
 				</div>
@@ -94,15 +99,18 @@ function KeyboardShortcutsModal({
 					</p>
 
 					{shortcuts.map((group, groupIndex) => (
-						<div key={groupIndex} className="mb-6 last:mb-0">
+						<div
+							className="mb-6 last:mb-0"
+							key={`group-${group.title}-${groupIndex}`}
+						>
 							<h3 className="mb-3 font-medium text-lg text-slate-800 dark:text-slate-200">
 								{group.title}
 							</h3>
 							<div className="space-y-2">
 								{group.shortcuts.map((shortcut, shortcutIndex) => (
 									<div
-										key={shortcutIndex}
 										className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 dark:bg-slate-700"
+										key={`shortcut-${shortcut.key}-${shortcut.description}-${shortcutIndex}`}
 									>
 										<span className="text-slate-700 dark:text-slate-300">
 											{shortcut.description}

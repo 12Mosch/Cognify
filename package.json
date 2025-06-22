@@ -1,21 +1,4 @@
 {
-	"name": "cognify",
-	"private": true,
-	"version": "0.1.0",
-	"type": "module",
-	"scripts": {
-		"dev": "npm-run-all --parallel dev:frontend dev:backend",
-		"dev:frontend": "vite --open",
-		"dev:backend": "convex dev",
-		"predev": "convex dev --until-success && convex dashboard",
-		"build": "tsc -b && vite build",
-		"lint": "tsc && npx @biomejs/biome check",
-		"preview": "vite preview",
-		"test": "jest",
-		"test:watch": "jest --watch",
-		"test:coverage": "jest --coverage",
-		"test:ci": "jest --ci --coverage --watchAll=false"
-	},
 	"dependencies": {
 		"@clerk/clerk-react": "^5.32.0",
 		"convex": "^1.23.0",
@@ -57,5 +40,22 @@
 		"ts-jest": "^29.4.0",
 		"typescript": "^5.8.3",
 		"vite": "^6.2.0"
-	}
+	},
+	"name": "cognify",
+	"private": true,
+	"scripts": {
+		"build": "tsc -b && vite build",
+		"dev": "npm-run-all --parallel dev:frontend dev:backend",
+		"dev:backend": "convex dev",
+		"dev:frontend": "vite --open",
+		"lint": "tsc && npx @biomejs/biome check",
+		"predev": "convex dev --until-success && convex dashboard",
+		"preview": "vite preview",
+		"test": "jest",
+		"test:ci": "jest --ci --coverage --watchAll=false",
+		"test:coverage": "jest --coverage",
+		"test:watch": "jest --watch"
+	},
+	"type": "module",
+	"version": "0.1.0"
 }

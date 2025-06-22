@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { getTimeSlot, TimeSlot } from "../src/utils/scheduling";
+import { getTimeSlot, type TimeSlot } from "../src/utils/scheduling";
 import { mutation, query } from "./_generated/server";
 
 /**
@@ -16,12 +16,12 @@ import { mutation, query } from "./_generated/server";
 
 // Time slot to hour mappings for consistent scheduling
 const TIME_SLOT_HOURS: Record<TimeSlot, number> = {
-	early_morning: 7,
-	morning: 10,
 	afternoon: 14,
+	early_morning: 7,
 	evening: 18,
-	night: 20,
 	late_night: 1,
+	morning: 10,
+	night: 20,
 };
 
 interface StudyRecommendation {
@@ -47,12 +47,12 @@ interface StudySchedule {
  */
 function getTimeSlotName(slot: TimeSlot): string {
 	const names = {
-		early_morning: "Early Morning (5-9 AM)",
-		morning: "Morning (9 AM-1 PM)",
 		afternoon: "Afternoon (1-5 PM)",
+		early_morning: "Early Morning (5-9 AM)",
 		evening: "Evening (5-9 PM)",
-		night: "Night (9 PM-12 AM)",
 		late_night: "Late Night (12-5 AM)",
+		morning: "Morning (9 AM-1 PM)",
+		night: "Night (9 PM-12 AM)",
 	};
 	return names[slot];
 }
@@ -124,29 +124,6 @@ export const getStudyRecommendations = query({
 		daysAhead: v.optional(v.number()), // Default 7 days
 		userTimeZone: v.optional(v.string()), // IANA timezone
 	},
-	returns: v.array(
-		v.object({
-			date: v.string(),
-			recommendations: v.array(
-				v.object({
-					timeSlot: v.string(),
-					startTime: v.string(),
-					duration: v.number(),
-					expectedCards: v.number(),
-					confidence: v.number(),
-					reasoning: v.string(),
-					priority: v.union(
-						v.literal("high"),
-						v.literal("medium"),
-						v.literal("low"),
-					),
-				}),
-			),
-			totalEstimatedCards: v.number(),
-			estimatedStudyTime: v.number(),
-			optimalTimeSlot: v.string(),
-		}),
-	),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -234,13 +211,13 @@ export const getStudyRecommendations = query({
 					);
 
 					recommendations.push({
-						timeSlot,
-						startTime,
+						confidence,
 						duration,
 						expectedCards,
-						confidence,
-						reasoning,
 						priority,
+						reasoning,
+						startTime,
+						timeSlot,
 					});
 				}
 			}
@@ -259,15 +236,38 @@ export const getStudyRecommendations = query({
 
 			schedules.push({
 				date: dateStr,
-				recommendations,
-				totalEstimatedCards,
 				estimatedStudyTime,
 				optimalTimeSlot,
+				recommendations,
+				totalEstimatedCards,
 			});
 		}
 
 		return schedules;
 	},
+	returns: v.array(
+		v.object({
+			date: v.string(),
+			estimatedStudyTime: v.number(),
+			optimalTimeSlot: v.string(),
+			recommendations: v.array(
+				v.object({
+					confidence: v.number(),
+					duration: v.number(),
+					expectedCards: v.number(),
+					priority: v.union(
+						v.literal("high"),
+						v.literal("medium"),
+						v.literal("low"),
+					),
+					reasoning: v.string(),
+					startTime: v.string(),
+					timeSlot: v.string(),
+				}),
+			),
+			totalEstimatedCards: v.number(),
+		}),
+	),
 });
 
 /**
@@ -277,27 +277,6 @@ export const getTodayStudyRecommendations = query({
 	args: {
 		userTimeZone: v.optional(v.string()),
 	},
-	returns: v.object({
-		currentTimeSlot: v.string(),
-		isOptimalTime: v.boolean(),
-		nextOptimalTime: v.optional(v.string()),
-		immediateRecommendation: v.optional(
-			v.object({
-				action: v.string(),
-				reasoning: v.string(),
-				estimatedDuration: v.number(),
-				expectedCards: v.number(),
-				confidence: v.number(),
-			}),
-		),
-		dueCardsCount: v.number(),
-		newCardsAvailable: v.number(),
-		energyLevelPrediction: v.union(
-			v.literal("high"),
-			v.literal("medium"),
-			v.literal("low"),
-		),
-	}),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -317,10 +296,10 @@ export const getTodayStudyRecommendations = query({
 		if (!learningPattern) {
 			return {
 				currentTimeSlot,
-				isOptimalTime: false,
 				dueCardsCount: 0,
-				newCardsAvailable: 0,
 				energyLevelPrediction: "medium" as const,
+				isOptimalTime: false,
+				newCardsAvailable: 0,
 			};
 		}
 
@@ -377,7 +356,15 @@ export const getTodayStudyRecommendations = query({
 		}
 
 		// Generate immediate recommendation
-		let immediateRecommendation = undefined;
+		let immediateRecommendation:
+			| {
+					action: string;
+					reasoning: string;
+					estimatedDuration: number;
+					expectedCards: number;
+					confidence: number;
+			  }
+			| undefined;
 		if (dueCardsCount > 0 && isOptimalTime) {
 			const { duration, expectedCards } = calculateOptimalDuration(
 				learningPattern.learningVelocity,
@@ -387,31 +374,52 @@ export const getTodayStudyRecommendations = query({
 
 			immediateRecommendation = {
 				action: "Start studying now",
-				reasoning: `This is your optimal study time with ${Math.round(currentSlotPerformance.successRate * 100)}% success rate`,
+				confidence: currentSlotPerformance.successRate,
 				estimatedDuration: duration,
 				expectedCards,
-				confidence: currentSlotPerformance.successRate,
+				reasoning: `This is your optimal study time with ${Math.round(currentSlotPerformance.successRate * 100)}% success rate`,
 			};
 		} else if (dueCardsCount > 0 && !isOptimalTime && nextOptimalTime) {
 			immediateRecommendation = {
 				action: "Wait for optimal time",
-				reasoning: `Consider waiting until ${nextOptimalTime} for better performance`,
+				confidence: 0.6,
 				estimatedDuration: 0,
 				expectedCards: 0,
-				confidence: 0.6,
+				reasoning: `Consider waiting until ${nextOptimalTime} for better performance`,
 			};
 		}
 
 		return {
 			currentTimeSlot,
-			isOptimalTime,
-			nextOptimalTime,
-			immediateRecommendation,
 			dueCardsCount,
-			newCardsAvailable,
 			energyLevelPrediction,
+			immediateRecommendation,
+			isOptimalTime,
+			newCardsAvailable,
+			nextOptimalTime,
 		};
 	},
+	returns: v.object({
+		currentTimeSlot: v.string(),
+		dueCardsCount: v.number(),
+		energyLevelPrediction: v.union(
+			v.literal("high"),
+			v.literal("medium"),
+			v.literal("low"),
+		),
+		immediateRecommendation: v.optional(
+			v.object({
+				action: v.string(),
+				confidence: v.number(),
+				estimatedDuration: v.number(),
+				expectedCards: v.number(),
+				reasoning: v.string(),
+			}),
+		),
+		isOptimalTime: v.boolean(),
+		newCardsAvailable: v.number(),
+		nextOptimalTime: v.optional(v.string()),
+	}),
 });
 
 /**
@@ -419,12 +427,11 @@ export const getTodayStudyRecommendations = query({
  */
 export const recordStudyPreferences = mutation({
 	args: {
-		preferredTimeSlots: v.array(v.string()),
-		preferredDuration: v.number(), // minutes
-		dailyGoal: v.number(), // cards per day
-		availableDays: v.array(v.string()), // days of week
+		availableDays: v.array(v.string()),
+		dailyGoal: v.number(), // minutes
+		preferredDuration: v.number(), // cards per day
+		preferredTimeSlots: v.array(v.string()), // days of week
 	},
-	returns: v.null(),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -438,12 +445,12 @@ export const recordStudyPreferences = mutation({
 			.first();
 
 		const preferencesData = {
-			userId: identity.subject,
-			preferredTimeSlots: args.preferredTimeSlots,
-			preferredDuration: args.preferredDuration,
-			dailyGoal: args.dailyGoal,
 			availableDays: args.availableDays,
+			dailyGoal: args.dailyGoal,
 			lastUpdated: Date.now(),
+			preferredDuration: args.preferredDuration,
+			preferredTimeSlots: args.preferredTimeSlots,
+			userId: identity.subject,
 		};
 
 		if (existingPrefs) {
@@ -454,4 +461,5 @@ export const recordStudyPreferences = mutation({
 
 		return null;
 	},
+	returns: v.null(),
 });

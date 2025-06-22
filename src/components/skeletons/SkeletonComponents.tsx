@@ -18,9 +18,9 @@ const SkeletonElement = memo(function SkeletonElement({
 }) {
 	return (
 		<div
-			className={`animate-shimmer rounded bg-slate-200 dark:bg-slate-700 ${className}`}
-			aria-label={ariaLabel}
 			aria-hidden="true"
+			className={`animate-shimmer rounded bg-slate-200 dark:bg-slate-700 ${className}`}
+			title={ariaLabel}
 		/>
 	);
 });
@@ -30,11 +30,10 @@ const SkeletonElement = memo(function SkeletonElement({
  */
 export const DeckCardSkeleton = memo(function DeckCardSkeleton() {
 	return (
-		<div
-			className="rounded-xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50 p-8 shadow-sm dark:border-slate-700/60 dark:from-slate-800 dark:to-slate-900"
-			role="status"
+		<output
 			aria-busy="true"
 			aria-label="Loading deck"
+			className="rounded-xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50 p-8 shadow-sm dark:border-slate-700/60 dark:from-slate-800 dark:to-slate-900"
 		>
 			<div className="flex h-full flex-col">
 				{/* Deck Header */}
@@ -61,7 +60,7 @@ export const DeckCardSkeleton = memo(function DeckCardSkeleton() {
 					<SkeletonElement className="h-10 flex-1 rounded-lg" />
 				</div>
 			</div>
-		</div>
+		</output>
 	);
 });
 
@@ -74,11 +73,10 @@ export const DeckListSkeleton = memo(function DeckListSkeleton({
 	count?: number;
 }) {
 	return (
-		<div
-			className="mx-auto flex max-w-6xl flex-col gap-8"
-			role="status"
+		<output
 			aria-busy="true"
 			aria-label="Loading decks"
+			className="mx-auto flex max-w-6xl flex-col gap-8"
 		>
 			{/* Header skeleton */}
 			<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
@@ -95,10 +93,10 @@ export const DeckListSkeleton = memo(function DeckListSkeleton({
 			{/* Deck grid skeleton */}
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{Array.from({ length: count }, (_, i) => (
-					<DeckCardSkeleton key={i} />
+					<DeckCardSkeleton key={`deck-skeleton-${Date.now()}-${i}`} />
 				))}
 			</div>
-		</div>
+		</output>
 	);
 });
 
@@ -107,11 +105,10 @@ export const DeckListSkeleton = memo(function DeckListSkeleton({
  */
 export const FlashcardSkeleton = memo(function FlashcardSkeleton() {
 	return (
-		<div
-			className="mx-auto flex max-w-4xl flex-col gap-8"
-			role="status"
+		<output
 			aria-busy="true"
 			aria-label="Loading flashcard"
+			className="mx-auto flex max-w-4xl flex-col gap-8"
 		>
 			{/* Header skeleton */}
 			<div className="flex items-center justify-between">
@@ -142,7 +139,7 @@ export const FlashcardSkeleton = memo(function FlashcardSkeleton() {
 				<SkeletonElement className="h-12 w-24" />
 				<SkeletonElement className="h-12 w-20" />
 			</div>
-		</div>
+		</output>
 	);
 });
 
@@ -155,11 +152,10 @@ export const DeckViewSkeleton = memo(function DeckViewSkeleton({
 	cardCount?: number;
 }) {
 	return (
-		<div
-			className="mx-auto flex max-w-6xl flex-col gap-8"
-			role="status"
+		<output
 			aria-busy="true"
 			aria-label="Loading deck view"
+			className="mx-auto flex max-w-6xl flex-col gap-8"
 		>
 			{/* Header skeleton */}
 			<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
@@ -177,10 +173,10 @@ export const DeckViewSkeleton = memo(function DeckViewSkeleton({
 			{/* Cards grid skeleton */}
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{Array.from({ length: cardCount }, (_, i) => (
-					<CardItemSkeleton key={i} />
+					<CardItemSkeleton key={`card-skeleton-${Date.now()}-${i}`} />
 				))}
 			</div>
-		</div>
+		</output>
 	);
 });
 
@@ -189,11 +185,10 @@ export const DeckViewSkeleton = memo(function DeckViewSkeleton({
  */
 const CardItemSkeleton = memo(function CardItemSkeleton() {
 	return (
-		<div
-			className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800"
-			role="status"
+		<output
 			aria-busy="true"
 			aria-label="Loading card"
+			className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800"
 		>
 			<div className="flex h-full min-h-[200px] flex-col">
 				{/* Card content skeleton */}
@@ -213,7 +208,7 @@ const CardItemSkeleton = memo(function CardItemSkeleton() {
 					</div>
 				</div>
 			</div>
-		</div>
+		</output>
 	);
 });
 
@@ -222,15 +217,14 @@ const CardItemSkeleton = memo(function CardItemSkeleton() {
  */
 export const StatsSkeleton = memo(function StatsSkeleton() {
 	return (
-		<div
-			className="flex items-center gap-2"
-			role="status"
+		<output
 			aria-busy="true"
 			aria-label="Loading statistics"
+			className="flex items-center gap-2"
 		>
 			<SkeletonElement className="h-4 w-8" />
 			<SkeletonElement className="h-4 w-12" />
-		</div>
+		</output>
 	);
 });
 
@@ -245,26 +239,25 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 	// Generate realistic month positioning to match actual heatmap
 	// This approximates how months would be distributed across 53 weeks
 	const skeletonMonths = [
-		{ name: "Jan", weekStart: 0, weekSpan: 4 },
-		{ name: "Feb", weekStart: 4, weekSpan: 4 },
-		{ name: "Mar", weekStart: 8, weekSpan: 5 },
-		{ name: "Apr", weekStart: 13, weekSpan: 4 },
-		{ name: "May", weekStart: 17, weekSpan: 5 },
-		{ name: "Jun", weekStart: 22, weekSpan: 4 },
-		{ name: "Jul", weekStart: 26, weekSpan: 5 },
-		{ name: "Aug", weekStart: 31, weekSpan: 4 },
-		{ name: "Sep", weekStart: 35, weekSpan: 4 },
-		{ name: "Oct", weekStart: 39, weekSpan: 5 },
-		{ name: "Nov", weekStart: 44, weekSpan: 4 },
-		{ name: "Dec", weekStart: 48, weekSpan: 5 },
+		{ name: "Jan", weekSpan: 4, weekStart: 0 },
+		{ name: "Feb", weekSpan: 4, weekStart: 4 },
+		{ name: "Mar", weekSpan: 5, weekStart: 8 },
+		{ name: "Apr", weekSpan: 4, weekStart: 13 },
+		{ name: "May", weekSpan: 5, weekStart: 17 },
+		{ name: "Jun", weekSpan: 4, weekStart: 22 },
+		{ name: "Jul", weekSpan: 5, weekStart: 26 },
+		{ name: "Aug", weekSpan: 4, weekStart: 31 },
+		{ name: "Sep", weekSpan: 4, weekStart: 35 },
+		{ name: "Oct", weekSpan: 5, weekStart: 39 },
+		{ name: "Nov", weekSpan: 4, weekStart: 44 },
+		{ name: "Dec", weekSpan: 5, weekStart: 48 },
 	];
 
 	return (
-		<div
-			className="rounded-lg border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800"
-			role="status"
+		<output
 			aria-busy="true"
 			aria-label="Loading study history heatmap"
+			className="rounded-lg border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800"
 		>
 			{/* Header */}
 			<div className="mb-6">
@@ -279,8 +272,8 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 					<div className="relative mb-2 ml-8 flex">
 						{skeletonMonths.map((month) => (
 							<div
-								key={month.name}
 								className="absolute text-xs"
+								key={month.name}
 								style={{
 									marginLeft: `${month.weekStart * 14}px`,
 									width: `${month.weekSpan * 14}px`,
@@ -295,8 +288,11 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 					<div className="flex">
 						{/* Day Labels */}
 						<div className="mr-2 flex flex-col">
-							{days.map((_, dayIndex) => (
-								<div key={dayIndex} className="mb-1 flex h-3 items-center">
+							{days.map((dayValue, dayIndex) => (
+								<div
+									className="mb-1 flex h-3 items-center"
+									key={`day-skeleton-${dayValue}`}
+								>
 									{dayIndex % 2 === 1 && (
 										<SkeletonElement className="h-3 w-3" />
 									)}
@@ -307,11 +303,11 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 						{/* Heatmap Squares */}
 						<div className="flex gap-1">
 							{weeks.map((weekIndex) => (
-								<div key={weekIndex} className="flex flex-col gap-1">
+								<div className="flex flex-col gap-1" key={weekIndex}>
 									{days.map((dayIndex) => (
 										<SkeletonElement
-											key={`${weekIndex}-${dayIndex}`}
 											className="h-3 w-3 rounded-sm"
+											key={`${weekIndex}-${dayIndex}`}
 										/>
 									))}
 								</div>
@@ -324,9 +320,14 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 						<SkeletonElement className="h-4 w-32" />
 						<div className="flex items-center gap-1">
 							<SkeletonElement className="h-3 w-8" />
-							{Array.from({ length: 5 }).map((_, index) => (
-								<SkeletonElement key={index} className="h-3 w-3 rounded-sm" />
-							))}
+							{["level-0", "level-1", "level-2", "level-3", "level-4"].map(
+								(level) => (
+									<SkeletonElement
+										className="h-3 w-3 rounded-sm"
+										key={`activity-${level}`}
+									/>
+								),
+							)}
 							<SkeletonElement className="h-3 w-8" />
 						</div>
 					</div>
@@ -335,14 +336,14 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 
 			{/* Stats Summary */}
 			<div className="mt-6 grid grid-cols-2 gap-4 border-slate-200 border-t pt-6 md:grid-cols-4 dark:border-slate-700">
-				{Array.from({ length: 4 }).map((_, index) => (
-					<div key={index} className="text-center">
+				{["total-cards", "mastered", "learning", "new"].map((statType) => (
+					<div className="text-center" key={`stats-summary-${statType}`}>
 						<SkeletonElement className="mx-auto mb-1 h-6 w-12" />
 						<SkeletonElement className="mx-auto h-4 w-16" />
 					</div>
 				))}
 			</div>
-		</div>
+		</output>
 	);
 });
 
@@ -363,11 +364,10 @@ export const GenericSkeleton = memo(function GenericSkeleton({
 			return <DeckViewSkeleton />;
 		default:
 			return (
-				<div
-					className="mx-auto flex max-w-4xl flex-col gap-8"
-					role="status"
+				<output
 					aria-busy="true"
 					aria-label="Loading"
+					className="mx-auto flex max-w-4xl flex-col gap-8"
 				>
 					<div className="flex items-center justify-center py-12">
 						<div className="text-center">
@@ -375,7 +375,7 @@ export const GenericSkeleton = memo(function GenericSkeleton({
 							<SkeletonElement className="mx-auto h-4 w-32" />
 						</div>
 					</div>
-				</div>
+				</output>
 			);
 	}
 });

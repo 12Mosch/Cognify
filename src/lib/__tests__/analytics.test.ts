@@ -43,18 +43,18 @@ const mockUsePostHog = usePostHog as jest.MockedFunction<typeof usePostHog>;
 // Mock PostHog
 const mockPostHog = {
 	capture: jest.fn(),
-	identify: jest.fn(),
 	getFeatureFlag: jest.fn(),
+	identify: jest.fn(),
 	opt_in_capturing: jest.fn(),
 	opt_out_capturing: jest.fn(),
 };
 
 // Mock localStorage
 const localStorageMock = {
-	getItem: jest.fn(),
-	setItem: jest.fn(),
-	removeItem: jest.fn(),
 	clear: jest.fn(),
+	getItem: jest.fn(),
+	removeItem: jest.fn(),
+	setItem: jest.fn(),
 };
 
 // Mock console methods to suppress expected output during tests
@@ -273,9 +273,9 @@ describe("Analytics Utilities", () => {
 				expect(mockPostHog.capture).toHaveBeenCalledWith(
 					"study_session_started",
 					{
+						cardCount: 10,
 						deckId: "deck-789",
 						deckName: "Study Deck",
-						cardCount: 10,
 					},
 				);
 			});
@@ -295,11 +295,11 @@ describe("Analytics Utilities", () => {
 				expect(mockPostHog.capture).toHaveBeenCalledWith(
 					"study_session_completed",
 					{
+						cardsReviewed: 5,
 						deckId: "deck-101",
 						deckName: "Completed Deck",
-						cardsReviewed: 5,
-						studyMode: "basic",
 						sessionDuration: 120,
+						studyMode: "basic",
 					},
 				);
 			});
@@ -352,11 +352,11 @@ describe("Analytics Utilities", () => {
 			expect(mockPostHog.capture).toHaveBeenCalledWith(
 				"study_session_completed",
 				{
+					cardsReviewed: 5,
 					deckId: "deck-456",
 					deckName: "Study Deck",
-					cardsReviewed: 5,
-					studyMode: "basic",
 					sessionDuration: 120,
+					studyMode: "basic",
 				},
 			);
 		});
@@ -527,16 +527,16 @@ describe("Analytics Utilities", () => {
 				expect(mockPostHog.capture).toHaveBeenCalledWith(
 					"$feature_interaction",
 					{
-						feature_flag: "new-study-algorithm",
 						$set: { "$feature_interaction/new-study-algorithm": true },
+						feature_flag: "new-study-algorithm",
 					},
 				);
 
 				expect(mockPostHog.capture).toHaveBeenCalledWith(
 					"$feature_flag_called",
 					{
-						$feature_flag_response: "enabled",
 						$feature_flag: "new-study-algorithm",
+						$feature_flag_response: "enabled",
 					},
 				);
 			});
@@ -603,10 +603,10 @@ describe("Analytics Utilities", () => {
 
 				const userProperties = {
 					email: "test@example.com",
+					experienceLevel: "beginner" as const,
 					name: "Test User",
 					signupDate: "2024-01-15",
 					studyGoal: "exam_prep" as const,
-					experienceLevel: "beginner" as const,
 				};
 
 				identifyUserWithCohorts(mockPostHog as any, "user-123", userProperties);
@@ -615,9 +615,9 @@ describe("Analytics Utilities", () => {
 					"user-123",
 					expect.objectContaining({
 						email: "test@example.com",
+						engagementTier: "new_user",
 						name: "Test User",
 						studyPersona: "exam_focused",
-						engagementTier: "new_user",
 					}),
 				);
 			});
@@ -652,11 +652,11 @@ describe("Analytics Utilities", () => {
 				);
 
 				const testData = {
+					age: 30,
 					email: "test@example.com",
 					name: "John Doe",
-					age: 30,
-					userId: "user-123",
 					otherField: "not sensitive",
+					userId: "user-123",
 				};
 
 				const result = await anonymizeUserData(testData);
@@ -702,11 +702,11 @@ describe("Analytics Utilities", () => {
 				);
 
 				const testData = {
+					age: 30,
 					email: "test@example.com",
 					name: "John Doe",
-					age: 30,
-					userId: "user-123",
 					otherField: "not sensitive",
+					userId: "user-123",
 				};
 
 				const result = anonymizeUserDataSync(testData);
@@ -768,8 +768,8 @@ describe("Analytics Utilities", () => {
 				(global as any).import = {
 					meta: {
 						env: {
-							VITE_PUBLIC_POSTHOG_KEY: "test-key",
 							VITE_PUBLIC_POSTHOG_HOST: "https://app.posthog.com",
+							VITE_PUBLIC_POSTHOG_KEY: "test-key",
 						},
 					},
 				};
@@ -845,8 +845,8 @@ describe("Analytics Utilities", () => {
 				(global as any).import = {
 					meta: {
 						env: {
-							VITE_PUBLIC_POSTHOG_KEY: "your_posthog_project_api_key_here",
 							VITE_PUBLIC_POSTHOG_HOST: "https://app.posthog.com",
+							VITE_PUBLIC_POSTHOG_KEY: "your_posthog_project_api_key_here",
 						},
 					},
 				};
@@ -863,8 +863,8 @@ describe("Analytics Utilities", () => {
 				(global as any).import = {
 					meta: {
 						env: {
-							VITE_PUBLIC_POSTHOG_KEY: "",
 							VITE_PUBLIC_POSTHOG_HOST: "   ",
+							VITE_PUBLIC_POSTHOG_KEY: "",
 						},
 					},
 				};
@@ -924,8 +924,8 @@ describe("Analytics Utilities", () => {
 				(global as any).import = {
 					meta: {
 						env: {
-							VITE_PUBLIC_POSTHOG_KEY: "test-key",
 							VITE_PUBLIC_POSTHOG_HOST: "https://app.posthog.com",
+							VITE_PUBLIC_POSTHOG_KEY: "test-key",
 						},
 					},
 				};

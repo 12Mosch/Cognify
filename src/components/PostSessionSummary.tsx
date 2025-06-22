@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import type { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
 import { getLocalDateString, getUserTimeZone } from "../lib/dateUtils";
 
@@ -65,12 +65,12 @@ function PostSessionSummary({
 			const localDate = getLocalDateString(userTimeZone);
 
 			recordStudySession({
-				deckId,
 				cardsStudied: cardsReviewed,
+				deckId,
+				localDate,
 				sessionDuration,
 				studyMode,
 				userTimeZone,
-				localDate,
 			}).catch((error) => {
 				console.error("Failed to record study session:", error);
 				// Don't block the UI if session recording fails
@@ -163,17 +163,17 @@ function PostSessionSummary({
 			<div className="text-center">
 				<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
 					<svg
+						aria-hidden="true"
 						className="h-8 w-8 text-green-600 dark:text-green-400"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
-						aria-hidden="true"
 					>
 						<path
+							d="M5 13l4 4L19 7"
 							strokeLinecap="round"
 							strokeLinejoin="round"
 							strokeWidth={2}
-							d="M5 13l4 4L19 7"
 						/>
 					</svg>
 				</div>
@@ -239,17 +239,17 @@ function PostSessionSummary({
 			<div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950">
 				<div className="flex items-start gap-3">
 					<svg
+						aria-hidden="true"
 						className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
-						aria-hidden="true"
 					>
 						<path
+							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 							strokeLinecap="round"
 							strokeLinejoin="round"
 							strokeWidth={2}
-							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 						/>
 					</svg>
 					<div>
@@ -266,9 +266,9 @@ function PostSessionSummary({
 			{/* Action Buttons */}
 			<div className="flex flex-col gap-3">
 				<button
-					onClick={onReturnToDashboard}
 					className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
-					autoFocus
+					onClick={onReturnToDashboard}
+					type="button"
 				>
 					{t("postSessionSummary.actions.returnToDashboard")}
 				</button>
@@ -279,8 +279,9 @@ function PostSessionSummary({
 					studyQueueStats.dueCount > 0 &&
 					onContinueStudying && (
 						<button
-							onClick={onContinueStudying}
 							className="rounded-lg border-2 border-slate-300 bg-slate-200 px-6 py-3 font-medium text-slate-900 transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:focus:ring-offset-slate-900"
+							onClick={onContinueStudying}
+							type="button"
 						>
 							{t("postSessionSummary.actions.continueStudying")} (
 							{studyQueueStats.dueCount}{" "}

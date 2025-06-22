@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import FeatureFlagDemo from "./FeatureFlagDemo";
 import PrivacySettings from "./PrivacySettings";
@@ -12,6 +12,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 	const [activeTab, setActiveTab] = useState<"account" | "security">("account");
 	const modalRef = useRef<HTMLDivElement>(null);
 	const previousActiveElementRef = useRef<HTMLElement | null>(null);
+	const titleId = useId();
 
 	const { t } = useTranslation();
 
@@ -100,27 +101,28 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
 	return (
 		<div
+			aria-labelledby={titleId}
+			aria-modal="true"
 			className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
 			role="dialog"
-			aria-modal="true"
-			aria-labelledby="settings-modal-title"
 		>
 			<div
-				ref={modalRef}
 				className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-xl dark:bg-slate-800"
+				ref={modalRef}
 			>
 				{/* Header */}
 				<div className="flex items-center justify-between border-slate-200 border-b p-6 dark:border-slate-700">
 					<h2
-						id="settings-modal-title"
 						className="font-bold text-2xl text-slate-900 dark:text-slate-100"
+						id={titleId}
 					>
 						{t("settings.title")}
 					</h2>
 					<button
-						onClick={onClose}
-						className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200"
 						aria-label={t("settings.close")}
+						className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200"
+						onClick={onClose}
+						type="button"
 					>
 						<svg
 							className="h-6 w-6"
@@ -128,11 +130,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 							stroke="currentColor"
 							viewBox="0 0 24 24"
 						>
+							<title>Close</title>
 							<path
+								d="M6 18L18 6M6 6l12 12"
 								strokeLinecap="round"
 								strokeLinejoin="round"
 								strokeWidth={2}
-								d="M6 18L18 6M6 6l12 12"
 							/>
 						</svg>
 					</button>
@@ -143,12 +146,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 					<div className="w-64 border-slate-200 border-r bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
 						<nav className="space-y-2 p-4">
 							<button
-								onClick={() => setActiveTab("account")}
 								className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${
 									activeTab === "account"
 										? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
 										: "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
 								}`}
+								onClick={() => setActiveTab("account")}
+								type="button"
 							>
 								<svg
 									className="h-5 w-5"
@@ -156,22 +160,24 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 									stroke="currentColor"
 									viewBox="0 0 24 24"
 								>
+									<title>Account</title>
 									<path
+										d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
 										strokeLinecap="round"
 										strokeLinejoin="round"
 										strokeWidth={2}
-										d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
 									/>
 								</svg>
 								{t("settings.tabs.account")}
 							</button>
 							<button
-								onClick={() => setActiveTab("security")}
 								className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${
 									activeTab === "security"
 										? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
 										: "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
 								}`}
+								onClick={() => setActiveTab("security")}
+								type="button"
 							>
 								<svg
 									className="h-5 w-5"
@@ -179,11 +185,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 									stroke="currentColor"
 									viewBox="0 0 24 24"
 								>
+									<title>Security</title>
 									<path
+										d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
 										strokeLinecap="round"
 										strokeLinejoin="round"
 										strokeWidth={2}
-										d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
 									/>
 								</svg>
 								{t("settings.tabs.security")}
@@ -204,11 +211,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 									</p>
 								</div>
 								<PrivacySettings
+									embedded={true}
 									isOpen={true}
 									onClose={() => {
 										// Embedded component - no close action needed
 									}}
-									embedded={true}
 								/>
 							</div>
 						)}

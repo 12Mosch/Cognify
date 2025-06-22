@@ -115,8 +115,8 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 					<div className="mb-2 ml-8 flex">
 						{heatmapData.months.map((month) => (
 							<div
-								key={`${month.name}-${month.weekStart}`}
 								className="text-slate-500 text-xs dark:text-slate-400"
+								key={`${month.name}-${month.weekStart}`}
 								style={{
 									marginLeft: `${month.weekStart * 14}px`,
 									width: `${month.weekSpan * 14}px`,
@@ -131,10 +131,10 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 					<div className="flex">
 						{/* Day Labels */}
 						<div className="mr-2 flex flex-col">
-							{dayLabels.map((label, dayIndex) => (
+							{dayLabels.map((label) => (
 								<div
-									key={dayIndex}
 									className="mb-1 flex h-3 items-center text-slate-500 text-xs dark:text-slate-400"
+									key={label}
 								>
 									{dayIndex % 2 === 1 && (
 										<span className="w-3 text-center">{label}</span>
@@ -146,18 +146,18 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 						{/* Heatmap Squares */}
 						<div className="flex gap-1">
 							{heatmapData.weeks.map((week) => (
-								<div key={week.weekIndex} className="flex flex-col gap-1">
+								<div className="flex flex-col gap-1" key={week.weekIndex}>
 									{week.days.map((day) => (
 										<div
-											key={`${week.weekIndex}-${day.dayIndex}`}
+											aria-label={formatTooltipContent(day)}
 											className={`h-3 w-3 cursor-pointer rounded-sm border transition-all duration-200 hover:scale-110 ${getActivityLevelClasses(day.level)} `}
+											key={`${week.weekIndex}-${day.dayIndex}`}
+											onBlur={handleDayBlur}
+											onFocus={(e) => handleDayFocus(day, e)}
+											onKeyDown={(e) => handleDayKeyDown(day, e)}
 											onMouseEnter={(e) => handleDayMouseEnter(day, e)}
 											onMouseLeave={handleDayMouseLeave}
-											onFocus={(e) => handleDayFocus(day, e)}
-											onBlur={handleDayBlur}
-											onKeyDown={(e) => handleDayKeyDown(day, e)}
 											role="gridcell"
-											aria-label={formatTooltipContent(day)}
 											tabIndex={0}
 										/>
 									))}
@@ -174,9 +174,9 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 						<div className="flex items-center gap-1">
 							{[0, 1, 2, 3, 4].map((level) => (
 								<div
-									key={level}
 									className={`h-3 w-3 rounded-sm border ${getActivityLevelClasses(level as 0 | 1 | 2 | 3 | 4)}`}
-									aria-label={`Activity level ${level}`}
+									key={level}
+									title={`Activity level ${level}`}
 								/>
 							))}
 						</div>

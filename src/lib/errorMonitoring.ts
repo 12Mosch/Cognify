@@ -35,7 +35,7 @@ export function useConvexQueryErrorHandler() {
 				deckId?: string;
 				cardId?: string;
 				retryAttempt?: number;
-				queryArgs?: Record<string, any>;
+				queryArgs?: Record<string, unknown>;
 			},
 		) => {
 			trackConvexQueryError(posthog, queryName, error, context);
@@ -59,7 +59,7 @@ export function useConvexMutationErrorHandler() {
 				deckId?: string;
 				cardId?: string;
 				retryAttempt?: number;
-				mutationArgs?: Record<string, any>;
+				mutationArgs?: Record<string, unknown>;
 			},
 		) => {
 			trackConvexMutationError(posthog, mutationName, error, context);
@@ -154,7 +154,7 @@ export function useFormValidationErrorHandler() {
 			validationErrors: Record<string, string[]>,
 			context?: {
 				userId?: string;
-				formData?: Record<string, any>;
+				formData?: Record<string, unknown>;
 				attemptNumber?: number;
 			},
 		) => {
@@ -176,7 +176,7 @@ export function useFormSubmissionErrorHandler() {
 			error: Error,
 			context?: {
 				userId?: string;
-				formData?: Record<string, any>;
+				formData?: Record<string, unknown>;
 				submissionAttempt?: number;
 				timeToSubmit?: number;
 			},
@@ -202,7 +202,7 @@ export function usePerformanceErrorHandler() {
 				deckId?: string;
 				cardId?: string;
 				threshold?: number;
-				operationData?: Record<string, any>;
+				operationData?: Record<string, unknown>;
 			},
 		) => {
 			trackPerformanceError(posthog, operationType, duration, context);
@@ -240,7 +240,7 @@ export function useErrorMonitoring() {
 					| "unknown_error";
 				fingerprint?: string;
 				tags?: Record<string, string>;
-				additionalData?: Record<string, any>;
+				additionalData?: Record<string, unknown>;
 			},
 		) => {
 			captureError(posthog, error, context);
@@ -259,15 +259,15 @@ export function useErrorMonitoring() {
 
 	return {
 		captureError: captureGenericError,
-		trackConvexQuery,
-		trackConvexMutation,
+		hasConsent: hasAnalyticsConsent(),
 		trackAuth,
 		trackCardLoading,
-		trackStudySession,
-		trackFormValidation,
+		trackConvexMutation,
+		trackConvexQuery,
 		trackFormSubmission,
+		trackFormValidation,
 		trackPerformance,
-		hasConsent: hasAnalyticsConsent(),
+		trackStudySession,
 	};
 }
 
@@ -278,13 +278,13 @@ export function createComponentErrorHandler(
 	componentName: string,
 	posthog?: ReturnType<typeof usePostHog> | null,
 ) {
-	return (error: Error, errorInfo?: any) => {
+	return (error: Error, errorInfo?: Record<string, unknown>) => {
 		if (posthog && hasAnalyticsConsent()) {
 			captureError(posthog, error, {
-				component: componentName,
 				action: "component_error",
-				severity: "medium",
 				additionalData: errorInfo,
+				component: componentName,
+				severity: "medium",
 			});
 		}
 	};
@@ -342,11 +342,11 @@ export async function withAsyncErrorMonitoring<T>(
 		) {
 			trackPerformanceError(context.posthog, context.operationType, duration, {
 				...context.errorContext,
-				threshold: context.performanceThreshold,
 				operationData: {
 					retryAttempt: context.retryAttempt,
 					timeoutMs: context.timeoutMs,
 				},
+				threshold: context.performanceThreshold,
 			});
 		}
 
@@ -371,20 +371,20 @@ export async function withAsyncErrorMonitoring<T>(
 
 			captureError(context.posthog, errorObj, {
 				...context.errorContext,
-				component: "AsyncOperation",
 				action: context.operationType,
-				severity: "medium",
+				additionalData: {
+					duration,
+					performanceThreshold: context.performanceThreshold,
+					retryAttempt: context.retryAttempt,
+					timeoutMs: context.timeoutMs,
+				},
 				category,
+				component: "AsyncOperation",
+				severity: "medium",
 				tags: {
+					duration: String(duration),
 					operationType: context.operationType,
 					retryAttempt: String(context.retryAttempt || 0),
-					duration: String(duration),
-				},
-				additionalData: {
-					retryAttempt: context.retryAttempt,
-					duration,
-					timeoutMs: context.timeoutMs,
-					performanceThreshold: context.performanceThreshold,
 				},
 			});
 		}
@@ -435,42 +435,26 @@ export async function withRetryAndErrorMonitoring<T>(
 			// Wait before retrying
 			if (retryDelay > 0) {
 				await new Promise((resolve) =>
-					setTimeout(resolve, retryDelay * Math.pow(2, attempt)),
+					setTimeout(resolve, retryDelay * 2 ** attempt),
 				);
 			}
 		}
 	}
 
-	throw lastError!;
+	if (lastError) {
+		throw lastError;
+	}
+	throw new Error("All retry attempts failed");
 }
 
 /**
  * Form error monitoring wrapper
  */
-export function withFormErrorMonitoring<T extends Record<string, any>>(
+export function withFormErrorMonitoring<T extends Record<string, unknown>>(
 	formName: string,
 	posthog?: ReturnType<typeof usePostHog> | null,
 ) {
 	return {
-		/**
-		 * Track form validation errors
-		 */
-		trackValidationErrors: (
-			validationErrors: Record<string, string[]>,
-			context?: {
-				userId?: string;
-				formData?: T;
-				attemptNumber?: number;
-			},
-		) => {
-			if (posthog && hasAnalyticsConsent()) {
-				trackFormValidationError(posthog, formName, validationErrors, {
-					...context,
-					formData: context?.formData as Record<string, any>,
-				});
-			}
-		},
-
 		/**
 		 * Track form submission errors
 		 */
@@ -486,7 +470,25 @@ export function withFormErrorMonitoring<T extends Record<string, any>>(
 			if (posthog && hasAnalyticsConsent()) {
 				trackFormSubmissionError(posthog, formName, error, {
 					...context,
-					formData: context?.formData as Record<string, any>,
+					formData: context?.formData as Record<string, unknown>,
+				});
+			}
+		},
+		/**
+		 * Track form validation errors
+		 */
+		trackValidationErrors: (
+			validationErrors: Record<string, string[]>,
+			context?: {
+				userId?: string;
+				formData?: T;
+				attemptNumber?: number;
+			},
+		) => {
+			if (posthog && hasAnalyticsConsent()) {
+				trackFormValidationError(posthog, formName, validationErrors, {
+					...context,
+					formData: context?.formData as Record<string, unknown>,
 				});
 			}
 		},
@@ -513,7 +515,7 @@ export function withFormErrorMonitoring<T extends Record<string, any>>(
 				if (posthog && hasAnalyticsConsent()) {
 					trackFormSubmissionError(posthog, formName, error as Error, {
 						...context,
-						formData: formData as Record<string, any>,
+						formData: formData as Record<string, unknown>,
 						timeToSubmit,
 					});
 				}
@@ -528,19 +530,6 @@ export function withFormErrorMonitoring<T extends Record<string, any>>(
  * Error recovery utilities
  */
 export const ErrorRecovery = {
-	/**
-	 * Attempt to recover from a Convex connection error
-	 */
-	async recoverConvexConnection(): Promise<boolean> {
-		try {
-			// Force a page reload as a last resort
-			window.location.reload();
-			return true;
-		} catch {
-			return false;
-		}
-	},
-
 	/**
 	 * Attempt to recover from authentication errors
 	 */
@@ -557,18 +546,13 @@ export const ErrorRecovery = {
 			return false;
 		}
 	},
-
 	/**
-	 * Attempt to recover from study session errors
+	 * Attempt to recover from a Convex connection error
 	 */
-	async recoverStudySession(deckId: string): Promise<boolean> {
+	async recoverConvexConnection(): Promise<boolean> {
 		try {
-			// Clear any cached study session data
-			const sessionKeys = Object.keys(localStorage).filter(
-				(key) => key.includes("study_session") || key.includes(deckId),
-			);
-			sessionKeys.forEach((key) => localStorage.removeItem(key));
-
+			// Force a page reload as a last resort
+			window.location.reload();
 			return true;
 		} catch {
 			return false;
@@ -586,6 +570,23 @@ export const ErrorRecovery = {
 					key.includes(`form_${formName}`) || key.includes(`draft_${formName}`),
 			);
 			formKeys.forEach((key) => localStorage.removeItem(key));
+
+			return true;
+		} catch {
+			return false;
+		}
+	},
+
+	/**
+	 * Attempt to recover from study session errors
+	 */
+	async recoverStudySession(deckId: string): Promise<boolean> {
+		try {
+			// Clear any cached study session data
+			const sessionKeys = Object.keys(localStorage).filter(
+				(key) => key.includes("study_session") || key.includes(deckId),
+			);
+			sessionKeys.forEach((key) => localStorage.removeItem(key));
 
 			return true;
 		} catch {

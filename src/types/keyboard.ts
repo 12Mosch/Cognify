@@ -17,44 +17,43 @@ export interface KeyboardShortcutGroup {
  * Keyboard shortcuts for different study modes
  */
 export const KEYBOARD_SHORTCUTS = {
-	// Universal shortcuts (available in all study modes)
-	UNIVERSAL: [
-		{ key: "Space", description: "Flip card", context: "flip" as const },
-		{ key: "Enter", description: "Flip card", context: "flip" as const },
-		{
-			key: "?",
-			description: "Show keyboard shortcuts help",
-			context: "general" as const,
-		},
-	],
-
 	// Basic Study Session shortcuts
 	BASIC_STUDY: [
-		{ key: "←", description: "Previous card", context: "navigation" as const },
-		{ key: "→", description: "Next card", context: "navigation" as const },
+		{ context: "navigation" as const, description: "Previous card", key: "←" },
+		{ context: "navigation" as const, description: "Next card", key: "→" },
 	],
 
 	// Spaced Repetition shortcuts (only when card is flipped)
 	SPACED_REPETITION: [
 		{
-			key: "1",
+			context: "rating" as const,
 			description: "Again (when answer is shown)",
-			context: "rating" as const,
+			key: "1",
 		},
 		{
-			key: "2",
+			context: "rating" as const,
 			description: "Hard (when answer is shown)",
-			context: "rating" as const,
+			key: "2",
 		},
 		{
-			key: "3",
+			context: "rating" as const,
 			description: "Good (when answer is shown)",
-			context: "rating" as const,
+			key: "3",
 		},
 		{
-			key: "4",
-			description: "Easy (when answer is shown)",
 			context: "rating" as const,
+			description: "Easy (when answer is shown)",
+			key: "4",
+		},
+	],
+	// Universal shortcuts (available in all study modes)
+	UNIVERSAL: [
+		{ context: "flip" as const, description: "Flip card", key: "Space" },
+		{ context: "flip" as const, description: "Flip card", key: "Enter" },
+		{
+			context: "general" as const,
+			description: "Show keyboard shortcuts help",
+			key: "?",
 		},
 	],
 } as const;
@@ -67,20 +66,20 @@ export function getKeyboardShortcuts(
 ): KeyboardShortcutGroup[] {
 	const groups: KeyboardShortcutGroup[] = [
 		{
-			title: "Card Navigation",
 			shortcuts: KEYBOARD_SHORTCUTS.UNIVERSAL,
+			title: "Card Navigation",
 		},
 	];
 
 	if (mode === "basic") {
 		groups.push({
-			title: "Navigation",
 			shortcuts: KEYBOARD_SHORTCUTS.BASIC_STUDY,
+			title: "Navigation",
 		});
 	} else if (mode === "spaced-repetition") {
 		groups.push({
-			title: "Rating (when answer is shown)",
 			shortcuts: KEYBOARD_SHORTCUTS.SPACED_REPETITION,
+			title: "Rating (when answer is shown)",
 		});
 	}
 

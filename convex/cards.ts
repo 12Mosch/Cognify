@@ -9,21 +9,6 @@ export const getCardsForDeck = query({
 	args: {
 		deckId: v.id("decks"),
 	},
-	returns: v.array(
-		v.object({
-			_id: v.id("cards"),
-			_creationTime: v.number(),
-			deckId: v.id("decks"),
-			userId: v.string(),
-			front: v.string(),
-			back: v.string(),
-			// Spaced repetition fields
-			repetition: v.optional(v.number()),
-			easeFactor: v.optional(v.number()),
-			interval: v.optional(v.number()),
-			dueDate: v.optional(v.number()),
-		}),
-	),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -50,6 +35,21 @@ export const getCardsForDeck = query({
 			.order("desc") // Most recently created first
 			.collect();
 	},
+	returns: v.array(
+		v.object({
+			_creationTime: v.number(),
+			_id: v.id("cards"),
+			back: v.string(),
+			deckId: v.id("decks"),
+			dueDate: v.optional(v.number()),
+			easeFactor: v.optional(v.number()),
+			front: v.string(),
+			interval: v.optional(v.number()),
+			// Spaced repetition fields
+			repetition: v.optional(v.number()),
+			userId: v.string(),
+		}),
+	),
 });
 
 /**
@@ -58,11 +58,10 @@ export const getCardsForDeck = query({
  */
 export const addCardToDeck = mutation({
 	args: {
+		back: v.string(),
 		deckId: v.id("decks"),
 		front: v.string(),
-		back: v.string(),
 	},
-	returns: v.id("cards"),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -101,15 +100,15 @@ export const addCardToDeck = mutation({
 
 		// Insert the new card into the database with initialized spaced repetition fields
 		const cardId = await ctx.db.insert("cards", {
-			deckId: args.deckId,
-			userId: identity.subject, // Denormalize userId for efficient filtering
-			front: args.front.trim(),
 			back: args.back.trim(),
+			deckId: args.deckId, // Denormalize userId for efficient filtering
+			dueDate: Date.now(),
+			easeFactor: 2.5,
+			front: args.front.trim(), // New card, never reviewed
+			interval: 1, // Default ease factor
 			// Initialize spaced repetition fields for optimal query performance
-			repetition: 0, // New card, never reviewed
-			easeFactor: 2.5, // Default ease factor
-			interval: 1, // Default interval (1 day)
-			dueDate: Date.now(), // Available for study immediately
+			repetition: 0, // Default interval (1 day)
+			userId: identity.subject, // Available for study immediately
 		});
 
 		// Increment the deck's card count for performance optimization
@@ -119,6 +118,7 @@ export const addCardToDeck = mutation({
 
 		return cardId;
 	},
+	returns: v.id("cards"),
 });
 
 /**
@@ -127,11 +127,10 @@ export const addCardToDeck = mutation({
  */
 export const updateCard = mutation({
 	args: {
+		back: v.optional(v.string()),
 		cardId: v.id("cards"),
 		front: v.optional(v.string()),
-		back: v.optional(v.string()),
 	},
-	returns: v.null(),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -193,6 +192,7 @@ export const updateCard = mutation({
 
 		return null;
 	},
+	returns: v.null(),
 });
 
 /**
@@ -203,7 +203,6 @@ export const deleteCard = mutation({
 	args: {
 		cardId: v.id("cards"),
 	},
-	returns: v.null(),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -245,4 +244,5 @@ export const deleteCard = mutation({
 
 		return null;
 	},
+	returns: v.null(),
 });

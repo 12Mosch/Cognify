@@ -97,8 +97,9 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 				</div>
 
 				<button
-					onClick={() => setShowWeeklySchedule(!showWeeklySchedule)}
 					className="rounded-md px-3 py-1 text-blue-600 text-sm transition-all duration-200 hover:scale-105 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-300"
+					onClick={() => setShowWeeklySchedule(!showWeeklySchedule)}
+					type="button"
 				>
 					{showWeeklySchedule
 						? t("scheduling.showToday", "Show Today")
@@ -235,9 +236,9 @@ const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 							.slice(0, 7)
 							.map((day, index) => (
 								<WeeklyScheduleDay
-									key={day.date}
 									day={day}
 									isToday={index === 0}
+									key={day.date}
 								/>
 							))
 					) : weeklySchedule === null ? (
@@ -337,10 +338,10 @@ const WeeklyScheduleDay = memo(function WeeklyScheduleDay({
 
 			{day.recommendations.length > 0 && (
 				<div className="space-y-2">
-					{day.recommendations.slice(0, 2).map((rec, index) => (
+					{day.recommendations.slice(0, 2).map((rec) => (
 						<div
-							key={index}
 							className="flex items-center justify-between rounded p-2 text-sm transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-600"
+							key={rec.cardId}
 						>
 							<span className="text-slate-600 transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 								{rec.startTime} • {rec.duration}min
@@ -433,8 +434,9 @@ const SchedulingErrorState = memo(function SchedulingErrorState({
 					{t("scheduling.error.description", "Please try again later")}
 				</p>
 				<button
-					onClick={() => window.location.reload()}
 					className="rounded-lg bg-red-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-red-700"
+					onClick={() => window.location.reload()}
+					type="button"
 				>
 					{t("scheduling.error.retry", "Retry")}
 				</button>

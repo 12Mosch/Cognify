@@ -1,11 +1,11 @@
 {
-	"extends": "./tsconfig.app.json",
 	"compilerOptions": {
-		"types": ["jest", "@testing-library/jest-dom", "node"],
-		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
-		"resolveJsonModule": true
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"types": ["jest", "@testing-library/jest-dom", "node"]
 	},
+	"extends": "./tsconfig.app.json",
 	"include": [
 		"src/**/*",
 		"src/**/*.test.*",

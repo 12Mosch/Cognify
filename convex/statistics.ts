@@ -13,16 +13,6 @@ import { type QueryCtx, query } from "./_generated/server";
  */
 export const getUserStatistics = query({
 	args: {},
-	returns: v.object({
-		totalDecks: v.number(),
-		totalCards: v.number(),
-		totalStudySessions: v.number(),
-		cardsStudiedToday: v.number(),
-		currentStreak: v.number(),
-		longestStreak: v.number(),
-		averageSessionDuration: v.optional(v.number()),
-		totalStudyTime: v.optional(v.number()),
-	}),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -146,16 +136,26 @@ export const getUserStatistics = query({
 		}
 
 		return {
-			totalDecks: decks.length,
-			totalCards,
-			totalStudySessions: allSessions.length,
+			averageSessionDuration,
 			cardsStudiedToday,
 			currentStreak,
 			longestStreak,
-			averageSessionDuration,
+			totalCards,
+			totalDecks: decks.length,
+			totalStudySessions: allSessions.length,
 			totalStudyTime,
 		};
 	},
+	returns: v.object({
+		averageSessionDuration: v.optional(v.number()),
+		cardsStudiedToday: v.number(),
+		currentStreak: v.number(),
+		longestStreak: v.number(),
+		totalCards: v.number(),
+		totalDecks: v.number(),
+		totalStudySessions: v.number(),
+		totalStudyTime: v.optional(v.number()),
+	}),
 });
 
 /**
@@ -165,17 +165,6 @@ export const getDeckStatistics = query({
 	args: {
 		deckId: v.id("decks"),
 	},
-	returns: v.object({
-		deckName: v.string(),
-		totalCards: v.number(),
-		newCards: v.number(),
-		learningCards: v.number(),
-		reviewCards: v.number(),
-		masteredCards: v.number(),
-		averageEaseFactor: v.optional(v.number()),
-		successRate: v.optional(v.number()),
-		lastStudied: v.optional(v.number()),
-	}),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -264,17 +253,28 @@ export const getDeckStatistics = query({
 				: undefined;
 
 		return {
-			deckName: deck.name,
-			totalCards: cards.length,
-			newCards,
-			learningCards,
-			reviewCards,
-			masteredCards,
 			averageEaseFactor,
-			successRate,
+			deckName: deck.name,
 			lastStudied,
+			learningCards,
+			masteredCards,
+			newCards,
+			reviewCards,
+			successRate,
+			totalCards: cards.length,
 		};
 	},
+	returns: v.object({
+		averageEaseFactor: v.optional(v.number()),
+		deckName: v.string(),
+		lastStudied: v.optional(v.number()),
+		learningCards: v.number(),
+		masteredCards: v.number(),
+		newCards: v.number(),
+		reviewCards: v.number(),
+		successRate: v.optional(v.number()),
+		totalCards: v.number(),
+	}),
 });
 
 /**
@@ -282,20 +282,6 @@ export const getDeckStatistics = query({
  */
 export const getDeckProgressData = query({
 	args: {},
-	returns: v.array(
-		v.object({
-			deckId: v.id("decks"),
-			studiedCards: v.number(),
-			totalCards: v.number(),
-			progressPercentage: v.number(),
-			status: v.union(
-				v.literal("new"),
-				v.literal("in-progress"),
-				v.literal("mastered"),
-			),
-			lastStudied: v.optional(v.number()),
-		}),
-	),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -363,16 +349,30 @@ export const getDeckProgressData = query({
 
 			deckProgressData.push({
 				deckId: deck._id,
-				studiedCards,
-				totalCards,
+				lastStudied,
 				progressPercentage,
 				status,
-				lastStudied,
+				studiedCards,
+				totalCards,
 			});
 		}
 
 		return deckProgressData;
 	},
+	returns: v.array(
+		v.object({
+			deckId: v.id("decks"),
+			lastStudied: v.optional(v.number()),
+			progressPercentage: v.number(),
+			status: v.union(
+				v.literal("new"),
+				v.literal("in-progress"),
+				v.literal("mastered"),
+			),
+			studiedCards: v.number(),
+			totalCards: v.number(),
+		}),
+	),
 });
 
 /**
@@ -444,19 +444,6 @@ async function calculateRetentionRate(
  */
 export const getSpacedRepetitionInsights = query({
 	args: {},
-	returns: v.object({
-		totalDueCards: v.number(),
-		totalNewCards: v.number(),
-		cardsToReviewToday: v.number(),
-		upcomingReviews: v.array(
-			v.object({
-				date: v.string(),
-				count: v.number(),
-			}),
-		),
-		retentionRate: v.optional(v.number()),
-		averageInterval: v.optional(v.number()),
-	}),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -523,7 +510,7 @@ export const getSpacedRepetitionInsights = query({
 
 		// Convert upcoming reviews to array format
 		const upcomingReviewsArray = Object.entries(upcomingReviews)
-			.map(([date, count]) => ({ date, count }))
+			.map(([date, count]) => ({ count, date }))
 			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
 		const averageInterval =
@@ -537,14 +524,27 @@ export const getSpacedRepetitionInsights = query({
 		);
 
 		return {
+			averageInterval,
+			cardsToReviewToday: totalDueCards,
+			retentionRate, // For now, same as due cards
 			totalDueCards,
 			totalNewCards,
-			cardsToReviewToday: totalDueCards, // For now, same as due cards
 			upcomingReviews: upcomingReviewsArray,
-			retentionRate,
-			averageInterval,
 		};
 	},
+	returns: v.object({
+		averageInterval: v.optional(v.number()),
+		cardsToReviewToday: v.number(),
+		retentionRate: v.optional(v.number()),
+		totalDueCards: v.number(),
+		totalNewCards: v.number(),
+		upcomingReviews: v.array(
+			v.object({
+				count: v.number(),
+				date: v.string(),
+			}),
+		),
+	}),
 });
 
 /**
@@ -552,17 +552,6 @@ export const getSpacedRepetitionInsights = query({
  */
 export const getDeckPerformanceComparison = query({
 	args: {},
-	returns: v.array(
-		v.object({
-			deckId: v.id("decks"),
-			deckName: v.string(),
-			totalCards: v.number(),
-			masteredCards: v.number(),
-			masteryPercentage: v.number(),
-			averageEaseFactor: v.optional(v.number()),
-			lastStudied: v.optional(v.number()),
-		}),
-	),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -630,19 +619,30 @@ export const getDeckPerformanceComparison = query({
 				: undefined;
 
 			return {
+				averageEaseFactor,
 				deckId: deck._id,
 				deckName: deck.name,
-				totalCards: cards.length,
+				lastStudied,
 				masteredCards,
 				masteryPercentage,
-				averageEaseFactor,
-				lastStudied,
+				totalCards: cards.length,
 			};
 		});
 
 		const deckPerformance = await Promise.all(deckPerformancePromises);
 		return deckPerformance;
 	},
+	returns: v.array(
+		v.object({
+			averageEaseFactor: v.optional(v.number()),
+			deckId: v.id("decks"),
+			deckName: v.string(),
+			lastStudied: v.optional(v.number()),
+			masteredCards: v.number(),
+			masteryPercentage: v.number(),
+			totalCards: v.number(),
+		}),
+	),
 });
 
 /**
@@ -657,16 +657,6 @@ export const getStudyActivityData = query({
 			v.literal("all"),
 		),
 	},
-	returns: v.array(
-		v.object({
-			date: v.string(),
-			displayDate: v.string(),
-			cardsStudied: v.number(),
-			sessions: v.number(),
-			timeSpent: v.number(), // in minutes
-			streak: v.number(),
-		}),
-	),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -732,21 +722,31 @@ export const getStudyActivityData = query({
 			const timeSpent = Math.round(totalDuration / (1000 * 60)); // Convert to minutes
 
 			activityData.push({
+				cardsStudied,
 				date: dateStr,
 				displayDate: date.toLocaleDateString("en-US", {
-					month: "short",
 					day: "numeric",
+					month: "short",
 					...(args.dateRange === "all" && { year: "2-digit" }),
 				}),
-				cardsStudied,
 				sessions: sessionCount,
-				timeSpent,
 				streak: cardsStudied > 0 ? 1 : 0,
+				timeSpent,
 			});
 		}
 
 		return activityData;
 	},
+	returns: v.array(
+		v.object({
+			cardsStudied: v.number(),
+			date: v.string(),
+			displayDate: v.string(),
+			sessions: v.number(),
+			streak: v.number(), // in minutes
+			timeSpent: v.number(),
+		}),
+	),
 });
 
 /**
@@ -755,60 +755,6 @@ export const getStudyActivityData = query({
  */
 export const getDashboardData = query({
 	args: {},
-	returns: v.object({
-		userStatistics: v.object({
-			totalDecks: v.number(),
-			totalCards: v.number(),
-			totalStudySessions: v.number(),
-			cardsStudiedToday: v.number(),
-			currentStreak: v.number(),
-			longestStreak: v.number(),
-			averageSessionDuration: v.optional(v.number()),
-			totalStudyTime: v.optional(v.number()),
-		}),
-		spacedRepetitionInsights: v.object({
-			totalDueCards: v.number(),
-			totalNewCards: v.number(),
-			cardsToReviewToday: v.number(),
-			upcomingReviews: v.array(
-				v.object({
-					date: v.string(),
-					count: v.number(),
-				}),
-			),
-			retentionRate: v.optional(v.number()),
-			averageInterval: v.optional(v.number()),
-		}),
-		deckPerformance: v.array(
-			v.object({
-				deckId: v.id("decks"),
-				deckName: v.string(),
-				totalCards: v.number(),
-				masteredCards: v.number(),
-				masteryPercentage: v.number(),
-				averageEaseFactor: v.optional(v.number()),
-				lastStudied: v.optional(v.number()),
-			}),
-		),
-		decks: v.array(
-			v.object({
-				_id: v.id("decks"),
-				_creationTime: v.number(),
-				userId: v.string(),
-				name: v.string(),
-				description: v.string(),
-				cardCount: v.number(),
-			}),
-		),
-		cardDistribution: v.object({
-			newCards: v.number(),
-			learningCards: v.number(),
-			reviewCards: v.number(),
-			dueCards: v.number(),
-			masteredCards: v.number(),
-			totalCards: v.number(),
-		}),
-	}),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -900,13 +846,13 @@ export const getDashboardData = query({
 			allSessions.length > 0 ? totalStudyTime / allSessions.length : undefined;
 
 		const userStatistics = {
-			totalDecks: decks.length,
-			totalCards,
-			totalStudySessions: allSessions.length,
+			averageSessionDuration,
 			cardsStudiedToday,
 			currentStreak,
 			longestStreak,
-			averageSessionDuration,
+			totalCards,
+			totalDecks: decks.length,
+			totalStudySessions: allSessions.length,
 			totalStudyTime: totalStudyTime > 0 ? totalStudyTime : undefined,
 		};
 
@@ -951,7 +897,7 @@ export const getDashboardData = query({
 		}
 
 		const upcomingReviewsArray = Object.entries(upcomingReviews)
-			.map(([date, count]) => ({ date, count }))
+			.map(([date, count]) => ({ count, date }))
 			.sort((a, b) => a.date.localeCompare(b.date))
 			.slice(0, 14);
 
@@ -967,12 +913,12 @@ export const getDashboardData = query({
 		);
 
 		const spacedRepetitionInsights = {
+			averageInterval,
+			cardsToReviewToday,
+			retentionRate,
 			totalDueCards,
 			totalNewCards,
-			cardsToReviewToday,
 			upcomingReviews: upcomingReviewsArray,
-			retentionRate,
-			averageInterval,
 		};
 
 		// Calculate deck performance with parallel queries
@@ -1020,13 +966,13 @@ export const getDashboardData = query({
 				: undefined;
 
 			return {
+				averageEaseFactor,
 				deckId: deck._id,
 				deckName: deck.name,
-				totalCards: cards.length,
+				lastStudied,
 				masteredCards,
 				masteryPercentage,
-				averageEaseFactor,
-				lastStudied,
+				totalCards: cards.length,
 			};
 		});
 
@@ -1061,22 +1007,76 @@ export const getDashboardData = query({
 		}
 
 		const cardDistribution = {
-			newCards,
-			learningCards,
-			reviewCards,
 			dueCards,
+			learningCards,
 			masteredCards,
+			newCards,
+			reviewCards,
 			totalCards: totalCardsForDistribution,
 		};
 
 		return {
-			userStatistics,
-			spacedRepetitionInsights,
+			cardDistribution,
 			deckPerformance,
 			decks,
-			cardDistribution,
+			spacedRepetitionInsights,
+			userStatistics,
 		};
 	},
+	returns: v.object({
+		cardDistribution: v.object({
+			dueCards: v.number(),
+			learningCards: v.number(),
+			masteredCards: v.number(),
+			newCards: v.number(),
+			reviewCards: v.number(),
+			totalCards: v.number(),
+		}),
+		deckPerformance: v.array(
+			v.object({
+				averageEaseFactor: v.optional(v.number()),
+				deckId: v.id("decks"),
+				deckName: v.string(),
+				lastStudied: v.optional(v.number()),
+				masteredCards: v.number(),
+				masteryPercentage: v.number(),
+				totalCards: v.number(),
+			}),
+		),
+		decks: v.array(
+			v.object({
+				_creationTime: v.number(),
+				_id: v.id("decks"),
+				cardCount: v.number(),
+				description: v.string(),
+				name: v.string(),
+				userId: v.string(),
+			}),
+		),
+		spacedRepetitionInsights: v.object({
+			averageInterval: v.optional(v.number()),
+			cardsToReviewToday: v.number(),
+			retentionRate: v.optional(v.number()),
+			totalDueCards: v.number(),
+			totalNewCards: v.number(),
+			upcomingReviews: v.array(
+				v.object({
+					count: v.number(),
+					date: v.string(),
+				}),
+			),
+		}),
+		userStatistics: v.object({
+			averageSessionDuration: v.optional(v.number()),
+			cardsStudiedToday: v.number(),
+			currentStreak: v.number(),
+			longestStreak: v.number(),
+			totalCards: v.number(),
+			totalDecks: v.number(),
+			totalStudySessions: v.number(),
+			totalStudyTime: v.optional(v.number()),
+		}),
+	}),
 });
 
 /**
@@ -1084,14 +1084,6 @@ export const getDashboardData = query({
  */
 export const getCardDistributionData = query({
 	args: {},
-	returns: v.object({
-		newCards: v.number(),
-		learningCards: v.number(),
-		reviewCards: v.number(),
-		dueCards: v.number(),
-		masteredCards: v.number(),
-		totalCards: v.number(),
-	}),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -1157,12 +1149,20 @@ export const getCardDistributionData = query({
 		}
 
 		return {
-			newCards,
-			learningCards,
-			reviewCards,
 			dueCards,
+			learningCards,
 			masteredCards,
+			newCards,
+			reviewCards,
 			totalCards,
 		};
 	},
+	returns: v.object({
+		dueCards: v.number(),
+		learningCards: v.number(),
+		masteredCards: v.number(),
+		newCards: v.number(),
+		reviewCards: v.number(),
+		totalCards: v.number(),
+	}),
 });

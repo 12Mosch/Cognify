@@ -44,15 +44,15 @@ export function StudyProgressBar({
 	const colors = isCompleted
 		? {
 				barColor: "bg-green-500 dark:bg-green-400",
-				textColor: "text-green-700 dark:text-green-300",
 				bgColor: "bg-green-100 dark:bg-green-900/20",
 				borderColor: "border-green-200 dark:border-green-800",
+				textColor: "text-green-700 dark:text-green-300",
 			}
 		: {
 				barColor: "bg-blue-500 dark:bg-blue-400",
-				textColor: "text-blue-700 dark:text-blue-300",
 				bgColor: "bg-blue-50 dark:bg-blue-900/20",
 				borderColor: "border-blue-200 dark:border-blue-800",
+				textColor: "text-blue-700 dark:text-blue-300",
 			};
 
 	return (
@@ -77,17 +77,17 @@ export function StudyProgressBar({
 				{isCompleted && (
 					<div className="flex items-center gap-1">
 						<svg
+							aria-hidden="true"
 							className="h-4 w-4 text-green-600 dark:text-green-400"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
-							aria-hidden="true"
 						>
 							<path
+								d="M5 13l4 4L19 7"
 								strokeLinecap="round"
 								strokeLinejoin="round"
 								strokeWidth={2}
-								d="M5 13l4 4L19 7"
 							/>
 						</svg>
 						<span className="font-medium text-green-700 text-xs dark:text-green-300">
@@ -100,17 +100,17 @@ export function StudyProgressBar({
 			{/* Visual Progress Bar */}
 			<div className="h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
 				<div
-					className={`study-progress-bar h-full ${colors.barColor} rounded-full transition-all duration-500 ease-out`}
-					style={{ width: `${progressPercentage}%` }}
-					role="progressbar"
-					aria-valuenow={progressPercentage}
-					aria-valuemin={0}
-					aria-valuemax={100}
 					aria-label={t("study.progress.aria", {
 						current: currentPosition,
-						total: totalCards,
 						percentage: progressPercentage,
+						total: totalCards,
 					})}
+					aria-valuemax={100}
+					aria-valuemin={0}
+					aria-valuenow={progressPercentage}
+					className={`study-progress-bar h-full ${colors.barColor} rounded-full transition-all duration-500 ease-out`}
+					role="progressbar"
+					style={{ width: `${progressPercentage}%` }}
 				/>
 			</div>
 

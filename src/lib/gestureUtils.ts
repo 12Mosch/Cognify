@@ -6,8 +6,8 @@
  */
 
 import {
-	SwipeableHandlers,
-	SwipeEventData,
+	type SwipeableHandlers,
+	type SwipeEventData,
 	useSwipeable,
 } from "react-swipeable";
 
@@ -43,6 +43,18 @@ export function useGestures(config: GestureConfig): GestureHandlers {
 	} = config;
 
 	return useSwipeable({
+		delta: threshold,
+		onSwipedDown: (_eventData: SwipeEventData) => {
+			if (disabled) return;
+
+			// Provide haptic feedback if available
+			triggerHapticFeedback("light");
+
+			// Trigger visual feedback
+			triggerVisualFeedback("down");
+
+			onSwipeDown?.();
+		},
 		onSwipedLeft: (_eventData: SwipeEventData) => {
 			if (disabled) return;
 
@@ -76,18 +88,6 @@ export function useGestures(config: GestureConfig): GestureHandlers {
 
 			onSwipeUp?.();
 		},
-		onSwipedDown: (_eventData: SwipeEventData) => {
-			if (disabled) return;
-
-			// Provide haptic feedback if available
-			triggerHapticFeedback("light");
-
-			// Trigger visual feedback
-			triggerVisualFeedback("down");
-
-			onSwipeDown?.();
-		},
-		delta: threshold,
 		trackMouse,
 		trackTouch,
 	});
@@ -105,9 +105,9 @@ export function triggerHapticFeedback(
 	if ("vibrate" in navigator) {
 		// Simple vibration patterns for different feedback types
 		const patterns = {
+			heavy: [30],
 			light: [10],
 			medium: [20],
-			heavy: [30],
 		};
 
 		navigator.vibrate(patterns[type]);
@@ -117,9 +117,9 @@ export function triggerHapticFeedback(
 	if ("hapticFeedback" in window) {
 		try {
 			const hapticTypes = {
+				heavy: "impactHeavy",
 				light: "impactLight",
 				medium: "impactMedium",
-				heavy: "impactHeavy",
 			};
 
 			// @ts-expect-error - This is a non-standard API
@@ -161,10 +161,10 @@ export function triggerVisualFeedback(
 
 	// Set the content based on direction
 	const messages = {
+		down: "↓ Swipe Down",
 		left: "← Flip Card",
 		right: "→ Next Card",
 		up: "↑ Swipe Up",
-		down: "↓ Swipe Down",
 	};
 
 	indicator.textContent = messages[direction];
@@ -242,14 +242,14 @@ export function useFlashcardGestures(
 	} = config;
 
 	return useGestures({
+		disabled,
+		onSwipeDown: studyMode === "spaced-repetition" ? onRateHard : undefined,
 		onSwipeLeft: onFlipCard,
 		onSwipeRight: studyMode === "basic" ? onNextCard : onRateEasy,
-		onSwipeUp: studyMode === "spaced-repetition" ? onRateEasy : undefined,
-		onSwipeDown: studyMode === "spaced-repetition" ? onRateHard : undefined,
-		threshold: 60, // Slightly higher threshold for flashcards to prevent accidental swipes
-		trackMouse: false, // Only track touch for mobile gestures
+		onSwipeUp: studyMode === "spaced-repetition" ? onRateEasy : undefined, // Slightly higher threshold for flashcards to prevent accidental swipes
+		threshold: 60, // Only track touch for mobile gestures
+		trackMouse: false,
 		trackTouch: true,
-		disabled,
 	});
 }
 

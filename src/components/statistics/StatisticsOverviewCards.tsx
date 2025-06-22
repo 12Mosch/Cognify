@@ -49,83 +49,83 @@ export const StatisticsOverviewCards = memo(function StatisticsOverviewCards({
 
 	const cards = [
 		{
-			title: t("statistics.cards.totalDecks"),
-			value: userStats.totalDecks,
-			subtitle: t("statistics.cards.learningCollections"),
-			icon: "📚",
 			color: "blue",
+			icon: "📚",
+			subtitle: t("statistics.cards.learningCollections"),
+			title: t("statistics.cards.totalDecks"),
 			trend: null,
+			value: userStats.totalDecks,
 		},
 		{
-			title: t("statistics.cards.totalCards"),
-			value: userStats.totalCards,
-			subtitle: t("statistics.cards.flashcardsCreated"),
-			icon: "🃏",
 			color: "cyan",
+			icon: "🃏",
+			subtitle: t("statistics.cards.flashcardsCreated"),
+			title: t("statistics.cards.totalCards"),
 			trend: null,
+			value: userStats.totalCards,
 		},
 		{
-			title: t("statistics.cards.dueToday"),
-			value: spacedRepetitionInsights.cardsToReviewToday,
-			subtitle: t("statistics.cards.cardsToReview"),
-			icon: "⏰",
 			color:
 				spacedRepetitionInsights.cardsToReviewToday > 0 ? "orange" : "teal",
+			icon: "⏰",
+			subtitle: t("statistics.cards.cardsToReview"),
+			title: t("statistics.cards.dueToday"),
 			trend: null,
+			value: spacedRepetitionInsights.cardsToReviewToday,
 		},
 		{
-			title: t("statistics.cards.currentStreak"),
-			value: userStats.currentStreak,
+			color: userStats.currentStreak > 0 ? "blue" : "gray",
+			icon: "🔥",
 			subtitle: t("statistics.cards.bestDays", {
 				count: userStats.longestStreak,
 			}),
-			icon: "🔥",
-			color: userStats.currentStreak > 0 ? "blue" : "gray",
+			title: t("statistics.cards.currentStreak"),
 			trend: null,
+			value: userStats.currentStreak,
 		},
 		{
-			title: t("statistics.cards.newCards"),
-			value: spacedRepetitionInsights.totalNewCards,
-			subtitle: t("statistics.cards.readyToLearn"),
-			icon: "✨",
 			color: "purple",
+			icon: "✨",
+			subtitle: t("statistics.cards.readyToLearn"),
+			title: t("statistics.cards.newCards"),
 			trend: null,
+			value: spacedRepetitionInsights.totalNewCards,
 		},
 		{
-			title: t("statistics.cards.studySessions"),
-			value: userStats.totalStudySessions,
-			subtitle: t("statistics.cards.totalCompleted"),
-			icon: "📖",
 			color: "indigo",
+			icon: "📖",
+			subtitle: t("statistics.cards.totalCompleted"),
+			title: t("statistics.cards.studySessions"),
 			trend: null,
+			value: userStats.totalStudySessions,
 		},
 		{
+			color: "teal",
+			icon: "📅",
+			subtitle: t("statistics.cards.betweenReviews"),
 			title: t("statistics.cards.averageInterval"),
+			trend: null,
 			value: spacedRepetitionInsights.averageInterval
 				? `${spacedRepetitionInsights.averageInterval.toFixed(1)}d`
 				: "N/A",
-			subtitle: t("statistics.cards.betweenReviews"),
-			icon: "📅",
-			color: "teal",
-			trend: null,
 		},
 		{
+			color: "green",
+			icon: "🎯",
+			subtitle: t("statistics.cards.successRate"),
 			title: t("statistics.cards.retentionRate"),
+			trend: null,
 			value:
 				spacedRepetitionInsights.retentionRate !== undefined
 					? `${spacedRepetitionInsights.retentionRate.toFixed(1)}%`
 					: "N/A",
-			subtitle: t("statistics.cards.successRate"),
-			icon: "🎯",
-			color: "green",
-			trend: null,
 		},
 	];
 
 	return (
 		<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 			{cards.map((card, index) => (
-				<StatisticsCard key={index} {...card} />
+				<StatisticsCard key={`${card.title}-${index}`} {...card} />
 			))}
 		</div>
 	);
@@ -157,57 +157,57 @@ const StatisticsCard = memo(function StatisticsCard({
 				return {
 					bg: "bg-blue-500/10 dark:bg-blue-400/10",
 					border: "border-blue-200 dark:border-blue-800",
-					text: "text-blue-600 dark:text-blue-400",
 					glow: "shadow-blue-500/20 dark:shadow-blue-400/20",
+					text: "text-blue-600 dark:text-blue-400",
 				};
 			case "cyan":
 				return {
 					bg: "bg-cyan-500/10 dark:bg-cyan-400/10",
 					border: "border-cyan-200 dark:border-cyan-800",
-					text: "text-cyan-600 dark:text-cyan-400",
 					glow: "shadow-cyan-500/20 dark:shadow-cyan-400/20",
+					text: "text-cyan-600 dark:text-cyan-400",
 				};
 			case "green":
 				return {
 					bg: "bg-green-500/10 dark:bg-green-400/10",
 					border: "border-green-200 dark:border-green-800",
-					text: "text-green-600 dark:text-green-400",
 					glow: "shadow-green-500/20 dark:shadow-green-400/20",
+					text: "text-green-600 dark:text-green-400",
 				};
 			case "orange":
 				return {
 					bg: "bg-orange-500/10 dark:bg-orange-400/10",
 					border: "border-orange-200 dark:border-orange-800",
-					text: "text-orange-600 dark:text-orange-400",
 					glow: "shadow-orange-500/20 dark:shadow-orange-400/20",
+					text: "text-orange-600 dark:text-orange-400",
 				};
 			case "purple":
 				return {
 					bg: "bg-purple-500/10 dark:bg-purple-400/10",
 					border: "border-purple-200 dark:border-purple-800",
-					text: "text-purple-600 dark:text-purple-400",
 					glow: "shadow-purple-500/20 dark:shadow-purple-400/20",
+					text: "text-purple-600 dark:text-purple-400",
 				};
 			case "indigo":
 				return {
 					bg: "bg-indigo-500/10 dark:bg-indigo-400/10",
 					border: "border-indigo-200 dark:border-indigo-800",
-					text: "text-indigo-600 dark:text-indigo-400",
 					glow: "shadow-indigo-500/20 dark:shadow-indigo-400/20",
+					text: "text-indigo-600 dark:text-indigo-400",
 				};
 			case "teal":
 				return {
 					bg: "bg-teal-500/10 dark:bg-teal-400/10",
 					border: "border-teal-200 dark:border-teal-800",
-					text: "text-teal-600 dark:text-teal-400",
 					glow: "shadow-teal-500/20 dark:shadow-teal-400/20",
+					text: "text-teal-600 dark:text-teal-400",
 				};
 			default:
 				return {
 					bg: "bg-slate-500/10 dark:bg-slate-400/10",
 					border: "border-slate-200 dark:border-slate-700",
-					text: "text-slate-600 dark:text-slate-400",
 					glow: "shadow-slate-500/20 dark:shadow-slate-400/20",
+					text: "text-slate-600 dark:text-slate-400",
 				};
 		}
 	};
@@ -225,9 +225,9 @@ const StatisticsCard = memo(function StatisticsCard({
 					{title}
 				</h3>
 				<span
+					aria-label={title}
 					className="text-2xl transition-transform duration-200 hover:scale-110"
 					role="img"
-					aria-label={title}
 				>
 					{icon}
 				</span>

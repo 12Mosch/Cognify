@@ -4,7 +4,7 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import type React from "react";
 import SpacedRepetitionInsights from "../statistics/SpacedRepetitionInsights";
 import { StatisticsOverviewCards } from "../statistics/StatisticsOverviewCards";
 
@@ -15,21 +15,21 @@ jest.mock("react-i18next", () => ({
 		t: (key: string, _options?: any) => {
 			// Simple mock translations for testing
 			const translations: { [key: string]: string } = {
-				"statistics.widgets.spacedRepetition.title":
-					"Spaced Repetition Insights",
-				"statistics.widgets.spacedRepetition.retentionRate": "Retention Rate",
-				"statistics.widgets.spacedRepetition.retentionMessages.noData":
-					"No data available",
-				"statistics.widgets.spacedRepetition.retentionMessages.excellent":
-					"Excellent retention!",
-				"statistics.widgets.spacedRepetition.retentionMessages.good":
-					"Good retention",
-				"statistics.widgets.spacedRepetition.retentionMessages.fair":
-					"Fair retention",
-				"statistics.widgets.spacedRepetition.retentionMessages.needsImprovement":
-					"Needs improvement",
 				"statistics.cards.retentionRate": "Retention Rate",
 				"statistics.cards.successRate": "Success Rate",
+				"statistics.widgets.spacedRepetition.retentionMessages.excellent":
+					"Excellent retention!",
+				"statistics.widgets.spacedRepetition.retentionMessages.fair":
+					"Fair retention",
+				"statistics.widgets.spacedRepetition.retentionMessages.good":
+					"Good retention",
+				"statistics.widgets.spacedRepetition.retentionMessages.needsImprovement":
+					"Needs improvement",
+				"statistics.widgets.spacedRepetition.retentionMessages.noData":
+					"No data available",
+				"statistics.widgets.spacedRepetition.retentionRate": "Retention Rate",
+				"statistics.widgets.spacedRepetition.title":
+					"Spaced Repetition Insights",
 			};
 			return translations[key] || key;
 		},
@@ -44,12 +44,12 @@ describe("Retention Rate UI Components", () => {
 	describe("SpacedRepetitionInsights", () => {
 		it("should display retention rate correctly when data is available", () => {
 			const mockInsights = {
+				averageInterval: 14.2,
+				cardsToReviewToday: 10,
+				retentionRate: 85.5,
 				totalDueCards: 10,
 				totalNewCards: 5,
-				cardsToReviewToday: 10,
 				upcomingReviews: [],
-				retentionRate: 85.5,
-				averageInterval: 14.2,
 			};
 
 			render(
@@ -67,12 +67,12 @@ describe("Retention Rate UI Components", () => {
 
 		it("should display N/A when retention rate is undefined", () => {
 			const mockInsights = {
+				averageInterval: undefined,
+				cardsToReviewToday: 0,
+				retentionRate: undefined,
 				totalDueCards: 0,
 				totalNewCards: 5,
-				cardsToReviewToday: 0,
 				upcomingReviews: [],
-				retentionRate: undefined,
-				averageInterval: undefined,
 			};
 
 			render(
@@ -90,12 +90,12 @@ describe("Retention Rate UI Components", () => {
 
 		it("should display excellent retention message for high rates", () => {
 			const mockInsights = {
+				averageInterval: 21.0,
+				cardsToReviewToday: 10,
+				retentionRate: 95.0,
 				totalDueCards: 10,
 				totalNewCards: 5,
-				cardsToReviewToday: 10,
 				upcomingReviews: [],
-				retentionRate: 95.0,
-				averageInterval: 21.0,
 			};
 
 			render(
@@ -110,12 +110,12 @@ describe("Retention Rate UI Components", () => {
 
 		it("should display needs improvement message for low rates", () => {
 			const mockInsights = {
+				averageInterval: 7.5,
+				cardsToReviewToday: 10,
+				retentionRate: 65.0,
 				totalDueCards: 10,
 				totalNewCards: 5,
-				cardsToReviewToday: 10,
 				upcomingReviews: [],
-				retentionRate: 65.0,
-				averageInterval: 7.5,
 			};
 
 			render(
@@ -127,37 +127,35 @@ describe("Retention Rate UI Components", () => {
 			expect(screen.getByText("65.0%")).toBeInTheDocument();
 			expect(screen.getByText("Needs improvement")).toBeInTheDocument();
 		});
-
-
 	});
 
 	describe("StatisticsOverviewCards", () => {
 		const mockUserStats = {
-			totalDecks: 3,
-			totalCards: 50,
-			totalStudySessions: 15,
+			averageSessionDuration: 900000,
 			cardsStudiedToday: 8,
 			currentStreak: 5,
 			longestStreak: 12,
-			averageSessionDuration: 900000, // 15 minutes in milliseconds
+			totalCards: 50,
+			totalDecks: 3,
+			totalStudySessions: 15, // 15 minutes in milliseconds
 			totalStudyTime: 13500000, // 225 minutes in milliseconds
 		};
 
 		it("should display retention rate correctly in overview cards", () => {
 			const mockSpacedRepetitionInsights = {
+				averageInterval: 16.7,
+				cardsToReviewToday: 10,
+				retentionRate: 88.3,
 				totalDueCards: 10,
 				totalNewCards: 5,
-				cardsToReviewToday: 10,
 				upcomingReviews: [],
-				retentionRate: 88.3,
-				averageInterval: 16.7,
 			};
 
 			render(
 				<TestWrapper>
 					<StatisticsOverviewCards
-						userStats={mockUserStats}
 						spacedRepetitionInsights={mockSpacedRepetitionInsights}
+						userStats={mockUserStats}
 					/>
 				</TestWrapper>,
 			);
@@ -171,19 +169,19 @@ describe("Retention Rate UI Components", () => {
 
 		it("should display N/A when retention rate is undefined in overview cards", () => {
 			const mockSpacedRepetitionInsights = {
+				averageInterval: undefined,
+				cardsToReviewToday: 0,
+				retentionRate: undefined,
 				totalDueCards: 0,
 				totalNewCards: 5,
-				cardsToReviewToday: 0,
 				upcomingReviews: [],
-				retentionRate: undefined,
-				averageInterval: undefined,
 			};
 
 			render(
 				<TestWrapper>
 					<StatisticsOverviewCards
-						userStats={mockUserStats}
 						spacedRepetitionInsights={mockSpacedRepetitionInsights}
+						userStats={mockUserStats}
 					/>
 				</TestWrapper>,
 			);
@@ -197,19 +195,19 @@ describe("Retention Rate UI Components", () => {
 
 		it("should handle edge case of 0% retention rate", () => {
 			const mockSpacedRepetitionInsights = {
+				averageInterval: 5.0,
+				cardsToReviewToday: 10,
+				retentionRate: 0.0,
 				totalDueCards: 10,
 				totalNewCards: 5,
-				cardsToReviewToday: 10,
 				upcomingReviews: [],
-				retentionRate: 0.0,
-				averageInterval: 5.0,
 			};
 
 			render(
 				<TestWrapper>
 					<StatisticsOverviewCards
-						userStats={mockUserStats}
 						spacedRepetitionInsights={mockSpacedRepetitionInsights}
+						userStats={mockUserStats}
 					/>
 				</TestWrapper>,
 			);
@@ -223,19 +221,19 @@ describe("Retention Rate UI Components", () => {
 
 		it("should handle edge case of 100% retention rate", () => {
 			const mockSpacedRepetitionInsights = {
+				averageInterval: 30.0,
+				cardsToReviewToday: 10,
+				retentionRate: 100.0,
 				totalDueCards: 10,
 				totalNewCards: 5,
-				cardsToReviewToday: 10,
 				upcomingReviews: [],
-				retentionRate: 100.0,
-				averageInterval: 30.0,
 			};
 
 			render(
 				<TestWrapper>
 					<StatisticsOverviewCards
-						userStats={mockUserStats}
 						spacedRepetitionInsights={mockSpacedRepetitionInsights}
+						userStats={mockUserStats}
 					/>
 				</TestWrapper>,
 			);
@@ -248,12 +246,12 @@ describe("Retention Rate UI Components", () => {
 	describe("Edge cases and validation", () => {
 		it("should handle very high retention rates correctly", () => {
 			const mockInsights = {
+				averageInterval: 30.0,
+				cardsToReviewToday: 10,
+				retentionRate: 99.9,
 				totalDueCards: 10,
 				totalNewCards: 5,
-				cardsToReviewToday: 10,
 				upcomingReviews: [],
-				retentionRate: 99.9,
-				averageInterval: 30.0,
 			};
 
 			render(
@@ -268,12 +266,12 @@ describe("Retention Rate UI Components", () => {
 
 		it("should handle very low retention rates correctly", () => {
 			const mockInsights = {
+				averageInterval: 1.0,
+				cardsToReviewToday: 10,
+				retentionRate: 0.1,
 				totalDueCards: 10,
 				totalNewCards: 5,
-				cardsToReviewToday: 10,
 				upcomingReviews: [],
-				retentionRate: 0.1,
-				averageInterval: 1.0,
 			};
 
 			render(

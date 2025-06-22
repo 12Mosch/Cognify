@@ -2,7 +2,7 @@ import { useQuery } from "convex/react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import type { Id } from "../../convex/_generated/dataModel";
 import { useAnalytics } from "../lib/analytics";
 import { useGestureTutorial } from "../lib/gestureTutorialUtils";
 import {
@@ -123,9 +123,9 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 
 	// Configure gesture handlers for mobile touch interactions
 	const gestureHandlers = useFlashcardGestures({
+		disabled: showKeyboardHelp || !cards || cards.length === 0,
 		onFlipCard: handleFlipCard,
 		onNextCard: handleNextCard,
-		disabled: showKeyboardHelp || !cards || cards.length === 0,
 		studyMode: "basic",
 	});
 
@@ -211,8 +211,9 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 							{t("study.deckNotFound.message")}
 						</p>
 						<button
-							onClick={onExit}
 							className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
+							onClick={onExit}
+							type="button"
 						>
 							{t("study.deckNotFound.backToDashboard")}
 						</button>
@@ -229,8 +230,9 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 				<div className="flex items-center justify-between">
 					<h1 className="font-bold text-3xl">{deck.name}</h1>
 					<button
-						onClick={onExit}
 						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
+						onClick={onExit}
+						type="button"
 					>
 						Back to Dashboard
 					</button>
@@ -240,17 +242,17 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 					<div className="text-center">
 						<div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
 							<svg
+								aria-hidden="true"
 								className="h-12 w-12 text-slate-400 dark:text-slate-500"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
-								aria-hidden="true"
 							>
 								<path
+									d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
 									strokeLinecap="round"
 									strokeLinejoin="round"
 									strokeWidth={1.5}
-									d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
 								/>
 							</svg>
 						</div>
@@ -280,15 +282,15 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 	if (showSummary && deck) {
 		return (
 			<PostSessionSummary
+				cardsReviewed={cardsReviewed}
 				deckId={deckId}
 				deckName={deck.name}
-				cardsReviewed={cardsReviewed}
-				studyMode="basic"
+				onContinueStudying={undefined}
+				onReturnToDashboard={onExit}
 				sessionDuration={
 					sessionStartTime > 0 ? Date.now() - sessionStartTime : undefined
 				}
-				onReturnToDashboard={onExit}
-				onContinueStudying={undefined} // Basic mode doesn't support continue studying
+				studyMode="basic" // Basic mode doesn't support continue studying
 			/>
 		);
 	}
@@ -312,8 +314,9 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 				<div className="flex items-center gap-3">
 					<HelpIcon onClick={() => setShowKeyboardHelp(true)} />
 					<button
-						onClick={onExit}
 						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
+						onClick={onExit}
+						type="button"
 					>
 						{t("study.exitStudySession")}
 					</button>
@@ -322,22 +325,21 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 
 			{/* Study Progress Bar */}
 			<StudyProgressBar
-				currentPosition={currentCardIndex + 1}
-				totalCards={cards.length}
-				isCompleted={currentCardIndex === cards.length - 1}
 				className="mb-6 flex-shrink-0"
+				currentPosition={currentCardIndex + 1}
+				isCompleted={currentCardIndex === cards.length - 1}
+				totalCards={cards.length}
 			/>
 
 			{/* Flashcard with 3D Flip Animation - Takes remaining height */}
-			<div
-				className="flashcard-container mb-6 flex-1 cursor-pointer"
-				onClick={handleFlipCard}
-				onKeyDown={handleKeyDown}
-				tabIndex={0}
-				role="button"
+			<button
 				aria-label={
 					isFlipped ? "Click to show question" : "Click to show answer"
 				}
+				className="flashcard-container mb-6 flex-1 cursor-pointer border-none bg-transparent p-0"
+				onClick={handleFlipCard}
+				onKeyDown={handleKeyDown}
+				type="button"
 				{...gestureHandlers}
 			>
 				<div className={`flashcard-inner ${isFlipped ? "flipped" : ""}`}>
@@ -350,11 +352,11 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 									{t("forms.quickAddCard.front")}
 								</h2>
 								<DifficultyIndicator
-									repetition={currentCard.repetition}
 									easeFactor={currentCard.easeFactor}
 									interval={currentCard.interval}
-									variant="compact"
+									repetition={currentCard.repetition}
 									showLabel={true}
+									variant="compact"
 								/>
 							</div>
 							{/* Scrollable text content area */}
@@ -387,11 +389,11 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 									{t("forms.quickAddCard.back")}
 								</h2>
 								<DifficultyIndicator
-									repetition={currentCard.repetition}
 									easeFactor={currentCard.easeFactor}
 									interval={currentCard.interval}
-									variant="compact"
+									repetition={currentCard.repetition}
 									showLabel={true}
+									variant="compact"
 								/>
 							</div>
 							{/* Scrollable text content area */}
@@ -415,15 +417,16 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 						</div>
 					</div>
 				</div>
-			</div>
+			</button>
 
 			{/* Navigation Controls */}
 			<div className="flex flex-shrink-0 justify-center gap-4">
 				<button
-					onClick={handlePreviousCard}
-					disabled={currentCardIndex === 0}
-					className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 					aria-label="Previous card (Press Left Arrow)"
+					className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
+					disabled={currentCardIndex === 0}
+					onClick={handlePreviousCard}
+					type="button"
 				>
 					<span className="flex items-center gap-2">
 						{t("study.previous")}
@@ -433,17 +436,18 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 					</span>
 				</button>
 				<button
-					onClick={
-						currentCardIndex === cards.length - 1
-							? handleFinishSession
-							: handleNextCard
-					}
-					className="rounded-md border-2 bg-dark px-4 py-2 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
 					aria-label={
 						currentCardIndex === cards.length - 1
 							? "Finish study session"
 							: "Next card (Press Right Arrow)"
 					}
+					className="rounded-md border-2 bg-dark px-4 py-2 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
+					onClick={
+						currentCardIndex === cards.length - 1
+							? handleFinishSession
+							: handleNextCard
+					}
+					type="button"
 				>
 					<span className="flex items-center gap-2">
 						{currentCardIndex === cards.length - 1

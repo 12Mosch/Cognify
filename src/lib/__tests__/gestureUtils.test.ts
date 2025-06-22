@@ -12,14 +12,14 @@ const mockMatchMedia = jest.fn();
 
 // Mock navigator
 Object.defineProperty(navigator, "vibrate", {
-	writable: true,
 	value: mockVibrate,
+	writable: true,
 });
 
 // Mock window.matchMedia
 Object.defineProperty(window, "matchMedia", {
-	writable: true,
 	value: mockMatchMedia,
+	writable: true,
 });
 
 // Mock document methods
@@ -30,28 +30,28 @@ const mockRequestAnimationFrame = jest.fn();
 const mockSetTimeout = jest.fn();
 
 Object.defineProperty(document, "createElement", {
-	writable: true,
 	value: mockCreateElement,
+	writable: true,
 });
 
 Object.defineProperty(document.body, "appendChild", {
-	writable: true,
 	value: mockAppendChild,
+	writable: true,
 });
 
 Object.defineProperty(document.body, "removeChild", {
-	writable: true,
 	value: mockRemoveChild,
+	writable: true,
 });
 
 Object.defineProperty(window, "requestAnimationFrame", {
-	writable: true,
 	value: mockRequestAnimationFrame,
+	writable: true,
 });
 
 Object.defineProperty(window, "setTimeout", {
-	writable: true,
 	value: mockSetTimeout,
+	writable: true,
 });
 
 describe("gestureUtils", () => {
@@ -61,14 +61,14 @@ describe("gestureUtils", () => {
 		// Reset DOM mocks
 		mockCreateElement.mockReturnValue({
 			className: "",
+			parentNode: null,
 			style: { cssText: "" },
 			textContent: "",
-			parentNode: null,
 		});
 
 		mockMatchMedia.mockReturnValue({
-			matches: false,
 			addEventListener: jest.fn(),
+			matches: false,
 			removeEventListener: jest.fn(),
 		});
 	});
@@ -95,9 +95,9 @@ describe("gestureUtils", () => {
 		it("should create and append feedback element", () => {
 			const mockElement = {
 				className: "",
+				parentNode: document.body,
 				style: { cssText: "", opacity: "0" },
 				textContent: "",
-				parentNode: document.body,
 			};
 			mockCreateElement.mockReturnValue(mockElement);
 
@@ -112,9 +112,9 @@ describe("gestureUtils", () => {
 		it("should show correct messages for different directions", () => {
 			const mockElement = {
 				className: "",
+				parentNode: document.body,
 				style: { cssText: "", opacity: "0" },
 				textContent: "",
-				parentNode: document.body,
 			};
 			mockCreateElement.mockReturnValue(mockElement);
 
@@ -134,9 +134,9 @@ describe("gestureUtils", () => {
 		it("should set correct CSS styles", () => {
 			const mockElement = {
 				className: "",
+				parentNode: document.body,
 				style: { cssText: "", opacity: "0" },
 				textContent: "",
-				parentNode: document.body,
 			};
 			mockCreateElement.mockReturnValue(mockElement);
 
@@ -152,8 +152,8 @@ describe("gestureUtils", () => {
 	describe("isTouchDevice", () => {
 		it("should return true when ontouchstart is available", () => {
 			Object.defineProperty(window, "ontouchstart", {
-				value: {},
 				configurable: true,
+				value: {},
 			});
 
 			expect(isTouchDevice()).toBe(true);
@@ -164,8 +164,8 @@ describe("gestureUtils", () => {
 
 		it("should return true when maxTouchPoints > 0", () => {
 			Object.defineProperty(navigator, "maxTouchPoints", {
-				value: 1,
 				configurable: true,
+				value: 1,
 			});
 
 			expect(isTouchDevice()).toBe(true);
@@ -175,8 +175,8 @@ describe("gestureUtils", () => {
 			// Ensure no touch properties are present
 			delete (window as any).ontouchstart;
 			Object.defineProperty(navigator, "maxTouchPoints", {
-				value: 0,
 				configurable: true,
+				value: 0,
 			});
 
 			expect(isTouchDevice()).toBe(false);
@@ -186,8 +186,8 @@ describe("gestureUtils", () => {
 	describe("prefersReducedMotion", () => {
 		it("should return true when user prefers reduced motion", () => {
 			mockMatchMedia.mockReturnValue({
-				matches: true,
 				addEventListener: jest.fn(),
+				matches: true,
 				removeEventListener: jest.fn(),
 			});
 
@@ -199,8 +199,8 @@ describe("gestureUtils", () => {
 
 		it("should return false when user does not prefer reduced motion", () => {
 			mockMatchMedia.mockReturnValue({
-				matches: false,
 				addEventListener: jest.fn(),
+				matches: false,
 				removeEventListener: jest.fn(),
 			});
 
@@ -220,8 +220,8 @@ describe("gestureUtils", () => {
 
 			mockCreateElement.mockReturnValue(mockStyleElement);
 			Object.defineProperty(document, "head", {
-				value: mockHead,
 				configurable: true,
+				value: mockHead,
 			});
 
 			// Mock getElementById to return null (styles not already added)
@@ -246,8 +246,8 @@ describe("gestureUtils", () => {
 				appendChild: jest.fn(),
 			};
 			Object.defineProperty(document, "head", {
-				value: mockHead,
 				configurable: true,
+				value: mockHead,
 			});
 
 			initializeGestureStyles();

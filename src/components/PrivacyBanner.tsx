@@ -52,31 +52,31 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 			const newSettings: EnhancedPrivacySettings = {
 				...settings,
 				analyticsConsent: "granted",
+				ccpa: {
+					...(settings.ccpa ?? {}),
+					dataCategories: {
+						behavioralData: true,
+						deviceInfo: true,
+						personalInfo: true,
+					},
+					doNotSell: false,
+				},
 				functionalConsent: "granted",
-				marketingConsent: "granted",
 				gdpr: {
 					dataRetentionPeriod: 365, // Default retention period
 					...(settings.gdpr ?? {}),
-					consentGiven: true,
+					allowCookies: true,
+					anonymizeData: false,
 					consentDate: new Date().toISOString(),
+					consentGiven: true,
 					dataProcessingPurposes: {
 						analytics: true,
 						functional: true,
 						marketing: true,
 						performance: true,
 					},
-					allowCookies: true,
-					anonymizeData: false,
 				},
-				ccpa: {
-					...(settings.ccpa ?? {}),
-					doNotSell: false,
-					dataCategories: {
-						personalInfo: true,
-						behavioralData: true,
-						deviceInfo: true,
-					},
-				},
+				marketingConsent: "granted",
 			};
 
 			setEnhancedPrivacySettings(newSettings);
@@ -99,11 +99,22 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 			const newSettings: EnhancedPrivacySettings = {
 				...settings,
 				analyticsConsent: "denied",
+				ccpa: {
+					...(settings.ccpa ?? {}),
+					dataCategories: {
+						behavioralData: false,
+						deviceInfo: false,
+						personalInfo: false,
+					},
+					doNotSell: true,
+					optOutDate: new Date().toISOString(),
+				},
 				functionalConsent: "denied",
-				marketingConsent: "denied",
 				gdpr: {
 					dataRetentionPeriod: 365, // Default retention period
 					...(settings.gdpr ?? {}),
+					allowCookies: false,
+					anonymizeData: true,
 					consentGiven: false,
 					dataProcessingPurposes: {
 						analytics: false,
@@ -111,19 +122,8 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 						marketing: false,
 						performance: false,
 					},
-					allowCookies: false,
-					anonymizeData: true,
 				},
-				ccpa: {
-					...(settings.ccpa ?? {}),
-					doNotSell: true,
-					optOutDate: new Date().toISOString(),
-					dataCategories: {
-						personalInfo: false,
-						behavioralData: false,
-						deviceInfo: false,
-					},
-				},
+				marketingConsent: "denied",
 			};
 
 			setEnhancedPrivacySettings(newSettings);
@@ -166,43 +166,27 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 									: "Cookie Notice"}
 						</h3>
 						<p className="text-slate-600 text-sm leading-relaxed dark:text-slate-400">
-							{isEU ? (
-								<>
-									We use cookies and similar technologies to improve your
-									experience, analyze usage, and provide personalized content.
-									Under GDPR, we need your consent to process your personal
-									data. You can withdraw consent at any time.
-								</>
-							) : isCA ? (
-								<>
-									We collect and process personal information as described in
-									our Privacy Policy. Under CCPA, you have the right to know
-									what personal information we collect and to opt-out of its
-									sale.
-								</>
-							) : (
-								<>
-									We use cookies to enhance your experience and analyze site
-									usage. By continuing to use our site, you agree to our use of
-									cookies and data processing practices.
-								</>
-							)}
+							{isEU
+								? "We use cookies and similar technologies to improve your experience, analyze usage, and provide personalized content. Under GDPR, we need your consent to process your personal data. You can withdraw consent at any time."
+								: isCA
+									? "We collect and process personal information as described in our Privacy Policy. Under CCPA, you have the right to know what personal information we collect and to opt-out of its sale."
+									: "We use cookies to enhance your experience and analyze site usage. By continuing to use our site, you agree to our use of cookies and data processing practices."}
 						</p>
 						<div className="mt-2">
 							<a
-								href="/privacy-policy"
 								className="text-blue-600 text-sm hover:underline dark:text-blue-400"
-								target="_blank"
+								href="/privacy-policy"
 								rel="noopener noreferrer"
+								target="_blank"
 							>
 								Privacy Policy
 							</a>
 							{" • "}
 							<a
-								href="/cookie-policy"
 								className="text-blue-600 text-sm hover:underline dark:text-blue-400"
-								target="_blank"
+								href="/cookie-policy"
 								rel="noopener noreferrer"
+								target="_blank"
 							>
 								Cookie Policy
 							</a>
@@ -212,9 +196,10 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 					{/* Action buttons */}
 					<div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
 						<button
-							onClick={handleCustomize}
-							disabled={isLoading}
 							className="rounded-md border border-slate-300 px-4 py-2 font-medium text-slate-600 text-sm transition-colors hover:bg-slate-50 hover:text-slate-800 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+							disabled={isLoading}
+							onClick={handleCustomize}
+							type="button"
 						>
 							Customize
 						</button>
@@ -222,25 +207,28 @@ export default function PrivacyBanner({ onSettingsClick }: PrivacyBannerProps) {
 						{isEU || isCA ? (
 							<>
 								<button
-									onClick={handleRejectAll}
-									disabled={isLoading}
 									className="rounded-md border border-slate-300 px-4 py-2 font-medium text-slate-600 text-sm transition-colors hover:bg-slate-50 hover:text-slate-800 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+									disabled={isLoading}
+									onClick={handleRejectAll}
+									type="button"
 								>
 									{isCA ? "Opt Out" : "Reject All"}
 								</button>
 								<button
-									onClick={handleAcceptAll}
-									disabled={isLoading}
 									className="rounded-md bg-blue-600 px-6 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+									disabled={isLoading}
+									onClick={handleAcceptAll}
+									type="button"
 								>
 									{isLoading ? "Processing..." : "Accept All"}
 								</button>
 							</>
 						) : (
 							<button
-								onClick={handleAcceptAll}
-								disabled={isLoading}
 								className="rounded-md bg-blue-600 px-6 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+								disabled={isLoading}
+								onClick={handleAcceptAll}
+								type="button"
 							>
 								{isLoading ? "Processing..." : "Accept"}
 							</button>

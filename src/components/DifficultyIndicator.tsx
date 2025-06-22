@@ -29,23 +29,21 @@ export function DifficultyIndicator({
 	// Badge variant - simple colored badge with label
 	if (variant === "badge") {
 		return (
-			<div
-				className={`inline-flex items-center rounded-full border px-2 py-1 font-medium text-xs ${difficultyInfo.color.bg} ${difficultyInfo.color.text} ${difficultyInfo.color.border} ${className}`}
-				role="status"
+			<output
 				aria-label={`Difficulty: ${difficultyInfo.label} - ${difficultyInfo.description}`}
+				className={`inline-flex items-center rounded-full border px-2 py-1 font-medium text-xs ${difficultyInfo.color.bg} ${difficultyInfo.color.text} ${difficultyInfo.color.border} ${className}`}
 			>
 				{showLabel && difficultyInfo.label}
-			</div>
+			</output>
 		);
 	}
 
 	// Progress variant - horizontal progress bar with optional label
 	if (variant === "progress") {
 		return (
-			<div
-				className={`flex flex-col gap-1 ${className}`}
-				role="status"
+			<output
 				aria-label={`Learning progress: ${difficultyInfo.progress}% - ${difficultyInfo.description}`}
+				className={`flex flex-col gap-1 ${className}`}
 			>
 				{showLabel && (
 					<div className="flex items-center justify-between text-xs">
@@ -59,47 +57,45 @@ export function DifficultyIndicator({
 				)}
 				<div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
 					<div
-						className={`h-full transition-all duration-300 ease-out ${difficultyInfo.color.bg.replace("-100", "-500").replace("-900", "-500")}`}
-						style={{ width: `${difficultyInfo.progress}%` }}
-						role="progressbar"
-						aria-valuenow={difficultyInfo.progress}
-						aria-valuemin={0}
 						aria-valuemax={100}
+						aria-valuemin={0}
+						aria-valuenow={difficultyInfo.progress}
+						className={`h-full transition-all duration-300 ease-out ${difficultyInfo.color.bg.replace("-100", "-500").replace("-900", "-500")}`}
+						role="progressbar"
+						style={{ width: `${difficultyInfo.progress}%` }}
 					/>
 				</div>
-			</div>
+			</output>
 		);
 	}
 
 	// Compact variant - small dot indicator with tooltip-like behavior
 	if (variant === "compact") {
 		return (
-			<div
-				className={`inline-flex items-center gap-1 ${className}`}
-				role="status"
+			<output
 				aria-label={`Difficulty: ${difficultyInfo.label}`}
+				className={`inline-flex items-center gap-1 ${className}`}
 				title={`${difficultyInfo.label} - ${difficultyInfo.description}`}
 			>
 				<div
-					className={`h-2 w-2 rounded-full ${difficultyInfo.color.bg.replace("-100", "-500").replace("-900", "-500")}`}
 					aria-hidden="true"
+					className={`h-2 w-2 rounded-full ${difficultyInfo.color.bg.replace("-100", "-500").replace("-900", "-500")}`}
 				/>
 				{showLabel && (
 					<span className={`text-xs ${difficultyInfo.color.text}`}>
 						{difficultyInfo.label}
 					</span>
 				)}
-			</div>
+			</output>
 		);
 	}
 
 	// Detailed variant - comprehensive display with all information
 	if (variant === "detailed") {
 		return (
-			<div
-				className={`flex flex-col gap-2 rounded-lg border p-3 ${difficultyInfo.color.bg} ${difficultyInfo.color.border} ${className}`}
-				role="status"
+			<output
 				aria-label={`Difficulty details: ${difficultyInfo.label} - ${difficultyInfo.description}`}
+				className={`flex flex-col gap-2 rounded-lg border p-3 ${difficultyInfo.color.bg} ${difficultyInfo.color.border} ${className}`}
 			>
 				<div className="flex items-center justify-between">
 					<span
@@ -114,12 +110,12 @@ export function DifficultyIndicator({
 
 				<div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
 					<div
-						className={`h-full transition-all duration-300 ease-out ${difficultyInfo.color.bg.replace("-100", "-500").replace("-900", "-500")}`}
-						style={{ width: `${difficultyInfo.progress}%` }}
-						role="progressbar"
-						aria-valuenow={difficultyInfo.progress}
-						aria-valuemin={0}
 						aria-valuemax={100}
+						aria-valuemin={0}
+						aria-valuenow={difficultyInfo.progress}
+						className={`h-full transition-all duration-300 ease-out ${difficultyInfo.color.bg.replace("-100", "-500").replace("-900", "-500")}`}
+						role="progressbar"
+						style={{ width: `${difficultyInfo.progress}%` }}
 					/>
 				</div>
 
@@ -143,19 +139,18 @@ export function DifficultyIndicator({
 						)}
 					</div>
 				)}
-			</div>
+			</output>
 		);
 	}
 
 	// Fallback to badge variant
 	return (
-		<div
-			className={`inline-flex items-center rounded-full border px-2 py-1 font-medium text-xs ${difficultyInfo.color.bg} ${difficultyInfo.color.text} ${difficultyInfo.color.border} ${className}`}
-			role="status"
+		<output
 			aria-label={`Difficulty: ${difficultyInfo.label} - ${difficultyInfo.description}`}
+			className={`inline-flex items-center rounded-full border px-2 py-1 font-medium text-xs ${difficultyInfo.color.bg} ${difficultyInfo.color.text} ${difficultyInfo.color.border} ${className}`}
 		>
 			{showLabel && difficultyInfo.label}
-		</div>
+		</output>
 	);
 }
 
@@ -183,14 +178,13 @@ export function DifficultyStars({
 	const filledStars = Math.round((difficultyInfo.progress / 100) * maxStars);
 
 	return (
-		<div
-			className={`flex items-center gap-0.5 ${className}`}
-			role="status"
+		<output
 			aria-label={`Difficulty rating: ${filledStars} out of ${maxStars} stars - ${difficultyInfo.description}`}
+			className={`flex items-center gap-0.5 ${className}`}
 		>
 			{Array.from({ length: maxStars }, (_, index) => (
 				<svg
-					key={index}
+					aria-hidden="true"
 					className={`h-3 w-3 ${
 						index < filledStars
 							? difficultyInfo.color.text
@@ -199,13 +193,13 @@ export function DifficultyStars({
 							: "text-slate-300 dark:text-slate-600"
 					}`}
 					fill="currentColor"
+					key={`star-${index}-${filledStars}-${maxStars}`}
 					viewBox="0 0 20 20"
-					aria-hidden="true"
 				>
 					<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
 				</svg>
 			))}
-		</div>
+		</output>
 	);
 }
 
@@ -230,16 +224,16 @@ export function DifficultyDot({
 	const difficultyInfo = getDifficultyInfo(repetition, easeFactor, interval);
 
 	const sizeClasses = {
-		sm: "w-1.5 h-1.5",
-		md: "w-2 h-2",
 		lg: "w-3 h-3",
+		md: "w-2 h-2",
+		sm: "w-1.5 h-1.5",
 	};
 
 	return (
 		<div
+			aria-label={`Difficulty: ${difficultyInfo.label}`}
 			className={`rounded-full ${sizeClasses[size]} ${difficultyInfo.color.bg.replace("-100", "-500").replace("-900", "-500")} ${className}`}
 			role="status"
-			aria-label={`Difficulty: ${difficultyInfo.label}`}
 			title={`${difficultyInfo.label} - ${difficultyInfo.description}`}
 		/>
 	);

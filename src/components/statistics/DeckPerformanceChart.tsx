@@ -12,6 +12,20 @@ import {
 } from "recharts";
 import ChartWidget from "./ChartWidget";
 
+// Types for Recharts components
+interface DeckTooltipProps {
+	active?: boolean;
+	payload?: Array<{
+		payload: DeckPerformance & {
+			shortName: string;
+		};
+	}>;
+}
+
+interface BarClickData {
+	deckId: string;
+}
+
 interface DeckPerformance {
 	deckId: string;
 	deckName: string;
@@ -27,6 +41,60 @@ interface DeckPerformanceChartProps {
 	selectedDeckId: string | null;
 	onDeckSelect: (deckId: string | null) => void;
 }
+
+// Custom Tooltip Component (moved outside to avoid nested component definition)
+const CustomTooltip = ({ active, payload }: DeckTooltipProps) => {
+	const { t } = useTranslation();
+
+	if (active && payload && payload.length) {
+		const data = payload[0].payload;
+		return (
+			<div className="min-w-[200px] rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-lg dark:bg-slate-900">
+				<p className="mb-3 font-semibold text-slate-200">{data.deckName}</p>
+				<div className="space-y-2 text-sm">
+					<div className="flex justify-between">
+						<span className="text-slate-300">
+							{t("statistics.charts.deckPerformance.totalCards")}:
+						</span>
+						<span className="font-semibold text-white">{data.totalCards}</span>
+					</div>
+					<div className="flex justify-between">
+						<span className="text-slate-300">
+							{t("statistics.charts.deckPerformance.masteredCards")}:
+						</span>
+						<span className="font-semibold text-white">
+							{data.masteredCards}
+						</span>
+					</div>
+					<div className="flex justify-between">
+						<span className="text-slate-300">
+							{t("statistics.charts.deckPerformance.masteryPercentage")}:
+						</span>
+						<span className="font-semibold text-white">
+							{data.masteryPercentage.toFixed(1)}%
+						</span>
+					</div>
+					{data.averageEaseFactor && (
+						<div className="flex justify-between">
+							<span className="text-slate-300">
+								{t("statistics.charts.deckPerformance.averageEase")}:
+							</span>
+							<span className="font-semibold text-white">
+								{data.averageEaseFactor.toFixed(2)}
+							</span>
+						</div>
+					)}
+				</div>
+				<div className="mt-3 border-slate-600 border-t pt-2">
+					<p className="text-slate-400 text-xs">
+						{t("statistics.charts.deckPerformance.clickToSelect")}
+					</p>
+				</div>
+			</div>
+		);
+	}
+	return null;
+};
 
 /**
  * Deck Performance Chart Component
@@ -50,7 +118,7 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
 		...deck,
 		shortName:
 			deck.deckName.length > 15
-				? deck.deckName.substring(0, 15) + "..."
+				? `${deck.deckName.substring(0, 15)}...`
 				: deck.deckName,
 	}));
 
@@ -71,60 +139,7 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
 		}
 	};
 
-	const CustomTooltip = ({ active, payload }: any) => {
-		if (active && payload && payload.length) {
-			const data = payload[0].payload;
-			return (
-				<div className="min-w-[200px] rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-lg dark:bg-slate-900">
-					<p className="mb-3 font-semibold text-slate-200">{data.deckName}</p>
-					<div className="space-y-2 text-sm">
-						<div className="flex justify-between">
-							<span className="text-slate-300">
-								{t("statistics.charts.deckPerformance.totalCards")}:
-							</span>
-							<span className="font-semibold text-white">
-								{data.totalCards}
-							</span>
-						</div>
-						<div className="flex justify-between">
-							<span className="text-slate-300">
-								{t("statistics.charts.deckPerformance.masteredCards")}:
-							</span>
-							<span className="font-semibold text-white">
-								{data.masteredCards}
-							</span>
-						</div>
-						<div className="flex justify-between">
-							<span className="text-slate-300">
-								{t("statistics.charts.deckPerformance.masteryPercentage")}:
-							</span>
-							<span className="font-semibold text-white">
-								{data.masteryPercentage.toFixed(1)}%
-							</span>
-						</div>
-						{data.averageEaseFactor && (
-							<div className="flex justify-between">
-								<span className="text-slate-300">
-									{t("statistics.charts.deckPerformance.averageEase")}:
-								</span>
-								<span className="font-semibold text-white">
-									{data.averageEaseFactor.toFixed(2)}
-								</span>
-							</div>
-						)}
-					</div>
-					<div className="mt-3 border-slate-600 border-t pt-2">
-						<p className="text-slate-400 text-xs">
-							{t("statistics.charts.deckPerformance.clickToSelect")}
-						</p>
-					</div>
-				</div>
-			);
-		}
-		return null;
-	};
-
-	const handleBarClick = (data: any) => {
+	const handleBarClick = (data: BarClickData) => {
 		const newSelectedId = selectedDeckId === data.deckId ? null : data.deckId;
 		onDeckSelect(newSelectedId);
 	};
@@ -148,8 +163,9 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
 	// Prepare header actions
 	const headerActions = selectedDeckId ? (
 		<button
-			onClick={() => onDeckSelect(null)}
 			className="rounded-full bg-blue-100 px-3 py-1 text-blue-700 text-xs transition-all duration-200 hover:scale-105 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
+			onClick={() => onDeckSelect(null)}
+			type="button"
 		>
 			Clear Selection
 		</button>
@@ -246,59 +262,59 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
 
 	return (
 		<ChartWidget
-			title={t("statistics.charts.deckPerformance.title")}
-			subtitle={t("statistics.charts.deckPerformance.subtitle")}
 			chartHeight="h-64"
-			headerActions={headerActions}
 			footer={footerContent}
+			headerActions={headerActions}
+			subtitle={t("statistics.charts.deckPerformance.subtitle")}
+			title={t("statistics.charts.deckPerformance.title")}
 		>
 			{/* Chart Content */}
-			<ResponsiveContainer width="100%" height="100%">
+			<ResponsiveContainer height="100%" width="100%">
 				<BarChart
 					data={chartData}
-					margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+					margin={{ bottom: 60, left: 20, right: 30, top: 20 }}
 				>
 					<CartesianGrid
-						strokeDasharray="3 3"
-						stroke="#e2e8f0"
 						className="dark:stroke-slate-700"
+						stroke="#e2e8f0"
+						strokeDasharray="3 3"
 					/>
 
 					<XAxis
-						dataKey="shortName"
-						stroke="#64748b"
-						fontSize={12}
-						tickLine={false}
-						axisLine={false}
 						angle={-45}
-						textAnchor="end"
+						axisLine={false}
+						dataKey="shortName"
+						fontSize={12}
 						height={60}
+						stroke="#64748b"
+						textAnchor="end"
+						tickLine={false}
 					/>
 
 					<YAxis
-						stroke="#64748b"
-						fontSize={12}
-						tickLine={false}
 						axisLine={false}
 						domain={[0, 100]}
+						fontSize={12}
+						stroke="#64748b"
 						tickFormatter={(value) => `${value}%`}
+						tickLine={false}
 					/>
 
 					<Tooltip content={<CustomTooltip />} />
 
 					<Bar
-						dataKey="masteryPercentage"
-						radius={[4, 4, 0, 0]}
 						cursor="pointer"
+						dataKey="masteryPercentage"
 						onClick={handleBarClick}
+						radius={[4, 4, 0, 0]}
 					>
-						{chartData.map((entry, index) => (
+						{chartData.map((entry) => (
 							<Cell
-								key={`cell-${index}`}
 								fill={getBarColor(
 									entry.masteryPercentage,
 									selectedDeckId === entry.deckId,
 								)}
+								key={`cell-${entry.deckId}`}
 							/>
 						))}
 					</Bar>

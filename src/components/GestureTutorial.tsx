@@ -34,51 +34,51 @@ export function GestureTutorial({
 
 	const basicModeSteps = [
 		{
-			title: "Welcome to Touch Controls!",
 			description: "Learn how to navigate flashcards with simple gestures.",
 			gesture: "👋",
 			instruction: "Swipe gestures make studying faster and more intuitive.",
+			title: "Welcome to Touch Controls!",
 		},
 		{
-			title: "Flip Cards",
 			description:
 				"Swipe left or tap anywhere to flip the card and see the answer.",
 			gesture: "👈",
 			instruction: "Try swiping left on any flashcard to reveal the answer.",
+			title: "Flip Cards",
 		},
 		{
-			title: "Next Card",
 			description: "Swipe right to move to the next card in your deck.",
 			gesture: "👉",
 			instruction: "Swipe right when you're ready for the next question.",
+			title: "Next Card",
 		},
 	];
 
 	const spacedRepetitionSteps = [
 		{
-			title: "Welcome to Smart Study!",
 			description: "Learn gesture controls for spaced repetition study mode.",
 			gesture: "🧠",
 			instruction:
 				"Gestures help you rate cards quickly during study sessions.",
+			title: "Welcome to Smart Study!",
 		},
 		{
-			title: "Flip Cards",
 			description: "Swipe left or tap to reveal the answer.",
 			gesture: "👈",
 			instruction: "Swipe left to see the answer and rate your knowledge.",
+			title: "Flip Cards",
 		},
 		{
-			title: "Rate Easy",
 			description: "Swipe right when you knew the answer perfectly.",
 			gesture: "👉",
 			instruction: 'Right swipe = "Easy" - you knew this perfectly!',
+			title: "Rate Easy",
 		},
 		{
-			title: "Rate Again",
 			description: "Swipe down when you didn't know the answer.",
 			gesture: "👇",
 			instruction: 'Down swipe = "Again" - study this card more.',
+			title: "Rate Again",
 		},
 	];
 
@@ -130,9 +130,8 @@ export function GestureTutorial({
 					{/* Progress indicator */}
 					<div className="mb-6 flex justify-center">
 						<div className="flex space-x-2">
-							{steps.map((_, index) => (
+							{steps.map((step, index) => (
 								<div
-									key={index}
 									className={`h-2 w-2 rounded-full transition-colors ${
 										index === currentStep
 											? "bg-blue-500"
@@ -140,6 +139,7 @@ export function GestureTutorial({
 												? "bg-blue-300"
 												: "bg-slate-300 dark:bg-slate-600"
 									}`}
+									key={`step-${index}-${step.title}`}
 								/>
 							))}
 						</div>
@@ -148,8 +148,9 @@ export function GestureTutorial({
 					{/* Navigation buttons */}
 					<div className="flex items-center justify-between">
 						<button
-							onClick={handleSkip}
 							className="text-slate-500 text-sm transition-colors hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+							onClick={handleSkip}
+							type="button"
 						>
 							Skip Tutorial
 						</button>
@@ -157,16 +158,18 @@ export function GestureTutorial({
 						<div className="flex space-x-3">
 							{currentStep > 0 && (
 								<button
-									onClick={handlePrevious}
 									className="px-4 py-2 text-slate-600 text-sm transition-colors hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+									onClick={handlePrevious}
+									type="button"
 								>
 									Previous
 								</button>
 							)}
 
 							<button
-								onClick={handleNext}
 								className="rounded-md bg-blue-500 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-600"
+								onClick={handleNext}
+								type="button"
 							>
 								{currentStep === steps.length - 1 ? "Get Started!" : "Next"}
 							</button>

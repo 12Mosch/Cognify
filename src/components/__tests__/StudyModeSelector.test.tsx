@@ -4,7 +4,7 @@
  */
 
 import { fireEvent, render, screen } from "@testing-library/react";
-import { Id } from "../../../convex/_generated/dataModel";
+import type { Id } from "../../../convex/_generated/dataModel";
 import StudyModeSelector from "../StudyModeSelector";
 
 const mockDeckId = "test-deck-id" as Id<"decks">;
@@ -22,8 +22,8 @@ describe("StudyModeSelector", () => {
 			<StudyModeSelector
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				onSelectMode={mockOnSelectMode}
 				onCancel={mockOnCancel}
+				onSelectMode={mockOnSelectMode}
 			/>,
 		);
 
@@ -41,8 +41,8 @@ describe("StudyModeSelector", () => {
 			<StudyModeSelector
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				onSelectMode={mockOnSelectMode}
 				onCancel={mockOnCancel}
+				onSelectMode={mockOnSelectMode}
 			/>,
 		);
 
@@ -60,8 +60,8 @@ describe("StudyModeSelector", () => {
 			<StudyModeSelector
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				onSelectMode={mockOnSelectMode}
 				onCancel={mockOnCancel}
+				onSelectMode={mockOnSelectMode}
 			/>,
 		);
 
@@ -80,8 +80,8 @@ describe("StudyModeSelector", () => {
 			<StudyModeSelector
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				onSelectMode={mockOnSelectMode}
 				onCancel={mockOnCancel}
+				onSelectMode={mockOnSelectMode}
 			/>,
 		);
 
@@ -98,8 +98,8 @@ describe("StudyModeSelector", () => {
 			<StudyModeSelector
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				onSelectMode={mockOnSelectMode}
 				onCancel={mockOnCancel}
+				onSelectMode={mockOnSelectMode}
 			/>,
 		);
 
@@ -114,8 +114,8 @@ describe("StudyModeSelector", () => {
 			<StudyModeSelector
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				onSelectMode={mockOnSelectMode}
 				onCancel={mockOnCancel}
+				onSelectMode={mockOnSelectMode}
 			/>,
 		);
 
@@ -130,8 +130,8 @@ describe("StudyModeSelector", () => {
 			<StudyModeSelector
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				onSelectMode={mockOnSelectMode}
 				onCancel={mockOnCancel}
+				onSelectMode={mockOnSelectMode}
 			/>,
 		);
 
@@ -146,8 +146,8 @@ describe("StudyModeSelector", () => {
 			<StudyModeSelector
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				onSelectMode={mockOnSelectMode}
 				onCancel={mockOnCancel}
+				onSelectMode={mockOnSelectMode}
 			/>,
 		);
 

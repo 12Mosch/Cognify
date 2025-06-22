@@ -36,10 +36,10 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 	// Treat as zero-streak baseline if streakData is null
 	const safeStreakData = streakData ?? {
 		currentStreak: 0,
-		longestStreak: 0,
-		totalStudyDays: 0,
-		milestonesReached: [],
 		lastMilestone: null,
+		longestStreak: 0,
+		milestonesReached: [],
+		totalStudyDays: 0,
 	};
 
 	const {
@@ -54,43 +54,43 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 	const getStreakStatus = () => {
 		if (currentStreak === 0) {
 			return {
-				title: t("streak.display.status.startStreak.title"),
-				message: t("streak.display.status.startStreak.message"),
 				bgColor:
 					"from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700",
 				borderColor: "border-slate-200 dark:border-slate-600",
-				textColor: "text-slate-600 dark:text-slate-400",
+				message: t("streak.display.status.startStreak.message"),
 				streakColor: "text-slate-800 dark:text-slate-200",
+				textColor: "text-slate-600 dark:text-slate-400",
+				title: t("streak.display.status.startStreak.title"),
 			};
 		} else if (currentStreak < 7) {
 			return {
-				title: t("streak.display.status.buildingMomentum.title"),
-				message: t("streak.display.status.buildingMomentum.message"),
 				bgColor:
 					"from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20",
 				borderColor: "border-blue-200 dark:border-blue-800",
-				textColor: "text-blue-600 dark:text-blue-400",
+				message: t("streak.display.status.buildingMomentum.message"),
 				streakColor: "text-blue-800 dark:text-blue-200",
+				textColor: "text-blue-600 dark:text-blue-400",
+				title: t("streak.display.status.buildingMomentum.title"),
 			};
 		} else if (currentStreak < 30) {
 			return {
-				title: t("streak.display.status.greatProgress.title"),
-				message: t("streak.display.status.greatProgress.message"),
 				bgColor:
 					"from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20",
 				borderColor: "border-orange-200 dark:border-orange-800",
-				textColor: "text-orange-600 dark:text-orange-400",
+				message: t("streak.display.status.greatProgress.message"),
 				streakColor: "text-orange-800 dark:text-orange-200",
+				textColor: "text-orange-600 dark:text-orange-400",
+				title: t("streak.display.status.greatProgress.title"),
 			};
 		} else {
 			return {
-				title: t("streak.display.status.streakMaster.title"),
-				message: t("streak.display.status.streakMaster.message"),
 				bgColor:
 					"from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20",
 				borderColor: "border-purple-200 dark:border-purple-800",
-				textColor: "text-purple-600 dark:text-purple-400",
+				message: t("streak.display.status.streakMaster.message"),
 				streakColor: "text-purple-800 dark:text-purple-200",
+				textColor: "text-purple-600 dark:text-purple-400",
+				title: t("streak.display.status.streakMaster.title"),
 			};
 		}
 	};
@@ -107,17 +107,19 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 			posthog.capture("streak_display_clicked", {
 				currentStreak,
 				longestStreak,
-				totalStudyDays,
 				milestonesReached: milestonesReached.length,
+				totalStudyDays,
 			});
 		}
 	};
 
 	return (
-		<div
-			className={`bg-gradient-to-r ${status.bgColor} border ${status.borderColor} group cursor-pointer rounded-lg p-6 transition-all duration-300 hover:border-slate-300 hover:shadow-lg dark:hover:border-slate-500 dark:hover:shadow-slate-900/20 ${className}`}
-			onClick={handleStreakClick}
+		<button
+			aria-label="View streak details"
+			className={`bg-gradient-to-r ${status.bgColor} border ${status.borderColor} group cursor-pointer rounded-lg p-6 transition-all duration-300 hover:border-slate-300 hover:shadow-lg dark:hover:border-slate-500 dark:hover:shadow-slate-900/20 ${className} w-full text-left`}
 			data-testid="streak-display"
+			onClick={handleStreakClick}
+			type="button"
 		>
 			{/* Header */}
 			<div className="mb-4 flex items-center justify-between">
@@ -214,8 +216,8 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 					<div className="flex flex-wrap gap-1">
 						{milestonesReached.map((milestone: number) => (
 							<span
-								key={milestone}
 								className="inline-flex cursor-pointer items-center rounded-full bg-yellow-100 px-2 py-1 font-medium text-xs text-yellow-800 transition-all duration-200 hover:scale-105 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-200 dark:hover:bg-yellow-900/40"
+								key={milestone}
 							>
 								🏅 {milestone}
 							</span>
@@ -223,6 +225,6 @@ export default function StreakDisplay({ className = "" }: StreakDisplayProps) {
 					</div>
 				</div>
 			)}
-		</div>
+		</button>
 	);
 }

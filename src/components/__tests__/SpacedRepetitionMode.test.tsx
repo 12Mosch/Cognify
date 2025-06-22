@@ -4,50 +4,50 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { Id } from "../../../convex/_generated/dataModel";
+import type { Id } from "../../../convex/_generated/dataModel";
 import SpacedRepetitionMode from "../SpacedRepetitionMode";
 
 // Mock Convex hooks
 jest.mock("convex/react", () => ({
-	useQuery: jest.fn(),
 	useMutation: jest.fn(),
+	useQuery: jest.fn(),
 }));
 
 // Mock analytics
 jest.mock("../../lib/analytics", () => ({
-	useAnalytics: () => ({
-		trackStudySessionStarted: jest.fn(),
-		trackCardFlipped: jest.fn(),
-		trackDifficultyRated: jest.fn(),
-		posthog: null,
-	}),
-	useAnalyticsEnhanced: () => ({
-		trackEventBatched: jest.fn(),
-		trackFeatureFlag: jest.fn(),
-		identifyUser: jest.fn(),
-		hasConsent: true,
-	}),
-	// Mock the new tracking functions
-	trackSessionStarted: jest.fn(),
+	hasAnalyticsConsent: jest.fn(() => true),
 	trackCardsReviewed: jest.fn(),
 	trackSessionCompleted: jest.fn(),
-	trackStreakStarted: jest.fn(),
-	trackStreakContinued: jest.fn(),
+	// Mock the new tracking functions
+	trackSessionStarted: jest.fn(),
 	trackStreakBroken: jest.fn(),
+	trackStreakContinued: jest.fn(),
 	trackStreakMilestone: jest.fn(),
-	hasAnalyticsConsent: jest.fn(() => true),
+	trackStreakStarted: jest.fn(),
+	useAnalytics: () => ({
+		posthog: null,
+		trackCardFlipped: jest.fn(),
+		trackDifficultyRated: jest.fn(),
+		trackStudySessionStarted: jest.fn(),
+	}),
+	useAnalyticsEnhanced: () => ({
+		hasConsent: true,
+		identifyUser: jest.fn(),
+		trackEventBatched: jest.fn(),
+		trackFeatureFlag: jest.fn(),
+	}),
 }));
 
 // Mock error monitoring
 jest.mock("../../lib/errorMonitoring", () => ({
 	useErrorMonitoring: () => ({
 		captureError: jest.fn(),
-		trackConvexQuery: jest.fn(),
-		trackConvexMutation: jest.fn(),
+		hasConsent: true,
 		trackAuth: jest.fn(),
 		trackCardLoading: jest.fn(),
+		trackConvexMutation: jest.fn(),
+		trackConvexQuery: jest.fn(),
 		trackStudySession: jest.fn(),
-		hasConsent: true,
 	}),
 }));
 
@@ -57,7 +57,9 @@ jest.mock("../PostSessionSummary", () => {
 		return (
 			<div>
 				<h2>Study Session Complete!</h2>
-				<button onClick={onReturnToDashboard}>Return to Dashboard</button>
+				<button onClick={onReturnToDashboard} type="button">
+					Return to Dashboard
+				</button>
 			</div>
 		);
 	};
@@ -71,7 +73,9 @@ jest.mock("../KeyboardShortcutsModal", () => {
 			<div>
 				<h2>Keyboard Shortcuts</h2>
 				<p>Available shortcuts for Spaced Repetition mode</p>
-				<button onClick={onClose}>Close</button>
+				<button onClick={onClose} type="button">
+					Close
+				</button>
 			</div>
 		);
 	};
@@ -81,35 +85,35 @@ const mockDeckId = "test-deck-id" as Id<"decks">;
 const mockOnExit = jest.fn();
 
 const mockDeck = {
-	_id: mockDeckId,
 	_creationTime: Date.now(),
-	userId: "test-user",
-	name: "Test Deck",
+	_id: mockDeckId,
 	description: "Test Description",
+	name: "Test Deck",
+	userId: "test-user",
 };
 
 const mockCards = [
 	{
-		_id: "card-1" as Id<"cards">,
 		_creationTime: Date.now(),
-		deckId: mockDeckId,
-		front: "What is 2+2?",
+		_id: "card-1" as Id<"cards">,
 		back: "4",
-		repetition: 0,
-		easeFactor: 2.5,
-		interval: 1,
+		deckId: mockDeckId,
 		dueDate: Date.now(),
+		easeFactor: 2.5,
+		front: "What is 2+2?",
+		interval: 1,
+		repetition: 0,
 	},
 	{
-		_id: "card-2" as Id<"cards">,
 		_creationTime: Date.now(),
-		deckId: mockDeckId,
-		front: "What is the capital of France?",
+		_id: "card-2" as Id<"cards">,
 		back: "Paris",
-		repetition: 1,
+		deckId: mockDeckId,
+		dueDate: Date.now() - 86400000,
 		easeFactor: 2.5,
+		front: "What is the capital of France?",
 		interval: 6,
-		dueDate: Date.now() - 86400000, // Due yesterday
+		repetition: 1, // Due yesterday
 	},
 ];
 
@@ -146,7 +150,7 @@ describe("SpacedRepetitionMode", () => {
 		const mockValues = [
 			null, // deck = null (triggers deck not found)
 			[], // studyQueueData = [] (not undefined, so passes loading check)
-			{ nextDueDate: undefined, hasCardsToReview: false, totalCardsInDeck: 0 }, // nextReviewInfo
+			{ hasCardsToReview: false, nextDueDate: undefined, totalCardsInDeck: 0 }, // nextReviewInfo
 		];
 
 		mockUseQuery.mockImplementation(() => {
@@ -165,8 +169,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("renders enhanced no cards state when there are no cards to study", () => {
 		const mockNextReviewInfo = {
-			nextDueDate: Date.now() + 86400000, // Tomorrow
-			hasCardsToReview: true,
+			hasCardsToReview: true, // Tomorrow
+			nextDueDate: Date.now() + 86400000,
 			totalCardsInDeck: 5,
 		};
 
@@ -193,8 +197,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("renders enhanced no cards state with session statistics", () => {
 		const mockNextReviewInfo = {
-			nextDueDate: Date.now() + 86400000, // Tomorrow
-			hasCardsToReview: true,
+			hasCardsToReview: true, // Tomorrow
+			nextDueDate: Date.now() + 86400000,
 			totalCardsInDeck: 5,
 		};
 
@@ -215,8 +219,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("renders no cards state for empty deck", () => {
 		const mockNextReviewInfo = {
-			nextDueDate: undefined,
 			hasCardsToReview: false,
+			nextDueDate: undefined,
 			totalCardsInDeck: 0,
 		};
 
@@ -239,8 +243,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("renders study interface with cards", async () => {
 		const mockNextReviewInfo = {
-			nextDueDate: undefined,
 			hasCardsToReview: true,
+			nextDueDate: undefined,
 			totalCardsInDeck: 2,
 		};
 
@@ -273,8 +277,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("allows flipping cards to show answer", async () => {
 		const mockNextReviewInfo = {
-			nextDueDate: undefined,
 			hasCardsToReview: true,
+			nextDueDate: undefined,
 			totalCardsInDeck: 1,
 		};
 
@@ -306,8 +310,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("handles card review and moves to next card", async () => {
 		const mockNextReviewInfo = {
-			nextDueDate: undefined,
 			hasCardsToReview: true,
+			nextDueDate: undefined,
 			totalCardsInDeck: 2,
 		};
 
@@ -361,8 +365,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("exits when all cards are reviewed", async () => {
 		const mockNextReviewInfo = {
-			nextDueDate: undefined,
 			hasCardsToReview: true,
+			nextDueDate: undefined,
 			totalCardsInDeck: 1,
 		};
 
@@ -396,8 +400,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("handles exit button click", () => {
 		const mockNextReviewInfo = {
-			nextDueDate: undefined,
 			hasCardsToReview: true,
+			nextDueDate: undefined,
 			totalCardsInDeck: 1,
 		};
 
@@ -420,8 +424,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("renders help icon and opens keyboard shortcuts modal", async () => {
 		const mockNextReviewInfo = {
-			nextDueDate: undefined,
 			hasCardsToReview: true,
+			nextDueDate: undefined,
 			totalCardsInDeck: 1,
 		};
 
@@ -457,8 +461,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("handles number key shortcuts for rating when card is flipped", async () => {
 		const mockNextReviewInfo = {
-			nextDueDate: undefined,
 			hasCardsToReview: true,
+			nextDueDate: undefined,
 			totalCardsInDeck: 2,
 		};
 
@@ -509,8 +513,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("displays rating buttons with keyboard shortcuts", async () => {
 		const mockNextReviewInfo = {
-			nextDueDate: undefined,
 			hasCardsToReview: true,
+			nextDueDate: undefined,
 			totalCardsInDeck: 1,
 		};
 
@@ -557,8 +561,8 @@ describe("SpacedRepetitionMode", () => {
 
 	it("opens keyboard shortcuts modal when ? key is pressed", async () => {
 		const mockNextReviewInfo = {
-			nextDueDate: undefined,
 			hasCardsToReview: true,
+			nextDueDate: undefined,
 			totalCardsInDeck: 1,
 		};
 

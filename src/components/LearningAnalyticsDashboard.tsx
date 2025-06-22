@@ -63,10 +63,10 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 			.slice(0, 3);
 
 		return timeSlots.map(([slot, data]) => ({
-			timeSlot: slot,
-			successRate: data.successRate,
-			reviewCount: data.reviewCount,
 			averageResponseTime: data.averageResponseTime,
+			reviewCount: data.reviewCount,
+			successRate: data.successRate,
+			timeSlot: slot,
 		}));
 	};
 
@@ -78,19 +78,19 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 			learningPattern.difficultyPatterns;
 		return [
 			{
+				averageInterval: easyCards.averageInterval,
 				difficulty: "Easy",
 				successRate: easyCards.successRate,
-				averageInterval: easyCards.averageInterval,
 			},
 			{
+				averageInterval: mediumCards.averageInterval,
 				difficulty: "Medium",
 				successRate: mediumCards.successRate,
-				averageInterval: mediumCards.averageInterval,
 			},
 			{
+				averageInterval: hardCards.averageInterval,
 				difficulty: "Hard",
 				successRate: hardCards.successRate,
-				averageInterval: hardCards.averageInterval,
 			},
 		];
 	};
@@ -105,16 +105,16 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 		if (optimalTimes.length > 0) {
 			const bestTime = optimalTimes[0];
 			recommendations.push({
-				type: "time",
-				title: t("statistics.analytics.recommendations.optimalTime.title"),
 				description: t(
 					"statistics.analytics.recommendations.optimalTime.description",
 					{
-						time: formatTimeSlot(bestTime.timeSlot, t, "analytics"),
 						successRate: Math.round(bestTime.successRate * 100),
+						time: formatTimeSlot(bestTime.timeSlot, t, "analytics"),
 					},
 				),
 				priority: "high" as const,
+				title: t("statistics.analytics.recommendations.optimalTime.title"),
+				type: "time",
 			});
 		}
 
@@ -122,33 +122,33 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 		const hardCards = difficultyInsights.find((d) => d.difficulty === "Hard");
 		if (hardCards && hardCards.successRate < 0.6) {
 			recommendations.push({
-				type: "difficulty",
-				title: t("statistics.analytics.recommendations.difficultCards.title"),
 				description: t(
 					"statistics.analytics.recommendations.difficultCards.description",
 				),
 				priority: "medium" as const,
+				title: t("statistics.analytics.recommendations.difficultCards.title"),
+				type: "difficulty",
 			});
 		}
 
 		// Learning velocity recommendations
 		if (learningPattern.learningVelocity < SLOW_LEARNING_THRESHOLD) {
 			recommendations.push({
-				type: "velocity",
-				title: t("statistics.analytics.recommendations.slowLearning.title"),
 				description: t(
 					"statistics.analytics.recommendations.slowLearning.description",
 				),
 				priority: "low" as const,
+				title: t("statistics.analytics.recommendations.slowLearning.title"),
+				type: "velocity",
 			});
 		} else if (learningPattern.learningVelocity > FAST_LEARNING_THRESHOLD) {
 			recommendations.push({
-				type: "velocity",
-				title: t("statistics.analytics.recommendations.fastLearning.title"),
 				description: t(
 					"statistics.analytics.recommendations.fastLearning.description",
 				),
 				priority: "low" as const,
+				title: t("statistics.analytics.recommendations.fastLearning.title"),
+				type: "velocity",
 			});
 		}
 
@@ -164,8 +164,9 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 				<div className="mx-auto flex max-w-7xl items-center justify-between">
 					<div className="flex items-center gap-4">
 						<button
-							onClick={onBack}
 							className="text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+							onClick={onBack}
+							type="button"
 						>
 							← {t("statistics.analytics.back")}
 						</button>
@@ -186,13 +187,14 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 					<div className="flex items-center gap-2">
 						{(["7d", "30d", "90d", "1y"] as const).map((range) => (
 							<button
-								key={range}
-								onClick={() => setSelectedTimeRange(range)}
 								className={`rounded-lg px-3 py-2 text-sm transition-colors ${
 									selectedTimeRange === range
 										? "bg-blue-600 text-white"
 										: "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
 								}`}
+								key={range}
+								onClick={() => setSelectedTimeRange(range)}
+								type="button"
 							>
 								{t(`analytics.timeRange.${range}`, range.toUpperCase())}
 							</button>
@@ -205,25 +207,25 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 				{/* Key Metrics */}
 				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
 					<MetricCard
-						title={t("analytics.metrics.successRate.title", "Success Rate")}
-						value={`${Math.round(learningPattern.averageSuccessRate * 100)}%`}
 						change={
 							spacedRepetitionInsights.retentionRate
 								? `${Math.round(spacedRepetitionInsights.retentionRate)}% retention`
 								: undefined
 						}
-						trend="up"
 						icon="📈"
+						title={t("analytics.metrics.successRate.title", "Success Rate")}
+						trend="up"
+						value={`${Math.round(learningPattern.averageSuccessRate * 100)}%`}
 					/>
 					<MetricCard
-						title={t(
-							"analytics.metrics.learningVelocity.title",
-							"Learning Velocity",
-						)}
-						value={`${learningPattern.learningVelocity.toFixed(1)}`}
+						icon="⚡"
 						subtitle={t(
 							"analytics.metrics.learningVelocity.subtitle",
 							"cards/day",
+						)}
+						title={t(
+							"analytics.metrics.learningVelocity.title",
+							"Learning Velocity",
 						)}
 						trend={
 							learningPattern.learningVelocity >
@@ -231,31 +233,31 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 								? "up"
 								: "down"
 						}
-						icon="⚡"
+						value={`${learningPattern.learningVelocity.toFixed(1)}`}
 					/>
 					<MetricCard
-						title={t("analytics.metrics.dueCards.title", "Due Cards")}
-						value={spacedRepetitionInsights.totalDueCards.toString()}
+						icon="📚"
 						subtitle={t(
 							"analytics.metrics.dueCards.subtitle",
 							"ready to review",
 						)}
+						title={t("analytics.metrics.dueCards.title", "Due Cards")}
 						trend="neutral"
-						icon="📚"
+						value={spacedRepetitionInsights.totalDueCards.toString()}
 					/>
 					<MetricCard
+						icon="⏰"
+						subtitle={t(
+							"analytics.metrics.averageInterval.subtitle",
+							"between reviews",
+						)}
 						title={t("analytics.metrics.averageInterval.title", "Avg Interval")}
+						trend="neutral"
 						value={
 							spacedRepetitionInsights.averageInterval
 								? `${Math.round(spacedRepetitionInsights.averageInterval)}d`
 								: "N/A"
 						}
-						subtitle={t(
-							"analytics.metrics.averageInterval.subtitle",
-							"between reviews",
-						)}
-						trend="neutral"
-						icon="⏰"
 					/>
 				</div>
 
@@ -270,7 +272,10 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 						</h2>
 						<div className="space-y-4">
 							{recommendations.map((rec, index) => (
-								<RecommendationCard key={index} recommendation={rec} />
+								<RecommendationCard
+									key={`${rec.type}-${index}`}
+									recommendation={rec}
+								/>
 							))}
 						</div>
 					</div>
@@ -284,8 +289,8 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 						{optimalTimes.map((time, index) => (
 							<div
-								key={time.timeSlot}
 								className="rounded-lg bg-slate-50 p-4 dark:bg-slate-700"
+								key={time.timeSlot}
 							>
 								<div className="mb-2 flex items-center justify-between">
 									<span className="font-medium text-slate-900 dark:text-slate-100">
@@ -323,8 +328,8 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 						{difficultyInsights.map((insight) => (
 							<div
-								key={insight.difficulty}
 								className="rounded-lg bg-slate-50 p-4 dark:bg-slate-700"
+								key={insight.difficulty}
 							>
 								<div className="mb-2 flex items-center justify-between">
 									<span className="font-medium text-slate-900 dark:text-slate-100">
@@ -357,7 +362,10 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 					</h2>
 					<div className="space-y-4">
 						{learningPattern.retentionCurve.map((point, index) => (
-							<div key={index} className="flex items-center gap-4">
+							<div
+								className="flex items-center gap-4"
+								key={`${point.interval}-${index}`}
+							>
 								<div className="w-16 text-slate-600 text-sm dark:text-slate-400">
 									{point.interval}d
 								</div>
@@ -442,9 +450,9 @@ const RecommendationCard = memo(function RecommendationCard({
 }) {
 	const priorityColors = {
 		high: "border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20",
+		low: "border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20",
 		medium:
 			"border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20",
-		low: "border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20",
 	};
 
 	return (
@@ -480,12 +488,14 @@ const AnalyticsSkeleton = memo(function AnalyticsSkeleton() {
 			<div className="mx-auto max-w-7xl space-y-8">
 				<div className="h-8 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
 				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-					{[...Array(4)].map((_, i) => (
-						<div
-							key={i}
-							className="h-32 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700"
-						/>
-					))}
+					{["total-reviews", "accuracy", "streak", "velocity"].map(
+						(skeletonType) => (
+							<div
+								className="h-32 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700"
+								key={`analytics-skeleton-${skeletonType}`}
+							/>
+						),
+					)}
 				</div>
 				<div className="h-64 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
 			</div>
@@ -514,8 +524,9 @@ const NoDataState = memo(function NoDataState({
 					)}
 				</p>
 				<button
-					onClick={onBack}
 					className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+					onClick={onBack}
+					type="button"
 				>
 					{t("analytics.noData.backButton", "Back to Dashboard")}
 				</button>

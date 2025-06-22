@@ -15,15 +15,14 @@ import { CacheInvalidation } from "./utils/cache";
  */
 export const recordStudySession = mutation({
 	args: {
-		deckId: v.id("decks"),
 		cardsStudied: v.number(),
+		deckId: v.id("decks"),
+		localDate: v.string(),
 		sessionDuration: v.optional(v.number()),
-		studyMode: v.union(v.literal("basic"), v.literal("spaced-repetition")),
+		studyMode: v.union(v.literal("basic"), v.literal("spaced-repetition")), // IANA timezone identifier (e.g., "America/New_York")
 		// New timezone-aware fields
-		userTimeZone: v.string(), // IANA timezone identifier (e.g., "America/New_York")
-		localDate: v.string(), // User's local date in YYYY-MM-DD format
+		userTimeZone: v.string(), // User's local date in YYYY-MM-DD format
 	},
-	returns: v.null(),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -64,15 +63,15 @@ export const recordStudySession = mutation({
 		} else {
 			// Create new session record
 			await ctx.db.insert("studySessions", {
-				userId: identity.subject,
+				cardsStudied: args.cardsStudied,
 				deckId: args.deckId,
 				sessionDate,
-				cardsStudied: args.cardsStudied,
 				sessionDuration: args.sessionDuration,
 				studyMode: args.studyMode,
+				userId: identity.subject,
+				userTimeZone: args.userTimeZone,
 				// Store timezone-aware fields for accurate date handling
 				utcTimestamp,
-				userTimeZone: args.userTimeZone,
 			});
 		}
 
@@ -81,6 +80,7 @@ export const recordStudySession = mutation({
 
 		return null;
 	},
+	returns: v.null(),
 });
 
 /**
@@ -89,14 +89,6 @@ export const recordStudySession = mutation({
  */
 export const getStudyActivityHeatmapData = query({
 	args: {},
-	returns: v.array(
-		v.object({
-			date: v.string(),
-			cardsStudied: v.number(),
-			sessionCount: v.number(),
-			totalDuration: v.optional(v.number()),
-		}),
-	),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -151,12 +143,20 @@ export const getStudyActivityHeatmapData = query({
 
 		// Convert to array format
 		return Array.from(dailyActivity.entries()).map(([date, data]) => ({
-			date,
 			cardsStudied: data.cardsStudied,
+			date,
 			sessionCount: data.sessionCount,
 			totalDuration: data.totalDuration > 0 ? data.totalDuration : undefined,
 		}));
 	},
+	returns: v.array(
+		v.object({
+			cardsStudied: v.number(),
+			date: v.string(),
+			sessionCount: v.number(),
+			totalDuration: v.optional(v.number()),
+		}),
+	),
 });
 
 /**
@@ -164,22 +164,9 @@ export const getStudyActivityHeatmapData = query({
  */
 export const getStudyStatistics = query({
 	args: {
-		startDate: v.string(), // YYYY-MM-DD format
 		endDate: v.string(), // YYYY-MM-DD format
+		startDate: v.string(), // YYYY-MM-DD format
 	},
-	returns: v.object({
-		totalCardsStudied: v.number(),
-		totalSessions: v.number(),
-		totalStudyTime: v.optional(v.number()),
-		averageCardsPerSession: v.number(),
-		studyDays: v.number(),
-		mostActiveDay: v.optional(
-			v.object({
-				date: v.string(),
-				cardsStudied: v.number(),
-			}),
-		),
-	}),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -200,12 +187,12 @@ export const getStudyStatistics = query({
 
 		if (sessions.length === 0) {
 			return {
+				averageCardsPerSession: 0,
+				mostActiveDay: undefined,
+				studyDays: 0,
 				totalCardsStudied: 0,
 				totalSessions: 0,
 				totalStudyTime: undefined,
-				averageCardsPerSession: 0,
-				studyDays: 0,
-				mostActiveDay: undefined,
 			};
 		}
 
@@ -233,19 +220,32 @@ export const getStudyStatistics = query({
 		for (const [date, cards] of Array.from(dailyTotals.entries())) {
 			if (cards > maxCards) {
 				maxCards = cards;
-				mostActiveDay = { date, cardsStudied: cards };
+				mostActiveDay = { cardsStudied: cards, date };
 			}
 		}
 
 		return {
+			averageCardsPerSession: Math.round(totalCardsStudied / totalSessions),
+			mostActiveDay,
+			studyDays,
 			totalCardsStudied,
 			totalSessions,
 			totalStudyTime: totalStudyTime > 0 ? totalStudyTime : undefined,
-			averageCardsPerSession: Math.round(totalCardsStudied / totalSessions),
-			studyDays,
-			mostActiveDay,
 		};
 	},
+	returns: v.object({
+		averageCardsPerSession: v.number(),
+		mostActiveDay: v.optional(
+			v.object({
+				cardsStudied: v.number(),
+				date: v.string(),
+			}),
+		),
+		studyDays: v.number(),
+		totalCardsStudied: v.number(),
+		totalSessions: v.number(),
+		totalStudyTime: v.optional(v.number()),
+	}),
 });
 
 /**
@@ -253,10 +253,6 @@ export const getStudyStatistics = query({
  */
 export const getCurrentStudyStreak = query({
 	args: {},
-	returns: v.object({
-		currentStreak: v.number(),
-		longestStreak: v.number(),
-	}),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -344,4 +340,8 @@ export const getCurrentStudyStreak = query({
 			longestStreak,
 		};
 	},
+	returns: v.object({
+		currentStreak: v.number(),
+		longestStreak: v.number(),
+	}),
 });

@@ -20,9 +20,9 @@ describe("dateUtils", () => {
 		// Mock Date.now() to return a consistent timestamp for testing
 		// January 15, 2024, 12:00:00 PM UTC
 		jest.useFakeTimers({
-			now: new Date("2024-01-15T12:00:00.000Z"),
 			// Explicitly request modern timers – protects against config drift
 			legacyFakeTimers: false,
+			now: new Date("2024-01-15T12:00:00.000Z"),
 		});
 	});
 

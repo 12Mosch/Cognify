@@ -1,514 +1,6 @@
 {
-	"app": {
-		"title": "Cognify",
-		"goToMainDashboard": "Zum Hauptdashboard gehen"
-	},
-	"navigation": {
-		"settings": "Einstellungen",
-		"signOut": "Abmelden",
-		"selectLanguage": "Sprache auswählen"
-	},
-	"auth": {
-		"welcome": "Willkommen bei {{appName}}",
-		"signInPrompt": "Melden Sie sich an, um Ihre Karteikarten-Stapel zu erstellen und zu verwalten",
-		"signIn": "Anmelden",
-		"signUp": "Registrieren"
-	},
-	"dashboard": {
-		"title": "Meine Karteikarten-Stapel",
-		"subtitle": {
-			"empty": "Erstellen Sie Ihren ersten Stapel, um zu beginnen",
-			"withDecks_one": "{{count}} Stapel",
-			"withDecks_other": "{{count}} Stapel"
-		},
-		"buttons": {
-			"showStatistics": "Statistiken anzeigen",
-			"quickAddCard": "Karte schnell hinzufügen",
-			"createDeck": "Stapel erstellen"
-		}
-	},
-	"deck": {
-		"cardCount_one": "{{count}} Karte",
-		"cardCount_other": "{{count}} Karten",
-		"studyNow": "Jetzt lernen",
-		"manageCards": "Karten verwalten",
-		"editDeck": "Stapel bearbeiten",
-		"dueCards_one": "{{count}} fällig",
-		"dueCards_other": "{{count}} fällig",
-		"newCards_one": "{{count}} neu",
-		"newCards_other": "{{count}} neu",
-		"manageCardsAria": "Karten in {{deckName}} Stapel verwalten",
-		"studyAria": "{{deckName}} Stapel lernen",
-		"editDeckAria": "{{deckName}} Stapel bearbeiten",
-		"noDescription": "Keine Beschreibung",
-		"createdOn": "Erstellt am {{date}}",
-		"lastStudied": "Zuletzt gelernt {{date}}",
-		"status": {
-			"new": "Neu",
-			"inProgress": "In Bearbeitung",
-			"mastered": "Gemeistert",
-			"newAria": "Dieser Stapel wurde noch nicht gelernt",
-			"inProgressAria": "Dieser Stapel wird gerade gelernt",
-			"masteredAria": "Dieser Stapel wurde gemeistert"
-		},
-		"progress": {
-			"label": "Fortschritt",
-			"aria": "{{percentage}}% abgeschlossen"
-		}
-	},
-	"emptyState": {
-		"title": "Noch keine Stapel",
-		"description": "Erstellen Sie Ihren ersten Karteikarten-Stapel, um mit dem Lernen zu beginnen. Sie können Karten hinzufügen, lernen und Ihren Fortschritt verfolgen.",
-		"getStarted": "Beginnen Sie mit der Erstellung Ihres ersten Stapels!"
-	},
-	"study": {
-		"flip": "Umdrehen",
-		"next": "Weiter",
-		"previous": "Zurück",
-		"showAnswer": "Antwort zeigen",
-		"showFront": "Vorderseite zeigen",
-		"showBack": "Rückseite zeigen",
-		"exitStudySession": "Lernsitzung beenden",
-		"exitStudy": "Lernen beenden",
-		"spacedRepetitionMode": "Spaced-Repetition-Modus",
-		"cardProgress": "Karte {{current}} von {{total}}",
-		"returnToDashboard": "Zum Dashboard zurückkehren",
-		"noCardsToReview": "Keine Karten zum Wiederholen",
-		"progress": {
-			"cardPosition": "Karte {{current}} von {{total}}",
-			"completed": "Abgeschlossen",
-			"aria": "Lernfortschritt: {{current}} von {{total}} Karten bearbeitet, {{percentage}}% erledigt",
-			"completedAria": "Lernsitzung abgeschlossen! Alle {{total}} Karten wurden durchgegangen.",
-			"inProgressAria": "Lernsitzung läuft: {{current}} von {{total}} Karten bearbeitet"
-		},
-		"deckNotFound": {
-			"title": "Stapel nicht gefunden",
-			"message": "Der gesuchte Stapel existiert nicht oder Sie haben keinen Zugriff darauf.",
-			"backToDashboard": "Zurück zum Dashboard"
-		},
-		"emptyDeck": {
-			"title": "Keine Karten in diesem Stapel",
-			"message": "Fügen Sie einige Karteikarten zu diesem Stapel hinzu, bevor Sie eine Lernsitzung starten.",
-			"addCards": "Karten zum Stapel hinzufügen"
-		},
-		"allCaughtUp": {
-			"title": "Alles erledigt! 🎉",
-			"sessionStats_one": "Großartige Arbeit! Sie haben {{count}} Karte in dieser Sitzung wiederholt.",
-			"sessionStats_other": "Großartige Arbeit! Sie haben {{count}} Karten in dieser Sitzung wiederholt.",
-			"noCardsMessage": "Sie haben derzeit keine Karten zur Wiederholung. Ausgezeichnete Arbeit beim Einhalten Ihres Lernplans!",
-			"emptyDeckMessage": "Dieser Stapel ist leer. Fügen Sie einige Karten hinzu, um Ihre Lernreise zu beginnen!",
-			"nextReviewMessage": "Kommen Sie {{time}} für Ihre nächste Wiederholungssitzung zurück.",
-			"keepLearning": "Weiter so! Tägliches Üben ist der Schlüssel für langfristige Merkfähigkeit.",
-			"addCardsButton": "Karten zum Stapel hinzufügen"
-		},
-		"difficulty": {
-			"again": "Nochmal",
-			"hard": "Schwer",
-			"good": "Gut",
-			"easy": "Einfach"
-		},
-		"exit": "Beenden",
-		"adaptive": "Adaptiv",
-		"successRate": "Erfolgsrate",
-		"learningVelocity": "Lerngeschwindigkeit",
-		"cardsPerDay": "Karten/Tag",
-		"clickToReveal": "Klicken zum Aufdecken",
-		"howConfident": "Wie sicher sind Sie?",
-		"keyboardShortcuts": "Tastenkürzel",
-		"toFlip": "zum Umdrehen",
-		"toRate": "zum Bewerten",
-		"session": {
-			"completed": "Lernsitzung abgeschlossen!",
-			"cardsReviewed_one": "Karte wiederholt: {{count}}",
-			"cardsReviewed_other": "Karten wiederholt: {{count}}",
-			"returnToDashboard": "Zum Dashboard zurückkehren",
-			"allCaughtUp": "Alles erledigt!",
-			"noCardsToReview": "Keine Karten zum Wiederholen verfügbar.",
-			"nextReview": "Nächste Wiederholung in {{time}}"
-		},
-		"shortcuts": {
-			"title": "Tastenkürzel",
-			"flip": "Karte umdrehen",
-			"next": "Nächste Karte",
-			"difficulty1": "Nochmal (1)",
-			"difficulty2": "Schwer (2)",
-			"difficulty3": "Gut (3)",
-			"difficulty4": "Einfach (4)",
-			"help": "Tastenkürzel anzeigen"
-		},
-		"modeSelector": {
-			"title": "Lernmodus wählen",
-			"subtitle": "Wie möchten Sie {{deckName}} lernen?",
-			"basicStudy": {
-				"title": "Einfaches Lernen",
-				"description": "Einfache sequenzielle Wiederholung aller Karten im Stapel. Perfekt für das erste Lernen oder schnelle Wiederholungssitzungen.",
-				"features": {
-					"sequential": "Sequenzielle Reihenfolge",
-					"simple": "Einfache Oberfläche",
-					"quick": "Schnelle Wiederholung"
-				}
-			},
-			"spacedRepetition": {
-				"title": "Spaced Repetition",
-				"subtitle": "Empfohlen",
-				"description": "Intelligente Planung basierend auf dem SM-2-Algorithmus. Karten werden in optimalen Intervallen für langfristige Merkfähigkeit gezeigt.",
-				"features": {
-					"algorithm": "SM-2-Algorithmus",
-					"timing": "Optimales Timing",
-					"retention": "Langfristige Merkfähigkeit"
-				}
-			},
-			"adaptiveLearning": {
-				"title": "Adaptives Lernen",
-				"subtitle": "KI-gestützt",
-				"description": "Personalisierte Spaced Repetition, die sich an Ihre Lernmuster, optimalen Lernzeiten und individuelle Leistung anpasst.",
-				"features": {
-					"personalized": "Personalisiert",
-					"timeOptimized": "Zeitoptimiert",
-					"intelligent": "Intelligent"
-				}
-			},
-			"cancel": "Abbrechen",
-			"info": {
-				"title": "Über Spaced Repetition",
-				"description": "Spaced Repetition ist eine Lerntechnik, die die Zeitintervalle zwischen aufeinanderfolgenden Wiederholungen von zuvor gelerntem Material vergrößert. Es ist wissenschaftlich erwiesen, dass sie die langfristige Merkfähigkeit verbessert und die Lernzeit reduziert."
-			}
-		}
-	},
-	"forms": {
-		"createDeck": {
-			"title": "Neuen Stapel erstellen",
-			"name": "Stapelname",
-			"namePlaceholder": "Stapelname eingeben",
-			"description": "Beschreibung (optional)",
-			"descriptionPlaceholder": "Stapelbeschreibung eingeben",
-			"create": "Stapel erstellen",
-			"creating": "Erstelle...",
-			"cancel": "Abbrechen",
-			"buttonLabel": "Neuen Stapel erstellen",
-			"characterCount": "{{current}}/{{max}} Zeichen"
-		},
-		"editDeck": {
-			"title": "Stapel bearbeiten",
-			"name": "Stapelname",
-			"namePlaceholder": "Stapelname eingeben",
-			"description": "Beschreibung (optional)",
-			"descriptionPlaceholder": "Stapelbeschreibung eingeben",
-			"update": "Stapel aktualisieren",
-			"updating": "Aktualisiere...",
-			"cancel": "Abbrechen",
-			"buttonLabel": "Stapel bearbeiten",
-			"characterCount": "{{current}}/{{max}} Zeichen"
-		},
-		"quickAddCard": {
-			"title": "Karte schnell hinzufügen",
-			"selectDeck": "Stapel auswählen",
-			"selectDeckPlaceholder": "Einen Stapel wählen",
-			"front": "Vorderseite (Frage)",
-			"frontPlaceholder": "Frage oder Aufforderung eingeben",
-			"back": "Rückseite (Antwort)",
-			"backPlaceholder": "Antwort oder Erklärung eingeben",
-			"add": "Karte hinzufügen",
-			"adding": "Hinzufügen...",
-			"updating": "Aktualisieren...",
-			"cancel": "Abbrechen",
-			"buttonLabel": "Karte schnell hinzufügen",
-			"characterCount": "{{current}}/{{max}} Zeichen"
-		},
-		"validation": {
-			"required": "Dieses Feld ist erforderlich",
-			"deckNameRequired": "Stapelname ist erforderlich",
-			"frontRequired": "Vorderseite ist erforderlich",
-			"backRequired": "Rückseite ist erforderlich",
-			"selectDeckRequired": "Bitte wählen Sie einen Stapel aus",
-			"maxLength": "{{field}} darf nicht mehr als {{max}} Zeichen enthalten"
-		}
-	},
-	"statistics": {
-		"title": "Statistik-Dashboard",
-		"overview": {
-			"title": "Übersicht",
-			"totalDecks": "Stapel gesamt",
-			"totalCards": "Karten gesamt",
-			"cardsReviewed": "Karten wiederholt",
-			"studyStreak": "Lernserie"
-		},
-		"performance": {
-			"title": "Leistung",
-			"accuracy": "Genauigkeit",
-			"averageTime": "Ø Zeit pro Karte",
-			"sessionsCompleted": "Sitzungen abgeschlossen"
-		},
-		"activity": {
-			"title": "Lernaktivität",
-			"last7Days": "Letzte 7 Tage",
-			"last30Days": "Letzte 30 Tage"
-		},
-		"cards": {
-			"totalDecks": "Stapel gesamt",
-			"totalCards": "Karten gesamt",
-			"dueToday": "Heute fällig",
-			"currentStreak": "Aktuelle Serie",
-			"newCards": "Neue Karten",
-			"studySessions": "Lernsitzungen",
-			"averageInterval": "Durchschnittliches Intervall",
-			"retentionRate": "Behaltensrate",
-			"learningCollections": "Lernsammlungen",
-			"flashcardsCreated": "Karteikarten erstellt",
-			"cardsToReview": "Karten zu wiederholen",
-			"bestDays": "Beste: {{count}} Tage",
-			"readyToLearn": "Bereit zum Lernen",
-			"totalCompleted": "Gesamt abgeschlossen",
-			"betweenReviews": "Zwischen Wiederholungen",
-			"successRate": "Erfolgsrate",
-			"day": "Tag",
-			"days": "Tage"
-		},
-		"charts": {
-			"studyActivity": {
-				"title": "Lernaktivität über Zeit",
-				"subtitle": "Verfolgen Sie Ihre Lernkonsistenz und Fortschrittsmuster",
-				"cardsStudied": "Gelernte Karten",
-				"sessions": "Sitzungen",
-				"timeMinutes": "Zeit (Min)",
-				"totalCards": "Gelernte Karten gesamt: {{count}}",
-				"totalSessions": "Sitzungen gesamt: {{count}}",
-				"totalTime": "Gesamtzeit: {{hours}}h {{minutes}}m",
-				"noData": "Keine Lernaktivitätsdaten für den ausgewählten Zeitraum verfügbar."
-			},
-			"deckPerformance": {
-				"title": "Stapel-Leistungsvergleich",
-				"subtitle": "Vergleichen Sie Beherrschungsgrade zwischen Ihren Stapeln",
-				"masteryPercentage": "Beherrschung %",
-				"deckName": "Stapelname",
-				"totalCards": "Karten gesamt",
-				"masteredCards": "Beherrschte Karten",
-				"averageEase": "Durchschnittliche Leichtigkeit",
-				"lastStudied": "Zuletzt gelernt",
-				"clickToSelect": "Klicken zum Auswählen/Abwählen des Stapels",
-				"noData": "Keine Stapel-Leistungsdaten verfügbar."
-			},
-			"cardDistribution": {
-				"title": "Kartenverteilung",
-				"subtitle": "Überblick über Ihre Karten in verschiedenen Lernphasen",
-				"newCards": "Neue Karten",
-				"learning": "Lernen",
-				"review": "Wiederholung",
-				"due": "Fällig",
-				"mastered": "Beherrscht",
-				"neverStudied": "Nie gelernte Karten",
-				"beingLearned": "Karten im Lernprozess",
-				"inReviewCycle": "Karten im Wiederholungszyklus",
-				"dueForReview": "Zur Wiederholung fällige Karten",
-				"wellLearned": "Gut gelernte Karten",
-				"totalCardsInStage": "{{count}} Karten in {{stage}}-Phase",
-				"percentageOfTotal": "{{percentage}}% aller Karten",
-				"noData": "Keine Karten verfügbar"
-			}
-		},
-		"widgets": {
-			"upcomingReviews": {
-				"title": "Anstehende Wiederholungen",
-				"today": "Heute",
-				"tomorrow": "Morgen",
-				"allCaughtUp": "Alles erledigt!",
-				"noReviewsScheduled": "Keine Wiederholungen für die nächste Woche geplant",
-				"moreReviewsScheduled_one": "+{{count}} weitere Wiederholung geplant",
-				"moreReviewsScheduled_other": "+{{count}} weitere Wiederholungen geplant",
-				"totalCards": "Karten gesamt",
-				"reviewDays": "Wiederholungstage",
-				"card": "Karte",
-				"cards": "Karten"
-			},
-			"learningStreak": {
-				"title": "Lernserie",
-				"messages": {
-					"start": "Beginnen Sie Ihre Lernreise!",
-					"greatStart": "Großartiger Start! Weiter so!",
-					"buildingMomentum": "Schwung aufbauen!",
-					"onFire": "Sie sind in Fahrt! 🔥",
-					"incredibleDedication": "Unglaubliche Hingabe!",
-					"legendaryLearner": "Legendärer Lerner! 🏆"
-				},
-				"milestones": {
-					"daysToReach_one": "{{count}} Tag bis zum {{milestone}}-Tage-Meilenstein",
-					"daysToReach_other": "{{count}} Tage bis zum {{milestone}}-Tage-Meilenstein",
-					"progressTo": "Fortschritt zu {{milestone}} Tagen"
-				},
-				"current": "Aktuell",
-				"best": "Beste",
-				"achievements": {
-					"weeklyWarrior": "Wöchentlicher Krieger!",
-					"monthlyMaster": "Monatlicher Meister!",
-					"centuryClub": "Jahrhundert-Club!",
-					"yearLongLearner": "Jahrelanger Lerner!",
-					"keepUpConsistency": "Behalten Sie diese erstaunliche Beständigkeit bei!"
-				}
-			},
-			"spacedRepetition": {
-				"title": "Algorithmus-Einblicke",
-				"retentionRate": "Behaltensrate",
-				"averageInterval": "Durchschnittliches Intervall",
-				"newVsReviewBalance": "Neue vs. Wiederholungs-Balance",
-				"newCards": "Neue Karten",
-				"dueCards": "Fällige Karten",
-				"reviewDays": "Wiederholungstage",
-				"dueToday": "Heute fällig",
-				"timeBetweenReviews": "Zeit zwischen Wiederholungen",
-				"retentionMessages": {
-					"noData": "Noch keine Daten",
-					"excellent": "Ausgezeichnete Behaltensrate!",
-					"good": "Gute Behaltensrate",
-					"fair": "Angemessene Behaltensrate",
-					"needsImprovement": "Verbesserung erforderlich"
-				},
-				"intervalEfficiency": {
-					"unknown": "Unbekannt",
-					"excellent": "Ausgezeichnet",
-					"good": "Gut",
-					"fair": "Angemessen",
-					"learning": "Lernen"
-				},
-				"algorithmTip": "Algorithmus-Tipp",
-				"tips": {
-					"improveRetention": "Erwägen Sie häufigere Kartenwiederholungen zur Verbesserung der Behaltensrate.",
-					"frequentReviews": "Ihre Karten werden häufig wiederholt - großartig für das Lernen neuen Materials!",
-					"balanceDueCards": "Konzentrieren Sie sich darauf, fällige Karten zu bearbeiten, bevor Sie neue hinzufügen, für bessere Balance.",
-					"workingWell": "Ihr Spaced-Repetition-System funktioniert gut! Behalten Sie das konsequente Üben bei."
-				},
-				"balancePercentage": "{{newPercentage}}% neue Karten, {{reviewPercentage}}% Wiederholungen"
-			}
-		},
-		"heatmap": {
-			"title": "Lernaktivität",
-			"subtitle": "{{count}} Tage Lernaktivität im letzten Jahr",
-			"legend": {
-				"less": "Weniger",
-				"more": "Mehr"
-			},
-			"stats": {
-				"cardsStudied": "Gelernte Karten",
-				"activeDays": "Aktive Tage",
-				"bestDay": "Bester Tag",
-				"studyRate": "Lernrate"
-			}
-		},
-		"loading": {
-			"dashboard": "Statistik-Dashboard wird geladen",
-			"chartTitle": "{{title}} wird geladen..."
-		},
-		"table": {
-			"deckPerformance": {
-				"title": "Stapel-Leistungsübersicht",
-				"headers": {
-					"deck": "Stapel",
-					"cards": "Karten",
-					"mastered": "Beherrscht",
-					"progress": "Fortschritt",
-					"avgEase": "Ø Leichtigkeit"
-				}
-			}
-		},
-		"dashboard": {
-			"title": "Lernanalyse",
-			"subtitle": "Umfassende Einblicke in Ihren Karteikarten-Lernfortschritt",
-			"backToDashboard": "Zurück zum Dashboard",
-			"dateRange": {
-				"last7Days": "Letzte 7 Tage",
-				"last30Days": "Letzte 30 Tage",
-				"last90Days": "Letzte 90 Tage",
-				"allTime": "Alle Zeit"
-			},
-			"export": {
-				"exportData": "Daten exportieren",
-				"exporting": "Exportiere...",
-				"exportAsCSV": "Als CSV exportieren",
-				"exportAsJSON": "Als JSON exportieren",
-				"exportSuccess": "Statistiken als {{format}} exportiert",
-				"exportError": "Fehler beim Exportieren der Statistiken"
-			}
-		},
-		"analytics": {
-			"back": "Zurück",
-			"recommendations": {
-				"optimalTime": {
-					"title": "Optimieren Sie Ihre Lernzeit",
-					"description": "Ihre beste Leistung ist während {{time}} mit {{successRate}}% Erfolgsrate."
-				},
-				"difficultCards": {
-					"title": "Fokus auf schwierige Karten",
-					"description": "Erwägen Sie kürzere Intervalle oder zusätzliche Wiederholungstechniken für herausfordernde Karten."
-				},
-				"slowLearning": {
-					"title": "Lernfrequenz erhöhen",
-					"description": "Ihre Lerngeschwindigkeit ist unter dem Optimum. Erwägen Sie kürzere, häufigere Lernsitzungen."
-				},
-				"fastLearning": {
-					"title": "Ausgezeichneter Fortschritt",
-					"description": "Sie lernen in einem optimalen Tempo. Machen Sie weiter so!"
-				}
-			},
-			"metrics": {
-				"successRate": {
-					"title": "Erfolgsrate",
-					"subtitle": "Gesamtleistung"
-				},
-				"learningVelocity": {
-					"title": "Lerngeschwindigkeit",
-					"subtitle": "Karten/Tag"
-				},
-				"dueCards": {
-					"title": "Fällige Karten",
-					"subtitle": "bereit zur Wiederholung"
-				},
-				"averageInterval": {
-					"title": "Ø Intervall",
-					"subtitle": "zwischen Wiederholungen"
-				}
-			},
-			"timePerformance": {
-				"title": "Tageszeit-Leistung"
-			},
-			"noData": {
-				"title": "Noch nicht genügend Daten",
-				"description": "Schließen Sie mindestens 20 Wiederholungen ab, um Ihre Lernanalyse zu sehen.",
-				"backButton": "Zurück zum Dashboard"
-			}
-		}
-	},
-	"scheduling": {
-		"title": "Intelligente Terminplanung",
-		"subtitle": "KI-gestützte Lernempfehlungen",
-		"showWeekly": "Wöchentlich anzeigen",
-		"showToday": "Heute anzeigen",
-		"currentTime": "Aktueller Zeitslot",
-		"timeSlots": {
-			"earlyMorning": "Früher Morgen",
-			"morning": "Morgen",
-			"afternoon": "Nachmittag",
-			"evening": "Abend",
-			"night": "Nacht",
-			"lateNight": "Späte Nacht"
-		},
-		"suboptimal": "Suboptimal",
-		"energyLevel": "Vorhergesagtes Energieniveau",
-		"energy": {
-			"medium": "mittel"
-		},
-		"dueCards": "Fällige Karten",
-		"newCards": "Neue Karten",
-		"noWeeklyData": "Wöchentlicher Zeitplan wird nach mehr Lernsitzungen angezeigt"
-	},
 	"achievements": {
-		"title": "Erfolge",
-		"points": "Punkte",
-		"unlocked": "freigeschaltet",
-		"showAll": "Alle anzeigen",
-		"showSummary": "Zusammenfassung anzeigen",
 		"all": "Alle",
-		"inProgress": "In Bearbeitung",
-		"recent": "Kürzliche Erfolge",
-		"categoryProgress": "Kategorie-Fortschritt",
 		"categories": {
 			"consistency": "Beständigkeit",
 			"exploration": "Erkundung",
@@ -517,100 +9,117 @@
 			"streak": "Serie",
 			"velocity": "Geschwindigkeit"
 		},
+		"categoryProgress": "Kategorie-Fortschritt",
 		"complete": "vollständig",
+		"inProgress": "In Bearbeitung",
 		"nextToUnlock": "Als nächstes freischalten",
+		"points": "Punkte",
+		"recent": "Kürzliche Erfolge",
+		"showAll": "Alle anzeigen",
+		"showSummary": "Zusammenfassung anzeigen",
+		"title": "Erfolge",
+		"unlocked": "freigeschaltet",
 		"unlockedOn": "Freigeschaltet am"
 	},
 	"analytics": {
 		"timeSlots": {
-			"earlyMorning": "5-9 Uhr",
-			"morning": "9-13 Uhr",
 			"afternoon": "13-17 Uhr",
+			"earlyMorning": "5-9 Uhr",
 			"evening": "17-21 Uhr",
-			"night": "21-24 Uhr",
-			"lateNight": "0-5 Uhr"
+			"lateNight": "0-5 Uhr",
+			"morning": "9-13 Uhr",
+			"night": "21-24 Uhr"
 		}
 	},
-	"streak": {
-		"title": "Lernserie",
-		"days_one": "{{count}} Tag",
-		"days_other": "{{count}} Tage",
-		"keepItUp": "Weiter so!",
-		"startToday": "Beginnen Sie heute Ihre Serie!",
-		"display": {
-			"title": "Lernserie",
-			"day": "Tag",
-			"days": "Tage",
-			"milestoneAchieved_one": "{{count}} Tag",
-			"milestoneAchieved_other": "{{count}} Tage",
-			"nextMilestone": "Nächster Meilenstein",
-			"daysToGo_one": "{{count}} Tag verbleibend",
-			"daysToGo_other": "{{count}} Tage verbleibend",
-			"longestStreak": "Längste Serie",
-			"totalDays": "Tage gesamt",
-			"milestonesAchieved": "Erreichte Meilensteine",
-			"status": {
-				"startStreak": {
-					"title": "Starten Sie Ihre Serie! 🎯",
-					"message": "Lernen Sie heute, um Ihre Lernreise zu beginnen"
-				},
-				"buildingMomentum": {
-					"title": "Schwung aufbauen! 🌱",
-					"message": "Machen Sie weiter, um Ihren ersten Meilenstein zu erreichen"
-				},
-				"greatProgress": {
-					"title": "Großartiger Fortschritt! 🔥",
-					"message": "Sie entwickeln eine starke Gewohnheit"
-				},
-				"streakMaster": {
-					"title": "Serien-Meister! 🏆",
-					"message": "Sie sind ein engagierter Lerner"
-				}
-			}
-		}
+	"app": {
+		"goToMainDashboard": "Zum Hauptdashboard gehen",
+		"title": "Cognify"
 	},
-	"privacy": {
-		"banner": {
-			"title": {
-				"eu": "Ihre Privatsphäre ist wichtig",
-				"ca": "Datenschutzhinweis",
-				"default": "Cookie-Hinweis"
-			},
-			"message": {
-				"eu": "Wir verwenden Cookies und ähnliche Technologien, um Ihre Erfahrung zu verbessern, die Nutzung zu analysieren und personalisierte Inhalte bereitzustellen. Unter der DSGVO benötigen wir Ihre Einwilligung zur Verarbeitung Ihrer personenbezogenen Daten. Sie können die Einwilligung jederzeit widerrufen.",
-				"ca": "Wir sammeln und verarbeiten personenbezogene Daten wie in unserer Datenschutzrichtlinie beschrieben. Unter dem CCPA haben Sie das Recht zu erfahren, welche personenbezogenen Daten wir sammeln und dem Verkauf zu widersprechen.",
-				"default": "Wir verwenden Cookies, um Ihre Erfahrung zu verbessern und die Website-Nutzung zu analysieren. Durch die weitere Nutzung unserer Website stimmen Sie der Verwendung von Cookies und Datenverarbeitungspraktiken zu."
-			},
-			"buttons": {
-				"acceptAll": "Alle akzeptieren",
-				"rejectAll": "Alle ablehnen",
-				"optOut": "Ablehnen",
-				"customize": "Anpassen",
-				"processing": "Verarbeitung..."
-			}
-		}
+	"auth": {
+		"signIn": "Anmelden",
+		"signInPrompt": "Melden Sie sich an, um Ihre Karteikarten-Stapel zu erstellen und zu verwalten",
+		"signUp": "Registrieren",
+		"welcome": "Willkommen bei {{appName}}"
 	},
 	"common": {
-		"loading": "Laden...",
-		"error": "Fehler",
-		"success": "Erfolg",
-		"close": "Schließen",
-		"save": "Speichern",
+		"back": "Zurück",
 		"cancel": "Abbrechen",
+		"close": "Schließen",
+		"continueStudying": "Weiterlernen",
 		"delete": "Löschen",
 		"edit": "Bearbeiten",
-		"back": "Zurück",
-		"next": "Weiter",
-		"previous": "Zurück",
-		"yes": "Ja",
-		"no": "Nein",
+		"error": "Fehler",
 		"from": "von",
-		"studyMode": "Lernmodus",
-		"sessionDuration": "Sitzungsdauer",
-		"whatsNext": "Was kommt als Nächstes?",
-		"continueStudying": "Weiterlernen",
+		"loading": "Laden...",
 		"moreCards_one": "weitere Karte",
-		"moreCards_other": "weitere Karten"
+		"moreCards_other": "weitere Karten",
+		"next": "Weiter",
+		"no": "Nein",
+		"previous": "Zurück",
+		"save": "Speichern",
+		"sessionDuration": "Sitzungsdauer",
+		"studyMode": "Lernmodus",
+		"success": "Erfolg",
+		"whatsNext": "Was kommt als Nächstes?",
+		"yes": "Ja"
+	},
+	"dashboard": {
+		"buttons": {
+			"createDeck": "Stapel erstellen",
+			"quickAddCard": "Karte schnell hinzufügen",
+			"showStatistics": "Statistiken anzeigen"
+		},
+		"subtitle": {
+			"empty": "Erstellen Sie Ihren ersten Stapel, um zu beginnen",
+			"withDecks_one": "{{count}} Stapel",
+			"withDecks_other": "{{count}} Stapel"
+		},
+		"title": "Meine Karteikarten-Stapel"
+	},
+	"deck": {
+		"cardCount_one": "{{count}} Karte",
+		"cardCount_other": "{{count}} Karten",
+		"createdOn": "Erstellt am {{date}}",
+		"dueCards_one": "{{count}} fällig",
+		"dueCards_other": "{{count}} fällig",
+		"editDeck": "Stapel bearbeiten",
+		"editDeckAria": "{{deckName}} Stapel bearbeiten",
+		"lastStudied": "Zuletzt gelernt {{date}}",
+		"manageCards": "Karten verwalten",
+		"manageCardsAria": "Karten in {{deckName}} Stapel verwalten",
+		"newCards_one": "{{count}} neu",
+		"newCards_other": "{{count}} neu",
+		"noDescription": "Keine Beschreibung",
+		"progress": {
+			"aria": "{{percentage}}% abgeschlossen",
+			"label": "Fortschritt"
+		},
+		"status": {
+			"inProgress": "In Bearbeitung",
+			"inProgressAria": "Dieser Stapel wird gerade gelernt",
+			"mastered": "Gemeistert",
+			"masteredAria": "Dieser Stapel wurde gemeistert",
+			"new": "Neu",
+			"newAria": "Dieser Stapel wurde noch nicht gelernt"
+		},
+		"studyAria": "{{deckName}} Stapel lernen",
+		"studyNow": "Jetzt lernen"
+	},
+	"deckView": {
+		"addCard": "Karte hinzufügen",
+		"addFirstCard": "Fügen Sie Ihre erste Karte hinzu, um zu beginnen!",
+		"backToDashboard": "Zurück zum Dashboard",
+		"confirmDelete": "Sind Sie sicher, dass Sie diese Karte löschen möchten?",
+		"deleteCard": "Karte löschen",
+		"editCard": "Karte bearbeiten",
+		"editDeck": "Stapel bearbeiten",
+		"noCards": "Noch keine Karten in diesem Stapel.",
+		"title": "Karten verwalten"
+	},
+	"emptyState": {
+		"description": "Erstellen Sie Ihren ersten Karteikarten-Stapel, um mit dem Lernen zu beginnen. Sie können Karten hinzufügen, lernen und Ihren Fortschritt verfolgen.",
+		"getStarted": "Beginnen Sie mit der Erstellung Ihres ersten Stapels!",
+		"title": "Noch keine Stapel"
 	},
 	"errors": {
 		"generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
@@ -619,112 +128,603 @@
 		"unauthorized": "Sie sind nicht berechtigt, diese Aktion auszuführen.",
 		"validation": "Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut."
 	},
-	"notifications": {
-		"deckCreated": "Stapel erfolgreich erstellt!",
-		"deckCreatedWithName": "\"{{deckName}}\" erfolgreich erstellt!",
-		"deckUpdated": "Stapel erfolgreich aktualisiert!",
-		"deckUpdatedWithName": "\"{{deckName}}\" erfolgreich aktualisiert!",
-		"cardAdded": "Karte erfolgreich hinzugefügt!",
-		"cardUpdated": "Karte erfolgreich aktualisiert!",
-		"cardDeleted": "Karte erfolgreich gelöscht!",
-		"settingsSaved": "Einstellungen erfolgreich gespeichert!",
-		"studySessionCompleted": "Lernsitzung abgeschlossen!",
-		"studySessionCompletedWithCount_one": "Lernsitzung abgeschlossen! {{count}} Karte wiederholt.",
-		"studySessionCompletedWithCount_other": "Lernsitzung abgeschlossen! {{count}} Karten wiederholt.",
-		"networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
-		"temporaryError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es in einem Moment erneut.",
-		"privacyCustomize": "Datenschutzeinstellungen über das Profilmenü anpassen."
-	},
-	"postSessionSummary": {
-		"title": "Lernsitzung abgeschlossen! 🎉",
-		"subtitle": "Großartige Arbeit beim Abschließen Ihrer Lernsitzung!",
-		"stats": {
-			"cardsReviewed": "Karten wiederholt",
-			"timeSpent": "Verbrachte Zeit",
-			"sessionDuration": "{{minutes}}m {{seconds}}s"
+	"forms": {
+		"createDeck": {
+			"buttonLabel": "Neuen Stapel erstellen",
+			"cancel": "Abbrechen",
+			"characterCount": "{{current}}/{{max}} Zeichen",
+			"create": "Stapel erstellen",
+			"creating": "Erstelle...",
+			"description": "Beschreibung (optional)",
+			"descriptionPlaceholder": "Stapelbeschreibung eingeben",
+			"name": "Stapelname",
+			"namePlaceholder": "Stapelname eingeben",
+			"title": "Neuen Stapel erstellen"
 		},
-		"nextSteps": {
-			"title": "Was kommt als Nächstes?",
-			"spacedRepetition": "Kommen Sie später zurück, um Ihren Spaced-Repetition-Plan fortzusetzen.",
-			"basicMode": "Sie können diesen Stapel jederzeit erneut lernen oder andere Stapel ausprobieren."
+		"editDeck": {
+			"buttonLabel": "Stapel bearbeiten",
+			"cancel": "Abbrechen",
+			"characterCount": "{{current}}/{{max}} Zeichen",
+			"description": "Beschreibung (optional)",
+			"descriptionPlaceholder": "Stapelbeschreibung eingeben",
+			"name": "Stapelname",
+			"namePlaceholder": "Stapelname eingeben",
+			"title": "Stapel bearbeiten",
+			"update": "Stapel aktualisieren",
+			"updating": "Aktualisiere..."
 		},
-		"actions": {
-			"returnToDashboard": "Zum Dashboard zurückkehren",
-			"continueStudying": "Weiterlernen"
-		}
-	},
-	"deckView": {
-		"title": "Karten verwalten",
-		"backToDashboard": "Zurück zum Dashboard",
-		"editDeck": "Stapel bearbeiten",
-		"addCard": "Karte hinzufügen",
-		"editCard": "Karte bearbeiten",
-		"deleteCard": "Karte löschen",
-		"confirmDelete": "Sind Sie sicher, dass Sie diese Karte löschen möchten?",
-		"noCards": "Noch keine Karten in diesem Stapel.",
-		"addFirstCard": "Fügen Sie Ihre erste Karte hinzu, um zu beginnen!"
-	},
-	"settings": {
-		"title": "Einstellungen",
-		"close": "Einstellungen schließen",
-		"tabs": {
-			"account": "Konto",
-			"security": "Sicherheit"
+		"quickAddCard": {
+			"add": "Karte hinzufügen",
+			"adding": "Hinzufügen...",
+			"back": "Rückseite (Antwort)",
+			"backPlaceholder": "Antwort oder Erklärung eingeben",
+			"buttonLabel": "Karte schnell hinzufügen",
+			"cancel": "Abbrechen",
+			"characterCount": "{{current}}/{{max}} Zeichen",
+			"front": "Vorderseite (Frage)",
+			"frontPlaceholder": "Frage oder Aufforderung eingeben",
+			"selectDeck": "Stapel auswählen",
+			"selectDeckPlaceholder": "Einen Stapel wählen",
+			"title": "Karte schnell hinzufügen",
+			"updating": "Aktualisieren..."
 		},
-		"privacy": {
-			"title": "Datenschutzeinstellungen",
-			"description": "Verwalten Sie Ihre Datenschutzpräferenzen und Datenerfassungseinstellungen."
-		},
-		"featureFlags": {
-			"title": "Feature-Flags",
-			"description": "Aktivieren oder deaktivieren Sie experimentelle Funktionen und Entwicklungstools."
+		"validation": {
+			"backRequired": "Rückseite ist erforderlich",
+			"deckNameRequired": "Stapelname ist erforderlich",
+			"frontRequired": "Vorderseite ist erforderlich",
+			"maxLength": "{{field}} darf nicht mehr als {{max}} Zeichen enthalten",
+			"required": "Dieses Feld ist erforderlich",
+			"selectDeckRequired": "Bitte wählen Sie einen Stapel aus"
 		}
 	},
 	"knowledge": {
-		"title": "Wissenskarte",
-		"subtitle": "Entdecken Sie Verbindungen in Ihrem Lernen",
-		"tabs": {
-			"clusters": "Konzept-Cluster",
-			"paths": "Lernpfade",
-			"graph": "Wissensgraph"
-		},
 		"clusters": {
-			"description": "Verwandte Konzepte, die basierend auf inhaltlicher Ähnlichkeit gruppiert sind",
 			"cards": "Karten",
-			"mastered": "gemeistert",
-			"difficulty": "Schwierigkeit"
+			"description": "Verwandte Konzepte, die basierend auf inhaltlicher Ähnlichkeit gruppiert sind",
+			"difficulty": "Schwierigkeit",
+			"mastered": "gemeistert"
 		},
-		"paths": {
-			"types": {
-				"prerequisite": "Voraussetzungspfad",
-				"sequential": "Sequenzieller Pfad",
-				"conceptual": "Konzeptueller Pfad",
-				"difficulty_based": "Schwierigkeitsbasierter Pfad"
-			},
-			"confidence": "Vertrauen",
-			"noData": "Lernpfade werden angezeigt, wenn Sie mehr Karten in diesem Stapel haben"
+		"error": {
+			"description": "Beim Laden Ihrer Wissenskarte ist ein Fehler aufgetreten. Bitte versuchen Sie, die Seite zu aktualisieren.",
+			"retry": "Erneut versuchen",
+			"title": "Wissenskarte kann nicht geladen werden"
 		},
 		"graph": {
-			"description": "Visuelle Darstellung der Verbindungen zwischen Ihren Karten und Konzepten",
-			"placeholder": "Interaktive Graphvisualisierung würde hier erscheinen",
-			"nodes": "Konzepte",
 			"connections": "Verbindungen",
 			"connectionTypes": "Verbindungstypen",
+			"description": "Visuelle Darstellung der Verbindungen zwischen Ihren Karten und Konzepten",
+			"nodes": "Konzepte",
+			"placeholder": "Interaktive Graphvisualisierung würde hier erscheinen",
 			"types": {
 				"related": "verwandt"
 			}
 		},
 		"noData": {
-			"title": "Ihre Wissenskarte wird erstellt",
-			"description": "Fügen Sie mehr Karten hinzu, um Verbindungen und Lernmuster zu sehen"
+			"description": "Fügen Sie mehr Karten hinzu, um Verbindungen und Lernmuster zu sehen",
+			"title": "Ihre Wissenskarte wird erstellt"
 		},
-		"error": {
-			"title": "Wissenskarte kann nicht geladen werden",
-			"description": "Beim Laden Ihrer Wissenskarte ist ein Fehler aufgetreten. Bitte versuchen Sie, die Seite zu aktualisieren.",
-			"retry": "Erneut versuchen"
+		"paths": {
+			"confidence": "Vertrauen",
+			"noData": "Lernpfade werden angezeigt, wenn Sie mehr Karten in diesem Stapel haben",
+			"types": {
+				"conceptual": "Konzeptueller Pfad",
+				"difficulty_based": "Schwierigkeitsbasierter Pfad",
+				"prerequisite": "Voraussetzungspfad",
+				"sequential": "Sequenzieller Pfad"
+			}
+		},
+		"subtitle": "Entdecken Sie Verbindungen in Ihrem Lernen",
+		"tabs": {
+			"clusters": "Konzept-Cluster",
+			"graph": "Wissensgraph",
+			"paths": "Lernpfade"
+		},
+		"title": "Wissenskarte"
+	},
+	"navigation": {
+		"selectLanguage": "Sprache auswählen",
+		"settings": "Einstellungen",
+		"signOut": "Abmelden"
+	},
+	"notifications": {
+		"cardAdded": "Karte erfolgreich hinzugefügt!",
+		"cardDeleted": "Karte erfolgreich gelöscht!",
+		"cardUpdated": "Karte erfolgreich aktualisiert!",
+		"deckCreated": "Stapel erfolgreich erstellt!",
+		"deckCreatedWithName": "\"{{deckName}}\" erfolgreich erstellt!",
+		"deckUpdated": "Stapel erfolgreich aktualisiert!",
+		"deckUpdatedWithName": "\"{{deckName}}\" erfolgreich aktualisiert!",
+		"networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+		"privacyCustomize": "Datenschutzeinstellungen über das Profilmenü anpassen.",
+		"settingsSaved": "Einstellungen erfolgreich gespeichert!",
+		"studySessionCompleted": "Lernsitzung abgeschlossen!",
+		"studySessionCompletedWithCount_one": "Lernsitzung abgeschlossen! {{count}} Karte wiederholt.",
+		"studySessionCompletedWithCount_other": "Lernsitzung abgeschlossen! {{count}} Karten wiederholt.",
+		"temporaryError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es in einem Moment erneut."
+	},
+	"postSessionSummary": {
+		"actions": {
+			"continueStudying": "Weiterlernen",
+			"returnToDashboard": "Zum Dashboard zurückkehren"
+		},
+		"nextSteps": {
+			"basicMode": "Sie können diesen Stapel jederzeit erneut lernen oder andere Stapel ausprobieren.",
+			"spacedRepetition": "Kommen Sie später zurück, um Ihren Spaced-Repetition-Plan fortzusetzen.",
+			"title": "Was kommt als Nächstes?"
+		},
+		"stats": {
+			"cardsReviewed": "Karten wiederholt",
+			"sessionDuration": "{{minutes}}m {{seconds}}s",
+			"timeSpent": "Verbrachte Zeit"
+		},
+		"subtitle": "Großartige Arbeit beim Abschließen Ihrer Lernsitzung!",
+		"title": "Lernsitzung abgeschlossen! 🎉"
+	},
+	"privacy": {
+		"banner": {
+			"buttons": {
+				"acceptAll": "Alle akzeptieren",
+				"customize": "Anpassen",
+				"optOut": "Ablehnen",
+				"processing": "Verarbeitung...",
+				"rejectAll": "Alle ablehnen"
+			},
+			"message": {
+				"ca": "Wir sammeln und verarbeiten personenbezogene Daten wie in unserer Datenschutzrichtlinie beschrieben. Unter dem CCPA haben Sie das Recht zu erfahren, welche personenbezogenen Daten wir sammeln und dem Verkauf zu widersprechen.",
+				"default": "Wir verwenden Cookies, um Ihre Erfahrung zu verbessern und die Website-Nutzung zu analysieren. Durch die weitere Nutzung unserer Website stimmen Sie der Verwendung von Cookies und Datenverarbeitungspraktiken zu.",
+				"eu": "Wir verwenden Cookies und ähnliche Technologien, um Ihre Erfahrung zu verbessern, die Nutzung zu analysieren und personalisierte Inhalte bereitzustellen. Unter der DSGVO benötigen wir Ihre Einwilligung zur Verarbeitung Ihrer personenbezogenen Daten. Sie können die Einwilligung jederzeit widerrufen."
+			},
+			"title": {
+				"ca": "Datenschutzhinweis",
+				"default": "Cookie-Hinweis",
+				"eu": "Ihre Privatsphäre ist wichtig"
+			}
 		}
 	},
 	"reflection": {
 		"saveError": "Reflexion konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+	},
+	"scheduling": {
+		"currentTime": "Aktueller Zeitslot",
+		"dueCards": "Fällige Karten",
+		"energy": {
+			"medium": "mittel"
+		},
+		"energyLevel": "Vorhergesagtes Energieniveau",
+		"newCards": "Neue Karten",
+		"noWeeklyData": "Wöchentlicher Zeitplan wird nach mehr Lernsitzungen angezeigt",
+		"showToday": "Heute anzeigen",
+		"showWeekly": "Wöchentlich anzeigen",
+		"suboptimal": "Suboptimal",
+		"subtitle": "KI-gestützte Lernempfehlungen",
+		"timeSlots": {
+			"afternoon": "Nachmittag",
+			"earlyMorning": "Früher Morgen",
+			"evening": "Abend",
+			"lateNight": "Späte Nacht",
+			"morning": "Morgen",
+			"night": "Nacht"
+		},
+		"title": "Intelligente Terminplanung"
+	},
+	"settings": {
+		"close": "Einstellungen schließen",
+		"featureFlags": {
+			"description": "Aktivieren oder deaktivieren Sie experimentelle Funktionen und Entwicklungstools.",
+			"title": "Feature-Flags"
+		},
+		"privacy": {
+			"description": "Verwalten Sie Ihre Datenschutzpräferenzen und Datenerfassungseinstellungen.",
+			"title": "Datenschutzeinstellungen"
+		},
+		"tabs": {
+			"account": "Konto",
+			"security": "Sicherheit"
+		},
+		"title": "Einstellungen"
+	},
+	"statistics": {
+		"activity": {
+			"last7Days": "Letzte 7 Tage",
+			"last30Days": "Letzte 30 Tage",
+			"title": "Lernaktivität"
+		},
+		"analytics": {
+			"back": "Zurück",
+			"metrics": {
+				"averageInterval": {
+					"subtitle": "zwischen Wiederholungen",
+					"title": "Ø Intervall"
+				},
+				"dueCards": {
+					"subtitle": "bereit zur Wiederholung",
+					"title": "Fällige Karten"
+				},
+				"learningVelocity": {
+					"subtitle": "Karten/Tag",
+					"title": "Lerngeschwindigkeit"
+				},
+				"successRate": {
+					"subtitle": "Gesamtleistung",
+					"title": "Erfolgsrate"
+				}
+			},
+			"noData": {
+				"backButton": "Zurück zum Dashboard",
+				"description": "Schließen Sie mindestens 20 Wiederholungen ab, um Ihre Lernanalyse zu sehen.",
+				"title": "Noch nicht genügend Daten"
+			},
+			"recommendations": {
+				"difficultCards": {
+					"description": "Erwägen Sie kürzere Intervalle oder zusätzliche Wiederholungstechniken für herausfordernde Karten.",
+					"title": "Fokus auf schwierige Karten"
+				},
+				"fastLearning": {
+					"description": "Sie lernen in einem optimalen Tempo. Machen Sie weiter so!",
+					"title": "Ausgezeichneter Fortschritt"
+				},
+				"optimalTime": {
+					"description": "Ihre beste Leistung ist während {{time}} mit {{successRate}}% Erfolgsrate.",
+					"title": "Optimieren Sie Ihre Lernzeit"
+				},
+				"slowLearning": {
+					"description": "Ihre Lerngeschwindigkeit ist unter dem Optimum. Erwägen Sie kürzere, häufigere Lernsitzungen.",
+					"title": "Lernfrequenz erhöhen"
+				}
+			},
+			"timePerformance": {
+				"title": "Tageszeit-Leistung"
+			}
+		},
+		"cards": {
+			"averageInterval": "Durchschnittliches Intervall",
+			"bestDays": "Beste: {{count}} Tage",
+			"betweenReviews": "Zwischen Wiederholungen",
+			"cardsToReview": "Karten zu wiederholen",
+			"currentStreak": "Aktuelle Serie",
+			"day": "Tag",
+			"days": "Tage",
+			"dueToday": "Heute fällig",
+			"flashcardsCreated": "Karteikarten erstellt",
+			"learningCollections": "Lernsammlungen",
+			"newCards": "Neue Karten",
+			"readyToLearn": "Bereit zum Lernen",
+			"retentionRate": "Behaltensrate",
+			"studySessions": "Lernsitzungen",
+			"successRate": "Erfolgsrate",
+			"totalCards": "Karten gesamt",
+			"totalCompleted": "Gesamt abgeschlossen",
+			"totalDecks": "Stapel gesamt"
+		},
+		"charts": {
+			"cardDistribution": {
+				"beingLearned": "Karten im Lernprozess",
+				"due": "Fällig",
+				"dueForReview": "Zur Wiederholung fällige Karten",
+				"inReviewCycle": "Karten im Wiederholungszyklus",
+				"learning": "Lernen",
+				"mastered": "Beherrscht",
+				"neverStudied": "Nie gelernte Karten",
+				"newCards": "Neue Karten",
+				"noData": "Keine Karten verfügbar",
+				"percentageOfTotal": "{{percentage}}% aller Karten",
+				"review": "Wiederholung",
+				"subtitle": "Überblick über Ihre Karten in verschiedenen Lernphasen",
+				"title": "Kartenverteilung",
+				"totalCardsInStage": "{{count}} Karten in {{stage}}-Phase",
+				"wellLearned": "Gut gelernte Karten"
+			},
+			"deckPerformance": {
+				"averageEase": "Durchschnittliche Leichtigkeit",
+				"clickToSelect": "Klicken zum Auswählen/Abwählen des Stapels",
+				"deckName": "Stapelname",
+				"lastStudied": "Zuletzt gelernt",
+				"masteredCards": "Beherrschte Karten",
+				"masteryPercentage": "Beherrschung %",
+				"noData": "Keine Stapel-Leistungsdaten verfügbar.",
+				"subtitle": "Vergleichen Sie Beherrschungsgrade zwischen Ihren Stapeln",
+				"title": "Stapel-Leistungsvergleich",
+				"totalCards": "Karten gesamt"
+			},
+			"studyActivity": {
+				"cardsStudied": "Gelernte Karten",
+				"noData": "Keine Lernaktivitätsdaten für den ausgewählten Zeitraum verfügbar.",
+				"sessions": "Sitzungen",
+				"subtitle": "Verfolgen Sie Ihre Lernkonsistenz und Fortschrittsmuster",
+				"timeMinutes": "Zeit (Min)",
+				"title": "Lernaktivität über Zeit",
+				"totalCards": "Gelernte Karten gesamt: {{count}}",
+				"totalSessions": "Sitzungen gesamt: {{count}}",
+				"totalTime": "Gesamtzeit: {{hours}}h {{minutes}}m"
+			}
+		},
+		"dashboard": {
+			"backToDashboard": "Zurück zum Dashboard",
+			"dateRange": {
+				"allTime": "Alle Zeit",
+				"last7Days": "Letzte 7 Tage",
+				"last30Days": "Letzte 30 Tage",
+				"last90Days": "Letzte 90 Tage"
+			},
+			"export": {
+				"exportAsCSV": "Als CSV exportieren",
+				"exportAsJSON": "Als JSON exportieren",
+				"exportData": "Daten exportieren",
+				"exportError": "Fehler beim Exportieren der Statistiken",
+				"exporting": "Exportiere...",
+				"exportSuccess": "Statistiken als {{format}} exportiert"
+			},
+			"subtitle": "Umfassende Einblicke in Ihren Karteikarten-Lernfortschritt",
+			"title": "Lernanalyse"
+		},
+		"heatmap": {
+			"legend": {
+				"less": "Weniger",
+				"more": "Mehr"
+			},
+			"stats": {
+				"activeDays": "Aktive Tage",
+				"bestDay": "Bester Tag",
+				"cardsStudied": "Gelernte Karten",
+				"studyRate": "Lernrate"
+			},
+			"subtitle": "{{count}} Tage Lernaktivität im letzten Jahr",
+			"title": "Lernaktivität"
+		},
+		"loading": {
+			"chartTitle": "{{title}} wird geladen...",
+			"dashboard": "Statistik-Dashboard wird geladen"
+		},
+		"overview": {
+			"cardsReviewed": "Karten wiederholt",
+			"studyStreak": "Lernserie",
+			"title": "Übersicht",
+			"totalCards": "Karten gesamt",
+			"totalDecks": "Stapel gesamt"
+		},
+		"performance": {
+			"accuracy": "Genauigkeit",
+			"averageTime": "Ø Zeit pro Karte",
+			"sessionsCompleted": "Sitzungen abgeschlossen",
+			"title": "Leistung"
+		},
+		"table": {
+			"deckPerformance": {
+				"headers": {
+					"avgEase": "Ø Leichtigkeit",
+					"cards": "Karten",
+					"deck": "Stapel",
+					"mastered": "Beherrscht",
+					"progress": "Fortschritt"
+				},
+				"title": "Stapel-Leistungsübersicht"
+			}
+		},
+		"title": "Statistik-Dashboard",
+		"widgets": {
+			"learningStreak": {
+				"achievements": {
+					"centuryClub": "Jahrhundert-Club!",
+					"keepUpConsistency": "Behalten Sie diese erstaunliche Beständigkeit bei!",
+					"monthlyMaster": "Monatlicher Meister!",
+					"weeklyWarrior": "Wöchentlicher Krieger!",
+					"yearLongLearner": "Jahrelanger Lerner!"
+				},
+				"best": "Beste",
+				"current": "Aktuell",
+				"messages": {
+					"buildingMomentum": "Schwung aufbauen!",
+					"greatStart": "Großartiger Start! Weiter so!",
+					"incredibleDedication": "Unglaubliche Hingabe!",
+					"legendaryLearner": "Legendärer Lerner! 🏆",
+					"onFire": "Sie sind in Fahrt! 🔥",
+					"start": "Beginnen Sie Ihre Lernreise!"
+				},
+				"milestones": {
+					"daysToReach_one": "{{count}} Tag bis zum {{milestone}}-Tage-Meilenstein",
+					"daysToReach_other": "{{count}} Tage bis zum {{milestone}}-Tage-Meilenstein",
+					"progressTo": "Fortschritt zu {{milestone}} Tagen"
+				},
+				"title": "Lernserie"
+			},
+			"spacedRepetition": {
+				"algorithmTip": "Algorithmus-Tipp",
+				"averageInterval": "Durchschnittliches Intervall",
+				"balancePercentage": "{{newPercentage}}% neue Karten, {{reviewPercentage}}% Wiederholungen",
+				"dueCards": "Fällige Karten",
+				"dueToday": "Heute fällig",
+				"intervalEfficiency": {
+					"excellent": "Ausgezeichnet",
+					"fair": "Angemessen",
+					"good": "Gut",
+					"learning": "Lernen",
+					"unknown": "Unbekannt"
+				},
+				"newCards": "Neue Karten",
+				"newVsReviewBalance": "Neue vs. Wiederholungs-Balance",
+				"retentionMessages": {
+					"excellent": "Ausgezeichnete Behaltensrate!",
+					"fair": "Angemessene Behaltensrate",
+					"good": "Gute Behaltensrate",
+					"needsImprovement": "Verbesserung erforderlich",
+					"noData": "Noch keine Daten"
+				},
+				"retentionRate": "Behaltensrate",
+				"reviewDays": "Wiederholungstage",
+				"timeBetweenReviews": "Zeit zwischen Wiederholungen",
+				"tips": {
+					"balanceDueCards": "Konzentrieren Sie sich darauf, fällige Karten zu bearbeiten, bevor Sie neue hinzufügen, für bessere Balance.",
+					"frequentReviews": "Ihre Karten werden häufig wiederholt - großartig für das Lernen neuen Materials!",
+					"improveRetention": "Erwägen Sie häufigere Kartenwiederholungen zur Verbesserung der Behaltensrate.",
+					"workingWell": "Ihr Spaced-Repetition-System funktioniert gut! Behalten Sie das konsequente Üben bei."
+				},
+				"title": "Algorithmus-Einblicke"
+			},
+			"upcomingReviews": {
+				"allCaughtUp": "Alles erledigt!",
+				"card": "Karte",
+				"cards": "Karten",
+				"moreReviewsScheduled_one": "+{{count}} weitere Wiederholung geplant",
+				"moreReviewsScheduled_other": "+{{count}} weitere Wiederholungen geplant",
+				"noReviewsScheduled": "Keine Wiederholungen für die nächste Woche geplant",
+				"reviewDays": "Wiederholungstage",
+				"title": "Anstehende Wiederholungen",
+				"today": "Heute",
+				"tomorrow": "Morgen",
+				"totalCards": "Karten gesamt"
+			}
+		}
+	},
+	"streak": {
+		"days_one": "{{count}} Tag",
+		"days_other": "{{count}} Tage",
+		"display": {
+			"day": "Tag",
+			"days": "Tage",
+			"daysToGo_one": "{{count}} Tag verbleibend",
+			"daysToGo_other": "{{count}} Tage verbleibend",
+			"longestStreak": "Längste Serie",
+			"milestoneAchieved_one": "{{count}} Tag",
+			"milestoneAchieved_other": "{{count}} Tage",
+			"milestonesAchieved": "Erreichte Meilensteine",
+			"nextMilestone": "Nächster Meilenstein",
+			"status": {
+				"buildingMomentum": {
+					"message": "Machen Sie weiter, um Ihren ersten Meilenstein zu erreichen",
+					"title": "Schwung aufbauen! 🌱"
+				},
+				"greatProgress": {
+					"message": "Sie entwickeln eine starke Gewohnheit",
+					"title": "Großartiger Fortschritt! 🔥"
+				},
+				"startStreak": {
+					"message": "Lernen Sie heute, um Ihre Lernreise zu beginnen",
+					"title": "Starten Sie Ihre Serie! 🎯"
+				},
+				"streakMaster": {
+					"message": "Sie sind ein engagierter Lerner",
+					"title": "Serien-Meister! 🏆"
+				}
+			},
+			"title": "Lernserie",
+			"totalDays": "Tage gesamt"
+		},
+		"keepItUp": "Weiter so!",
+		"startToday": "Beginnen Sie heute Ihre Serie!",
+		"title": "Lernserie"
+	},
+	"study": {
+		"adaptive": "Adaptiv",
+		"allCaughtUp": {
+			"addCardsButton": "Karten zum Stapel hinzufügen",
+			"emptyDeckMessage": "Dieser Stapel ist leer. Fügen Sie einige Karten hinzu, um Ihre Lernreise zu beginnen!",
+			"keepLearning": "Weiter so! Tägliches Üben ist der Schlüssel für langfristige Merkfähigkeit.",
+			"nextReviewMessage": "Kommen Sie {{time}} für Ihre nächste Wiederholungssitzung zurück.",
+			"noCardsMessage": "Sie haben derzeit keine Karten zur Wiederholung. Ausgezeichnete Arbeit beim Einhalten Ihres Lernplans!",
+			"sessionStats_one": "Großartige Arbeit! Sie haben {{count}} Karte in dieser Sitzung wiederholt.",
+			"sessionStats_other": "Großartige Arbeit! Sie haben {{count}} Karten in dieser Sitzung wiederholt.",
+			"title": "Alles erledigt! 🎉"
+		},
+		"cardProgress": "Karte {{current}} von {{total}}",
+		"cardsPerDay": "Karten/Tag",
+		"clickToReveal": "Klicken zum Aufdecken",
+		"deckNotFound": {
+			"backToDashboard": "Zurück zum Dashboard",
+			"message": "Der gesuchte Stapel existiert nicht oder Sie haben keinen Zugriff darauf.",
+			"title": "Stapel nicht gefunden"
+		},
+		"difficulty": {
+			"again": "Nochmal",
+			"easy": "Einfach",
+			"good": "Gut",
+			"hard": "Schwer"
+		},
+		"emptyDeck": {
+			"addCards": "Karten zum Stapel hinzufügen",
+			"message": "Fügen Sie einige Karteikarten zu diesem Stapel hinzu, bevor Sie eine Lernsitzung starten.",
+			"title": "Keine Karten in diesem Stapel"
+		},
+		"exit": "Beenden",
+		"exitStudy": "Lernen beenden",
+		"exitStudySession": "Lernsitzung beenden",
+		"flip": "Umdrehen",
+		"howConfident": "Wie sicher sind Sie?",
+		"keyboardShortcuts": "Tastenkürzel",
+		"learningVelocity": "Lerngeschwindigkeit",
+		"modeSelector": {
+			"adaptiveLearning": {
+				"description": "Personalisierte Spaced Repetition, die sich an Ihre Lernmuster, optimalen Lernzeiten und individuelle Leistung anpasst.",
+				"features": {
+					"intelligent": "Intelligent",
+					"personalized": "Personalisiert",
+					"timeOptimized": "Zeitoptimiert"
+				},
+				"subtitle": "KI-gestützt",
+				"title": "Adaptives Lernen"
+			},
+			"basicStudy": {
+				"description": "Einfache sequenzielle Wiederholung aller Karten im Stapel. Perfekt für das erste Lernen oder schnelle Wiederholungssitzungen.",
+				"features": {
+					"quick": "Schnelle Wiederholung",
+					"sequential": "Sequenzielle Reihenfolge",
+					"simple": "Einfache Oberfläche"
+				},
+				"title": "Einfaches Lernen"
+			},
+			"cancel": "Abbrechen",
+			"info": {
+				"description": "Spaced Repetition ist eine Lerntechnik, die die Zeitintervalle zwischen aufeinanderfolgenden Wiederholungen von zuvor gelerntem Material vergrößert. Es ist wissenschaftlich erwiesen, dass sie die langfristige Merkfähigkeit verbessert und die Lernzeit reduziert.",
+				"title": "Über Spaced Repetition"
+			},
+			"spacedRepetition": {
+				"description": "Intelligente Planung basierend auf dem SM-2-Algorithmus. Karten werden in optimalen Intervallen für langfristige Merkfähigkeit gezeigt.",
+				"features": {
+					"algorithm": "SM-2-Algorithmus",
+					"retention": "Langfristige Merkfähigkeit",
+					"timing": "Optimales Timing"
+				},
+				"subtitle": "Empfohlen",
+				"title": "Spaced Repetition"
+			},
+			"subtitle": "Wie möchten Sie {{deckName}} lernen?",
+			"title": "Lernmodus wählen"
+		},
+		"next": "Weiter",
+		"noCardsToReview": "Keine Karten zum Wiederholen",
+		"previous": "Zurück",
+		"progress": {
+			"aria": "Lernfortschritt: {{current}} von {{total}} Karten bearbeitet, {{percentage}}% erledigt",
+			"cardPosition": "Karte {{current}} von {{total}}",
+			"completed": "Abgeschlossen",
+			"completedAria": "Lernsitzung abgeschlossen! Alle {{total}} Karten wurden durchgegangen.",
+			"inProgressAria": "Lernsitzung läuft: {{current}} von {{total}} Karten bearbeitet"
+		},
+		"returnToDashboard": "Zum Dashboard zurückkehren",
+		"session": {
+			"allCaughtUp": "Alles erledigt!",
+			"cardsReviewed_one": "Karte wiederholt: {{count}}",
+			"cardsReviewed_other": "Karten wiederholt: {{count}}",
+			"completed": "Lernsitzung abgeschlossen!",
+			"nextReview": "Nächste Wiederholung in {{time}}",
+			"noCardsToReview": "Keine Karten zum Wiederholen verfügbar.",
+			"returnToDashboard": "Zum Dashboard zurückkehren"
+		},
+		"shortcuts": {
+			"difficulty1": "Nochmal (1)",
+			"difficulty2": "Schwer (2)",
+			"difficulty3": "Gut (3)",
+			"difficulty4": "Einfach (4)",
+			"flip": "Karte umdrehen",
+			"help": "Tastenkürzel anzeigen",
+			"next": "Nächste Karte",
+			"title": "Tastenkürzel"
+		},
+		"showAnswer": "Antwort zeigen",
+		"showBack": "Rückseite zeigen",
+		"showFront": "Vorderseite zeigen",
+		"spacedRepetitionMode": "Spaced-Repetition-Modus",
+		"successRate": "Erfolgsrate",
+		"toFlip": "zum Umdrehen",
+		"toRate": "zum Bewerten"
 	}
 }

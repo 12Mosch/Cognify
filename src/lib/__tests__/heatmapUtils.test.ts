@@ -65,13 +65,13 @@ describe("heatmapUtils", () => {
 	describe("formatTooltipContent", () => {
 		it("formats tooltip for day with no activity", () => {
 			const day: HeatmapDay = {
-				date: "2024-01-15",
 				cardsStudied: 0,
-				sessionCount: 0,
-				level: 0,
-				dayOfWeek: 1,
-				weekIndex: 0,
+				date: "2024-01-15",
 				dayIndex: 1,
+				dayOfWeek: 1,
+				level: 0,
+				sessionCount: 0,
+				weekIndex: 0,
 			};
 
 			const result = formatTooltipContent(day);
@@ -80,13 +80,13 @@ describe("heatmapUtils", () => {
 
 		it("formats tooltip for day with single card and session", () => {
 			const day: HeatmapDay = {
-				date: "2024-01-15",
 				cardsStudied: 1,
-				sessionCount: 1,
-				level: 1,
-				dayOfWeek: 1,
-				weekIndex: 0,
+				date: "2024-01-15",
 				dayIndex: 1,
+				dayOfWeek: 1,
+				level: 1,
+				sessionCount: 1,
+				weekIndex: 0,
 			};
 
 			const result = formatTooltipContent(day);
@@ -95,13 +95,13 @@ describe("heatmapUtils", () => {
 
 		it("formats tooltip for day with multiple cards and sessions", () => {
 			const day: HeatmapDay = {
-				date: "2024-01-15",
 				cardsStudied: 5,
-				sessionCount: 2,
-				level: 2,
-				dayOfWeek: 1,
-				weekIndex: 0,
+				date: "2024-01-15",
 				dayIndex: 1,
+				dayOfWeek: 1,
+				level: 2,
+				sessionCount: 2,
+				weekIndex: 0,
 			};
 
 			const result = formatTooltipContent(day);
@@ -110,14 +110,14 @@ describe("heatmapUtils", () => {
 
 		it("formats tooltip with duration information", () => {
 			const day: HeatmapDay = {
-				date: "2024-01-15",
 				cardsStudied: 10,
-				sessionCount: 3,
-				totalDuration: 900000, // 15 minutes
-				level: 2,
-				dayOfWeek: 1,
-				weekIndex: 0,
+				date: "2024-01-15",
 				dayIndex: 1,
+				dayOfWeek: 1, // 15 minutes
+				level: 2,
+				sessionCount: 3,
+				totalDuration: 900000,
+				weekIndex: 0,
 			};
 
 			const result = formatTooltipContent(day);
@@ -150,10 +150,10 @@ describe("heatmapUtils", () => {
 
 		it("generates correct grid structure with study data", () => {
 			const studyData = [
-				{ date: "2024-01-10", cardsStudied: 5, sessionCount: 1 },
+				{ cardsStudied: 5, date: "2024-01-10", sessionCount: 1 },
 				{
-					date: "2024-01-11",
 					cardsStudied: 8,
+					date: "2024-01-11",
 					sessionCount: 2,
 					totalDuration: 600000,
 				},
@@ -209,26 +209,26 @@ describe("heatmapUtils", () => {
 	describe("calculateHeatmapStats", () => {
 		it("calculates stats correctly for empty data", () => {
 			const heatmapData = {
+				endDate: new Date("2024-01-15"),
+				months: [],
+				startDate: new Date("2024-01-15"),
+				totalDays: 1,
 				weeks: [
 					{
-						weekIndex: 0,
 						days: [
 							{
-								date: "2024-01-15",
 								cardsStudied: 0,
-								sessionCount: 0,
-								level: 0 as const,
-								dayOfWeek: 1,
-								weekIndex: 0,
+								date: "2024-01-15",
 								dayIndex: 1,
+								dayOfWeek: 1,
+								level: 0 as const,
+								sessionCount: 0,
+								weekIndex: 0,
 							},
 						],
+						weekIndex: 0,
 					},
 				],
-				months: [],
-				totalDays: 1,
-				startDate: new Date("2024-01-15"),
-				endDate: new Date("2024-01-15"),
 			};
 
 			const stats = calculateHeatmapStats(heatmapData);
@@ -243,46 +243,46 @@ describe("heatmapUtils", () => {
 
 		it("calculates stats correctly with study data", () => {
 			const heatmapData = {
+				endDate: new Date("2024-01-17"),
+				months: [],
+				startDate: new Date("2024-01-15"),
+				totalDays: 3,
 				weeks: [
 					{
-						weekIndex: 0,
 						days: [
 							{
-								date: "2024-01-15",
 								cardsStudied: 5,
+								date: "2024-01-15",
+								dayIndex: 1,
+								dayOfWeek: 1,
+								level: 2 as const,
 								sessionCount: 1,
 								totalDuration: 300000,
-								level: 2 as const,
-								dayOfWeek: 1,
 								weekIndex: 0,
-								dayIndex: 1,
 							},
 							{
-								date: "2024-01-16",
 								cardsStudied: 10,
+								date: "2024-01-16",
+								dayIndex: 2,
+								dayOfWeek: 2,
+								level: 2 as const,
 								sessionCount: 2,
 								totalDuration: 600000,
-								level: 2 as const,
-								dayOfWeek: 2,
 								weekIndex: 0,
-								dayIndex: 2,
 							},
 							{
-								date: "2024-01-17",
 								cardsStudied: 0,
-								sessionCount: 0,
-								level: 0 as const,
-								dayOfWeek: 3,
-								weekIndex: 0,
+								date: "2024-01-17",
 								dayIndex: 3,
+								dayOfWeek: 3,
+								level: 0 as const,
+								sessionCount: 0,
+								weekIndex: 0,
 							},
 						],
+						weekIndex: 0,
 					},
 				],
-				months: [],
-				totalDays: 3,
-				startDate: new Date("2024-01-15"),
-				endDate: new Date("2024-01-17"),
 			};
 
 			const stats = calculateHeatmapStats(heatmapData);
@@ -298,26 +298,26 @@ describe("heatmapUtils", () => {
 
 		it("handles undefined totalDuration correctly", () => {
 			const heatmapData = {
+				endDate: new Date("2024-01-15"),
+				months: [],
+				startDate: new Date("2024-01-15"),
+				totalDays: 1,
 				weeks: [
 					{
-						weekIndex: 0,
 						days: [
 							{
-								date: "2024-01-15",
 								cardsStudied: 5,
-								sessionCount: 1,
-								level: 2 as const,
-								dayOfWeek: 1,
-								weekIndex: 0,
+								date: "2024-01-15",
 								dayIndex: 1,
+								dayOfWeek: 1,
+								level: 2 as const,
+								sessionCount: 1,
+								weekIndex: 0,
 							},
 						],
+						weekIndex: 0,
 					},
 				],
-				months: [],
-				totalDays: 1,
-				startDate: new Date("2024-01-15"),
-				endDate: new Date("2024-01-15"),
 			};
 
 			const stats = calculateHeatmapStats(heatmapData);

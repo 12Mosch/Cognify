@@ -75,9 +75,9 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
 					{t("statistics.widgets.learningStreak.title")}
 				</h3>
 				<span
+					aria-label="Streak"
 					className="text-2xl transition-transform duration-200 hover:scale-110"
 					role="img"
-					aria-label="Streak"
 				>
 					{getStreakIcon(currentStreak)}
 				</span>
@@ -87,28 +87,32 @@ const LearningStreakWidget = memo(function LearningStreakWidget({
 			<div className="mb-6 flex justify-center">
 				<div className="relative cursor-pointer transition-transform duration-200 hover:scale-105">
 					{/* Background Circle */}
-					<svg className="-rotate-90 h-24 w-24 transform" viewBox="0 0 100 100">
+					<svg
+						aria-hidden="true"
+						className="-rotate-90 h-24 w-24 transform"
+						viewBox="0 0 100 100"
+					>
 						<circle
+							className="text-slate-200 dark:text-slate-700"
 							cx="50"
 							cy="50"
+							fill="transparent"
 							r="40"
 							stroke="currentColor"
 							strokeWidth="8"
-							fill="transparent"
-							className="text-slate-200 dark:text-slate-700"
 						/>
 						{/* Progress Circle */}
 						<circle
+							className={`transition-all duration-1000 ease-out ${getStreakColor(currentStreak)}`}
 							cx="50"
 							cy="50"
+							fill="transparent"
 							r="40"
 							stroke="currentColor"
-							strokeWidth="8"
-							fill="transparent"
 							strokeDasharray={`${2 * Math.PI * 40}`}
 							strokeDashoffset={`${2 * Math.PI * 40 * (1 - progressPercentage / 100)}`}
-							className={`transition-all duration-1000 ease-out ${getStreakColor(currentStreak)}`}
 							strokeLinecap="round"
+							strokeWidth="8"
 						/>
 					</svg>
 

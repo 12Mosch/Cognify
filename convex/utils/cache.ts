@@ -1,4 +1,4 @@
-import { MutationCtx, QueryCtx } from "../_generated/server";
+import type { MutationCtx, QueryCtx } from "../_generated/server";
 
 /**
  * Cache utility for storing and retrieving frequently accessed statistics
@@ -7,11 +7,11 @@ import { MutationCtx, QueryCtx } from "../_generated/server";
 
 // Cache TTL configurations (in milliseconds)
 export const CACHE_TTL = {
-	USER_STATS: 5 * 60 * 1000, // 5 minutes - user statistics
-	RETENTION_RATE: 15 * 60 * 1000, // 15 minutes - retention rate calculations
-	DECK_PERFORMANCE: 10 * 60 * 1000, // 10 minutes - deck performance data
-	CARD_DISTRIBUTION: 5 * 60 * 1000, // 5 minutes - card distribution data
-	SPACED_REP_INSIGHTS: 10 * 60 * 1000, // 10 minutes - spaced repetition insights
+	CARD_DISTRIBUTION: 5 * 60 * 1000, // 5 minutes - user statistics
+	DECK_PERFORMANCE: 10 * 60 * 1000, // 15 minutes - retention rate calculations
+	RETENTION_RATE: 15 * 60 * 1000, // 10 minutes - deck performance data
+	SPACED_REP_INSIGHTS: 10 * 60 * 1000, // 5 minutes - card distribution data
+	USER_STATS: 5 * 60 * 1000, // 10 minutes - spaced repetition insights
 } as const;
 
 // Cache version for invalidation
@@ -78,19 +78,19 @@ export async function setCachedData<T>(
 	if (existing) {
 		// Update existing cache entry
 		await ctx.db.patch(existing._id, {
-			data,
 			computedAt: now,
+			data,
 			expiresAt,
 			version: CACHE_VERSION,
 		});
 	} else {
 		// Create new cache entry
 		await ctx.db.insert("statisticsCache", {
-			userId,
 			cacheKey,
-			data,
 			computedAt: now,
+			data,
 			expiresAt,
+			userId,
 			version: CACHE_VERSION,
 		});
 	}
@@ -161,21 +161,21 @@ export async function cleanupExpiredCache(ctx: MutationCtx): Promise<number> {
  * Cache key generators for consistent naming
  */
 export const CacheKeys = {
-	userStats: (userId: string) => `user_stats_${userId}`,
+	cardDistribution: (userId: string) => `card_distribution_${userId}`,
+	dashboardData: (userId: string) => `dashboard_data_${userId}`,
+	deckPerformance: (userId: string) => `deck_performance_${userId}`,
 	retentionRate: (userId: string, days: number) =>
 		`retention_rate_${userId}_${days}d`,
-	deckPerformance: (userId: string) => `deck_performance_${userId}`,
-	cardDistribution: (userId: string) => `card_distribution_${userId}`,
 	spacedRepInsights: (userId: string) => `spaced_rep_insights_${userId}`,
-	dashboardData: (userId: string) => `dashboard_data_${userId}`,
+	userStats: (userId: string) => `user_stats_${userId}`,
 } as const;
 
 /**
  * Cache invalidation triggers - call these when data changes
  */
 export const CacheInvalidation = {
-	// Invalidate when user completes a study session
-	onStudySessionComplete: async (ctx: MutationCtx, userId: string) => {
+	// Invalidate when user creates/deletes cards
+	onCardChange: async (ctx: MutationCtx, userId: string) => {
 		await Promise.all([
 			invalidateCache(ctx, userId, CacheKeys.userStats(userId)),
 			invalidateCache(ctx, userId, CacheKeys.cardDistribution(userId)),
@@ -204,9 +204,8 @@ export const CacheInvalidation = {
 			invalidateCache(ctx, userId, CacheKeys.dashboardData(userId)),
 		]);
 	},
-
-	// Invalidate when user creates/deletes cards
-	onCardChange: async (ctx: MutationCtx, userId: string) => {
+	// Invalidate when user completes a study session
+	onStudySessionComplete: async (ctx: MutationCtx, userId: string) => {
 		await Promise.all([
 			invalidateCache(ctx, userId, CacheKeys.userStats(userId)),
 			invalidateCache(ctx, userId, CacheKeys.cardDistribution(userId)),
@@ -228,12 +227,12 @@ export async function recordCacheMetric(
 	ttlMs?: number,
 ): Promise<void> {
 	await ctx.db.insert("cacheMetrics", {
-		timestamp: Date.now(),
 		cacheKey,
-		userId,
-		hitType,
 		computationTimeMs,
+		hitType,
+		timestamp: Date.now(),
 		ttlMs,
+		userId,
 	});
 }
 

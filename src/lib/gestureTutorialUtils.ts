@@ -31,10 +31,10 @@ export function useGestureTutorial(studyMode: "basic" | "spaced-repetition") {
 	};
 
 	return {
-		shouldShow: shouldShowTutorial,
-		isOpen: showTutorial,
-		showTutorial: triggerTutorial,
 		closeTutorial,
+		isOpen: showTutorial,
+		shouldShow: shouldShowTutorial,
+		showTutorial: triggerTutorial,
 	};
 }
 

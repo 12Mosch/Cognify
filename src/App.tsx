@@ -37,7 +37,7 @@ export default function App() {
 	useEffect(() => {
 		if (isLoaded && user) {
 			// Check if this is a new user registration
-			const userCreatedAt = new Date(user.createdAt!);
+			const userCreatedAt = new Date(user.createdAt || Date.now());
 			const now = new Date();
 			const timeDifference = now.getTime() - userCreatedAt.getTime();
 			const isNewUser = timeDifference < 60000; // Within last minute (adjust as needed)
@@ -50,13 +50,13 @@ export default function App() {
 				// Identify user with cohort properties for new users
 				identifyUser(user.id, {
 					email: user.primaryEmailAddress?.emailAddress,
+					experienceLevel: "beginner",
 					name: user.fullName || undefined,
 					signupDate: user.createdAt
 						? new Date(user.createdAt).toISOString()
-						: undefined,
+						: undefined, // Default, could be set during onboarding
 					// These would typically come from onboarding or user preferences
-					studyGoal: "casual", // Default, could be set during onboarding
-					experienceLevel: "beginner", // Default for new users
+					studyGoal: "casual", // Default for new users
 				});
 			}
 		}
@@ -73,10 +73,11 @@ export default function App() {
 		<>
 			<header className="sticky top-0 z-10 flex flex-row items-center justify-between border-slate-200 border-b-2 bg-white p-4 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900">
 				<button
-					onClick={handleGoHome}
-					className="cursor-pointer rounded-md px-2 py-1 font-bold text-xl transition-colors hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 dark:hover:text-slate-300"
 					aria-label={t("app.goToMainDashboard")}
+					className="cursor-pointer rounded-md px-2 py-1 font-bold text-xl transition-colors hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 dark:hover:text-slate-300"
+					onClick={handleGoHome}
 					title={t("app.goToMainDashboard")}
+					type="button"
 				>
 					{t("app.title")}
 				</button>
@@ -88,22 +89,24 @@ export default function App() {
 								label={t("navigation.settings")}
 								labelIcon={
 									<svg
+										aria-label="Settings"
 										className="h-4 w-4"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
 									>
+										<title>Settings</title>
 										<path
+											d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
 											strokeLinecap="round"
 											strokeLinejoin="round"
 											strokeWidth={2}
-											d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
 										/>
 										<path
+											d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
 											strokeLinecap="round"
 											strokeLinejoin="round"
 											strokeWidth={2}
-											d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
 										/>
 									</svg>
 								}
@@ -117,11 +120,11 @@ export default function App() {
 			<main className="p-8 pt-20">
 				<Authenticated>
 					<Dashboard
-						ref={dashboardRef}
 						onSettingsClick={(onSettingsClosed?: () => void) => {
 							setShowSettings(true);
 							setOnSettingsClosedCallback(() => onSettingsClosed || null);
 						}}
+						ref={dashboardRef}
 					/>
 				</Authenticated>
 				<Unauthenticated>
@@ -144,10 +147,20 @@ export default function App() {
 
 			{/* Toast notifications */}
 			<Toaster
+				containerStyle={{
+					top: 80, // Account for header height
+				}}
 				position="top-right"
 				toastOptions={{
 					// Default options for all toasts
 					duration: 4000,
+					// Error toasts
+					error: {
+						iconTheme: {
+							primary: "#ef4444",
+							secondary: "#ffffff",
+						},
+					},
 					style: {
 						borderRadius: "8px",
 						fontSize: "14px",
@@ -160,16 +173,6 @@ export default function App() {
 							secondary: "#ffffff",
 						},
 					},
-					// Error toasts
-					error: {
-						iconTheme: {
-							primary: "#ef4444",
-							secondary: "#ffffff",
-						},
-					},
-				}}
-				containerStyle={{
-					top: 80, // Account for header height
 				}}
 			/>
 		</>
@@ -191,12 +194,18 @@ function SignInForm() {
 			</div>
 			<div className="flex flex-col gap-4">
 				<SignInButton mode="modal">
-					<button className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark">
+					<button
+						className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
+						type="button"
+					>
 						{t("auth.signIn")}
 					</button>
 				</SignInButton>
 				<SignUpButton mode="modal">
-					<button className="rounded-md border-2 border-slate-300 bg-slate-200 px-6 py-3 font-medium text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light">
+					<button
+						className="rounded-md border-2 border-slate-300 bg-slate-200 px-6 py-3 font-medium text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
+						type="button"
+					>
 						{t("auth.signUp")}
 					</button>
 				</SignUpButton>

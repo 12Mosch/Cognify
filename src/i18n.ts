@@ -6,11 +6,11 @@ import deTranslation from "../public/locales/de/translation.json";
 import enTranslation from "../public/locales/en/translation.json";
 
 const resources = {
-	en: {
-		translation: enTranslation,
-	},
 	de: {
 		translation: deTranslation,
+	},
+	en: {
+		translation: enTranslation,
 	},
 };
 
@@ -21,56 +21,55 @@ void i18n
 	.use(initReactI18next)
 	// Initialize i18next
 	.init({
-		resources,
+		contextSeparator: "_",
+
+		// Debug mode (disable in production)
+		debug: false,
 
 		// Language detection options
 		detection: {
-			// Order of language detection methods
-			order: ["navigator", "localStorage", "htmlTag", "path", "subdomain"],
+			// Cache user language
+			caches: ["localStorage"],
 
 			// Keys to lookup language from localStorage
 			lookupLocalStorage: "i18nextLng",
-
-			// Cache user language
-			caches: ["localStorage"],
+			// Order of language detection methods
+			order: ["navigator", "localStorage", "htmlTag", "path", "subdomain"],
 		},
 
 		// Fallback language
 		fallbackLng: "en",
 
-		// Whitelist of supported languages
-		supportedLngs: ["en", "de"],
-
-		// Don't load a fallback
-		load: "languageOnly",
-
-		// Debug mode (disable in production)
-		debug: false,
-
 		// Interpolation options
 		interpolation: {
 			escapeValue: false, // React already does escaping
 		},
+		joinArrays: false,
+
+		// Key separator
+		keySeparator: ".",
+
+		// Don't load a fallback
+		load: "languageOnly",
+		nsSeparator: ":",
 
 		// Pluralization options
 		pluralSeparator: "_",
-		contextSeparator: "_",
 
 		// React specific options
 		react: {
 			// Wait for translation to be loaded before rendering
 			useSuspense: false,
 		},
+		resources,
+		returnEmptyString: false,
 
 		// Return key if translation is missing (instead of showing key with locale)
 		returnNull: false,
-		returnEmptyString: false,
 		returnObjects: false,
-		joinArrays: false,
 
-		// Key separator
-		keySeparator: ".",
-		nsSeparator: ":",
+		// Whitelist of supported languages
+		supportedLngs: ["en", "de"],
 	});
 
 export default i18n;

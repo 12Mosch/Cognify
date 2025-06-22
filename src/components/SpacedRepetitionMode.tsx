@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import type { Id } from "../../convex/_generated/dataModel";
 import {
 	trackCardsReviewed,
 	trackSessionCompleted,
@@ -235,12 +235,12 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 				const localDate = getLocalDateString(userTimeZone);
 
 				await recordStudySession({
-					deckId,
 					cardsStudied: finalCardsReviewed,
+					deckId,
+					localDate,
 					sessionDuration,
 					studyMode: "spaced-repetition",
 					userTimeZone,
-					localDate,
 				});
 
 				// Update streak and track streak events
@@ -291,8 +291,8 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 				console.error("Error completing session:", error);
 				// Track study session error
 				trackStudySession(deckId, "session_end", error as Error, {
-					sessionId,
 					cardsReviewed: finalCardsReviewed,
+					sessionId,
 					studyMode: "spaced-repetition",
 				});
 			}
@@ -345,17 +345,17 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 		} catch (error) {
 			// Track card flip error
 			captureError(error as Error, {
-				deckId,
-				cardId: studyQueue[currentCardIndex]?._id,
-				component: "SpacedRepetitionMode",
 				action: "flip_card",
-				severity: "low",
-				category: "ui_error",
 				additionalData: {
 					currentCardIndex,
 					isFlipped,
 					studyQueueLength: studyQueue.length,
 				},
+				cardId: studyQueue[currentCardIndex]?._id,
+				category: "ui_error",
+				component: "SpacedRepetitionMode",
+				deckId,
+				severity: "low",
 			});
 		}
 	}, [
@@ -421,15 +421,15 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 						"initializeCardForSpacedRepetition",
 						error as Error,
 						{
-							deckId,
 							cardId: currentCard._id,
+							deckId,
 							mutationArgs: { cardId: currentCard._id },
 						},
 					);
 				} else {
 					trackConvexMutation("reviewCard", error as Error, {
-						deckId,
 						cardId: currentCard._id,
+						deckId,
 						mutationArgs: { cardId: currentCard._id, quality },
 					});
 				}
@@ -485,10 +485,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
 	// Configure gesture handlers for mobile touch interactions
 	const gestureHandlers = useFlashcardGestures({
-		onFlipCard: handleFlipCard,
-		onRateEasy: () => isFlipped && void handleReview(5), // Easy rating on right swipe when flipped
-		onRateHard: () => isFlipped && void handleReview(0), // Again rating on down swipe when flipped
 		disabled: showKeyboardHelp || studyQueue.length === 0,
+		onFlipCard: handleFlipCard, // Easy rating on right swipe when flipped
+		onRateEasy: () => isFlipped && void handleReview(5), // Again rating on down swipe when flipped
+		onRateHard: () => isFlipped && void handleReview(0),
 		studyMode: "spaced-repetition",
 	});
 
@@ -606,9 +606,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 							{t("study.deckNotFound.message")}
 						</p>
 						<button
-							onClick={onExit}
-							className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
 							aria-label={t("study.deckNotFound.backToDashboard")}
+							className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
+							onClick={onExit}
+							type="button"
 						>
 							{t("study.deckNotFound.backToDashboard")}
 						</button>
@@ -629,9 +630,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 							{t("errors.network")}
 						</p>
 						<button
-							onClick={onExit}
-							className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
 							aria-label={t("study.deckNotFound.backToDashboard")}
+							className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
+							onClick={onExit}
+							type="button"
 						>
 							{t("study.deckNotFound.backToDashboard")}
 						</button>
@@ -657,9 +659,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 				<div className="flex items-center justify-between">
 					<h1 className="font-bold text-3xl">{deck.name}</h1>
 					<button
-						onClick={onExit}
-						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 						aria-label={t("study.exitStudy")}
+						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
+						onClick={onExit}
+						type="button"
 					>
 						{t("study.exitStudy")}
 					</button>
@@ -721,9 +724,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 						)}
 
 						<button
-							onClick={onExit}
-							className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
 							aria-label={t("study.deckNotFound.backToDashboard")}
+							className="rounded-md border-2 bg-dark px-6 py-3 font-medium text-light text-sm transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
+							onClick={onExit}
+							type="button"
 						>
 							{t("study.deckNotFound.backToDashboard")}
 						</button>
@@ -744,15 +748,15 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 	if (showSummary && deck) {
 		return (
 			<PostSessionSummary
+				cardsReviewed={cardsReviewed}
 				deckId={deckId}
 				deckName={deck.name}
-				cardsReviewed={cardsReviewed}
-				studyMode="spaced-repetition"
+				onContinueStudying={handleContinueStudying}
+				onReturnToDashboard={onExit}
 				sessionDuration={
 					sessionStartTime > 0 ? Date.now() - sessionStartTime : undefined
 				}
-				onReturnToDashboard={onExit}
-				onContinueStudying={handleContinueStudying}
+				studyMode="spaced-repetition"
 			/>
 		);
 	}
@@ -773,9 +777,10 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 				<div className="flex items-center gap-3">
 					<HelpIcon onClick={() => setShowKeyboardHelp(true)} />
 					<button
-						onClick={onExit}
-						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 						aria-label={t("study.exitStudy")}
+						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
+						onClick={onExit}
+						type="button"
 					>
 						{t("study.exitStudy")}
 					</button>
@@ -784,22 +789,21 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 
 			{/* Study Progress Bar */}
 			<StudyProgressBar
-				currentPosition={currentCardIndex + 1}
-				totalCards={studyQueue.length}
-				isCompleted={currentCardIndex + 1 >= studyQueue.length}
 				className="mb-6 flex-shrink-0"
+				currentPosition={currentCardIndex + 1}
+				isCompleted={currentCardIndex + 1 >= studyQueue.length}
+				totalCards={studyQueue.length}
 			/>
 
 			{/* Flashcard with 3D Flip Animation - Takes remaining height */}
-			<div
-				className="flashcard-container flex-1 cursor-pointer"
-				onClick={handleFlipCard}
-				onKeyDown={handleKeyDown}
-				tabIndex={0}
-				role="button"
+			<button
 				aria-label={
 					isFlipped ? "Click to show question" : "Click to show answer"
 				}
+				className="flashcard-container flex-1 cursor-pointer border-none bg-transparent p-0"
+				onClick={handleFlipCard}
+				onKeyDown={handleKeyDown}
+				type="button"
 				{...gestureHandlers}
 			>
 				<div className={`flashcard-inner ${isFlipped ? "flipped" : ""}`}>
@@ -812,11 +816,11 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 									{t("forms.quickAddCard.front")}
 								</h2>
 								<DifficultyIndicator
-									repetition={currentCard.repetition}
 									easeFactor={currentCard.easeFactor}
 									interval={currentCard.interval}
-									variant="compact"
+									repetition={currentCard.repetition}
 									showLabel={true}
+									variant="compact"
 								/>
 							</div>
 							{/* Scrollable text content area */}
@@ -833,12 +837,13 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 						<div className="mt-6 flex-shrink-0">
 							{/* Show Answer button */}
 							<button
+								aria-label={t("study.showAnswer")}
+								className="pointer-events-auto rounded-md border-2 bg-dark px-8 py-4 font-medium text-lg text-light transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
 								onClick={(e) => {
 									e.stopPropagation();
 									handleFlipCard();
 								}}
-								className="pointer-events-auto rounded-md border-2 bg-dark px-8 py-4 font-medium text-lg text-light transition-opacity hover:opacity-80 dark:bg-light dark:text-dark"
-								aria-label={t("study.showAnswer")}
+								type="button"
 							>
 								{t("study.showAnswer")}
 							</button>
@@ -860,11 +865,11 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 									{t("forms.quickAddCard.back")}
 								</h2>
 								<DifficultyIndicator
-									repetition={currentCard.repetition}
 									easeFactor={currentCard.easeFactor}
 									interval={currentCard.interval}
-									variant="compact"
+									repetition={currentCard.repetition}
 									showLabel={true}
+									variant="compact"
 								/>
 							</div>
 							{/* Scrollable text content area */}
@@ -886,12 +891,13 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 								</p>
 								<div className="grid grid-cols-2 gap-3">
 									<button
+										aria-label="Again - I didn't know this at all (Press 1)"
+										className="relative rounded-md bg-red-500 px-4 py-3 font-medium text-white transition-colors hover:bg-red-600"
 										onClick={(e) => {
 											e.stopPropagation();
 											void handleReview(0);
 										}}
-										className="relative rounded-md bg-red-500 px-4 py-3 font-medium text-white transition-colors hover:bg-red-600"
-										aria-label="Again - I didn't know this at all (Press 1)"
+										type="button"
 									>
 										<span className="flex items-center justify-between">
 											{t("study.difficulty.again")}
@@ -901,12 +907,13 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 										</span>
 									</button>
 									<button
+										aria-label="Hard - I knew this with difficulty (Press 2)"
+										className="relative rounded-md bg-orange-500 px-4 py-3 font-medium text-white transition-colors hover:bg-orange-600"
 										onClick={(e) => {
 											e.stopPropagation();
 											void handleReview(3);
 										}}
-										className="relative rounded-md bg-orange-500 px-4 py-3 font-medium text-white transition-colors hover:bg-orange-600"
-										aria-label="Hard - I knew this with difficulty (Press 2)"
+										type="button"
 									>
 										<span className="flex items-center justify-between">
 											{t("study.difficulty.hard")}
@@ -916,12 +923,13 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 										</span>
 									</button>
 									<button
+										aria-label="Good - I knew this well (Press 3)"
+										className="relative rounded-md bg-green-500 px-4 py-3 font-medium text-white transition-colors hover:bg-green-600"
 										onClick={(e) => {
 											e.stopPropagation();
 											void handleReview(4);
 										}}
-										className="relative rounded-md bg-green-500 px-4 py-3 font-medium text-white transition-colors hover:bg-green-600"
-										aria-label="Good - I knew this well (Press 3)"
+										type="button"
 									>
 										<span className="flex items-center justify-between">
 											{t("study.difficulty.good")}
@@ -931,12 +939,13 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 										</span>
 									</button>
 									<button
+										aria-label="Easy - I knew this perfectly (Press 4)"
+										className="relative rounded-md bg-blue-500 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-600"
 										onClick={(e) => {
 											e.stopPropagation();
 											void handleReview(5);
 										}}
-										className="relative rounded-md bg-blue-500 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-600"
-										aria-label="Easy - I knew this perfectly (Press 4)"
+										type="button"
 									>
 										<span className="flex items-center justify-between">
 											{t("study.difficulty.easy")}
@@ -956,7 +965,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 						</div>
 					</div>
 				</div>
-			</div>
+			</button>
 
 			{/* Keyboard Shortcuts Modal */}
 			<KeyboardShortcutsModal

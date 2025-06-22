@@ -49,8 +49,8 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
 		}
 
 		return date.toLocaleDateString(currentLanguage, {
-			month: "short",
 			day: "numeric",
+			month: "short",
 		});
 	};
 
@@ -88,9 +88,9 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
 					{t("statistics.widgets.upcomingReviews.title")}
 				</h3>
 				<span
+					aria-label="Calendar"
 					className="text-2xl transition-transform duration-200 hover:scale-110"
 					role="img"
-					aria-label="Calendar"
 				>
 					📅
 				</span>
@@ -109,10 +109,10 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
 				</div>
 			) : (
 				<div className="space-y-3">
-					{upcomingReviews.slice(0, 7).map((review, index) => (
+					{upcomingReviews.slice(0, 7).map((review) => (
 						<div
-							key={index}
 							className="flex cursor-pointer items-center justify-between rounded-lg border border-slate-200 bg-white p-3 transition-all duration-200 hover:scale-[1.02] hover:border-slate-300 hover:shadow-md dark:border-slate-600 dark:bg-slate-700 dark:hover:border-slate-500"
+							key={`${review.cardId}-${review.nextReviewDate}`}
 						>
 							<div className="flex items-center gap-3">
 								{/* Urgency Indicator */}
@@ -121,9 +121,9 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
 										className={`h-3 w-3 rounded-full ${getUrgencyColor(review.date)} transition-transform duration-200 hover:scale-110`}
 									></div>
 									<span
+										aria-label="Priority"
 										className="text-lg transition-transform duration-200 hover:scale-110"
 										role="img"
-										aria-label="Priority"
 									>
 										{getUrgencyIcon(review.date)}
 									</span>
@@ -138,8 +138,8 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
 										{new Date(`${review.date}T00:00:00Z`).toLocaleDateString(
 											i18n.resolvedLanguage?.split("-")[0] || "en",
 											{
-												month: "short",
 												day: "numeric",
+												month: "short",
 												year: "numeric",
 											},
 										)}

@@ -7,15 +7,15 @@ import { withAsyncErrorMonitoring } from "../errorMonitoring";
 
 // Mock PostHog
 const mockPostHog = {
-	captureException: jest.fn(),
 	capture: jest.fn(),
+	captureException: jest.fn(),
 } as any;
 
 // Mock analytics consent
 jest.mock("../analytics", () => ({
 	...jest.requireActual("../analytics"),
-	hasAnalyticsConsent: jest.fn(() => true),
 	captureError: jest.fn(),
+	hasAnalyticsConsent: jest.fn(() => true),
 }));
 
 describe("withAsyncErrorMonitoring", () => {
@@ -104,9 +104,9 @@ describe("withAsyncErrorMonitoring", () => {
 
 		try {
 			await withAsyncErrorMonitoring(operation, {
+				errorCategory: "validation_error",
 				operationType: "test_operation",
 				posthog: mockPostHog,
-				errorCategory: "validation_error",
 			});
 		} catch {
 			// Expected to throw

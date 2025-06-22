@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Id } from "../../convex/_generated/dataModel";
+import type { Id } from "../../convex/_generated/dataModel";
 
 interface StudyModeSelectorProps {
 	deckId: Id<"decks">;
@@ -39,25 +39,27 @@ function StudyModeSelector({
 			{/* Study Mode Options */}
 			<div className="grid gap-6">
 				{/* Basic Study Mode */}
-				<div
-					className="group cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
-					onClick={() => onSelectMode("basic")}
+				<button
+					aria-label="Select Basic Study Mode"
+					className="group w-full cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 text-left transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
 					data-testid="basic-study-card"
+					onClick={() => onSelectMode("basic")}
+					type="button"
 				>
 					<div className="flex items-start gap-4">
 						<div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
 							<svg
+								aria-hidden="true"
 								className="h-6 w-6 text-blue-600 dark:text-blue-400"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
-								aria-hidden="true"
 							>
 								<path
+									d="M9 5l7 7-7 7"
 									strokeLinecap="round"
 									strokeLinejoin="round"
 									strokeWidth={2}
-									d="M9 5l7 7-7 7"
 								/>
 							</svg>
 						</div>
@@ -81,28 +83,30 @@ function StudyModeSelector({
 							</div>
 						</div>
 					</div>
-				</div>
+				</button>
 
 				{/* Spaced Repetition Mode */}
-				<div
-					className="group cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
-					onClick={() => onSelectMode("spaced-repetition")}
+				<button
+					aria-label="Select Spaced Repetition Study Mode"
+					className="group w-full cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 text-left transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
 					data-testid="spaced-repetition-card"
+					onClick={() => onSelectMode("spaced-repetition")}
+					type="button"
 				>
 					<div className="flex items-start gap-4">
 						<div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900">
 							<svg
+								aria-hidden="true"
 								className="h-6 w-6 text-green-600 dark:text-green-400"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
-								aria-hidden="true"
 							>
 								<path
+									d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2V7a2 2 0 012-2h2a2 2 0 002 2v6a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 00-2 2h-2a2 2 0 00-2 2v6a2 2 0 01-2 2H9z"
 									strokeLinecap="round"
 									strokeLinejoin="round"
 									strokeWidth={2}
-									d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2V7a2 2 0 012-2h2a2 2 0 002 2v6a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 00-2 2h-2a2 2 0 00-2 2v6a2 2 0 01-2 2H9z"
 								/>
 							</svg>
 						</div>
@@ -129,28 +133,30 @@ function StudyModeSelector({
 							</div>
 						</div>
 					</div>
-				</div>
+				</button>
 
 				{/* Adaptive Learning Mode */}
-				<div
-					className="group cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
-					onClick={() => onSelectMode("adaptive")}
+				<button
+					aria-label="Select Adaptive Learning Study Mode"
+					className="group w-full cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 text-left transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
 					data-testid="adaptive-learning-card"
+					onClick={() => onSelectMode("adaptive")}
+					type="button"
 				>
 					<div className="flex items-start gap-4">
 						<div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900">
 							<svg
+								aria-hidden="true"
 								className="h-6 w-6 text-purple-600 dark:text-purple-400"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
-								aria-hidden="true"
 							>
 								<path
+									d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
 									strokeLinecap="round"
 									strokeLinejoin="round"
 									strokeWidth={2}
-									d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
 								/>
 							</svg>
 						</div>
@@ -195,14 +201,15 @@ function StudyModeSelector({
 							</div>
 						</div>
 					</div>
-				</div>
+				</button>
 			</div>
 
 			{/* Cancel Button */}
 			<div className="text-center">
 				<button
-					onClick={onCancel}
 					className="rounded-md border-2 border-slate-300 bg-slate-200 px-6 py-3 font-medium text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
+					onClick={onCancel}
+					type="button"
 				>
 					{t("study.modeSelector.cancel")}
 				</button>
@@ -212,17 +219,17 @@ function StudyModeSelector({
 			<div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950">
 				<div className="flex items-start gap-3">
 					<svg
+						aria-hidden="true"
 						className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
-						aria-hidden="true"
 					>
 						<path
+							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 							strokeLinecap="round"
 							strokeLinejoin="round"
 							strokeWidth={2}
-							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 						/>
 					</svg>
 					<div>

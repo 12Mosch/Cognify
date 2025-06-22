@@ -13,7 +13,6 @@ import { calculateCacheHitRate, cleanupExpiredCache } from "./utils/cache";
  */
 export const cleanupCache = mutation({
 	args: {},
-	returns: v.object({ deletedCount: v.number() }),
 	handler: async (ctx, _args) => {
 		const deletedCount = await cleanupExpiredCache(ctx);
 
@@ -23,6 +22,7 @@ export const cleanupCache = mutation({
 
 		return { deletedCount };
 	},
+	returns: v.object({ deletedCount: v.number() }),
 });
 
 /**
@@ -33,7 +33,6 @@ export const invalidateUserCache = mutation({
 	args: {
 		userId: v.string(),
 	},
-	returns: v.object({ success: v.boolean() }),
 	handler: async (ctx, args) => {
 		// Get all cache entries for the user
 		const userCache = await ctx.db
@@ -52,6 +51,7 @@ export const invalidateUserCache = mutation({
 
 		return { success: true };
 	},
+	returns: v.object({ success: v.boolean() }),
 });
 
 /**
@@ -62,7 +62,6 @@ export const cleanupCacheMetrics = mutation({
 	args: {
 		retentionDays: v.optional(v.number()), // Number of days to retain metrics (default: 7)
 	},
-	returns: v.object({ deletedCount: v.number() }),
 	handler: async (ctx, args) => {
 		const retentionDays = args.retentionDays || 7;
 		const cutoffTime = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
@@ -84,6 +83,7 @@ export const cleanupCacheMetrics = mutation({
 
 		return { deletedCount: oldMetrics.length };
 	},
+	returns: v.object({ deletedCount: v.number() }),
 });
 
 /**
@@ -93,33 +93,6 @@ export const getCacheAnalytics = mutation({
 	args: {
 		timeWindowHours: v.optional(v.number()), // Time window in hours (default: 24)
 	},
-	returns: v.object({
-		overall: v.object({
-			hitRate: v.number(),
-			totalRequests: v.number(),
-			hits: v.number(),
-			misses: v.number(),
-			expired: v.number(),
-			avgComputationTimeMs: v.optional(v.number()),
-		}),
-		byKey: v.array(
-			v.object({
-				cacheKey: v.string(),
-				hitRate: v.number(),
-				requests: v.number(),
-				hits: v.number(),
-				misses: v.number(),
-				expired: v.number(),
-				avgComputationTimeMs: v.optional(v.number()),
-			}),
-		),
-		cacheEntries: v.object({
-			total: v.number(),
-			expired: v.number(),
-			active: v.number(),
-		}),
-		timeWindowHours: v.number(),
-	}),
 	handler: async (ctx, args) => {
 		const timeWindowHours = args.timeWindowHours || 24;
 		const timeWindowMs = timeWindowHours * 60 * 60 * 1000;
@@ -164,10 +137,10 @@ export const getCacheAnalytics = mutation({
 
 		for (const metric of metrics) {
 			const existing = byKeyMap.get(metric.cacheKey) || {
+				computationTimes: [],
+				expired: 0,
 				hits: 0,
 				misses: 0,
-				expired: 0,
-				computationTimes: [],
 			};
 
 			if (metric.hitType === "hit") existing.hits++;
@@ -193,13 +166,13 @@ export const getCacheAnalytics = mutation({
 						: undefined;
 
 				return {
+					avgComputationTimeMs,
 					cacheKey,
+					expired: stats.expired,
 					hitRate: keyHitRate,
-					requests,
 					hits: stats.hits,
 					misses: stats.misses,
-					expired: stats.expired,
-					avgComputationTimeMs,
+					requests,
 				};
 			})
 			.sort((a, b) => b.requests - a.requests); // Sort by request count
@@ -211,23 +184,50 @@ export const getCacheAnalytics = mutation({
 		).length;
 
 		return {
-			overall: {
-				hitRate,
-				totalRequests,
-				hits,
-				misses,
-				expired,
-				avgComputationTimeMs,
-			},
 			byKey,
 			cacheEntries: {
-				total: allEntries.length,
-				expired: expiredEntries,
 				active: allEntries.length - expiredEntries,
+				expired: expiredEntries,
+				total: allEntries.length,
+			},
+			overall: {
+				avgComputationTimeMs,
+				expired,
+				hitRate,
+				hits,
+				misses,
+				totalRequests,
 			},
 			timeWindowHours,
 		};
 	},
+	returns: v.object({
+		byKey: v.array(
+			v.object({
+				avgComputationTimeMs: v.optional(v.number()),
+				cacheKey: v.string(),
+				expired: v.number(),
+				hitRate: v.number(),
+				hits: v.number(),
+				misses: v.number(),
+				requests: v.number(),
+			}),
+		),
+		cacheEntries: v.object({
+			active: v.number(),
+			expired: v.number(),
+			total: v.number(),
+		}),
+		overall: v.object({
+			avgComputationTimeMs: v.optional(v.number()),
+			expired: v.number(),
+			hitRate: v.number(),
+			hits: v.number(),
+			misses: v.number(),
+			totalRequests: v.number(),
+		}),
+		timeWindowHours: v.number(),
+	}),
 });
 
 /**
@@ -237,13 +237,6 @@ export const getCacheStats = mutation({
 	args: {
 		timeWindowHours: v.optional(v.number()), // Time window in hours for hit rate calculation (default: 24)
 	},
-	returns: v.object({
-		totalEntries: v.number(),
-		expiredEntries: v.number(),
-		cacheHitRate: v.number(),
-		metricsCount: v.number(), // Number of cache access metrics in the time window
-		timeWindowHours: v.number(), // Actual time window used
-	}),
 	handler: async (ctx, args) => {
 		const now = Date.now();
 		const timeWindowHours = args.timeWindowHours || 24;
@@ -270,11 +263,18 @@ export const getCacheStats = mutation({
 		const metricsCount = metrics.length;
 
 		return {
-			totalEntries,
-			expiredEntries,
 			cacheHitRate,
+			expiredEntries,
 			metricsCount,
 			timeWindowHours,
+			totalEntries,
 		};
 	},
+	returns: v.object({
+		cacheHitRate: v.number(),
+		expiredEntries: v.number(),
+		metricsCount: v.number(),
+		timeWindowHours: v.number(), // Number of cache access metrics in the time window
+		totalEntries: v.number(), // Actual time window used
+	}),
 });

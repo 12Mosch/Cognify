@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 
 /**
@@ -68,20 +69,6 @@ export const getRelatedCards = query({
 		cardId: v.id("cards"),
 		limit: v.optional(v.number()),
 	},
-	returns: v.array(
-		v.object({
-			card: v.object({
-				_id: v.id("cards"),
-				front: v.string(),
-				back: v.string(),
-				deckId: v.id("decks"),
-			}),
-			relationshipType: v.string(),
-			strength: v.number(),
-			reason: v.string(),
-			deckName: v.string(),
-		}),
-	),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -146,14 +133,14 @@ export const getRelatedCards = query({
 				relationships.push({
 					card: {
 						_id: card._id,
-						front: card.front,
 						back: card.back,
 						deckId: card.deckId,
+						front: card.front,
 					},
+					deckName: card.deckName,
+					reason: relationship.reason,
 					relationshipType: relationship.type,
 					strength: relationship.strength,
-					reason: relationship.reason,
-					deckName: card.deckName,
 				});
 			}
 		}
@@ -163,6 +150,20 @@ export const getRelatedCards = query({
 			.sort((a, b) => b.strength - a.strength)
 			.slice(0, limit);
 	},
+	returns: v.array(
+		v.object({
+			card: v.object({
+				_id: v.id("cards"),
+				back: v.string(),
+				deckId: v.id("decks"),
+				front: v.string(),
+			}),
+			deckName: v.string(),
+			reason: v.string(),
+			relationshipType: v.string(),
+			strength: v.number(),
+		}),
+	),
 });
 
 /**
@@ -172,22 +173,6 @@ export const getConceptClusters = query({
 	args: {
 		deckId: v.optional(v.id("decks")),
 	},
-	returns: v.array(
-		v.object({
-			id: v.string(),
-			name: v.string(),
-			description: v.string(),
-			cardCount: v.number(),
-			averageDifficulty: v.number(),
-			masteryLevel: v.number(),
-			centerCard: v.object({
-				_id: v.id("cards"),
-				front: v.string(),
-				back: v.string(),
-			}),
-			relatedClusters: v.array(v.string()),
-		}),
-	),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -257,10 +242,10 @@ export const getConceptClusters = query({
 					if (cardReviews.length === 0) return 0;
 
 					const successRate =
-						cardReviews.filter((r: any) => r.wasSuccessful).length /
+						cardReviews.filter((r) => r.wasSuccessful).length /
 						cardReviews.length;
 					const repetitions = Math.max(
-						...cardReviews.map((r: any) => r.repetitionAfter),
+						...cardReviews.map((r) => r.repetitionAfter),
 					);
 					return Math.min(
 						1,
@@ -279,17 +264,17 @@ export const getConceptClusters = query({
 				}
 
 				return {
-					id: cluster.id,
-					name: cluster.name,
-					description: cluster.description,
-					cardCount: cluster.cardIds.length,
 					averageDifficulty: cluster.difficulty,
-					masteryLevel: averageMastery,
+					cardCount: cluster.cardIds.length,
 					centerCard: {
 						_id: centerCard._id,
-						front: centerCard.front,
 						back: centerCard.back,
+						front: centerCard.front,
 					},
+					description: cluster.description,
+					id: cluster.id,
+					masteryLevel: averageMastery,
+					name: cluster.name,
 					relatedClusters: [], // Simplified for now
 				};
 			})
@@ -297,6 +282,22 @@ export const getConceptClusters = query({
 				(cluster): cluster is NonNullable<typeof cluster> => cluster !== null,
 			);
 	},
+	returns: v.array(
+		v.object({
+			averageDifficulty: v.number(),
+			cardCount: v.number(),
+			centerCard: v.object({
+				_id: v.id("cards"),
+				back: v.string(),
+				front: v.string(),
+			}),
+			description: v.string(),
+			id: v.string(),
+			masteryLevel: v.number(),
+			name: v.string(),
+			relatedClusters: v.array(v.string()),
+		}),
+	),
 });
 
 /**
@@ -307,28 +308,6 @@ export const getKnowledgeGraphData = query({
 		deckId: v.optional(v.id("decks")),
 		includeDecks: v.optional(v.boolean()),
 	},
-	returns: v.object({
-		nodes: v.array(
-			v.object({
-				id: v.string(),
-				label: v.string(),
-				type: v.string(),
-				size: v.number(),
-				color: v.string(),
-				masteryLevel: v.optional(v.number()),
-				difficulty: v.optional(v.number()),
-			}),
-		),
-		edges: v.array(
-			v.object({
-				source: v.string(),
-				target: v.string(),
-				type: v.string(),
-				weight: v.number(),
-				label: v.optional(v.string()),
-			}),
-		),
-	}),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -357,12 +336,12 @@ export const getKnowledgeGraphData = query({
 		if (args.includeDecks) {
 			for (const deck of targetDecks) {
 				nodes.push({
+					color: "#3B82F6",
 					id: `deck_${deck._id}`,
 					label: deck.name,
-					type: "deck",
-					size: 20,
-					color: "#3B82F6",
 					metadata: { deckId: deck._id },
+					size: 20,
+					type: "deck",
 				});
 			}
 		}
@@ -380,18 +359,18 @@ export const getKnowledgeGraphData = query({
 
 				// Create card node
 				nodes.push({
+					color: "#10B981",
 					id: `card_${card._id}`,
 					label:
 						card.front.substring(0, 30) + (card.front.length > 30 ? "..." : ""),
-					type: "card",
-					size: 10,
-					color: "#10B981", // Will be updated based on mastery
 					metadata: {
 						deckId: card.deckId,
-						masteryLevel: 0.5, // Will be calculated
-						difficulty: 0.5,
+						difficulty: 0.5, // Will be calculated
 						lastReviewed: 0,
+						masteryLevel: 0.5,
 					},
+					size: 10, // Will be updated based on mastery
+					type: "card",
 				});
 
 				// Add deck-card edge if including decks
@@ -422,6 +401,7 @@ export const getKnowledgeGraphData = query({
 				if (relationship.strength > 0.4) {
 					// Higher threshold for graph
 					edges.push({
+						label: relationship.type,
 						source: `card_${cardsForRelationships[i]._id}`,
 						target: `card_${cardsForRelationships[j]._id}`,
 						type: relationship.type as
@@ -430,31 +410,52 @@ export const getKnowledgeGraphData = query({
 							| "related"
 							| "contains",
 						weight: relationship.strength,
-						label: relationship.type,
 					});
 				}
 			}
 		}
 
 		return {
-			nodes: nodes.map((node) => ({
-				id: node.id,
-				label: node.label,
-				type: node.type,
-				size: node.size,
-				color: node.color,
-				masteryLevel: node.metadata.masteryLevel,
-				difficulty: node.metadata.difficulty,
-			})),
 			edges: edges.map((edge) => ({
+				label: edge.label,
 				source: edge.source,
 				target: edge.target,
 				type: edge.type,
 				weight: edge.weight,
-				label: edge.label,
+			})),
+			nodes: nodes.map((node) => ({
+				color: node.color,
+				difficulty: node.metadata.difficulty,
+				id: node.id,
+				label: node.label,
+				masteryLevel: node.metadata.masteryLevel,
+				size: node.size,
+				type: node.type,
 			})),
 		};
 	},
+	returns: v.object({
+		edges: v.array(
+			v.object({
+				label: v.optional(v.string()),
+				source: v.string(),
+				target: v.string(),
+				type: v.string(),
+				weight: v.number(),
+			}),
+		),
+		nodes: v.array(
+			v.object({
+				color: v.string(),
+				difficulty: v.optional(v.number()),
+				id: v.string(),
+				label: v.string(),
+				masteryLevel: v.optional(v.number()),
+				size: v.number(),
+				type: v.string(),
+			}),
+		),
+	}),
 });
 
 /**
@@ -464,22 +465,6 @@ export const getLearningPathRecommendations = query({
 	args: {
 		deckId: v.optional(v.id("decks")),
 	},
-	returns: v.array(
-		v.object({
-			path: v.array(
-				v.object({
-					cardId: v.id("cards"),
-					front: v.string(),
-					reason: v.string(),
-					estimatedDifficulty: v.number(),
-				}),
-			),
-			pathType: v.string(),
-			description: v.string(),
-			estimatedTime: v.number(), // minutes
-			confidence: v.number(),
-		}),
-	),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -528,12 +513,12 @@ export const getLearningPathRecommendations = query({
 		const difficultyPath = generateDifficultyBasedPath(cards, deckReviews);
 		if (difficultyPath.length > 0) {
 			paths.push({
-				path: difficultyPath,
-				pathType: "difficulty_progression",
+				confidence: 0.8,
 				description:
 					"Start with easier concepts and gradually increase difficulty",
-				estimatedTime: difficultyPath.length * 2, // 2 minutes per card
-				confidence: 0.8,
+				estimatedTime: difficultyPath.length * 2,
+				path: difficultyPath, // 2 minutes per card
+				pathType: "difficulty_progression",
 			});
 		}
 
@@ -541,11 +526,11 @@ export const getLearningPathRecommendations = query({
 		const prerequisitePath = generatePrerequisitePath(cards, deckReviews);
 		if (prerequisitePath.length > 0) {
 			paths.push({
-				path: prerequisitePath,
-				pathType: "prerequisite_order",
+				confidence: 0.7,
 				description: "Learn foundational concepts before advanced ones",
 				estimatedTime: prerequisitePath.length * 2.5,
-				confidence: 0.7,
+				path: prerequisitePath,
+				pathType: "prerequisite_order",
 			});
 		}
 
@@ -553,31 +538,47 @@ export const getLearningPathRecommendations = query({
 		const reviewPath = generateReviewFocusedPath(cards, deckReviews);
 		if (reviewPath.length > 0) {
 			paths.push({
-				path: reviewPath,
-				pathType: "review_focused",
+				confidence: 0.9,
 				description: "Focus on cards you find most challenging",
 				estimatedTime: reviewPath.length * 3,
-				confidence: 0.9,
+				path: reviewPath,
+				pathType: "review_focused",
 			});
 		}
 
 		return paths.slice(0, 3); // Return top 3 paths
 	},
+	returns: v.array(
+		v.object({
+			confidence: v.number(),
+			description: v.string(),
+			estimatedTime: v.number(),
+			path: v.array(
+				v.object({
+					cardId: v.id("cards"),
+					estimatedDifficulty: v.number(),
+					front: v.string(),
+					reason: v.string(),
+				}),
+			), // minutes
+			pathType: v.string(),
+		}),
+	),
 });
 
 // Helper functions
 
 function calculateCardRelationship(
-	card1: any,
-	card2: any,
+	card1: Doc<"cards">,
+	card2: Doc<"cards">,
 ): { type: string; strength: number; reason: string } {
 	// Optimized text similarity calculation with early termination
-	const text1 = (card1.front + " " + card1.back).toLowerCase();
-	const text2 = (card2.front + " " + card2.back).toLowerCase();
+	const text1 = `${card1.front} ${card1.back}`.toLowerCase();
+	const text2 = `${card2.front} ${card2.back}`.toLowerCase();
 
 	// Early termination for very short texts or identical cards
 	if (text1.length < 3 || text2.length < 3 || text1 === text2) {
-		return { type: "unrelated", strength: 0, reason: "Insufficient content" };
+		return { reason: "Insufficient content", strength: 0, type: "unrelated" };
 	}
 
 	const words1 = new Set(text1.split(/\s+/).filter((word) => word.length > 2)); // Filter short words
@@ -585,14 +586,14 @@ function calculateCardRelationship(
 
 	// Early termination if no meaningful words
 	if (words1.size === 0 || words2.size === 0) {
-		return { type: "unrelated", strength: 0, reason: "No meaningful content" };
+		return { reason: "No meaningful content", strength: 0, type: "unrelated" };
 	}
 
 	const intersection = new Set(Array.from(words1).filter((x) => words2.has(x)));
 
 	// Early termination if no common words
 	if (intersection.size === 0) {
-		return { type: "unrelated", strength: 0, reason: "No common terms" };
+		return { reason: "No common terms", strength: 0, type: "unrelated" };
 	}
 
 	const union = new Set([...Array.from(words1), ...Array.from(words2)]);
@@ -612,10 +613,10 @@ function calculateCardRelationship(
 		reason = "Few common terms";
 	}
 
-	return { type, strength: similarity, reason };
+	return { reason, strength: similarity, type };
 }
 
-function performSimpleClustering(cards: any[]): ConceptCluster[] {
+function performSimpleClustering(cards: Doc<"cards">[]): ConceptCluster[] {
 	// Optimized clustering based on text similarity with performance limits
 	const clusters: ConceptCluster[] = [];
 	const used = new Set();
@@ -627,13 +628,13 @@ function performSimpleClustering(cards: any[]): ConceptCluster[] {
 		if (used.has(cards[i]._id)) continue;
 
 		const cluster: ConceptCluster = {
-			id: `cluster_${i}`,
-			name: `Concept Group ${i + 1}`,
-			description: "Related concepts",
 			cardIds: [cards[i]._id],
 			centerCard: cards[i]._id,
+			description: "Related concepts",
 			difficulty: 0.5,
+			id: `cluster_${i}`,
 			masteryLevel: 0,
+			name: `Concept Group ${i + 1}`,
 		};
 
 		used.add(cards[i]._id);
@@ -664,7 +665,10 @@ function performSimpleClustering(cards: any[]): ConceptCluster[] {
 	return clusters;
 }
 
-function generateDifficultyBasedPath(cards: any[], reviews: any[]) {
+function generateDifficultyBasedPath(
+	cards: Doc<"cards">[],
+	reviews: Doc<"cardReviews">[],
+) {
 	// Sort cards by estimated difficulty (based on review success rates)
 	const cardDifficulties = cards.map((card) => {
 		const cardReviews = reviews.filter((r) => r.cardId === card._id);
@@ -675,9 +679,9 @@ function generateDifficultyBasedPath(cards: any[], reviews: any[]) {
 
 		return {
 			cardId: card._id,
+			estimatedDifficulty: 1 - successRate,
 			front: card.front,
 			reason: `Estimated difficulty: ${Math.round((1 - successRate) * 100)}%`,
-			estimatedDifficulty: 1 - successRate,
 		};
 	});
 
@@ -686,20 +690,26 @@ function generateDifficultyBasedPath(cards: any[], reviews: any[]) {
 		.slice(0, 10);
 }
 
-function generatePrerequisitePath(cards: any[], _reviews: any[]) {
+function generatePrerequisitePath(
+	cards: Doc<"cards">[],
+	_reviews: Doc<"cardReviews">[],
+) {
 	// Simple heuristic: shorter cards are often more basic
 	return cards
 		.map((card) => ({
 			cardId: card._id,
+			estimatedDifficulty: card.front.length / 100,
 			front: card.front,
-			reason: "Foundational concept",
-			estimatedDifficulty: card.front.length / 100, // Simple heuristic
+			reason: "Foundational concept", // Simple heuristic
 		}))
 		.sort((a, b) => a.estimatedDifficulty - b.estimatedDifficulty)
 		.slice(0, 8);
 }
 
-function generateReviewFocusedPath(cards: any[], reviews: any[]) {
+function generateReviewFocusedPath(
+	cards: Doc<"cards">[],
+	reviews: Doc<"cardReviews">[],
+) {
 	// Focus on cards with low success rates
 	const strugglingCards = cards
 		.map((card) => {
@@ -712,9 +722,9 @@ function generateReviewFocusedPath(cards: any[], reviews: any[]) {
 
 			return {
 				cardId: card._id,
+				estimatedDifficulty: 1 - successRate,
 				front: card.front,
 				reason: `Success rate: ${Math.round(successRate * 100)}%`,
-				estimatedDifficulty: 1 - successRate,
 				reviewCount: cardReviews.length,
 			};
 		})

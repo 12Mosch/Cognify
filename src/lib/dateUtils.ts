@@ -22,11 +22,11 @@ export function getLocalDateString(timeZone?: string): string {
 
 	// Use Intl.DateTimeFormat to get the date in the user's timezone
 	const formatter = new Intl.DateTimeFormat("en-CA", {
+		day: "2-digit",
+		month: "2-digit",
 		// en-CA gives us YYYY-MM-DD format
 		timeZone: tz,
 		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
 	});
 
 	return formatter.format(now);
@@ -90,15 +90,15 @@ export function formatNextReviewTime(
 	// Same year - show month and day
 	if (date.getFullYear() === today.getFullYear()) {
 		return `on ${date.toLocaleDateString(locale, {
-			month: "short",
 			day: "numeric",
+			month: "short",
 		})}`;
 	}
 
 	// Different year - show month, day, and year
 	return `on ${date.toLocaleDateString(locale, {
-		month: "short",
 		day: "numeric",
+		month: "short",
 		year: "numeric",
 	})}`;
 }

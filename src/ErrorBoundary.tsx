@@ -1,5 +1,5 @@
 import { usePostHog } from "posthog-js/react";
-import { Component, ErrorInfo, ReactNode } from "react";
+import { Component, type ErrorInfo, type ReactNode } from "react";
 import { hasAnalyticsConsent, trackErrorBoundary } from "./lib/analytics";
 
 interface ErrorBoundaryProps {
@@ -50,9 +50,9 @@ class ErrorBoundaryClass extends Component<
 
 	static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
 		return {
-			hasError: true,
 			error,
-			errorInfo: null, // Will be set in componentDidCatch
+			errorInfo: null,
+			hasError: true, // Will be set in componentDidCatch
 		};
 	}
 
@@ -71,19 +71,14 @@ class ErrorBoundaryClass extends Component<
 						// PostHog exception format
 						$exception: error.message,
 						$stacktrace: error.stack,
-
-						// Core error context
-						errorBoundary: this.props.name || "ErrorBoundary",
 						componentStack: errorInfo.componentStack,
-						userId,
-						recoverable: this.isRecoverableError(error),
-						retryCount: this.state.retryCount,
+						cookiesEnabled: navigator.cookieEnabled,
 
 						// App state context
 						currentRoute: window.location.pathname + window.location.search,
-						userAgent: navigator.userAgent,
-						timestamp: Date.now(),
-						viewport: `${window.innerWidth}x${window.innerHeight}`,
+
+						// Core error context
+						errorBoundary: this.props.name || "ErrorBoundary",
 
 						// Error categorization
 						errorCategory: this.categorizeError(error),
@@ -91,17 +86,35 @@ class ErrorBoundaryClass extends Component<
 
 						// Browser context
 						isOnline: navigator.onLine,
-						cookiesEnabled: navigator.cookieEnabled,
 
 						// Memory usage if available
 						memoryUsage:
 							"memory" in performance
 								? {
-										usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
-										totalJSHeapSize: (performance as any).memory
-											.totalJSHeapSize,
+										totalJSHeapSize: (
+											performance as unknown as {
+												memory: {
+													usedJSHeapSize: number;
+													totalJSHeapSize: number;
+												};
+											}
+										).memory.totalJSHeapSize,
+										usedJSHeapSize: (
+											performance as unknown as {
+												memory: {
+													usedJSHeapSize: number;
+													totalJSHeapSize: number;
+												};
+											}
+										).memory.usedJSHeapSize,
 									}
 								: undefined,
+						recoverable: this.isRecoverableError(error),
+						retryCount: this.state.retryCount,
+						timestamp: Date.now(),
+						userAgent: navigator.userAgent,
+						userId,
+						viewport: `${window.innerWidth}x${window.innerHeight}`,
 					});
 				}
 
@@ -113,9 +126,9 @@ class ErrorBoundaryClass extends Component<
 						componentStack: errorInfo.componentStack || undefined,
 					},
 					{
-						userId,
 						errorBoundary: this.props.name || "ErrorBoundary",
 						recoverable: this.isRecoverableError(error),
+						userId,
 					},
 				);
 			} catch (trackingError) {
@@ -145,7 +158,9 @@ class ErrorBoundaryClass extends Component<
 			// Try to get user ID from various sources
 			if (typeof window !== "undefined") {
 				// Check if Clerk user is available
-				const clerkUser = (window as any).__clerk_user;
+				const clerkUser = (
+					window as unknown as { __clerk_user?: { id: string } }
+				).__clerk_user;
 				if (clerkUser?.id) return clerkUser.id;
 
 				// Check localStorage for user info
@@ -362,8 +377,8 @@ class ErrorBoundaryClass extends Component<
 							<a
 								className="text-blue-600 underline hover:no-underline dark:text-blue-400"
 								href={trimmedClerkDashboardUrl}
-								target="_blank"
 								rel="noopener noreferrer"
+								target="_blank"
 							>
 								{trimmedClerkDashboardUrl}
 							</a>
@@ -391,16 +406,18 @@ class ErrorBoundaryClass extends Component<
 				<div className="flex items-center gap-3">
 					<div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500">
 						<svg
+							aria-label="Error"
 							className="h-5 w-5 text-white"
 							fill="none"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
 						>
+							<title>Error</title>
 							<path
+								d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 18.5c-.77.833.192 2.5 1.732 2.5z"
 								strokeLinecap="round"
 								strokeLinejoin="round"
 								strokeWidth={2}
-								d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 18.5c-.77.833.192 2.5 1.732 2.5z"
 							/>
 						</svg>
 					</div>
@@ -419,16 +436,18 @@ class ErrorBoundaryClass extends Component<
 					<div className="flex flex-col gap-3 sm:flex-row">
 						{isRecoverable && canRetry && (
 							<button
-								onClick={this.handleRetry}
 								className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+								onClick={this.handleRetry}
+								type="button"
 							>
 								Try Again{" "}
 								{this.state.retryCount > 0 && `(${this.state.retryCount}/3)`}
 							</button>
 						)}
 						<button
-							onClick={this.handleReload}
 							className="rounded-md bg-slate-600 px-4 py-2 font-medium text-white transition-colors hover:bg-slate-700"
+							onClick={this.handleReload}
+							type="button"
 						>
 							Reload Page
 						</button>

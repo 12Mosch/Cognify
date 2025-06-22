@@ -78,11 +78,11 @@ jest.mock("../StudyHistoryHeatmap", () => {
 // Mock Convex queries
 jest.mock("convex/react", () => ({
 	...jest.requireActual("convex/react"),
-	useQuery: jest.fn(),
 	ConvexProvider: ({ children }: { children: React.ReactNode }) => (
 		<div>{children}</div>
 	),
 	ConvexReactClient: jest.fn().mockImplementation(() => ({})),
+	useQuery: jest.fn(),
 }));
 
 import { useQuery } from "convex/react";
@@ -92,8 +92,8 @@ const mockUseQuery = useQuery as jest.Mock;
 // Mock toast helpers
 jest.mock("../../lib/toast", () => ({
 	toastHelpers: {
-		success: jest.fn(),
 		error: jest.fn(),
+		success: jest.fn(),
 	},
 }));
 
@@ -106,81 +106,81 @@ describe("StatisticsDashboard", () => {
 	const mockOnBack = jest.fn();
 
 	const mockUserStats = {
-		totalDecks: 5,
-		totalCards: 50,
-		totalStudySessions: 10,
+		averageSessionDuration: 15,
 		cardsStudiedToday: 8,
 		currentStreak: 3,
 		longestStreak: 7,
-		averageSessionDuration: 15,
+		totalCards: 50,
+		totalDecks: 5,
+		totalStudySessions: 10,
 		totalStudyTime: 300,
 	};
 
 	const mockSpacedRepetitionInsights = {
+		averageInterval: 14.2,
+		cardsToReviewToday: 12,
+		retentionRate: 85.5,
 		totalDueCards: 12,
 		totalNewCards: 8,
-		cardsToReviewToday: 12,
 		upcomingReviews: [
-			{ date: "2024-01-15", count: 5 },
-			{ date: "2024-01-16", count: 3 },
+			{ count: 5, date: "2024-01-15" },
+			{ count: 3, date: "2024-01-16" },
 		],
-		retentionRate: 85.5,
-		averageInterval: 14.2,
 	};
 
 	const mockDeckPerformance = [
 		{
+			averageEaseFactor: 2.8,
 			deckId: "deck1",
 			deckName: "Spanish Vocabulary",
-			totalCards: 20,
 			masteredCards: 15,
 			masteryPercentage: 75,
-			averageEaseFactor: 2.8,
+			totalCards: 20,
 		},
 		{
+			averageEaseFactor: 2.4,
 			deckId: "deck2",
 			deckName: "Math Formulas",
-			totalCards: 15,
 			masteredCards: 8,
 			masteryPercentage: 53.3,
-			averageEaseFactor: 2.4,
+			totalCards: 15,
 		},
 	];
 
 	const mockDecks = [
 		{
-			_id: "deck1",
 			_creationTime: Date.now(),
-			userId: "user1",
-			name: "Spanish Vocabulary",
-			description: "Common Spanish words",
+			_id: "deck1",
 			cardCount: 20,
+			description: "Common Spanish words",
+			name: "Spanish Vocabulary",
+			userId: "user1",
 		},
 		{
-			_id: "deck2",
 			_creationTime: Date.now(),
-			userId: "user1",
-			name: "Math Formulas",
-			description: "Essential math formulas",
+			_id: "deck2",
 			cardCount: 15,
+			description: "Essential math formulas",
+			name: "Math Formulas",
+			userId: "user1",
 		},
 	];
 
 	const mockCardDistribution = {
-		newCards: 8,
-		learningCards: 12,
-		reviewCards: 15,
 		dueCards: 5,
+		learningCards: 12,
 		masteredCards: 10,
+		newCards: 8,
+		reviewCards: 15,
 		totalCards: 50,
 	};
 
 	const mockDashboardData = {
-		userStatistics: mockUserStats,
-		spacedRepetitionInsights: mockSpacedRepetitionInsights,
+		cardDistribution: mockCardDistribution,
 		deckPerformance: mockDeckPerformance,
 		decks: mockDecks,
-		cardDistribution: mockCardDistribution,
+		spacedRepetitionInsights: mockSpacedRepetitionInsights,
+		userStatistics: mockUserStats,
 	};
 
 	beforeEach(() => {

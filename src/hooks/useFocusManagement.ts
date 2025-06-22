@@ -56,9 +56,9 @@ export function useFocusManagement(isOpen: boolean) {
 
 	return {
 		firstFocusableElementRef,
-		storeTriggerElement,
-		restoreFocus,
 		focusFirstElement,
+		restoreFocus,
+		storeTriggerElement,
 	};
 }
 

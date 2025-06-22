@@ -15,7 +15,12 @@ const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 // Display PostHog configuration warnings during app initialization
 displayPostHogConfigWarnings();
 
-createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+	throw new Error("Root element not found");
+}
+
+createRoot(rootElement).render(
 	<StrictMode>
 		{import.meta.env.VITE_PUBLIC_POSTHOG_KEY && (
 			<PostHogProvider
@@ -23,15 +28,10 @@ createRoot(document.getElementById("root")!).render(
 				options={{
 					api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
 					capture_exceptions: true,
+					cross_subdomain_cookie: false,
 					debug: import.meta.env.MODE === "development",
-					// Privacy-first defaults
-					opt_out_capturing_by_default: true,
-					respect_dnt: true,
 					disable_session_recording: true,
 					disable_surveys: true,
-					secure_cookie: true,
-					cross_subdomain_cookie: false,
-					persistence: "localStorage",
 					// GDPR compliance
 					loaded: (posthog) => {
 						// Only enable if user has given consent
@@ -49,6 +49,11 @@ createRoot(document.getElementById("root")!).render(
 							}
 						}
 					},
+					// Privacy-first defaults
+					opt_out_capturing_by_default: true,
+					persistence: "localStorage",
+					respect_dnt: true,
+					secure_cookie: true,
 				}}
 			>
 				<ErrorBoundary>

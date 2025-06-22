@@ -4,7 +4,7 @@ import SettingsModal from "../SettingsModal";
 // Mock the child components
 jest.mock("../PrivacySettings", () => {
 	return jest.fn(({ embedded }) => (
-		<div data-testid="privacy-settings" data-embedded={embedded}>
+		<div data-embedded={embedded} data-testid="privacy-settings">
 			Privacy Settings
 		</div>
 	));
@@ -19,12 +19,12 @@ jest.mock("../FeatureFlagDemo", () => {
 // Mock analytics
 jest.mock("../../lib/analytics", () => ({
 	usePrivacyCompliantAnalytics: () => ({
+		grantConsent: jest.fn(),
 		privacySettings: {
 			analyticsConsent: "pending",
 			functionalConsent: "pending",
 			marketingConsent: "pending",
 		},
-		grantConsent: jest.fn(),
 		revokeConsent: jest.fn(),
 	}),
 }));
@@ -101,7 +101,7 @@ describe("SettingsModal", () => {
 		expect(keydownHandler).toBeDefined();
 
 		// Simulate ESC key press by calling the handler directly
-		keydownHandler!({ key: "Escape" });
+		keydownHandler?.({ key: "Escape" });
 		expect(mockOnClose).toHaveBeenCalledTimes(1);
 	});
 
@@ -179,10 +179,10 @@ describe("SettingsModal", () => {
 		expect(keydownHandler).toBeDefined();
 
 		// Press a non-ESC key
-		keydownHandler!({ key: "Enter" });
+		keydownHandler?.({ key: "Enter" });
 		expect(mockOnClose).not.toHaveBeenCalled();
 
-		keydownHandler!({ key: "Space" });
+		keydownHandler?.({ key: "Space" });
 		expect(mockOnClose).not.toHaveBeenCalled();
 	});
 });

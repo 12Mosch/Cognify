@@ -65,14 +65,14 @@ export function generateHeatmapGrid(
 		const totalDuration = studyInfo?.totalDuration;
 
 		allDays.push({
-			date: dateStr,
 			cardsStudied,
-			sessionCount,
-			totalDuration,
-			level: getActivityLevel(cardsStudied),
+			date: dateStr,
+			dayIndex: 0,
 			dayOfWeek: currentDate.getDay(),
+			level: getActivityLevel(cardsStudied),
+			sessionCount,
+			totalDuration, // Will be calculated below
 			weekIndex: 0, // Will be calculated below
-			dayIndex: 0, // Will be calculated below
 		});
 
 		currentDate.setDate(currentDate.getDate() + 1);
@@ -91,13 +91,13 @@ export function generateHeatmapGrid(
 		placeholderDate.setDate(placeholderDate.getDate() - (startDayOfWeek - i));
 
 		currentWeek.push({
-			date: placeholderDate.toISOString().split("T")[0],
 			cardsStudied: 0,
-			sessionCount: 0,
-			level: 0,
-			dayOfWeek: i,
-			weekIndex,
+			date: placeholderDate.toISOString().split("T")[0],
 			dayIndex: i,
+			dayOfWeek: i,
+			level: 0,
+			sessionCount: 0,
+			weekIndex,
 		});
 	}
 
@@ -116,19 +116,19 @@ export function generateHeatmapGrid(
 				nextDate.setDate(nextDate.getDate() + 1);
 
 				currentWeek.push({
-					date: nextDate.toISOString().split("T")[0],
 					cardsStudied: 0,
-					sessionCount: 0,
-					level: 0,
-					dayOfWeek: currentWeek.length,
-					weekIndex,
+					date: nextDate.toISOString().split("T")[0],
 					dayIndex: currentWeek.length,
+					dayOfWeek: currentWeek.length,
+					level: 0,
+					sessionCount: 0,
+					weekIndex,
 				});
 			}
 
 			weeks.push({
-				weekIndex,
 				days: [...currentWeek],
+				weekIndex,
 			});
 
 			currentWeek = [];
@@ -140,11 +140,11 @@ export function generateHeatmapGrid(
 	const months = generateMonthLabels(weeks, locale);
 
 	return {
-		weeks,
-		months,
-		totalDays: allDays.length,
-		startDate,
 		endDate,
+		months,
+		startDate,
+		totalDays: allDays.length,
+		weeks,
 	};
 }
 
@@ -201,8 +201,8 @@ function generateMonthLabels(
 
 			months.push({
 				name: date.toLocaleDateString(locale, { month: "short" }),
-				weekStart: weekIndex,
-				weekSpan: 1, // Will be updated when month ends
+				weekSpan: 1,
+				weekStart: weekIndex, // Will be updated when month ends
 			});
 		}
 	});
@@ -244,9 +244,9 @@ export function formatTooltipContent(
 ): string {
 	const date = new Date(day.date);
 	const formattedDate = date.toLocaleDateString(locale, {
-		weekday: "short",
-		month: "short",
 		day: "numeric",
+		month: "short",
+		weekday: "short",
 		year: "numeric",
 	});
 
@@ -305,11 +305,11 @@ export function calculateHeatmapStats(data: HeatmapData) {
 
 	return {
 		activeDays: activeDays.length,
+		averageCardsPerActiveDay,
+		maxCardsInDay,
+		studyRate: Math.round((activeDays.length / data.totalDays) * 100),
 		totalCards,
 		totalSessions,
 		totalTime: totalTime > 0 ? totalTime : undefined,
-		maxCardsInDay,
-		averageCardsPerActiveDay,
-		studyRate: Math.round((activeDays.length / data.totalDays) * 100),
 	};
 }

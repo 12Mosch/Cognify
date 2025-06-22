@@ -51,7 +51,6 @@ const AchievementsWidget = memo(function AchievementsWidget({
 				return "bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800";
 			case "diamond":
 				return "bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800";
-			case "silver":
 			default:
 				return "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600";
 		}
@@ -106,8 +105,9 @@ const AchievementsWidget = memo(function AchievementsWidget({
 				</div>
 
 				<button
-					onClick={() => setShowAllAchievements(!showAllAchievements)}
 					className="rounded-md px-3 py-1 text-blue-600 text-sm transition-all duration-200 hover:scale-105 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-300"
+					onClick={() => setShowAllAchievements(!showAllAchievements)}
+					type="button"
 				>
 					{showAllAchievements
 						? t("achievements.showSummary", "Show Summary")
@@ -127,10 +127,10 @@ const AchievementsWidget = memo(function AchievementsWidget({
 							<div className="space-y-2">
 								{recentAchievements.map((achievement) => (
 									<AchievementCard
-										key={achievement.achievementId}
 										achievement={achievement.achievement}
-										unlockedAt={achievement.unlockedAt}
 										getTierStyle={getTierStyle}
+										key={achievement.achievementId}
+										unlockedAt={achievement.unlockedAt}
 									/>
 								))}
 							</div>
@@ -144,14 +144,15 @@ const AchievementsWidget = memo(function AchievementsWidget({
 						</h4>
 						<div className="grid grid-cols-2 gap-3">
 							{categories.map(([category, progress]) => (
-								<div
+								<button
+									className="cursor-pointer rounded-lg bg-slate-50 p-3 text-left transition-all duration-200 hover:scale-105 hover:bg-slate-100 hover:shadow-md dark:bg-slate-700 dark:hover:bg-slate-600"
 									key={category}
-									className="cursor-pointer rounded-lg bg-slate-50 p-3 transition-all duration-200 hover:scale-105 hover:bg-slate-100 hover:shadow-md dark:bg-slate-700 dark:hover:bg-slate-600"
 									onClick={() =>
 										setSelectedCategory(
 											selectedCategory === category ? null : category,
 										)
 									}
+									type="button"
 								>
 									<div className="mb-2 flex items-center gap-2">
 										<span className="text-lg transition-transform duration-200 hover:scale-110">
@@ -173,7 +174,7 @@ const AchievementsWidget = memo(function AchievementsWidget({
 										{Math.round(progress * 100)}%{" "}
 										{t("achievements.complete", "complete")}
 									</div>
-								</div>
+								</button>
 							))}
 						</div>
 					</div>
@@ -187,12 +188,12 @@ const AchievementsWidget = memo(function AchievementsWidget({
 							<div className="space-y-3">
 								{nextAchievements.slice(0, 3).map((next) => (
 									<ProgressAchievementCard
-										key={next.achievement.id}
 										achievement={next.achievement}
-										progress={next.progress}
 										currentValue={next.currentValue}
-										targetValue={next.targetValue}
 										getTierStyle={getTierStyle}
+										key={next.achievement.id}
+										progress={next.progress}
+										targetValue={next.targetValue}
 									/>
 								))}
 							</div>
@@ -205,24 +206,26 @@ const AchievementsWidget = memo(function AchievementsWidget({
 					{/* Filter by category */}
 					<div className="flex flex-wrap gap-2">
 						<button
-							onClick={() => setSelectedCategory(null)}
 							className={`rounded-full px-3 py-1 text-sm transition-all duration-200 hover:scale-105 ${
 								selectedCategory === null
 									? "bg-blue-600 text-white hover:bg-blue-700"
 									: "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
 							}`}
+							onClick={() => setSelectedCategory(null)}
+							type="button"
 						>
 							{t("achievements.all", "All")}
 						</button>
 						{categories.map(([category]) => (
 							<button
-								key={category}
-								onClick={() => setSelectedCategory(category)}
 								className={`flex items-center gap-1 rounded-full px-3 py-1 text-sm transition-all duration-200 hover:scale-105 ${
 									selectedCategory === category
 										? "bg-blue-600 text-white hover:bg-blue-700"
 										: "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
 								}`}
+								key={category}
+								onClick={() => setSelectedCategory(category)}
+								type="button"
 							>
 								<span className="transition-transform duration-200 hover:scale-110">
 									{getCategoryIcon(category)}
@@ -249,10 +252,10 @@ const AchievementsWidget = memo(function AchievementsWidget({
 								)
 								.map((achievement) => (
 									<AchievementCard
-										key={achievement.achievementId}
 										achievement={achievement.achievement}
-										unlockedAt={achievement.unlockedAt}
 										getTierStyle={getTierStyle}
+										key={achievement.achievementId}
+										unlockedAt={achievement.unlockedAt}
 									/>
 								))}
 						</div>
@@ -276,12 +279,12 @@ const AchievementsWidget = memo(function AchievementsWidget({
 									)
 									.map((next) => (
 										<ProgressAchievementCard
-											key={next.achievement.id}
 											achievement={next.achievement}
-											progress={next.progress}
 											currentValue={next.currentValue}
-											targetValue={next.targetValue}
 											getTierStyle={getTierStyle}
+											key={next.achievement.id}
+											progress={next.progress}
+											targetValue={next.targetValue}
 										/>
 									))}
 							</div>
@@ -425,20 +428,15 @@ const AchievementsWidgetSkeleton = memo(function AchievementsWidgetSkeleton({
 			<div className="animate-pulse space-y-4">
 				<div className="h-6 w-1/3 rounded bg-slate-200 dark:bg-slate-700" />
 				<div className="space-y-3">
-					{[...Array(3)].map((_, i) => (
-						<div
-							key={i}
-							className="h-16 rounded bg-slate-200 dark:bg-slate-700"
-						/>
-					))}
+					<div className="h-16 rounded bg-slate-200 dark:bg-slate-700" />
+					<div className="h-16 rounded bg-slate-200 dark:bg-slate-700" />
+					<div className="h-16 rounded bg-slate-200 dark:bg-slate-700" />
 				</div>
 				<div className="grid grid-cols-2 gap-3">
-					{[...Array(4)].map((_, i) => (
-						<div
-							key={i}
-							className="h-20 rounded bg-slate-200 dark:bg-slate-700"
-						/>
-					))}
+					<div className="h-20 rounded bg-slate-200 dark:bg-slate-700" />
+					<div className="h-20 rounded bg-slate-200 dark:bg-slate-700" />
+					<div className="h-20 rounded bg-slate-200 dark:bg-slate-700" />
+					<div className="h-20 rounded bg-slate-200 dark:bg-slate-700" />
 				</div>
 			</div>
 		</div>

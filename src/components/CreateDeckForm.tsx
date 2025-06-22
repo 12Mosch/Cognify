@@ -1,7 +1,7 @@
 import { useUser } from "@clerk/clerk-react";
 import { useMutation } from "convex/react";
 import { usePostHog } from "posthog-js/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import FocusLock from "react-focus-lock";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
@@ -35,6 +35,12 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 	const createDeck = useMutation(api.decks.createDeck);
 	const { trackDeckCreated } = useAnalytics();
 	const { captureError, trackConvexMutation } = useErrorMonitoring();
+
+	// Generate unique IDs for form elements
+	const titleId = useId();
+	const nameId = useId();
+	const descriptionId = useId();
+	const errorId = useId();
 
 	// Form error monitoring
 	const formErrorMonitor = withFormErrorMonitoring("create_deck", posthog);
@@ -92,12 +98,12 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 			setError(firstError);
 
 			formErrorMonitor.trackValidationErrors(validationErrors, {
-				userId: user?.id,
-				formData: {
-					nameLength: name.length,
-					descriptionLength: description.length,
-				},
 				attemptNumber: currentAttempt,
+				formData: {
+					descriptionLength: description.length,
+					nameLength: name.length,
+				},
+				userId: user?.id,
 			});
 
 			return;
@@ -113,25 +119,25 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 					async (formData) => {
 						try {
 							return await createDeck({
-								name: formData.name.trim(),
 								description: formData.description.trim(),
+								name: formData.name.trim(),
 							});
 						} catch (error) {
 							// Track Convex mutation errors
 							trackConvexMutation("createDeck", error as Error, {
-								userId: user?.id,
 								mutationArgs: {
-									nameLength: formData.name.trim().length,
 									descriptionLength: formData.description.trim().length,
+									nameLength: formData.name.trim().length,
 								},
+								userId: user?.id,
 							});
 							throw error;
 						}
 					},
-					{ name, description },
+					{ description, name },
 					{
-						userId: user?.id,
 						submissionAttempt: currentAttempt,
+						userId: user?.id,
 					},
 				);
 
@@ -160,19 +166,19 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 
 				// Capture general form submission error
 				captureError(err as Error, {
-					userId: user?.id,
-					component: "CreateDeckForm",
 					action: "submit_form",
-					severity: "medium",
+					additionalData: {
+						formData: { description: description.length, name: name.length }, // Don't log actual content for privacy
+						timeToSubmit: Date.now() - startTime,
+					},
 					category: "ui_error",
+					component: "CreateDeckForm",
+					severity: "medium",
 					tags: {
 						formName: "create_deck",
 						submissionAttempt: String(currentAttempt),
 					},
-					additionalData: {
-						formData: { name: name.length, description: description.length }, // Don't log actual content for privacy
-						timeToSubmit: Date.now() - startTime,
-					},
+					userId: user?.id,
 				});
 
 				// Show error toast for all failures
@@ -199,12 +205,13 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 	if (!showForm) {
 		return (
 			<button
+				aria-label={t("forms.createDeck.buttonLabel")}
+				className="transform rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-blue-700 hover:to-cyan-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
 				onClick={() => {
 					storeTriggerElement();
 					setShowForm(true);
 				}}
-				className="transform rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-blue-700 hover:to-cyan-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
-				aria-label={t("forms.createDeck.buttonLabel")}
+				type="button"
 			>
 				+ {t("forms.createDeck.create")}
 			</button>
@@ -215,44 +222,49 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 		<>
 			{/* Modal Overlay */}
 			<div
+				aria-hidden="true"
 				className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50 p-4"
 				onClick={handleCancel}
-				aria-hidden="true"
 			/>
 
 			{/* Modal Content */}
 			<div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
 				<FocusLock>
 					<div
-						className="pointer-events-auto w-full max-w-md rounded-lg border-2 border-slate-200 bg-slate-100 p-6 dark:border-slate-700 dark:bg-slate-800"
-						role="dialog"
+						aria-labelledby={titleId}
 						aria-modal="true"
-						aria-labelledby="create-deck-title"
+						className="pointer-events-auto w-full max-w-md rounded-lg border-2 border-slate-200 bg-slate-100 p-6 dark:border-slate-700 dark:bg-slate-800"
 						onClick={(e) => e.stopPropagation()}
+						onKeyDown={(e) => {
+							if (e.key === "Escape") {
+								handleCancel();
+							}
+						}}
+						role="dialog"
 					>
-						<h3 id="create-deck-title" className="mb-4 font-bold text-lg">
+						<h3 className="mb-4 font-bold text-lg" id={titleId}>
 							{t("forms.createDeck.title")}
 						</h3>
 
-						<form onSubmit={handleSubmit} className="space-y-4">
+						<form className="space-y-4" onSubmit={handleSubmit}>
 							<div>
 								<label
-									htmlFor="deck-name"
 									className="mb-2 block font-medium text-sm"
+									htmlFor={nameId}
 								>
 									{t("forms.createDeck.name")} *
 								</label>
 								<input
-									ref={firstInputRef}
-									id="deck-name"
-									type="text"
-									value={name}
+									aria-describedby={error ? errorId : undefined}
+									className="w-full rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
+									id={nameId}
+									maxLength={100}
 									onChange={(e) => setName(e.target.value)}
 									placeholder={t("forms.createDeck.namePlaceholder")}
-									className="w-full rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
-									maxLength={100}
+									ref={firstInputRef}
 									required
-									aria-describedby={error ? "form-error" : undefined}
+									type="text"
+									value={name}
 								/>
 								<div className="mt-1 text-slate-500 text-xs">
 									{t("forms.createDeck.characterCount", {
@@ -264,20 +276,20 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 
 							<div>
 								<label
-									htmlFor="deck-description"
 									className="mb-2 block font-medium text-sm"
+									htmlFor={descriptionId}
 								>
 									{t("forms.createDeck.description")}
 								</label>
 								<textarea
-									id="deck-description"
-									value={description}
+									aria-describedby={error ? errorId : undefined}
+									className="resize-vertical w-full rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
+									id={descriptionId}
+									maxLength={500}
 									onChange={(e) => setDescription(e.target.value)}
 									placeholder={t("forms.createDeck.descriptionPlaceholder")}
 									rows={3}
-									className="resize-vertical w-full rounded-md border-2 border-slate-300 bg-light px-3 py-2 text-dark focus:border-slate-500 focus:outline-none dark:border-slate-600 dark:bg-dark dark:text-light dark:focus:border-slate-400"
-									maxLength={500}
-									aria-describedby={error ? "form-error" : undefined}
+									value={description}
 								/>
 								<div className="mt-1 text-slate-500 text-xs">
 									{t("forms.createDeck.characterCount", {
@@ -289,10 +301,10 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 
 							{error && (
 								<div
-									id="form-error"
-									className="rounded-md border border-red-200 bg-red-50 p-3 text-red-600 text-sm dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
-									role="alert"
 									aria-live="polite"
+									className="rounded-md border border-red-200 bg-red-50 p-3 text-red-600 text-sm dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
+									id={errorId}
+									role="alert"
 								>
 									{error}
 								</div>
@@ -300,14 +312,14 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 
 							<div className="flex gap-3 pt-2">
 								<button
-									type="submit"
-									disabled={isSubmitting || !name.trim()}
-									className="rounded-md border-2 bg-dark px-4 py-2 font-medium text-light text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-light dark:text-dark"
 									aria-label={
 										isSubmitting
 											? t("forms.createDeck.creating")
 											: t("forms.createDeck.create")
 									}
+									className="rounded-md border-2 bg-dark px-4 py-2 font-medium text-light text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-light dark:text-dark"
+									disabled={isSubmitting || !name.trim()}
+									type="submit"
 								>
 									{isSubmitting
 										? t("forms.createDeck.creating")
@@ -315,11 +327,11 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 								</button>
 
 								<button
-									type="button"
-									onClick={handleCancel}
-									disabled={isSubmitting}
-									className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 									aria-label={t("forms.createDeck.cancel")}
+									className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
+									disabled={isSubmitting}
+									onClick={handleCancel}
+									type="button"
 								>
 									{t("forms.createDeck.cancel")}
 								</button>

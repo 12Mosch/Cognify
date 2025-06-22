@@ -5,13 +5,13 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useMutation, useQuery } from "convex/react";
-import { Id } from "../../../convex/_generated/dataModel";
+import type { Id } from "../../../convex/_generated/dataModel";
 import PostSessionSummary from "../PostSessionSummary";
 
 // Mock Convex hooks
 jest.mock("convex/react", () => ({
-	useQuery: jest.fn(),
 	useMutation: jest.fn(),
+	useQuery: jest.fn(),
 }));
 
 const mockUseQuery = useQuery as jest.MockedFunction<typeof useQuery>;
@@ -26,8 +26,8 @@ jest.mock("../../lib/analytics", () => ({
 
 // Mock dateUtils
 jest.mock("../../lib/dateUtils", () => ({
-	getUserTimeZone: jest.fn(() => "America/New_York"),
 	getLocalDateString: jest.fn(() => "2024-01-15"),
+	getUserTimeZone: jest.fn(() => "America/New_York"),
 }));
 
 describe("PostSessionSummary", () => {
@@ -42,8 +42,8 @@ describe("PostSessionSummary", () => {
 		mockUseQuery.mockReturnValue({
 			dueCount: 5,
 			newCount: 10,
-			totalStudyCards: 15,
 			totalCardsInDeck: 25,
+			totalStudyCards: 15,
 		});
 
 		// Mock useMutation to return a mock function with required properties
@@ -57,11 +57,11 @@ describe("PostSessionSummary", () => {
 	it("renders session completion message with basic study mode", () => {
 		render(
 			<PostSessionSummary
+				cardsReviewed={8}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={8}
-				studyMode="basic"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="basic"
 			/>,
 		);
 
@@ -74,11 +74,11 @@ describe("PostSessionSummary", () => {
 	it("renders session completion message with spaced repetition mode", () => {
 		render(
 			<PostSessionSummary
+				cardsReviewed={12}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={12}
-				studyMode="spaced-repetition"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="spaced-repetition"
 			/>,
 		);
 
@@ -93,12 +93,12 @@ describe("PostSessionSummary", () => {
 
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="basic"
-				sessionDuration={sessionDuration}
 				onReturnToDashboard={mockOnReturnToDashboard}
+				sessionDuration={sessionDuration}
+				studyMode="basic"
 			/>,
 		);
 
@@ -111,12 +111,12 @@ describe("PostSessionSummary", () => {
 
 		render(
 			<PostSessionSummary
+				cardsReviewed={3}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={3}
-				studyMode="basic"
-				sessionDuration={sessionDuration}
 				onReturnToDashboard={mockOnReturnToDashboard}
+				sessionDuration={sessionDuration}
+				studyMode="basic"
 			/>,
 		);
 
@@ -126,11 +126,11 @@ describe("PostSessionSummary", () => {
 	it("handles singular card count correctly", () => {
 		render(
 			<PostSessionSummary
+				cardsReviewed={1}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={1}
-				studyMode="basic"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="basic"
 			/>,
 		);
 
@@ -144,11 +144,11 @@ describe("PostSessionSummary", () => {
 	it("calls onReturnToDashboard when return button is clicked", () => {
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="basic"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="basic"
 			/>,
 		);
 
@@ -163,12 +163,12 @@ describe("PostSessionSummary", () => {
 
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="spaced-repetition"
-				onReturnToDashboard={mockOnReturnToDashboard}
 				onContinueStudying={mockOnContinueStudying}
+				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="spaced-repetition"
 			/>,
 		);
 
@@ -182,11 +182,11 @@ describe("PostSessionSummary", () => {
 	it("does not show continue studying button when onContinueStudying is not provided", () => {
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="spaced-repetition"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="spaced-repetition"
 			/>,
 		);
 
@@ -198,12 +198,12 @@ describe("PostSessionSummary", () => {
 
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="spaced-repetition"
-				onReturnToDashboard={mockOnReturnToDashboard}
 				onContinueStudying={mockOnContinueStudying}
+				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="spaced-repetition"
 			/>,
 		);
 
@@ -218,11 +218,11 @@ describe("PostSessionSummary", () => {
 	it("does not show continue studying button for basic mode", () => {
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="basic"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="basic"
 			/>,
 		);
 
@@ -232,11 +232,11 @@ describe("PostSessionSummary", () => {
 	it("shows appropriate next study message for basic mode", () => {
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="basic"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="basic"
 			/>,
 		);
 
@@ -250,11 +250,11 @@ describe("PostSessionSummary", () => {
 	it("shows appropriate next study message for spaced repetition with due cards", () => {
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="spaced-repetition"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="spaced-repetition"
 			/>,
 		);
 
@@ -267,17 +267,17 @@ describe("PostSessionSummary", () => {
 		mockUseQuery.mockReturnValue({
 			dueCount: 0,
 			newCount: 8,
-			totalStudyCards: 0,
 			totalCardsInDeck: 20,
+			totalStudyCards: 0,
 		});
 
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="spaced-repetition"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="spaced-repetition"
 			/>,
 		);
 
@@ -290,17 +290,17 @@ describe("PostSessionSummary", () => {
 		mockUseQuery.mockReturnValue({
 			dueCount: 0,
 			newCount: 15,
-			totalStudyCards: 15,
 			totalCardsInDeck: 25,
+			totalStudyCards: 15,
 		});
 
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="spaced-repetition"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="spaced-repetition"
 			/>,
 		);
 
@@ -312,11 +312,11 @@ describe("PostSessionSummary", () => {
 	it("shows motivational message for spaced repetition", () => {
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="spaced-repetition"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="spaced-repetition"
 			/>,
 		);
 
@@ -330,11 +330,11 @@ describe("PostSessionSummary", () => {
 	it("shows motivational message for basic mode", () => {
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="basic"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="basic"
 			/>,
 		);
 
@@ -348,11 +348,11 @@ describe("PostSessionSummary", () => {
 	it("focuses the heading when component mounts", async () => {
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="basic"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="basic"
 			/>,
 		);
 
@@ -367,11 +367,11 @@ describe("PostSessionSummary", () => {
 
 		render(
 			<PostSessionSummary
+				cardsReviewed={5}
 				deckId={mockDeckId}
 				deckName={mockDeckName}
-				cardsReviewed={5}
-				studyMode="spaced-repetition"
 				onReturnToDashboard={mockOnReturnToDashboard}
+				studyMode="spaced-repetition"
 			/>,
 		);
 

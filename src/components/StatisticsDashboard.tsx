@@ -61,23 +61,23 @@ export default function StatisticsDashboard({
 	// Defensive data extraction with fallbacks for malformed responses
 	// This protects against API changes, network issues, or unexpected data structures
 	const userStats = dashboardData?.userStatistics || {
-		totalDecks: 0,
-		totalCards: 0,
-		totalStudySessions: 0,
+		averageSessionDuration: undefined,
 		cardsStudiedToday: 0,
 		currentStreak: 0,
 		longestStreak: 0,
-		averageSessionDuration: undefined,
+		totalCards: 0,
+		totalDecks: 0,
+		totalStudySessions: 0,
 		totalStudyTime: undefined,
 	};
 
 	const spacedRepetitionInsights = dashboardData?.spacedRepetitionInsights || {
+		averageInterval: undefined,
+		cardsToReviewToday: 0,
+		retentionRate: undefined,
 		totalDueCards: 0,
 		totalNewCards: 0,
-		cardsToReviewToday: 0,
 		upcomingReviews: [],
-		retentionRate: undefined,
-		averageInterval: undefined,
 	};
 
 	const deckPerformance = Array.isArray(dashboardData?.deckPerformance)
@@ -85,34 +85,34 @@ export default function StatisticsDashboard({
 		: [];
 
 	const rawCardDistribution = dashboardData?.cardDistribution || {
-		newCards: 0,
-		learningCards: 0,
-		reviewCards: 0,
 		dueCards: 0,
+		learningCards: 0,
 		masteredCards: 0,
+		newCards: 0,
+		reviewCards: 0,
 		totalCards: 0,
 	};
 
 	const cardDistribution = {
-		newCards:
-			typeof rawCardDistribution.newCards === "number"
-				? rawCardDistribution.newCards
+		dueCards:
+			typeof rawCardDistribution.dueCards === "number"
+				? rawCardDistribution.dueCards
 				: 0,
 		learningCards:
 			typeof rawCardDistribution.learningCards === "number"
 				? rawCardDistribution.learningCards
 				: 0,
-		reviewCards:
-			typeof rawCardDistribution.reviewCards === "number"
-				? rawCardDistribution.reviewCards
-				: 0,
-		dueCards:
-			typeof rawCardDistribution.dueCards === "number"
-				? rawCardDistribution.dueCards
-				: 0,
 		masteredCards:
 			typeof rawCardDistribution.masteredCards === "number"
 				? rawCardDistribution.masteredCards
+				: 0,
+		newCards:
+			typeof rawCardDistribution.newCards === "number"
+				? rawCardDistribution.newCards
+				: 0,
+		reviewCards:
+			typeof rawCardDistribution.reviewCards === "number"
+				? rawCardDistribution.reviewCards
 				: 0,
 		totalCards:
 			typeof rawCardDistribution.totalCards === "number"
@@ -123,14 +123,6 @@ export default function StatisticsDashboard({
 	// Validate critical data properties to ensure they're numbers
 	const safeUserStats = {
 		...userStats,
-		totalDecks:
-			typeof userStats.totalDecks === "number" ? userStats.totalDecks : 0,
-		totalCards:
-			typeof userStats.totalCards === "number" ? userStats.totalCards : 0,
-		totalStudySessions:
-			typeof userStats.totalStudySessions === "number"
-				? userStats.totalStudySessions
-				: 0,
 		cardsStudiedToday:
 			typeof userStats.cardsStudiedToday === "number"
 				? userStats.cardsStudiedToday
@@ -139,10 +131,22 @@ export default function StatisticsDashboard({
 			typeof userStats.currentStreak === "number" ? userStats.currentStreak : 0,
 		longestStreak:
 			typeof userStats.longestStreak === "number" ? userStats.longestStreak : 0,
+		totalCards:
+			typeof userStats.totalCards === "number" ? userStats.totalCards : 0,
+		totalDecks:
+			typeof userStats.totalDecks === "number" ? userStats.totalDecks : 0,
+		totalStudySessions:
+			typeof userStats.totalStudySessions === "number"
+				? userStats.totalStudySessions
+				: 0,
 	};
 
 	const safeSpacedRepetitionInsights = {
 		...spacedRepetitionInsights,
+		cardsToReviewToday:
+			typeof spacedRepetitionInsights.cardsToReviewToday === "number"
+				? spacedRepetitionInsights.cardsToReviewToday
+				: 0,
 		totalDueCards:
 			typeof spacedRepetitionInsights.totalDueCards === "number"
 				? spacedRepetitionInsights.totalDueCards
@@ -150,10 +154,6 @@ export default function StatisticsDashboard({
 		totalNewCards:
 			typeof spacedRepetitionInsights.totalNewCards === "number"
 				? spacedRepetitionInsights.totalNewCards
-				: 0,
-		cardsToReviewToday:
-			typeof spacedRepetitionInsights.cardsToReviewToday === "number"
-				? spacedRepetitionInsights.cardsToReviewToday
 				: 0,
 		upcomingReviews: Array.isArray(spacedRepetitionInsights.upcomingReviews)
 			? spacedRepetitionInsights.upcomingReviews
@@ -165,31 +165,31 @@ export default function StatisticsDashboard({
 		try {
 			// Prepare export data with defensive checks already applied
 			const exportData = {
-				userStatistics: safeUserStats,
-				spacedRepetitionInsights: safeSpacedRepetitionInsights,
+				dateRange,
 				deckPerformance: deckPerformance.map((deck) => ({
+					averageEaseFactor:
+						typeof deck?.averageEaseFactor === "number"
+							? deck.averageEaseFactor
+							: undefined,
 					deckId: deck?.deckId || "unknown",
 					deckName:
 						typeof deck?.deckName === "string" ? deck.deckName : "Unknown Deck",
-					totalCards:
-						typeof deck?.totalCards === "number" ? deck.totalCards : 0,
+					lastStudied:
+						typeof deck?.lastStudied === "number"
+							? deck.lastStudied
+							: undefined,
 					masteredCards:
 						typeof deck?.masteredCards === "number" ? deck.masteredCards : 0,
 					masteryPercentage:
 						typeof deck?.masteryPercentage === "number"
 							? deck.masteryPercentage
 							: 0,
-					averageEaseFactor:
-						typeof deck?.averageEaseFactor === "number"
-							? deck.averageEaseFactor
-							: undefined,
-					lastStudied:
-						typeof deck?.lastStudied === "number"
-							? deck.lastStudied
-							: undefined,
+					totalCards:
+						typeof deck?.totalCards === "number" ? deck.totalCards : 0,
 				})),
 				exportDate: new Date().toISOString(),
-				dateRange,
+				spacedRepetitionInsights: safeSpacedRepetitionInsights,
+				userStatistics: safeUserStats,
 			};
 
 			// Use the utility function to handle the export
@@ -215,21 +215,23 @@ export default function StatisticsDashboard({
 				<div>
 					<div className="mb-2 flex items-center gap-3">
 						<button
-							onClick={onBack}
-							className="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
 							aria-label={t("statistics.dashboard.backToDashboard")}
+							className="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+							onClick={onBack}
+							type="button"
 						>
 							<svg
+								aria-hidden="true"
 								className="h-5 w-5"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
 							>
 								<path
+									d="M15 19l-7-7 7-7"
 									strokeLinecap="round"
 									strokeLinejoin="round"
 									strokeWidth={2}
-									d="M15 19l-7-7 7-7"
 								/>
 							</svg>
 						</button>
@@ -246,9 +248,9 @@ export default function StatisticsDashboard({
 				<div className="flex flex-col gap-3 sm:flex-row">
 					{/* Date Range Filter */}
 					<select
-						value={dateRange}
-						onChange={(e) => setDateRange(e.target.value as DateRange)}
 						className="rounded-lg border-2 border-slate-200 bg-slate-50 px-4 py-2 transition-colors focus:border-blue-400 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:focus:border-blue-400"
+						onChange={(e) => setDateRange(e.target.value as DateRange)}
+						value={dateRange}
 					>
 						<option value="7d">
 							{t("statistics.dashboard.dateRange.last7Days")}
@@ -267,14 +269,14 @@ export default function StatisticsDashboard({
 					{/* Export Dropdown */}
 					<div className="relative">
 						<select
+							className="cursor-pointer rounded-lg bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-blue-300"
+							disabled={isExporting}
 							onChange={(e) => {
 								if (e.target.value) {
 									void handleExportData(e.target.value as ExportFormat);
 									e.target.value = ""; // Reset selection
 								}
 							}}
-							disabled={isExporting}
-							className="cursor-pointer rounded-lg bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-blue-300"
 						>
 							<option value="">
 								{isExporting
@@ -294,8 +296,8 @@ export default function StatisticsDashboard({
 
 			{/* Overview Cards */}
 			<StatisticsOverviewCards
-				userStats={safeUserStats}
 				spacedRepetitionInsights={safeSpacedRepetitionInsights}
+				userStats={safeUserStats}
 			/>
 
 			{/* Study History Heatmap - Full Width */}
@@ -313,14 +315,14 @@ export default function StatisticsDashboard({
 				{/* Deck Performance Chart */}
 				<DeckPerformanceChart
 					deckPerformance={deckPerformance}
-					selectedDeckId={selectedDeckId}
 					onDeckSelect={setSelectedDeckId}
+					selectedDeckId={selectedDeckId}
 				/>
 
 				{/* Card Distribution Chart */}
 				<CardDistributionChart
-					spacedRepetitionInsights={safeSpacedRepetitionInsights}
 					cardDistribution={cardDistribution}
+					spacedRepetitionInsights={safeSpacedRepetitionInsights}
 				/>
 			</div>
 
@@ -369,15 +371,15 @@ export default function StatisticsDashboard({
 								{deckPerformance.map((deck) => {
 									// Defensive checks for deck data
 									const safeDeck = {
+										averageEaseFactor:
+											typeof deck?.averageEaseFactor === "number"
+												? deck.averageEaseFactor
+												: undefined,
 										deckId: deck?.deckId || "unknown",
 										deckName:
 											typeof deck?.deckName === "string"
 												? deck.deckName
 												: "Unknown Deck",
-										totalCards:
-											typeof deck?.totalCards === "number"
-												? deck.totalCards
-												: 0,
 										masteredCards:
 											typeof deck?.masteredCards === "number"
 												? deck.masteredCards
@@ -386,16 +388,16 @@ export default function StatisticsDashboard({
 											typeof deck?.masteryPercentage === "number"
 												? deck.masteryPercentage
 												: 0,
-										averageEaseFactor:
-											typeof deck?.averageEaseFactor === "number"
-												? deck.averageEaseFactor
-												: undefined,
+										totalCards:
+											typeof deck?.totalCards === "number"
+												? deck.totalCards
+												: 0,
 									};
 
 									return (
 										<tr
-											key={safeDeck.deckId}
 											className="border-slate-100 border-b transition-colors hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-700"
+											key={safeDeck.deckId}
 										>
 											<td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200">
 												{safeDeck.deckName}

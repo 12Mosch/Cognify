@@ -9,11 +9,10 @@ export const StatisticsDashboardSkeleton = memo(
 		const { t } = useTranslation();
 
 		return (
-			<div
-				className="mx-auto flex max-w-7xl flex-col gap-8"
-				role="status"
+			<output
 				aria-busy="true"
 				aria-label={t("statistics.loading.dashboard")}
+				className="mx-auto flex max-w-7xl flex-col gap-8"
 			>
 				{/* Header Skeleton */}
 				<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
@@ -29,9 +28,10 @@ export const StatisticsDashboardSkeleton = memo(
 
 				{/* Overview Cards Grid */}
 				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-					{Array.from({ length: 4 }).map((_, index) => (
-						<StatisticsCardSkeleton key={index} />
-					))}
+					<StatisticsCardSkeleton />
+					<StatisticsCardSkeleton />
+					<StatisticsCardSkeleton />
+					<StatisticsCardSkeleton />
 				</div>
 
 				{/* Charts Section */}
@@ -52,7 +52,7 @@ export const StatisticsDashboardSkeleton = memo(
 					<StatisticsCardSkeleton />
 					<StatisticsCardSkeleton />
 				</div>
-			</div>
+			</output>
 		);
 	},
 );
@@ -111,12 +111,18 @@ export const ChartSkeleton = memo(function ChartSkeleton({
 
 			{/* Chart Legend/Footer */}
 			<div className="mt-4 flex justify-center gap-4">
-				{Array.from({ length: 3 }).map((_, index) => (
-					<div key={index} className="flex items-center gap-2">
-						<div className="h-3 w-3 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
-						<div className="h-4 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
-					</div>
-				))}
+				<div className="flex items-center gap-2">
+					<div className="h-3 w-3 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+				</div>
+				<div className="flex items-center gap-2">
+					<div className="h-3 w-3 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+				</div>
+				<div className="flex items-center gap-2">
+					<div className="h-3 w-3 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+				</div>
 			</div>
 		</div>
 	);
@@ -134,28 +140,42 @@ export const DeckPerformanceTableSkeleton = memo(
 
 				{/* Table Headers */}
 				<div className="mb-4 grid grid-cols-5 gap-4 border-slate-200 border-b pb-2 dark:border-slate-700">
-					{Array.from({ length: 5 }).map((_, index) => (
-						<div
-							key={index}
-							className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"
-						></div>
-					))}
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 				</div>
 
 				{/* Table Rows */}
-				{Array.from({ length: 4 }).map((_, rowIndex) => (
-					<div
-						key={rowIndex}
-						className="grid grid-cols-5 gap-4 border-slate-100 border-b py-3 dark:border-slate-800"
-					>
-						{Array.from({ length: 5 }).map((_, colIndex) => (
-							<div
-								key={colIndex}
-								className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"
-							></div>
-						))}
-					</div>
-				))}
+				<div className="grid grid-cols-5 gap-4 border-slate-100 border-b py-3 dark:border-slate-800">
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+				</div>
+				<div className="grid grid-cols-5 gap-4 border-slate-100 border-b py-3 dark:border-slate-800">
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+				</div>
+				<div className="grid grid-cols-5 gap-4 border-slate-100 border-b py-3 dark:border-slate-800">
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+				</div>
+				<div className="grid grid-cols-5 gap-4 border-slate-100 border-b py-3 dark:border-slate-800">
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					<div className="h-4 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+				</div>
 			</div>
 		);
 	},
@@ -171,21 +191,56 @@ export const UpcomingReviewsSkeleton = memo(function UpcomingReviewsSkeleton() {
 			<div className="mb-6 h-6 w-40 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 
 			{/* Review Items */}
-			{Array.from({ length: 5 }).map((_, index) => (
-				<div
-					key={index}
-					className="flex items-center justify-between border-slate-100 border-b py-3 last:border-b-0 dark:border-slate-800"
-				>
-					<div className="flex items-center gap-3">
-						<div className="h-10 w-10 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
-						<div>
-							<div className="mb-1 h-4 w-20 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
-							<div className="h-3 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
-						</div>
+			<div className="flex items-center justify-between border-slate-100 border-b py-3 last:border-b-0 dark:border-slate-800">
+				<div className="flex items-center gap-3">
+					<div className="h-10 w-10 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
+					<div>
+						<div className="mb-1 h-4 w-20 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+						<div className="h-3 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 					</div>
-					<div className="h-6 w-8 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
 				</div>
-			))}
+				<div className="h-6 w-8 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+			</div>
+			<div className="flex items-center justify-between border-slate-100 border-b py-3 last:border-b-0 dark:border-slate-800">
+				<div className="flex items-center gap-3">
+					<div className="h-10 w-10 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
+					<div>
+						<div className="mb-1 h-4 w-20 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+						<div className="h-3 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					</div>
+				</div>
+				<div className="h-6 w-8 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+			</div>
+			<div className="flex items-center justify-between border-slate-100 border-b py-3 last:border-b-0 dark:border-slate-800">
+				<div className="flex items-center gap-3">
+					<div className="h-10 w-10 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
+					<div>
+						<div className="mb-1 h-4 w-20 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+						<div className="h-3 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					</div>
+				</div>
+				<div className="h-6 w-8 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+			</div>
+			<div className="flex items-center justify-between border-slate-100 border-b py-3 last:border-b-0 dark:border-slate-800">
+				<div className="flex items-center gap-3">
+					<div className="h-10 w-10 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
+					<div>
+						<div className="mb-1 h-4 w-20 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+						<div className="h-3 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					</div>
+				</div>
+				<div className="h-6 w-8 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+			</div>
+			<div className="flex items-center justify-between border-slate-100 border-b py-3 last:border-b-0 dark:border-slate-800">
+				<div className="flex items-center gap-3">
+					<div className="h-10 w-10 animate-skeleton-pulse rounded-full bg-slate-200 dark:bg-slate-700"></div>
+					<div>
+						<div className="mb-1 h-4 w-20 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+						<div className="h-3 w-16 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+					</div>
+				</div>
+				<div className="h-6 w-8 animate-skeleton-pulse rounded bg-slate-200 dark:bg-slate-700"></div>
+			</div>
 		</div>
 	);
 });

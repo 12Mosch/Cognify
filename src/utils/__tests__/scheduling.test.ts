@@ -1,4 +1,4 @@
-import { getTimeSlot, TimeSlot } from "../scheduling";
+import { getTimeSlot, type TimeSlot } from "../scheduling";
 
 describe("getTimeSlot", () => {
 	describe("early_morning slot (5-8 hours)", () => {

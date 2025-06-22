@@ -1,14 +1,25 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.0.4/schema.json",
-	"vcs": {
-		"enabled": true,
-		"clientKind": "git",
-		"useIgnoreFile": true
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on",
+				"useSortedAttributes": "on",
+				"useSortedKeys": "on",
+				"useSortedProperties": "on"
+			}
+		},
+		"enabled": true
 	},
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
 		"lineWidth": 80
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double"
+		}
 	},
 	"linter": {
 		"enabled": true,
@@ -16,28 +27,23 @@
 			"recommended": true
 		}
 	},
-	"javascript": {
-		"formatter": {
-			"quoteStyle": "double"
-		}
-	},
 	"overrides": [
 		{
 			"includes": ["src/**/*.{ts,tsx}"],
 			"linter": {
 				"rules": {
+					"correctness": {
+						"useExhaustiveDependencies": "error",
+						"useHookAtTopLevel": "error"
+					},
+					"nursery": {
+						"useSortedClasses": "error"
+					},
 					"style": {
 						"useConst": "error"
 					},
 					"suspicious": {
 						"noExplicitAny": "warn"
-					},
-					"correctness": {
-						"useHookAtTopLevel": "error",
-						"useExhaustiveDependencies": "error"
-					},
-					"nursery": {
-						"useSortedClasses": "error"
 					}
 				}
 			}
@@ -53,13 +59,21 @@
 			}
 		},
 		{
-			"includes": ["convex/_generated/**"],
-			"linter": {
+			"assist": {
 				"enabled": false
 			},
 			"formatter": {
 				"enabled": false
+			},
+			"includes": ["convex/_generated/**"],
+			"linter": {
+				"enabled": false
 			}
 		}
-	]
+	],
+	"vcs": {
+		"clientKind": "git",
+		"enabled": true,
+		"useIgnoreFile": true
+	}
 }

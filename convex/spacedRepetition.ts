@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { CacheInvalidation } from "./utils/cache";
 
@@ -82,10 +83,10 @@ function calculateSM2(
 	const dueDate = now + newInterval * millisecondsPerDay;
 
 	return {
-		repetition: newRepetition,
+		dueDate,
 		easeFactor: newEaseFactor,
 		interval: newInterval,
-		dueDate,
+		repetition: newRepetition,
 	};
 }
 
@@ -97,7 +98,6 @@ export const reviewCard = mutation({
 		cardId: v.id("cards"),
 		quality: v.number(), // 0-5 scale
 	},
-	returns: v.null(),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -149,27 +149,27 @@ export const reviewCard = mutation({
 
 		// Record the review outcome for retention rate calculation
 		await ctx.db.insert("cardReviews", {
-			userId: identity.subject,
 			cardId: args.cardId,
 			deckId: card.deckId,
-			reviewDate: Date.now(),
-			quality: args.quality,
-			wasSuccessful: args.quality >= 3, // SM-2 considers quality >= 3 as successful
-			repetitionBefore: currentRepetition,
-			repetitionAfter: repetition,
-			intervalBefore: currentInterval,
-			intervalAfter: interval,
-			easeFactorBefore: currentEaseFactor,
 			easeFactorAfter: easeFactor,
+			easeFactorBefore: currentEaseFactor,
+			intervalAfter: interval,
+			intervalBefore: currentInterval, // SM-2 considers quality >= 3 as successful
+			quality: args.quality,
+			repetitionAfter: repetition,
+			repetitionBefore: currentRepetition,
+			reviewDate: Date.now(),
 			studyMode: "spaced-repetition",
+			userId: identity.subject,
+			wasSuccessful: args.quality >= 3,
 		});
 
 		// Update the card with new spaced repetition parameters
 		await ctx.db.patch(args.cardId, {
-			repetition,
+			dueDate,
 			easeFactor,
 			interval,
-			dueDate,
+			repetition,
 		});
 
 		// Invalidate relevant caches after card review
@@ -177,6 +177,7 @@ export const reviewCard = mutation({
 
 		return null;
 	},
+	returns: v.null(),
 });
 
 /**
@@ -186,20 +187,6 @@ export const getDueCardsForDeck = query({
 	args: {
 		deckId: v.id("decks"),
 	},
-	returns: v.array(
-		v.object({
-			_id: v.id("cards"),
-			_creationTime: v.number(),
-			deckId: v.id("decks"),
-			userId: v.string(),
-			front: v.string(),
-			back: v.string(),
-			repetition: v.optional(v.number()),
-			easeFactor: v.optional(v.number()),
-			interval: v.optional(v.number()),
-			dueDate: v.optional(v.number()),
-		}),
-	),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -229,6 +216,20 @@ export const getDueCardsForDeck = query({
 			)
 			.collect();
 	},
+	returns: v.array(
+		v.object({
+			_creationTime: v.number(),
+			_id: v.id("cards"),
+			back: v.string(),
+			deckId: v.id("decks"),
+			dueDate: v.optional(v.number()),
+			easeFactor: v.optional(v.number()),
+			front: v.string(),
+			interval: v.optional(v.number()),
+			repetition: v.optional(v.number()),
+			userId: v.string(),
+		}),
+	),
 });
 
 /**
@@ -242,20 +243,6 @@ export const getStudyQueue = query({
 		maxCards: v.optional(v.number()), // Optional override for daily limit
 		shuffle: v.optional(v.boolean()), // Whether to shuffle the final queue
 	},
-	returns: v.array(
-		v.object({
-			_id: v.id("cards"),
-			_creationTime: v.number(),
-			deckId: v.id("decks"),
-			userId: v.string(),
-			front: v.string(),
-			back: v.string(),
-			repetition: v.optional(v.number()),
-			easeFactor: v.optional(v.number()),
-			interval: v.optional(v.number()),
-			dueDate: v.optional(v.number()),
-		}),
-	),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -286,7 +273,7 @@ export const getStudyQueue = query({
 			)
 			.collect();
 
-		let newCards: any[] = [];
+		let newCards: Doc<"cards">[] = [];
 
 		// 2. If we have fewer due cards than the daily limit, fill with new cards
 		if (dueCards.length < maxCards) {
@@ -314,6 +301,20 @@ export const getStudyQueue = query({
 
 		return queue;
 	},
+	returns: v.array(
+		v.object({
+			_creationTime: v.number(),
+			_id: v.id("cards"),
+			back: v.string(),
+			deckId: v.id("decks"),
+			dueDate: v.optional(v.number()),
+			easeFactor: v.optional(v.number()),
+			front: v.string(),
+			interval: v.optional(v.number()),
+			repetition: v.optional(v.number()),
+			userId: v.string(),
+		}),
+	),
 });
 
 /**
@@ -325,20 +326,6 @@ export const getNewCardsForDeck = query({
 		deckId: v.id("decks"),
 		limit: v.optional(v.number()),
 	},
-	returns: v.array(
-		v.object({
-			_id: v.id("cards"),
-			_creationTime: v.number(),
-			deckId: v.id("decks"),
-			userId: v.string(),
-			front: v.string(),
-			back: v.string(),
-			repetition: v.optional(v.number()),
-			easeFactor: v.optional(v.number()),
-			interval: v.optional(v.number()),
-			dueDate: v.optional(v.number()),
-		}),
-	),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -370,6 +357,20 @@ export const getNewCardsForDeck = query({
 			)
 			.take(limit);
 	},
+	returns: v.array(
+		v.object({
+			_creationTime: v.number(),
+			_id: v.id("cards"),
+			back: v.string(),
+			deckId: v.id("decks"),
+			dueDate: v.optional(v.number()),
+			easeFactor: v.optional(v.number()),
+			front: v.string(),
+			interval: v.optional(v.number()),
+			repetition: v.optional(v.number()),
+			userId: v.string(),
+		}),
+	),
 });
 
 /**
@@ -379,12 +380,6 @@ export const getStudyQueueStats = query({
 	args: {
 		deckId: v.id("decks"),
 	},
-	returns: v.object({
-		dueCount: v.number(),
-		newCount: v.number(),
-		totalStudyCards: v.number(),
-		totalCardsInDeck: v.number(),
-	}),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -437,10 +432,16 @@ export const getStudyQueueStats = query({
 		return {
 			dueCount,
 			newCount,
-			totalStudyCards,
 			totalCardsInDeck: totalCards.length,
+			totalStudyCards,
 		};
 	},
+	returns: v.object({
+		dueCount: v.number(),
+		newCount: v.number(),
+		totalCardsInDeck: v.number(),
+		totalStudyCards: v.number(),
+	}),
 });
 
 /**
@@ -455,11 +456,6 @@ export const getNextReviewInfo = query({
 	args: {
 		deckId: v.id("decks"),
 	},
-	returns: v.object({
-		nextDueDate: v.optional(v.number()), // Earliest due date for any card in the deck
-		hasCardsToReview: v.boolean(), // Whether there are any cards that will be due in the future
-		totalCardsInDeck: v.number(), // Total number of cards in the deck
-	}),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -493,11 +489,16 @@ export const getNextReviewInfo = query({
 		const nextDueDate = nextCard?.dueDate;
 
 		return {
-			nextDueDate,
 			hasCardsToReview: Boolean(nextDueDate),
+			nextDueDate,
 			totalCardsInDeck: deck.cardCount || 0,
 		};
 	},
+	returns: v.object({
+		hasCardsToReview: v.boolean(), // Earliest due date for any card in the deck
+		nextDueDate: v.optional(v.number()), // Whether there are any cards that will be due in the future
+		totalCardsInDeck: v.number(), // Total number of cards in the deck
+	}),
 });
 
 /**
@@ -507,7 +508,6 @@ export const initializeCardForSpacedRepetition = mutation({
 	args: {
 		cardId: v.id("cards"),
 	},
-	returns: v.null(),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -540,7 +540,12 @@ export const initializeCardForSpacedRepetition = mutation({
 		}
 
 		// Only initialize if fields are missing
-		const updates: any = {};
+		const updates: Partial<{
+			repetition: number;
+			easeFactor: number;
+			interval: number;
+			dueDate: number;
+		}> = {};
 
 		if (card.repetition === undefined) {
 			updates.repetition = DEFAULT_REPETITION;
@@ -566,4 +571,5 @@ export const initializeCardForSpacedRepetition = mutation({
 
 		return null;
 	},
+	returns: v.null(),
 });

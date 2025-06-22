@@ -49,10 +49,11 @@ export default function FeatureFlagDemo() {
 							improvements!
 						</p>
 						<button
+							className="rounded bg-blue-500 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-600"
 							onClick={() =>
 								handleFeatureClick("new-study-algorithm", !!newStudyAlgorithm)
 							}
-							className="rounded bg-blue-500 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-600"
+							type="button"
 						>
 							Try Enhanced Algorithm
 						</button>
@@ -69,10 +70,11 @@ export default function FeatureFlagDemo() {
 							Advanced dark mode customization is available.
 						</p>
 						<button
+							className="rounded bg-purple-500 px-3 py-1 text-sm text-white transition-colors hover:bg-purple-600"
 							onClick={() =>
 								handleFeatureClick("dark-mode-toggle", !!darkModeToggle)
 							}
-							className="rounded bg-purple-500 px-3 py-1 text-sm text-white transition-colors hover:bg-purple-600"
+							type="button"
 						>
 							Customize Theme
 						</button>
@@ -89,10 +91,11 @@ export default function FeatureFlagDemo() {
 							Detailed learning insights and progress tracking available.
 						</p>
 						<button
+							className="rounded bg-green-500 px-3 py-1 text-sm text-white transition-colors hover:bg-green-600"
 							onClick={() =>
 								handleFeatureClick("advanced-statistics", !!advancedStatistics)
 							}
-							className="rounded bg-green-500 px-3 py-1 text-sm text-white transition-colors hover:bg-green-600"
+							type="button"
 						>
 							View Analytics
 						</button>
@@ -109,10 +112,11 @@ export default function FeatureFlagDemo() {
 							Share your study progress and compete with friends.
 						</p>
 						<button
+							className="rounded bg-orange-500 px-3 py-1 text-sm text-white transition-colors hover:bg-orange-600"
 							onClick={() =>
 								handleFeatureClick("social-sharing", !!socialSharing)
 							}
-							className="rounded bg-orange-500 px-3 py-1 text-sm text-white transition-colors hover:bg-orange-600"
+							type="button"
 						>
 							Share Progress
 						</button>

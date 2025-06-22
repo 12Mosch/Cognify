@@ -4,7 +4,7 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { Id } from "../../../convex/_generated/dataModel";
+import type { Id } from "../../../convex/_generated/dataModel";
 import BasicStudyMode from "../BasicStudyMode";
 
 // Mock Convex hooks
@@ -15,8 +15,8 @@ jest.mock("convex/react", () => ({
 // Mock analytics
 jest.mock("../../lib/analytics", () => ({
 	useAnalytics: () => ({
-		trackStudySessionStarted: jest.fn(),
 		trackCardFlipped: jest.fn(),
+		trackStudySessionStarted: jest.fn(),
 	}),
 }));
 
@@ -42,27 +42,27 @@ const setupSuccessfulMocks = () => {
 };
 
 const mockDeck = {
-	_id: mockDeckId,
-	name: "Test Deck",
-	description: "A test deck",
-	userId: "user-123",
 	_creationTime: Date.now(),
+	_id: mockDeckId,
+	description: "A test deck",
+	name: "Test Deck",
+	userId: "user-123",
 };
 
 const mockCards = [
 	{
+		_creationTime: Date.now(),
 		_id: "card-1" as Id<"cards">,
+		back: "4",
 		deckId: mockDeckId,
 		front: "What is 2+2?",
-		back: "4",
-		_creationTime: Date.now(),
 	},
 	{
+		_creationTime: Date.now(),
 		_id: "card-2" as Id<"cards">,
+		back: "Paris",
 		deckId: mockDeckId,
 		front: "What is the capital of France?",
-		back: "Paris",
-		_creationTime: Date.now(),
 	},
 ];
 

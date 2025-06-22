@@ -56,74 +56,74 @@ interface StudyStrategy {
 // Predefined study strategies
 const STUDY_STRATEGIES: StudyStrategy[] = [
 	{
+		applicableContexts: ["flashcards", "concepts", "facts"],
+		category: "retrieval",
+		description: "Test yourself without looking at the answer first",
+		difficulty: "beginner",
+		effectiveness: 0.9,
 		id: "active_recall",
 		name: "Active Recall",
-		description: "Test yourself without looking at the answer first",
-		category: "retrieval",
-		effectiveness: 0.9,
-		difficulty: "beginner",
 		timeRequired: 0,
-		applicableContexts: ["flashcards", "concepts", "facts"],
 	},
 	{
+		applicableContexts: ["memorization", "long_term_retention"],
+		category: "retrieval",
+		description: "Review material at increasing intervals",
+		difficulty: "beginner",
+		effectiveness: 0.95,
 		id: "spaced_repetition",
 		name: "Spaced Repetition",
-		description: "Review material at increasing intervals",
-		category: "retrieval",
-		effectiveness: 0.95,
-		difficulty: "beginner",
 		timeRequired: 0,
-		applicableContexts: ["memorization", "long_term_retention"],
 	},
 	{
+		applicableContexts: ["concepts", "understanding", "connections"],
+		category: "elaboration",
+		description: 'Ask yourself "why" and "how" questions about the material',
+		difficulty: "intermediate",
+		effectiveness: 0.7,
 		id: "elaborative_interrogation",
 		name: "Elaborative Interrogation",
-		description: 'Ask yourself "why" and "how" questions about the material',
-		category: "elaboration",
-		effectiveness: 0.7,
-		difficulty: "intermediate",
 		timeRequired: 5,
-		applicableContexts: ["concepts", "understanding", "connections"],
 	},
 	{
+		applicableContexts: ["complex_topics", "problem_solving"],
+		category: "elaboration",
+		description: "Explain the material to yourself in your own words",
+		difficulty: "intermediate",
+		effectiveness: 0.8,
 		id: "self_explanation",
 		name: "Self-Explanation",
-		description: "Explain the material to yourself in your own words",
-		category: "elaboration",
-		effectiveness: 0.8,
-		difficulty: "intermediate",
 		timeRequired: 3,
-		applicableContexts: ["complex_topics", "problem_solving"],
 	},
 	{
+		applicableContexts: ["visual_learners", "complex_concepts"],
+		category: "encoding",
+		description: "Combine visual and verbal information",
+		difficulty: "intermediate",
+		effectiveness: 0.75,
 		id: "dual_coding",
 		name: "Dual Coding",
-		description: "Combine visual and verbal information",
-		category: "encoding",
-		effectiveness: 0.75,
-		difficulty: "intermediate",
 		timeRequired: 5,
-		applicableContexts: ["visual_learners", "complex_concepts"],
 	},
 	{
+		applicableContexts: ["problem_solving", "skill_building"],
+		category: "organization",
+		description: "Mix different types of problems or topics in one session",
+		difficulty: "advanced",
+		effectiveness: 0.8,
 		id: "interleaving",
 		name: "Interleaving",
-		description: "Mix different types of problems or topics in one session",
-		category: "organization",
-		effectiveness: 0.8,
-		difficulty: "advanced",
 		timeRequired: 0,
-		applicableContexts: ["problem_solving", "skill_building"],
 	},
 	{
+		applicableContexts: ["self_regulation", "complex_learning"],
+		category: "metacognitive",
+		description: "Regularly assess your understanding and adjust strategies",
+		difficulty: "advanced",
+		effectiveness: 0.85,
 		id: "metacognitive_monitoring",
 		name: "Metacognitive Monitoring",
-		description: "Regularly assess your understanding and adjust strategies",
-		category: "metacognitive",
-		effectiveness: 0.85,
-		difficulty: "advanced",
 		timeRequired: 2,
-		applicableContexts: ["self_regulation", "complex_learning"],
 	},
 ];
 
@@ -135,11 +135,11 @@ const REFLECTION_PROMPTS = {
 		"How did you overcome difficulties in this session?",
 		"What would help you better understand the challenging parts?",
 	],
-	strategy: [
-		"Which study techniques worked best for you today?",
-		"What would you do differently in your next study session?",
-		"How effective was your approach to learning this material?",
-		"What new strategies could you try next time?",
+	goals: [
+		"How does today's learning contribute to your larger goals?",
+		"What specific progress did you make today?",
+		"What do you want to achieve in your next study session?",
+		"How can you measure your learning progress?",
 	],
 	motivation: [
 		"What motivated you to study today?",
@@ -147,11 +147,11 @@ const REFLECTION_PROMPTS = {
 		"What would increase your motivation for this subject?",
 		"How does this learning connect to your goals?",
 	],
-	understanding: [
-		"How well do you understand the material you just studied?",
-		"What connections can you make between today's content and what you already know?",
-		"Which concepts are you most confident about?",
-		"What questions do you still have about this topic?",
+	strategy: [
+		"Which study techniques worked best for you today?",
+		"What would you do differently in your next study session?",
+		"How effective was your approach to learning this material?",
+		"What new strategies could you try next time?",
 	],
 	time_management: [
 		"How effectively did you use your study time?",
@@ -159,11 +159,11 @@ const REFLECTION_PROMPTS = {
 		"How could you better organize your study sessions?",
 		"What time of day works best for your learning?",
 	],
-	goals: [
-		"How does today's learning contribute to your larger goals?",
-		"What specific progress did you make today?",
-		"What do you want to achieve in your next study session?",
-		"How can you measure your learning progress?",
+	understanding: [
+		"How well do you understand the material you just studied?",
+		"What connections can you make between today's content and what you already know?",
+		"Which concepts are you most confident about?",
+		"What questions do you still have about this topic?",
 	],
 };
 
@@ -184,24 +184,13 @@ export const getReflectionPrompts = query({
 		),
 		sessionContext: v.optional(
 			v.object({
-				deckId: v.id("decks"),
-				cardsReviewed: v.number(),
-				sessionDuration: v.number(),
 				averageSuccess: v.number(),
+				cardsReviewed: v.number(),
+				deckId: v.id("decks"),
+				sessionDuration: v.number(),
 			}),
 		),
 	},
-	returns: v.array(
-		v.object({
-			category: v.string(),
-			prompt: v.string(),
-			priority: v.union(
-				v.literal("high"),
-				v.literal("medium"),
-				v.literal("low"),
-			),
-		}),
-	),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -232,8 +221,8 @@ export const getReflectionPrompts = query({
 				if (!usedPrompts.has(prompt)) {
 					prompts.push({
 						category: args.category,
-						prompt,
 						priority: "medium" as const,
+						prompt,
 					});
 				}
 			}
@@ -247,13 +236,13 @@ export const getReflectionPrompts = query({
 				if (averageSuccess < 0.6) {
 					prompts.push({
 						category: "difficulty",
-						prompt: "What made this material challenging for you?",
 						priority: "high" as const,
+						prompt: "What made this material challenging for you?",
 					});
 					prompts.push({
 						category: "strategy",
-						prompt: "What would you do differently in your next study session?",
 						priority: "high" as const,
+						prompt: "What would you do differently in your next study session?",
 					});
 				}
 
@@ -261,8 +250,8 @@ export const getReflectionPrompts = query({
 				if (averageSuccess > 0.8) {
 					prompts.push({
 						category: "strategy",
-						prompt: "Which study techniques worked best for you today?",
 						priority: "medium" as const,
+						prompt: "Which study techniques worked best for you today?",
 					});
 				}
 
@@ -270,8 +259,8 @@ export const getReflectionPrompts = query({
 				if (sessionDuration > 45) {
 					prompts.push({
 						category: "time_management",
-						prompt: "How effectively did you use your study time?",
 						priority: "medium" as const,
+						prompt: "How effectively did you use your study time?",
 					});
 				}
 
@@ -279,8 +268,8 @@ export const getReflectionPrompts = query({
 				if (cardsReviewed > 50) {
 					prompts.push({
 						category: "understanding",
-						prompt: "How well do you understand the material you just studied?",
 						priority: "medium" as const,
+						prompt: "How well do you understand the material you just studied?",
 					});
 				}
 			}
@@ -290,19 +279,19 @@ export const getReflectionPrompts = query({
 				const generalPrompts = [
 					{
 						category: "understanding",
-						prompt: "How well do you understand the material you just studied?",
 						priority: "medium" as const,
+						prompt: "How well do you understand the material you just studied?",
 					},
 					{
 						category: "motivation",
-						prompt: "How engaged did you feel during this session?",
 						priority: "low" as const,
+						prompt: "How engaged did you feel during this session?",
 					},
 					{
 						category: "goals",
+						priority: "low" as const,
 						prompt:
 							"How does today's learning contribute to your larger goals?",
-						priority: "low" as const,
 					},
 				];
 
@@ -316,6 +305,17 @@ export const getReflectionPrompts = query({
 
 		return prompts.slice(0, 5); // Return max 5 prompts
 	},
+	returns: v.array(
+		v.object({
+			category: v.string(),
+			priority: v.union(
+				v.literal("high"),
+				v.literal("medium"),
+				v.literal("low"),
+			),
+			prompt: v.string(),
+		}),
+	),
 });
 
 /**
@@ -331,14 +331,13 @@ export const saveReflection = mutation({
 			v.literal("time_management"),
 			v.literal("goals"),
 		),
-		prompt: v.string(),
-		response: v.string(),
-		rating: v.number(), // 1-5 scale
-		sessionId: v.optional(v.string()),
 		deckId: v.optional(v.id("decks")),
+		prompt: v.string(),
+		rating: v.number(), // 1-5 scale
+		response: v.string(),
+		sessionId: v.optional(v.string()),
 		tags: v.optional(v.array(v.string())),
 	},
-	returns: v.id("learningReflections"),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -346,17 +345,18 @@ export const saveReflection = mutation({
 		}
 
 		return await ctx.db.insert("learningReflections", {
-			userId: identity.subject,
 			category: args.category,
-			prompt: args.prompt,
-			response: args.response,
-			rating: Math.max(1, Math.min(5, args.rating)),
-			sessionId: args.sessionId,
 			deckId: args.deckId,
+			prompt: args.prompt,
+			rating: Math.max(1, Math.min(5, args.rating)),
+			response: args.response,
+			sessionId: args.sessionId,
 			tags: args.tags || [],
 			timestamp: Date.now(),
+			userId: identity.subject,
 		});
 	},
+	returns: v.id("learningReflections"),
 });
 
 /**
@@ -385,21 +385,6 @@ export const getStrategyRecommendations = query({
 			}),
 		),
 	},
-	returns: v.array(
-		v.object({
-			strategy: v.object({
-				id: v.string(),
-				name: v.string(),
-				description: v.string(),
-				category: v.string(),
-				effectiveness: v.number(),
-				difficulty: v.string(),
-				timeRequired: v.number(),
-			}),
-			relevanceScore: v.number(),
-			reasoning: v.string(),
-		}),
-	),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -477,17 +462,17 @@ export const getStrategyRecommendations = query({
 			}
 
 			recommendations.push({
+				reasoning,
+				relevanceScore: Math.max(0, Math.min(1, relevanceScore)),
 				strategy: {
+					category: strategy.category,
+					description: strategy.description,
+					difficulty: strategy.difficulty,
+					effectiveness: strategy.effectiveness,
 					id: strategy.id,
 					name: strategy.name,
-					description: strategy.description,
-					category: strategy.category,
-					effectiveness: strategy.effectiveness,
-					difficulty: strategy.difficulty,
 					timeRequired: strategy.timeRequired,
 				},
-				relevanceScore: Math.max(0, Math.min(1, relevanceScore)),
-				reasoning,
 			});
 		}
 
@@ -496,6 +481,21 @@ export const getStrategyRecommendations = query({
 			.sort((a, b) => b.relevanceScore - a.relevanceScore)
 			.slice(0, 5);
 	},
+	returns: v.array(
+		v.object({
+			reasoning: v.string(),
+			relevanceScore: v.number(),
+			strategy: v.object({
+				category: v.string(),
+				description: v.string(),
+				difficulty: v.string(),
+				effectiveness: v.number(),
+				id: v.string(),
+				name: v.string(),
+				timeRequired: v.number(),
+			}),
+		}),
+	),
 });
 
 /**
@@ -503,11 +503,10 @@ export const getStrategyRecommendations = query({
  */
 export const recordConfidenceCalibration = mutation({
 	args: {
-		cardId: v.id("cards"),
+		actualPerformance: v.number(),
+		cardId: v.id("cards"), // 0-1
 		predictedConfidence: v.number(), // 0-1
-		actualPerformance: v.number(), // 0-1
 	},
-	returns: v.null(),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -519,16 +518,17 @@ export const recordConfidenceCalibration = mutation({
 		);
 
 		await ctx.db.insert("confidenceCalibrations", {
-			userId: identity.subject,
-			cardId: args.cardId,
-			predictedConfidence: args.predictedConfidence,
 			actualPerformance: args.actualPerformance,
 			calibrationError,
+			cardId: args.cardId,
+			predictedConfidence: args.predictedConfidence,
 			timestamp: Date.now(),
+			userId: identity.subject,
 		});
 
 		return null;
 	},
+	returns: v.null(),
 });
 
 /**
@@ -536,12 +536,6 @@ export const recordConfidenceCalibration = mutation({
  */
 export const getConfidenceCalibrationInsights = query({
 	args: {},
-	returns: v.object({
-		averageCalibrationError: v.number(),
-		overconfidenceBias: v.number(), // Positive = overconfident, negative = underconfident
-		calibrationTrend: v.string(), // "improving", "stable", "declining"
-		recommendations: v.array(v.string()),
-	}),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
@@ -557,8 +551,8 @@ export const getConfidenceCalibrationInsights = query({
 		if (calibrations.length === 0) {
 			return {
 				averageCalibrationError: 0,
-				overconfidenceBias: 0,
 				calibrationTrend: "stable",
+				overconfidenceBias: 0,
 				recommendations: [
 					"Complete more reviews with confidence ratings to get insights",
 				],
@@ -616,12 +610,18 @@ export const getConfidenceCalibrationInsights = query({
 
 		return {
 			averageCalibrationError,
-			overconfidenceBias,
 			calibrationTrend,
+			overconfidenceBias,
 			recommendations:
 				recommendations.length > 0
 					? recommendations
 					: ["Your confidence calibration looks good! Keep it up."],
 		};
 	},
+	returns: v.object({
+		averageCalibrationError: v.number(),
+		calibrationTrend: v.string(), // Positive = overconfident, negative = underconfident
+		overconfidenceBias: v.number(), // "improving", "stable", "declining"
+		recommendations: v.array(v.string()),
+	}),
 });

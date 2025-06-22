@@ -1,45 +1,10 @@
 /** @type {import('jest').Config} */
 const config = {
-	preset: "ts-jest",
-	testEnvironment: "jsdom",
-	setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
-
-	// Module resolution and mapping
-	moduleNameMapper: {
-		"^@/(.*)$": "<rootDir>/src/$1",
-		"\\.(css|less|scss|sass)$": "identity-obj-proxy",
-		"\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
-			"jest-transform-stub",
-	},
-
-	// Transform configuration for modern ES modules and TypeScript
-	transform: {
-		"^.+\\.(ts|tsx)$": [
-			"ts-jest",
-			{
-				tsconfig: "tsconfig.test.json",
-				useESM: true,
-			},
-		],
-		"^.+\\.(js|jsx)$": [
-			"babel-jest",
-			{
-				presets: [
-					["@babel/preset-env", { targets: { node: "current" } }],
-					["@babel/preset-react", { runtime: "automatic" }],
-				],
-			},
-		],
-	},
-
-	// Test file patterns
-	testMatch: [
-		"<rootDir>/src/**/__tests__/**/*.[jt]s?(x)",
-		"<rootDir>/src/**/*.+(test|spec).[jt]s?(x)",
-	],
+	// Clear mocks between tests
+	clearMocks: true,
 
 	// Coverage configuration
-	collectCoverage: false, // Enable with --coverage flag
+	collectCoverage: false,
 	collectCoverageFrom: [
 		"src/**/*.(ts|tsx)",
 		"!src/**/*.d.ts",
@@ -61,34 +26,68 @@ const config = {
 		},
 	},
 
-	// File extensions Jest will process
-	moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
-
-	// Transform ignore patterns for ES modules in node_modules
-	transformIgnorePatterns: [
-		"node_modules/(?!(.*\\.mjs$|@testing-library|@babel|react-hot-toast|posthog-js))",
-	],
+	// Error handling
+	errorOnDeprecated: true, // Enable with --coverage flag
 
 	// ES modules support
 	extensionsToTreatAsEsm: [".ts", ".tsx"],
+
+	// File extensions Jest will process
+	moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+
+	// Module resolution and mapping
+	moduleNameMapper: {
+		"\\.(css|less|scss|sass)$": "identity-obj-proxy",
+		"\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
+			"jest-transform-stub",
+		"^@/(.*)$": "<rootDir>/src/$1",
+	},
+	preset: "ts-jest",
+	restoreMocks: true,
+	setupFilesAfterEnv: ["<rootDir>/src/setupTests.ts"],
+	testEnvironment: "jsdom",
 
 	// Test environment options
 	testEnvironmentOptions: {
 		customExportConditions: ["node", "node-addons"],
 	},
 
+	// Test file patterns
+	testMatch: [
+		"<rootDir>/src/**/__tests__/**/*.[jt]s?(x)",
+		"<rootDir>/src/**/*.+(test|spec).[jt]s?(x)",
+	],
+
 	// Timeout for tests
 	testTimeout: 10000,
 
-	// Clear mocks between tests
-	clearMocks: true,
-	restoreMocks: true,
+	// Transform configuration for modern ES modules and TypeScript
+	transform: {
+		"^.+\\.(js|jsx)$": [
+			"babel-jest",
+			{
+				presets: [
+					["@babel/preset-env", { targets: { node: "current" } }],
+					["@babel/preset-react", { runtime: "automatic" }],
+				],
+			},
+		],
+		"^.+\\.(ts|tsx)$": [
+			"ts-jest",
+			{
+				tsconfig: "tsconfig.test.json",
+				useESM: true,
+			},
+		],
+	},
+
+	// Transform ignore patterns for ES modules in node_modules
+	transformIgnorePatterns: [
+		"node_modules/(?!(.*\\.mjs$|@testing-library|@babel|react-hot-toast|posthog-js))",
+	],
 
 	// Verbose output for better debugging
 	verbose: false,
-
-	// Error handling
-	errorOnDeprecated: true,
 };
 
 module.exports = config;

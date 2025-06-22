@@ -10,35 +10,35 @@ jest.mock("../../lib/analytics");
 // Mock react-i18next
 jest.mock("react-i18next", () => ({
 	useTranslation: () => ({
+		i18n: {
+			changeLanguage: jest.fn(),
+		},
 		t: (key: string, options?: any) => {
 			// Return English translations for testing
 			const translations: Record<string, string> = {
-				"streak.display.title": "Study Streak",
 				"streak.display.day": "day",
 				"streak.display.days": "days",
-				"streak.display.milestoneAchieved": `${options?.count || 0} days`,
-				"streak.display.nextMilestone": "Next milestone",
 				"streak.display.daysToGo": `${options?.count || 0} days to go`,
 				"streak.display.longestStreak": "Longest Streak",
-				"streak.display.totalDays": "Total Days",
+				"streak.display.milestoneAchieved": `${options?.count || 0} days`,
 				"streak.display.milestonesAchieved": "Milestones Achieved",
-				"streak.display.status.startStreak.title": "Start Your Streak! 🎯",
-				"streak.display.status.startStreak.message":
-					"Study today to begin your learning journey",
-				"streak.display.status.buildingMomentum.title": "Building Momentum! 🌱",
+				"streak.display.nextMilestone": "Next milestone",
 				"streak.display.status.buildingMomentum.message":
 					"Keep going to reach your first milestone",
-				"streak.display.status.greatProgress.title": "Great Progress! 🔥",
+				"streak.display.status.buildingMomentum.title": "Building Momentum! 🌱",
 				"streak.display.status.greatProgress.message":
 					"You're developing a strong habit",
-				"streak.display.status.streakMaster.title": "Streak Master! 🏆",
+				"streak.display.status.greatProgress.title": "Great Progress! 🔥",
+				"streak.display.status.startStreak.message":
+					"Study today to begin your learning journey",
+				"streak.display.status.startStreak.title": "Start Your Streak! 🎯",
 				"streak.display.status.streakMaster.message":
 					"You're a dedicated learner",
+				"streak.display.status.streakMaster.title": "Streak Master! 🏆",
+				"streak.display.title": "Study Streak",
+				"streak.display.totalDays": "Total Days",
 			};
 			return translations[key] || key;
-		},
-		i18n: {
-			changeLanguage: jest.fn(),
 		},
 	}),
 }));
@@ -56,18 +56,18 @@ describe("StreakDisplay", () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockUseAnalytics.mockReturnValue({
+			captureError: jest.fn(),
 			posthog: mockPosthog,
-			trackUserSignUp: jest.fn(),
+			trackCardCreated: jest.fn(),
+			trackCardFlipped: jest.fn(),
+			trackConvexMutationError: jest.fn(),
+			trackConvexQueryError: jest.fn(),
 			trackDeckCreated: jest.fn(),
 			trackDeckUpdated: jest.fn(),
-			trackCardCreated: jest.fn(),
-			trackStudySessionStarted: jest.fn(),
-			trackStudySessionCompleted: jest.fn(),
-			trackCardFlipped: jest.fn(),
 			trackDifficultyRated: jest.fn(),
-			captureError: jest.fn(),
-			trackConvexQueryError: jest.fn(),
-			trackConvexMutationError: jest.fn(),
+			trackStudySessionCompleted: jest.fn(),
+			trackStudySessionStarted: jest.fn(),
+			trackUserSignUp: jest.fn(),
 		});
 	});
 
@@ -98,10 +98,10 @@ describe("StreakDisplay", () => {
 	it("renders zero streak data correctly", () => {
 		const mockStreakData = {
 			currentStreak: 0,
-			longestStreak: 0,
-			totalStudyDays: 0,
-			milestonesReached: [],
 			lastMilestone: null,
+			longestStreak: 0,
+			milestonesReached: [],
+			totalStudyDays: 0,
 		};
 
 		mockUseQuery.mockReturnValue(mockStreakData);
@@ -118,10 +118,10 @@ describe("StreakDisplay", () => {
 	it("renders active streak data correctly", () => {
 		const mockStreakData = {
 			currentStreak: 15,
-			longestStreak: 20,
-			totalStudyDays: 45,
-			milestonesReached: [7],
 			lastMilestone: 7,
+			longestStreak: 20,
+			milestonesReached: [7],
+			totalStudyDays: 45,
 		};
 
 		mockUseQuery.mockReturnValue(mockStreakData);
@@ -141,10 +141,10 @@ describe("StreakDisplay", () => {
 	it("shows progress to next milestone", () => {
 		const mockStreakData = {
 			currentStreak: 15,
-			longestStreak: 20,
-			totalStudyDays: 45,
-			milestonesReached: [7],
 			lastMilestone: 7,
+			longestStreak: 20,
+			milestonesReached: [7],
+			totalStudyDays: 45,
 		};
 
 		mockUseQuery.mockReturnValue(mockStreakData);
@@ -159,10 +159,10 @@ describe("StreakDisplay", () => {
 	it("displays milestones achieved", () => {
 		const mockStreakData = {
 			currentStreak: 35,
-			longestStreak: 35,
-			totalStudyDays: 35,
-			milestonesReached: [7, 30],
 			lastMilestone: 30,
+			longestStreak: 35,
+			milestonesReached: [7, 30],
+			totalStudyDays: 35,
 		};
 
 		mockUseQuery.mockReturnValue(mockStreakData);
@@ -177,10 +177,10 @@ describe("StreakDisplay", () => {
 	it("tracks analytics when clicked", () => {
 		const mockStreakData = {
 			currentStreak: 15,
-			longestStreak: 20,
-			totalStudyDays: 45,
-			milestonesReached: [7],
 			lastMilestone: 7,
+			longestStreak: 20,
+			milestonesReached: [7],
+			totalStudyDays: 45,
 		};
 
 		mockUseQuery.mockReturnValue(mockStreakData);
@@ -193,18 +193,18 @@ describe("StreakDisplay", () => {
 		expect(mockPosthog.capture).toHaveBeenCalledWith("streak_display_clicked", {
 			currentStreak: 15,
 			longestStreak: 20,
-			totalStudyDays: 45,
 			milestonesReached: 1,
+			totalStudyDays: 45,
 		});
 	});
 
 	it("applies custom className", () => {
 		mockUseQuery.mockReturnValue({
 			currentStreak: 5,
-			longestStreak: 10,
-			totalStudyDays: 15,
-			milestonesReached: [],
 			lastMilestone: null,
+			longestStreak: 10,
+			milestonesReached: [],
+			totalStudyDays: 15,
 		});
 
 		render(<StreakDisplay className="custom-class" />);
@@ -216,10 +216,10 @@ describe("StreakDisplay", () => {
 		// Test building momentum (< 7 days)
 		mockUseQuery.mockReturnValue({
 			currentStreak: 3,
-			longestStreak: 3,
-			totalStudyDays: 3,
-			milestonesReached: [],
 			lastMilestone: null,
+			longestStreak: 3,
+			milestonesReached: [],
+			totalStudyDays: 3,
 		});
 
 		const { rerender } = render(<StreakDisplay />);
@@ -228,10 +228,10 @@ describe("StreakDisplay", () => {
 		// Test great progress (7-29 days)
 		mockUseQuery.mockReturnValue({
 			currentStreak: 15,
-			longestStreak: 15,
-			totalStudyDays: 15,
-			milestonesReached: [7],
 			lastMilestone: 7,
+			longestStreak: 15,
+			milestonesReached: [7],
+			totalStudyDays: 15,
 		});
 
 		rerender(<StreakDisplay />);
@@ -240,10 +240,10 @@ describe("StreakDisplay", () => {
 		// Test streak master (30+ days)
 		mockUseQuery.mockReturnValue({
 			currentStreak: 45,
-			longestStreak: 45,
-			totalStudyDays: 45,
-			milestonesReached: [7, 30],
 			lastMilestone: 30,
+			longestStreak: 45,
+			milestonesReached: [7, 30],
+			totalStudyDays: 45,
 		});
 
 		rerender(<StreakDisplay />);

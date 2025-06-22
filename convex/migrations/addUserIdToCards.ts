@@ -1,4 +1,6 @@
 import { v } from "convex/values";
+import type { Id } from "../_generated/dataModel";
+import type { MutationCtx } from "../_generated/server";
 import { internalMutation } from "../_generated/server";
 
 /**
@@ -14,7 +16,7 @@ export const addUserIdToExistingCards = internalMutation({
 	args: {
 		batchSize: v.optional(v.number()), // Process cards in batches to avoid timeouts
 	},
-	handler: async (ctx: any, args: any) => {
+	handler: async (ctx: MutationCtx, args: { batchSize?: number }) => {
 		const batchSize = args.batchSize || 100;
 		let processedCount = 0;
 		let updatedCount = 0;
@@ -23,17 +25,17 @@ export const addUserIdToExistingCards = internalMutation({
 
 		// Process cards in batches to avoid timeout issues
 		let hasMore = true;
-		let lastId: any = undefined;
+		let lastId: Id<"cards"> | undefined;
 
 		while (hasMore) {
 			// Get a batch of cards that don't have userId field
-			const query = ctx.db.query("cards");
-			const cardsQuery = lastId
-				? query.filter((q: any) => q.gt(q.field("_id"), lastId))
-				: query;
+			let cardsQuery = ctx.db.query("cards");
+			if (lastId) {
+				cardsQuery = cardsQuery.filter((q) => q.gt(q.field("_id"), lastId));
+			}
 
 			const cards = await cardsQuery
-				.filter((q: any) => q.eq(q.field("userId"), undefined))
+				.filter((q) => q.eq(q.field("userId"), undefined))
 				.take(batchSize);
 
 			if (cards.length === 0) {
@@ -84,8 +86,8 @@ export const addUserIdToExistingCards = internalMutation({
 
 		return {
 			processedCount,
-			updatedCount,
 			success: true,
+			updatedCount,
 		};
 	},
 });
@@ -95,11 +97,11 @@ export const addUserIdToExistingCards = internalMutation({
  */
 export const verifyUserIdMigration = internalMutation({
 	args: {},
-	handler: async (ctx: any, _args: any) => {
+	handler: async (ctx: MutationCtx, _args: Record<string, never>) => {
 		// Count cards without userId
 		const cardsWithoutUserId = await ctx.db
 			.query("cards")
-			.filter((q: any) => q.eq(q.field("userId"), undefined))
+			.filter((q) => q.eq(q.field("userId"), undefined))
 			.collect();
 
 		// Count total cards
@@ -111,9 +113,9 @@ export const verifyUserIdMigration = internalMutation({
 		console.log(`- Migration complete: ${cardsWithoutUserId.length === 0}`);
 
 		return {
-			totalCards: totalCards.length,
 			cardsWithoutUserId: cardsWithoutUserId.length,
 			migrationComplete: cardsWithoutUserId.length === 0,
+			totalCards: totalCards.length,
 		};
 	},
 });

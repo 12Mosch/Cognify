@@ -7,15 +7,6 @@ import { mutation, query } from "./_generated/server";
  */
 export const getCurrentStreak = query({
 	args: {},
-	returns: v.object({
-		currentStreak: v.number(),
-		longestStreak: v.number(),
-		lastStudyDate: v.optional(v.string()),
-		streakStartDate: v.optional(v.string()),
-		totalStudyDays: v.number(),
-		milestonesReached: v.array(v.number()),
-		lastMilestone: v.optional(v.number()),
-	}),
 	handler: async (ctx, _args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -31,12 +22,12 @@ export const getCurrentStreak = query({
 		if (!streak) {
 			return {
 				currentStreak: 0,
-				longestStreak: 0,
-				totalStudyDays: 0,
-				milestonesReached: [],
 				lastMilestone: undefined,
 				lastStudyDate: undefined,
+				longestStreak: 0,
+				milestonesReached: [],
 				streakStartDate: undefined,
+				totalStudyDays: 0,
 			};
 		}
 
@@ -48,14 +39,23 @@ export const getCurrentStreak = query({
 
 		return {
 			currentStreak,
-			longestStreak: streak.longestStreak,
+			lastMilestone: streak.lastMilestone,
 			lastStudyDate: streak.lastStudyDate,
+			longestStreak: streak.longestStreak,
+			milestonesReached: streak.milestonesReached || [],
 			streakStartDate: streak.streakStartDate,
 			totalStudyDays: streak.totalStudyDays,
-			milestonesReached: streak.milestonesReached || [],
-			lastMilestone: streak.lastMilestone,
 		};
 	},
+	returns: v.object({
+		currentStreak: v.number(),
+		lastMilestone: v.optional(v.number()),
+		lastStudyDate: v.optional(v.string()),
+		longestStreak: v.number(),
+		milestonesReached: v.array(v.number()),
+		streakStartDate: v.optional(v.string()),
+		totalStudyDays: v.number(),
+	}),
 });
 
 /**
@@ -70,17 +70,6 @@ export const updateStreak = mutation({
 		studyDate: v.string(), // YYYY-MM-DD format (user's local date)
 		timezone: v.string(), // IANA timezone identifier (for metadata/storage)
 	},
-	returns: v.object({
-		currentStreak: v.number(),
-		longestStreak: v.number(),
-		isNewMilestone: v.boolean(),
-		milestone: v.optional(v.number()),
-		streakEvent: v.union(
-			v.literal("started"),
-			v.literal("continued"),
-			v.literal("broken"),
-		),
-	}),
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 
@@ -99,24 +88,24 @@ export const updateStreak = mutation({
 		if (!existingStreak) {
 			// First time user - create new streak
 			const newStreak = {
-				userId: identity.subject,
 				currentStreak: 1,
-				longestStreak: 1,
+				lastMilestone: undefined,
 				lastStudyDate: today,
+				lastUpdated: new Date().toISOString(),
+				longestStreak: 1,
+				milestonesReached: [],
 				streakStartDate: today,
 				timezone: args.timezone,
-				milestonesReached: [],
-				lastMilestone: undefined,
-				lastUpdated: new Date().toISOString(),
 				totalStudyDays: 1,
+				userId: identity.subject,
 			};
 
 			await ctx.db.insert("studyStreaks", newStreak);
 
 			return {
 				currentStreak: 1,
-				longestStreak: 1,
 				isNewMilestone: false,
+				longestStreak: 1,
 				streakEvent: "started" as const,
 			};
 		}
@@ -125,8 +114,8 @@ export const updateStreak = mutation({
 		if (existingStreak.lastStudyDate === today) {
 			return {
 				currentStreak: existingStreak.currentStreak,
-				longestStreak: existingStreak.longestStreak,
 				isNewMilestone: false,
+				longestStreak: existingStreak.longestStreak,
 				streakEvent: "continued" as const,
 			};
 		}
@@ -170,24 +159,35 @@ export const updateStreak = mutation({
 		// Update streak record
 		await ctx.db.patch(existingStreak._id, {
 			currentStreak: newCurrentStreak,
-			longestStreak: newLongestStreak,
+			lastMilestone: milestone || existingStreak.lastMilestone,
 			lastStudyDate: today,
+			lastUpdated: new Date().toISOString(),
+			longestStreak: newLongestStreak,
+			milestonesReached: newMilestones,
 			streakStartDate: newStreakStartDate,
 			timezone: args.timezone,
-			milestonesReached: newMilestones,
-			lastMilestone: milestone || existingStreak.lastMilestone,
-			lastUpdated: new Date().toISOString(),
 			totalStudyDays: existingStreak.totalStudyDays + 1,
 		});
 
 		return {
 			currentStreak: newCurrentStreak,
-			longestStreak: newLongestStreak,
 			isNewMilestone,
+			longestStreak: newLongestStreak,
 			milestone,
 			streakEvent,
 		};
 	},
+	returns: v.object({
+		currentStreak: v.number(),
+		isNewMilestone: v.boolean(),
+		longestStreak: v.number(),
+		milestone: v.optional(v.number()),
+		streakEvent: v.union(
+			v.literal("started"),
+			v.literal("continued"),
+			v.literal("broken"),
+		),
+	}),
 });
 
 /**
@@ -198,14 +198,6 @@ export const getStreakLeaderboard = query({
 		limit: v.optional(v.number()),
 		type: v.union(v.literal("current"), v.literal("longest")),
 	},
-	returns: v.array(
-		v.object({
-			userId: v.string(),
-			currentStreak: v.number(),
-			longestStreak: v.number(),
-			totalStudyDays: v.number(),
-		}),
-	),
 	handler: async (ctx, args) => {
 		const limit = args.limit || 10;
 		const indexName =
@@ -218,12 +210,20 @@ export const getStreakLeaderboard = query({
 			.take(limit);
 
 		return streaks.map((streak) => ({
-			userId: streak.userId,
 			currentStreak: streak.currentStreak,
 			longestStreak: streak.longestStreak,
 			totalStudyDays: streak.totalStudyDays,
+			userId: streak.userId,
 		}));
 	},
+	returns: v.array(
+		v.object({
+			currentStreak: v.number(),
+			longestStreak: v.number(),
+			totalStudyDays: v.number(),
+			userId: v.string(),
+		}),
+	),
 });
 
 /**
@@ -301,20 +301,14 @@ function getYesterday(dateStr: string): string {
  */
 export const getStreakStats = query({
 	args: {},
-	returns: v.object({
-		totalActiveStreaks: v.number(),
-		averageStreakLength: v.number(),
-		longestActiveStreak: v.number(),
-		totalMilestonesReached: v.number(),
-	}),
 	handler: async (ctx, _args) => {
 		const allStreaks = await ctx.db.query("studyStreaks").collect();
 
 		if (allStreaks.length === 0) {
 			return {
-				totalActiveStreaks: 0,
 				averageStreakLength: 0,
 				longestActiveStreak: 0,
+				totalActiveStreaks: 0,
 				totalMilestonesReached: 0,
 			};
 		}
@@ -334,13 +328,19 @@ export const getStreakStats = query({
 		);
 
 		return {
-			totalActiveStreaks: activeStreaks.length,
 			averageStreakLength:
 				activeStreaks.length > 0
 					? Math.round(totalCurrentStreak / activeStreaks.length)
 					: 0,
 			longestActiveStreak,
+			totalActiveStreaks: activeStreaks.length,
 			totalMilestonesReached,
 		};
 	},
+	returns: v.object({
+		averageStreakLength: v.number(),
+		longestActiveStreak: v.number(),
+		totalActiveStreaks: v.number(),
+		totalMilestonesReached: v.number(),
+	}),
 });

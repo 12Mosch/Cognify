@@ -2,7 +2,7 @@ import { useQuery } from "convex/react";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import type { Id } from "../../convex/_generated/dataModel";
 
 type TabId = "clusters" | "paths" | "graph";
 
@@ -34,8 +34,8 @@ interface LearningPathsViewProps {
 		estimatedTime: number;
 		confidence: number;
 		path: Array<{
-			cardId: any;
-			front: any;
+			cardId: Id<"cards">;
+			front: string;
 			reason: string;
 			estimatedDifficulty: number;
 		}>;
@@ -112,19 +112,19 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
 
 	const tabs: Array<{ id: TabId; label: string; icon: string }> = [
 		{
+			icon: "🧩",
 			id: "clusters",
 			label: t("knowledge.tabs.clusters", "Concept Clusters"),
-			icon: "🧩",
 		},
 		{
+			icon: "🛤️",
 			id: "paths",
 			label: t("knowledge.tabs.paths", "Learning Paths"),
-			icon: "🛤️",
 		},
 		{
+			icon: "🕸️",
 			id: "graph",
 			label: t("knowledge.tabs.graph", "Knowledge Graph"),
-			icon: "🕸️",
 		},
 	];
 
@@ -153,13 +153,14 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
 			<div className="mb-6 flex items-center gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-700">
 				{tabs.map((tab) => (
 					<button
-						key={tab.id}
-						onClick={() => setActiveTab(tab.id)}
 						className={`flex items-center gap-2 rounded-md px-3 py-2 font-medium text-sm transition-all duration-200 hover:scale-105 ${
 							activeTab === tab.id
 								? "bg-white text-slate-900 shadow-sm hover:shadow-md dark:bg-slate-600 dark:text-slate-100"
 								: "text-slate-600 hover:bg-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-100"
 						}`}
+						key={tab.id}
+						onClick={() => setActiveTab(tab.id)}
+						type="button"
 					>
 						<span className="transition-transform duration-200 hover:scale-110">
 							{tab.icon}
@@ -174,8 +175,8 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
 				{activeTab === "clusters" && (
 					<ConceptClustersView
 						clusters={conceptClusters}
-						selectedCluster={selectedCluster}
 						onSelectCluster={setSelectedCluster}
+						selectedCluster={selectedCluster}
 						t={t}
 					/>
 				)}
@@ -209,16 +210,17 @@ const ConceptClustersView = memo(function ConceptClustersView({
 			</div>
 
 			{clusters.map((cluster) => (
-				<div
-					key={cluster.id}
-					className={`cursor-pointer rounded-lg border-2 p-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-md ${
+				<button
+					className={`w-full cursor-pointer rounded-lg border-2 p-4 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-md ${
 						selectedCluster === cluster.id
 							? "border-blue-500 bg-blue-50 hover:border-blue-600 dark:bg-blue-900/20"
 							: "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-700 dark:hover:border-slate-600 dark:hover:bg-slate-600"
 					}`}
+					key={cluster.id}
 					onClick={() =>
 						onSelectCluster(selectedCluster === cluster.id ? null : cluster.id)
 					}
+					type="button"
 				>
 					<div className="mb-3 flex items-start justify-between">
 						<div>
@@ -277,7 +279,7 @@ const ConceptClustersView = memo(function ConceptClustersView({
 							</div>
 						</div>
 					)}
-				</div>
+				</button>
 			))}
 		</div>
 	);
@@ -312,8 +314,8 @@ const LearningPathsView = memo(function LearningPathsView({
 
 			{paths.map((path, index: number) => (
 				<div
-					key={index}
 					className="cursor-pointer rounded-lg bg-slate-50 p-4 transition-all duration-200 hover:scale-[1.02] hover:bg-slate-100 hover:shadow-md dark:bg-slate-700 dark:hover:bg-slate-600"
+					key={`${path.pathType}-${index}`}
 				>
 					<div className="mb-3 flex items-start justify-between">
 						<div>
@@ -345,8 +347,8 @@ const LearningPathsView = memo(function LearningPathsView({
 						<div className="flex flex-wrap gap-2">
 							{path.path.slice(0, 5).map((step, stepIndex: number) => (
 								<div
-									key={stepIndex}
 									className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 transition-all duration-200 hover:scale-105 hover:border-slate-300 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
+									key={`${step.cardId}-${stepIndex}`}
 								>
 									<span className="font-medium text-slate-500 text-xs transition-colors hover:text-slate-400 dark:text-slate-400 dark:hover:text-slate-300">
 										{stepIndex + 1}
@@ -432,8 +434,8 @@ const KnowledgeGraphView = memo(function KnowledgeGraphView({
 
 						return (
 							<div
-								key={type}
 								className="flex cursor-pointer items-center justify-between rounded p-2 text-sm transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+								key={type}
 							>
 								<span className="text-slate-700 capitalize transition-colors hover:text-slate-600 dark:text-slate-300 dark:hover:text-slate-200">
 									{t(`knowledge.graph.types.${type}`, type)}
@@ -475,18 +477,18 @@ const KnowledgeMapSkeleton = memo(function KnowledgeMapSkeleton({
 			<div className="animate-pulse space-y-4">
 				<div className="h-6 w-1/3 rounded bg-slate-200 dark:bg-slate-700" />
 				<div className="flex gap-2">
-					{[...Array(3)].map((_, i) => (
+					{["clusters", "paths", "graph"].map((tabType) => (
 						<div
-							key={i}
 							className="h-10 w-24 rounded bg-slate-200 dark:bg-slate-700"
+							key={`skeleton-tab-${tabType}`}
 						/>
 					))}
 				</div>
 				<div className="space-y-3">
-					{[...Array(3)].map((_, i) => (
+					{["item-1", "item-2", "item-3"].map((itemType) => (
 						<div
-							key={i}
 							className="h-20 rounded bg-slate-200 dark:bg-slate-700"
+							key={`skeleton-item-${itemType}`}
 						/>
 					))}
 				</div>
@@ -545,8 +547,9 @@ const KnowledgeMapErrorState = memo(function KnowledgeMapErrorState({
 					)}
 				</p>
 				<button
-					onClick={() => window.location.reload()}
 					className="rounded-lg bg-blue-500 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-600"
+					onClick={() => window.location.reload()}
+					type="button"
 				>
 					{t("knowledge.error.retry", "Retry")}
 				</button>

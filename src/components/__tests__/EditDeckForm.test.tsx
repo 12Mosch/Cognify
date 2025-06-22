@@ -5,13 +5,13 @@
 
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Id } from "../../../convex/_generated/dataModel";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { EditDeckForm } from "../EditDeckForm";
 
 // Mock Convex hooks
 jest.mock("convex/react", () => ({
-	useQuery: jest.fn(),
 	useMutation: jest.fn(),
+	useQuery: jest.fn(),
 }));
 
 // Mock react-i18next
@@ -20,20 +20,20 @@ jest.mock("react-i18next", () => ({
 		t: (key: string, options?: any) => {
 			// Mock translation keys with proper values
 			const translations: Record<string, string> = {
-				"forms.editDeck.title": "Edit Deck",
-				"forms.editDeck.name": "Deck Name",
-				"forms.editDeck.namePlaceholder": "Enter deck name",
-				"forms.editDeck.description": "Description (optional)",
-				"forms.editDeck.descriptionPlaceholder": "Enter deck description",
-				"forms.editDeck.update": "Update Deck",
-				"forms.editDeck.updating": "Updating...",
-				"forms.editDeck.cancel": "Cancel",
-				"forms.editDeck.buttonLabel": "Edit deck",
-				"forms.editDeck.characterCount": `${options?.current || 0}/${options?.max || 0} characters`,
-				"forms.validation.deckNameRequired": "Deck name is required",
-				"forms.validation.maxLength": `${options?.field || "Field"} must be at most ${options?.max || 0} characters`,
 				"deck.editDeck": "Edit Deck",
 				"deck.editDeckAria": `Edit ${options?.deckName || "deck"} deck`,
+				"forms.editDeck.buttonLabel": "Edit deck",
+				"forms.editDeck.cancel": "Cancel",
+				"forms.editDeck.characterCount": `${options?.current || 0}/${options?.max || 0} characters`,
+				"forms.editDeck.description": "Description (optional)",
+				"forms.editDeck.descriptionPlaceholder": "Enter deck description",
+				"forms.editDeck.name": "Deck Name",
+				"forms.editDeck.namePlaceholder": "Enter deck name",
+				"forms.editDeck.title": "Edit Deck",
+				"forms.editDeck.update": "Update Deck",
+				"forms.editDeck.updating": "Updating...",
+				"forms.validation.deckNameRequired": "Deck name is required",
+				"forms.validation.maxLength": `${options?.field || "Field"} must be at most ${options?.max || 0} characters`,
 			};
 
 			return translations[key] || key;
@@ -44,8 +44,8 @@ jest.mock("react-i18next", () => ({
 // Mock Clerk
 jest.mock("@clerk/clerk-react", () => ({
 	useUser: () => ({
-		user: { id: "test-user-id" },
 		isLoaded: true,
+		user: { id: "test-user-id" },
 	}),
 }));
 
@@ -71,8 +71,8 @@ jest.mock("../../lib/errorMonitoring", () => ({
 		trackConvexMutation: jest.fn(),
 	}),
 	withFormErrorMonitoring: () => ({
-		wrapSubmission: jest.fn((fn, formData) => fn(formData)),
 		trackValidationErrors: jest.fn(),
+		wrapSubmission: jest.fn((fn, formData) => fn(formData)),
 	}),
 }));
 
@@ -84,8 +84,8 @@ jest.mock("../../lib/toast", () => ({
 // Mock focus management hooks
 jest.mock("../../hooks/useFocusManagement", () => ({
 	useFocusManagement: () => ({
-		storeTriggerElement: jest.fn(),
 		restoreFocus: jest.fn(),
+		storeTriggerElement: jest.fn(),
 	}),
 	useModalEffects: jest.fn(),
 }));
@@ -98,12 +98,12 @@ jest.mock("react-focus-lock", () => {
 });
 
 const mockDeck = {
-	_id: "deck_test123" as Id<"decks">,
 	_creationTime: Date.now(),
-	name: "Test Deck",
-	description: "A test deck for testing",
-	userId: "user_test123",
+	_id: "deck_test123" as Id<"decks">,
 	cardCount: 5,
+	description: "A test deck for testing",
+	name: "Test Deck",
+	userId: "user_test123",
 };
 
 const mockUseMutation = jest.mocked(
@@ -126,8 +126,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -142,8 +142,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -163,9 +163,9 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
-					onCancel={mockOnCancel}
 					forceShowForm={true}
+					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -181,8 +181,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -201,8 +201,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -218,8 +218,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -239,8 +239,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -258,9 +258,9 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
-					onCancel={mockOnCancel}
 					forceShowForm={true}
+					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -278,8 +278,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -301,8 +301,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -322,8 +322,8 @@ describe("EditDeckForm", () => {
 			await waitFor(() => {
 				expect(mockUpdateDeck).toHaveBeenCalledWith({
 					deckId: mockDeck._id,
-					name: "Updated Deck Name",
 					description: "Updated description",
+					name: "Updated Deck Name",
 				});
 			});
 		});
@@ -333,8 +333,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -355,8 +355,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -366,7 +366,6 @@ describe("EditDeckForm", () => {
 			const submitButton = screen.getByRole("button", { name: /Update Deck/i });
 
 			// Make the mutation hang
-			// biome-ignore lint/suspicious/noEmptyBlockStatements: Intentionally empty to create a hanging promise for testing loading states
 			mockUpdateDeck.mockImplementation(() => new Promise(() => {}));
 
 			await user.click(submitButton);
@@ -382,8 +381,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -409,8 +408,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -433,8 +432,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -461,8 +460,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -479,8 +478,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 
@@ -496,8 +495,8 @@ describe("EditDeckForm", () => {
 			render(
 				<EditDeckForm
 					deck={mockDeck}
-					onSuccess={mockOnSuccess}
 					onCancel={mockOnCancel}
+					onSuccess={mockOnSuccess}
 				/>,
 			);
 

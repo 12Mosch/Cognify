@@ -79,67 +79,67 @@ export function getDifficultyInfo(
 	switch (level) {
 		case "new":
 			return {
-				level,
-				label: "New",
-				description: "Never studied before",
 				color: {
 					bg: "bg-slate-100 dark:bg-slate-700",
-					text: "text-slate-700 dark:text-slate-300",
 					border: "border-slate-300 dark:border-slate-600",
+					text: "text-slate-700 dark:text-slate-300",
 				},
+				description: "Never studied before",
+				label: "New",
+				level,
 				progress: 0,
 			};
 
 		case "learning":
 			return {
-				level,
-				label: "Learning",
-				description: "In initial learning phase",
 				color: {
 					bg: "bg-blue-100 dark:bg-blue-900",
-					text: "text-blue-700 dark:text-blue-300",
 					border: "border-blue-300 dark:border-blue-600",
+					text: "text-blue-700 dark:text-blue-300",
 				},
+				description: "In initial learning phase",
+				label: "Learning",
+				level,
 				progress: Math.min(((repetition ?? 0) / 2) * 30, 30),
 			};
 
 		case "young":
 			return {
-				level,
-				label: "Young",
-				description: "Building up review intervals",
 				color: {
 					bg: "bg-orange-100 dark:bg-orange-900",
-					text: "text-orange-700 dark:text-orange-300",
 					border: "border-orange-300 dark:border-orange-600",
+					text: "text-orange-700 dark:text-orange-300",
 				},
+				description: "Building up review intervals",
+				label: "Young",
+				level,
 				progress:
 					30 + Math.min((((easeFactor ?? 2.5) - 1.3) / (2.8 - 1.3)) * 30, 30),
 			};
 
 		case "mature":
 			return {
-				level,
-				label: "Mature",
-				description: "Well-established memory",
 				color: {
 					bg: "bg-green-100 dark:bg-green-900",
-					text: "text-green-700 dark:text-green-300",
 					border: "border-green-300 dark:border-green-600",
+					text: "text-green-700 dark:text-green-300",
 				},
+				description: "Well-established memory",
+				label: "Mature",
+				level,
 				progress: 60 + Math.min((((interval ?? 1) - 7) / (30 - 7)) * 25, 25),
 			};
 
 		case "easy":
 			return {
-				level,
-				label: "Easy",
-				description: "Mastered - long intervals",
 				color: {
 					bg: "bg-emerald-100 dark:bg-emerald-900",
-					text: "text-emerald-700 dark:text-emerald-300",
 					border: "border-emerald-300 dark:border-emerald-600",
+					text: "text-emerald-700 dark:text-emerald-300",
 				},
+				description: "Mastered - long intervals",
+				label: "Easy",
+				level,
 				progress:
 					85 + Math.min((((easeFactor ?? 2.5) - 2.8) / (4.0 - 2.8)) * 15, 15),
 			};
@@ -147,14 +147,14 @@ export function getDifficultyInfo(
 		default:
 			// Fallback - should never reach here
 			return {
-				level: "new",
-				label: "Unknown",
-				description: "Unknown difficulty",
 				color: {
 					bg: "bg-gray-100 dark:bg-gray-700",
-					text: "text-gray-700 dark:text-gray-300",
 					border: "border-gray-300 dark:border-gray-600",
+					text: "text-gray-700 dark:text-gray-300",
 				},
+				description: "Unknown difficulty",
+				label: "Unknown",
+				level: "new",
 				progress: 0,
 			};
 	}
@@ -191,12 +191,12 @@ export function getDifficultyStats(
 	}>,
 ) {
 	const stats = {
-		new: 0,
-		learning: 0,
-		young: 0,
-		mature: 0,
 		easy: 0,
+		learning: 0,
+		mature: 0,
+		new: 0,
 		total: cards.length,
+		young: 0,
 	};
 
 	cards.forEach((card) => {
@@ -211,14 +211,14 @@ export function getDifficultyStats(
 	return {
 		...stats,
 		percentages: {
-			new: stats.total > 0 ? Math.round((stats.new / stats.total) * 100) : 0,
+			easy: stats.total > 0 ? Math.round((stats.easy / stats.total) * 100) : 0,
 			learning:
 				stats.total > 0 ? Math.round((stats.learning / stats.total) * 100) : 0,
-			young:
-				stats.total > 0 ? Math.round((stats.young / stats.total) * 100) : 0,
 			mature:
 				stats.total > 0 ? Math.round((stats.mature / stats.total) * 100) : 0,
-			easy: stats.total > 0 ? Math.round((stats.easy / stats.total) * 100) : 0,
+			new: stats.total > 0 ? Math.round((stats.new / stats.total) * 100) : 0,
+			young:
+				stats.total > 0 ? Math.round((stats.young / stats.total) * 100) : 0,
 		},
 	};
 }

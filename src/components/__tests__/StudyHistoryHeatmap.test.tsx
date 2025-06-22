@@ -20,11 +20,11 @@ const mockUseQuery = useQuery as jest.Mock;
 
 // Mock the heatmap utilities
 jest.mock("../../lib/heatmapUtils", () => ({
+	calculateHeatmapStats: jest.fn(),
+	formatTooltipContent: jest.fn(),
 	generateHeatmapGrid: jest.fn(),
 	getActivityLevelClasses: jest.fn(),
-	formatTooltipContent: jest.fn(),
 	getDayLabels: jest.fn(),
-	calculateHeatmapStats: jest.fn(),
 }));
 
 import {
@@ -46,62 +46,62 @@ describe("StudyHistoryHeatmap", () => {
 
 	const mockStudyData = [
 		{
-			date: "2024-01-15",
 			cardsStudied: 5,
+			date: "2024-01-15",
 			sessionCount: 1,
 			totalDuration: 300000,
 		},
 		{
-			date: "2024-01-16",
 			cardsStudied: 8,
+			date: "2024-01-16",
 			sessionCount: 2,
 			totalDuration: 450000,
 		},
-		{ date: "2024-01-17", cardsStudied: 0, sessionCount: 0 },
+		{ cardsStudied: 0, date: "2024-01-17", sessionCount: 0 },
 	];
 
 	const mockHeatmapData = {
+		endDate: new Date("2024-12-31"),
+		months: [{ name: "Jan", weekSpan: 4, weekStart: 0 }],
+		startDate: new Date("2024-01-01"),
+		totalDays: 365,
 		weeks: [
 			{
-				weekIndex: 0,
 				days: [
 					{
-						date: "2024-01-15",
 						cardsStudied: 5,
+						date: "2024-01-15",
+						dayIndex: 1,
+						dayOfWeek: 1,
+						level: 2 as const,
 						sessionCount: 1,
 						totalDuration: 300000,
-						level: 2 as const,
-						dayOfWeek: 1,
 						weekIndex: 0,
-						dayIndex: 1,
 					},
 					{
-						date: "2024-01-16",
 						cardsStudied: 8,
+						date: "2024-01-16",
+						dayIndex: 2,
+						dayOfWeek: 2,
+						level: 2 as const,
 						sessionCount: 2,
 						totalDuration: 450000,
-						level: 2 as const,
-						dayOfWeek: 2,
 						weekIndex: 0,
-						dayIndex: 2,
 					},
 				],
+				weekIndex: 0,
 			},
 		],
-		months: [{ name: "Jan", weekStart: 0, weekSpan: 4 }],
-		totalDays: 365,
-		startDate: new Date("2024-01-01"),
-		endDate: new Date("2024-12-31"),
 	};
 
 	const mockStats = {
 		activeDays: 2,
+		averageCardsPerActiveDay: 7,
+		maxCardsInDay: 8,
+		studyRate: 55,
 		totalCards: 13,
 		totalSessions: 3,
 		totalTime: 750000,
-		maxCardsInDay: 8,
-		averageCardsPerActiveDay: 7,
-		studyRate: 55,
 	};
 
 	beforeEach(() => {
@@ -319,12 +319,12 @@ describe("StudyHistoryHeatmap", () => {
 
 		const emptyStats = {
 			activeDays: 0,
+			averageCardsPerActiveDay: 0,
+			maxCardsInDay: 0,
+			studyRate: 0,
 			totalCards: 0,
 			totalSessions: 0,
 			totalTime: 0,
-			maxCardsInDay: 0,
-			averageCardsPerActiveDay: 0,
-			studyRate: 0,
 		};
 
 		mockCalculateHeatmapStats.mockReturnValue(emptyStats);

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { Id } from "../../../convex/_generated/dataModel";
+import type { Id } from "../../../convex/_generated/dataModel";
 import { showErrorToast } from "../../lib/toast";
 import LearningReflectionModal from "../LearningReflectionModal";
 
@@ -10,8 +10,8 @@ jest.mock("../../lib/toast", () => ({
 
 // Mock the Convex hooks
 jest.mock("convex/react", () => ({
-	useQuery: jest.fn(() => []),
 	useMutation: jest.fn(() => jest.fn()),
+	useQuery: jest.fn(() => []),
 }));
 
 // Mock react-i18next
@@ -19,12 +19,12 @@ jest.mock("react-i18next", () => ({
 	useTranslation: () => ({
 		t: (key: string, fallback?: string) => {
 			const translations: Record<string, string> = {
-				"reflection.title": "Learning Reflection",
-				"reflection.subtitle.prompts": "Reflect on your learning experience",
-				"reflection.selectPrompt": "Choose a reflection prompt",
-				"reflection.skip": "Skip",
 				"reflection.continue": "Continue",
 				"reflection.saveError": "Failed to save reflection. Please try again.",
+				"reflection.selectPrompt": "Choose a reflection prompt",
+				"reflection.skip": "Skip",
+				"reflection.subtitle.prompts": "Reflect on your learning experience",
+				"reflection.title": "Learning Reflection",
 			};
 			return translations[key] || fallback || key;
 		},
@@ -35,10 +35,10 @@ const mockProps = {
 	isOpen: true,
 	onClose: jest.fn(),
 	sessionContext: {
-		deckId: "test-deck-id" as Id<"decks">,
-		cardsReviewed: 5,
-		sessionDuration: 300,
 		averageSuccess: 0.7,
+		cardsReviewed: 5,
+		deckId: "test-deck-id" as Id<"decks">,
+		sessionDuration: 300,
 	},
 	sessionId: "test-session-id",
 };
@@ -62,8 +62,8 @@ describe("LearningReflectionModal Error Handling", () => {
 			.mockReturnValueOnce([
 				{
 					category: "difficulty",
-					prompt: "What made this material challenging?",
 					priority: "high",
+					prompt: "What made this material challenging?",
 				},
 			])
 			.mockReturnValue([]); // Return empty array for other queries
@@ -120,8 +120,8 @@ describe("LearningReflectionModal Error Handling", () => {
 			.mockReturnValueOnce([
 				{
 					category: "difficulty",
-					prompt: "What made this material challenging?",
 					priority: "high",
+					prompt: "What made this material challenging?",
 				},
 			])
 			.mockReturnValue([]); // Return empty array for other queries
@@ -172,8 +172,8 @@ describe("LearningReflectionModal Error Handling", () => {
 			.mockReturnValueOnce([
 				{
 					category: "invalid_category", // Invalid category that should trigger fallback
-					prompt: "Test prompt with invalid category",
 					priority: "high",
+					prompt: "Test prompt with invalid category",
 				},
 			])
 			.mockReturnValue([]);
@@ -182,7 +182,6 @@ describe("LearningReflectionModal Error Handling", () => {
 		mockUseMutation.mockReturnValue(mockSaveReflection);
 
 		// Spy on console.warn to verify warning is logged
-		// biome-ignore lint/suspicious/noEmptyBlockStatements: Intentionally empty to mock console.warn without output
 		const consoleSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
 
 		render(<LearningReflectionModal {...mockProps} />);
@@ -218,11 +217,11 @@ describe("LearningReflectionModal Error Handling", () => {
 		// Verify that the mutation was called with the fallback category
 		expect(mockSaveReflection).toHaveBeenCalledWith({
 			category: "understanding", // Should use fallback category
-			prompt: "Test prompt with invalid category",
-			response: "Test reflection response",
-			rating: 3,
-			sessionId: "test-session-id",
 			deckId: "test-deck-id",
+			prompt: "Test prompt with invalid category",
+			rating: 3,
+			response: "Test reflection response",
+			sessionId: "test-session-id",
 		});
 
 		// Verify that warning was logged

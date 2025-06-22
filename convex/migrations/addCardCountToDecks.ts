@@ -73,7 +73,7 @@ export const migrateStudySessionsDateField = internalMutation({
 		for (const session of sessions) {
 			// Check if session has old 'date' field but no 'sessionDate' field
 			// Note: TypeScript might complain about 'date' field, but it exists in the actual data
-			const sessionAny = session as any;
+			const sessionAny = session as Record<string, unknown>;
 
 			if (sessionAny.date && !sessionAny.sessionDate) {
 				// Copy the 'date' value to 'sessionDate' field

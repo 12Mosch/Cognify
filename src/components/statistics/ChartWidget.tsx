@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface ChartWidgetProps {
 	/** Chart title displayed in the header */

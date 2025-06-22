@@ -61,33 +61,33 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
 	const getIntervalEfficiency = (interval?: number) => {
 		if (!interval)
 			return {
+				color: "text-slate-400",
 				level: t(
 					"statistics.widgets.spacedRepetition.intervalEfficiency.unknown",
 				),
-				color: "text-slate-400",
 			};
 		if (interval >= 30)
 			return {
+				color: "text-green-500",
 				level: t(
 					"statistics.widgets.spacedRepetition.intervalEfficiency.excellent",
 				),
-				color: "text-green-500",
 			};
 		if (interval >= 14)
 			return {
-				level: t("statistics.widgets.spacedRepetition.intervalEfficiency.good"),
 				color: "text-blue-500",
+				level: t("statistics.widgets.spacedRepetition.intervalEfficiency.good"),
 			};
 		if (interval >= 7)
 			return {
-				level: t("statistics.widgets.spacedRepetition.intervalEfficiency.fair"),
 				color: "text-yellow-500",
+				level: t("statistics.widgets.spacedRepetition.intervalEfficiency.fair"),
 			};
 		return {
+			color: "text-orange-500",
 			level: t(
 				"statistics.widgets.spacedRepetition.intervalEfficiency.learning",
 			),
-			color: "text-orange-500",
 		};
 	};
 
@@ -105,9 +105,9 @@ const SpacedRepetitionInsights = memo(function SpacedRepetitionInsights({
 					{t("statistics.widgets.spacedRepetition.title")}
 				</h3>
 				<span
+					aria-label="Brain"
 					className="text-2xl transition-transform duration-200 hover:scale-110"
 					role="img"
-					aria-label="Brain"
 				>
 					🧠
 				</span>

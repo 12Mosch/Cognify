@@ -1,4 +1,4 @@
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 
 /**
  * Time slot definitions for scheduling and performance analysis
@@ -44,21 +44,21 @@ export const formatTimeSlot = (
 	context: "scheduling" | "analytics" = "scheduling",
 ): string => {
 	const timeSlotMappings = {
-		scheduling: {
-			early_morning: t("scheduling.timeSlots.earlyMorning", "Early Morning"),
-			morning: t("scheduling.timeSlots.morning", "Morning"),
-			afternoon: t("scheduling.timeSlots.afternoon", "Afternoon"),
-			evening: t("scheduling.timeSlots.evening", "Evening"),
-			night: t("scheduling.timeSlots.night", "Night"),
-			late_night: t("scheduling.timeSlots.lateNight", "Late Night"),
-		},
 		analytics: {
-			early_morning: t("analytics.timeSlots.earlyMorning", "5-9 AM"),
-			morning: t("analytics.timeSlots.morning", "9 AM-1 PM"),
 			afternoon: t("analytics.timeSlots.afternoon", "1-5 PM"),
+			early_morning: t("analytics.timeSlots.earlyMorning", "5-9 AM"),
 			evening: t("analytics.timeSlots.evening", "5-9 PM"),
-			night: t("analytics.timeSlots.night", "9 PM-12 AM"),
 			late_night: t("analytics.timeSlots.lateNight", "12-5 AM"),
+			morning: t("analytics.timeSlots.morning", "9 AM-1 PM"),
+			night: t("analytics.timeSlots.night", "9 PM-12 AM"),
+		},
+		scheduling: {
+			afternoon: t("scheduling.timeSlots.afternoon", "Afternoon"),
+			early_morning: t("scheduling.timeSlots.earlyMorning", "Early Morning"),
+			evening: t("scheduling.timeSlots.evening", "Evening"),
+			late_night: t("scheduling.timeSlots.lateNight", "Late Night"),
+			morning: t("scheduling.timeSlots.morning", "Morning"),
+			night: t("scheduling.timeSlots.night", "Night"),
 		},
 	};
 

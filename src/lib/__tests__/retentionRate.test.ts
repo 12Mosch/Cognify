@@ -7,103 +7,47 @@
 describe("Retention Rate Calculation", () => {
 	// Mock data structures that match our database schema
 	const mockReviews = {
-		// Perfect retention scenario - all reviews successful
-		perfectRetention: [
-			{
-				userId: "user1",
-				cardId: "card1",
-				reviewDate: Date.now() - 5 * 24 * 60 * 60 * 1000, // 5 days ago
-				quality: 4,
-				wasSuccessful: true,
-				easeFactorBefore: 2.5,
-			},
-			{
-				userId: "user1",
-				cardId: "card2",
-				reviewDate: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3 days ago
-				quality: 5,
-				wasSuccessful: true,
-				easeFactorBefore: 2.6,
-			},
-			{
-				userId: "user1",
-				cardId: "card3",
-				reviewDate: Date.now() - 1 * 24 * 60 * 60 * 1000, // 1 day ago
-				quality: 4,
-				wasSuccessful: true,
-				easeFactorBefore: 2.4,
-			},
-		],
-
-		// Poor retention scenario - mostly failed reviews
-		poorRetention: [
-			{
-				userId: "user1",
-				cardId: "card1",
-				reviewDate: Date.now() - 5 * 24 * 60 * 60 * 1000,
-				quality: 1,
-				wasSuccessful: false,
-				easeFactorBefore: 2.5,
-			},
-			{
-				userId: "user1",
-				cardId: "card2",
-				reviewDate: Date.now() - 3 * 24 * 60 * 60 * 1000,
-				quality: 2,
-				wasSuccessful: false,
-				easeFactorBefore: 2.3,
-			},
-			{
-				userId: "user1",
-				cardId: "card3",
-				reviewDate: Date.now() - 1 * 24 * 60 * 60 * 1000,
-				quality: 4,
-				wasSuccessful: true,
-				easeFactorBefore: 2.1,
-			},
-		],
-
 		// Mixed retention scenario
 		mixedRetention: [
 			{
-				userId: "user1",
 				cardId: "card1",
-				reviewDate: Date.now() - 10 * 24 * 60 * 60 * 1000,
-				quality: 4,
-				wasSuccessful: true,
 				easeFactorBefore: 2.5,
+				quality: 4,
+				reviewDate: Date.now() - 10 * 24 * 60 * 60 * 1000,
+				userId: "user1",
+				wasSuccessful: true,
 			},
 			{
-				userId: "user1",
 				cardId: "card2",
-				reviewDate: Date.now() - 8 * 24 * 60 * 60 * 1000,
-				quality: 2,
-				wasSuccessful: false,
 				easeFactorBefore: 2.3,
-			},
-			{
+				quality: 2,
+				reviewDate: Date.now() - 8 * 24 * 60 * 60 * 1000,
 				userId: "user1",
-				cardId: "card3",
-				reviewDate: Date.now() - 6 * 24 * 60 * 60 * 1000,
-				quality: 5,
-				wasSuccessful: true,
-				easeFactorBefore: 2.7,
-			},
-			{
-				userId: "user1",
-				cardId: "card4",
-				reviewDate: Date.now() - 4 * 24 * 60 * 60 * 1000,
-				quality: 1,
 				wasSuccessful: false,
-				easeFactorBefore: 2.2,
 			},
 			{
+				cardId: "card3",
+				easeFactorBefore: 2.7,
+				quality: 5,
+				reviewDate: Date.now() - 6 * 24 * 60 * 60 * 1000,
 				userId: "user1",
-				cardId: "card5",
-				reviewDate: Date.now() - 2 * 24 * 60 * 60 * 1000,
-				quality: 3,
 				wasSuccessful: true,
+			},
+			{
+				cardId: "card4",
+				easeFactorBefore: 2.2,
+				quality: 1,
+				reviewDate: Date.now() - 4 * 24 * 60 * 60 * 1000,
+				userId: "user1",
+				wasSuccessful: false,
+			},
+			{
+				cardId: "card5",
 				easeFactorBefore: 2.4,
+				quality: 3,
+				reviewDate: Date.now() - 2 * 24 * 60 * 60 * 1000,
+				userId: "user1",
+				wasSuccessful: true,
 			},
 		],
 
@@ -113,12 +57,67 @@ describe("Retention Rate Calculation", () => {
 		// Old reviews outside time window
 		oldReviews: [
 			{
-				userId: "user1",
 				cardId: "card1",
-				reviewDate: Date.now() - 40 * 24 * 60 * 60 * 1000, // 40 days ago
-				quality: 4,
-				wasSuccessful: true,
 				easeFactorBefore: 2.5,
+				quality: 4, // 40 days ago
+				reviewDate: Date.now() - 40 * 24 * 60 * 60 * 1000,
+				userId: "user1",
+				wasSuccessful: true,
+			},
+		],
+		// Perfect retention scenario - all reviews successful
+		perfectRetention: [
+			{
+				cardId: "card1",
+				easeFactorBefore: 2.5,
+				quality: 4, // 5 days ago
+				reviewDate: Date.now() - 5 * 24 * 60 * 60 * 1000,
+				userId: "user1",
+				wasSuccessful: true,
+			},
+			{
+				cardId: "card2",
+				easeFactorBefore: 2.6,
+				quality: 5, // 3 days ago
+				reviewDate: Date.now() - 3 * 24 * 60 * 60 * 1000,
+				userId: "user1",
+				wasSuccessful: true,
+			},
+			{
+				cardId: "card3",
+				easeFactorBefore: 2.4,
+				quality: 4, // 1 day ago
+				reviewDate: Date.now() - 1 * 24 * 60 * 60 * 1000,
+				userId: "user1",
+				wasSuccessful: true,
+			},
+		],
+
+		// Poor retention scenario - mostly failed reviews
+		poorRetention: [
+			{
+				cardId: "card1",
+				easeFactorBefore: 2.5,
+				quality: 1,
+				reviewDate: Date.now() - 5 * 24 * 60 * 60 * 1000,
+				userId: "user1",
+				wasSuccessful: false,
+			},
+			{
+				cardId: "card2",
+				easeFactorBefore: 2.3,
+				quality: 2,
+				reviewDate: Date.now() - 3 * 24 * 60 * 60 * 1000,
+				userId: "user1",
+				wasSuccessful: false,
+			},
+			{
+				cardId: "card3",
+				easeFactorBefore: 2.1,
+				quality: 4,
+				reviewDate: Date.now() - 1 * 24 * 60 * 60 * 1000,
+				userId: "user1",
+				wasSuccessful: true,
 			},
 		],
 	};
@@ -200,12 +199,12 @@ describe("Retention Rate Calculation", () => {
 		it("should include reviews within 7-day window", () => {
 			const recentReviews = [
 				{
-					userId: "user1",
 					cardId: "card1",
-					reviewDate: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3 days ago
-					quality: 4,
-					wasSuccessful: true,
 					easeFactorBefore: 2.5,
+					quality: 4, // 3 days ago
+					reviewDate: Date.now() - 3 * 24 * 60 * 60 * 1000,
+					userId: "user1",
+					wasSuccessful: true,
 				},
 			];
 
@@ -216,12 +215,12 @@ describe("Retention Rate Calculation", () => {
 		it("should exclude reviews outside 7-day window", () => {
 			const oldReviews = [
 				{
-					userId: "user1",
 					cardId: "card1",
-					reviewDate: Date.now() - 10 * 24 * 60 * 60 * 1000, // 10 days ago
-					quality: 4,
-					wasSuccessful: true,
 					easeFactorBefore: 2.5,
+					quality: 4, // 10 days ago
+					reviewDate: Date.now() - 10 * 24 * 60 * 60 * 1000,
+					userId: "user1",
+					wasSuccessful: true,
 				},
 			];
 
@@ -252,20 +251,20 @@ describe("Retention Rate Calculation", () => {
 		it("should handle reviews with varying ease factors", () => {
 			const varyingEaseReviews = [
 				{
-					userId: "user1",
 					cardId: "card1",
-					reviewDate: Date.now() - 1 * 24 * 60 * 60 * 1000,
+					easeFactorBefore: 1.3,
 					quality: 4,
-					wasSuccessful: true,
-					easeFactorBefore: 1.3, // Very difficult card
+					reviewDate: Date.now() - 1 * 24 * 60 * 60 * 1000,
+					userId: "user1",
+					wasSuccessful: true, // Very difficult card
 				},
 				{
-					userId: "user1",
 					cardId: "card2",
-					reviewDate: Date.now() - 1 * 24 * 60 * 60 * 1000,
+					easeFactorBefore: 3.0,
 					quality: 4,
-					wasSuccessful: true,
-					easeFactorBefore: 3.0, // Easy card
+					reviewDate: Date.now() - 1 * 24 * 60 * 60 * 1000,
+					userId: "user1",
+					wasSuccessful: true, // Easy card
 				},
 			];
 
@@ -288,12 +287,12 @@ describe("Retention Rate Calculation", () => {
 			const largeDataset = [];
 			for (let i = 0; i < 12; i++) {
 				largeDataset.push({
-					userId: "user1",
 					cardId: `card${i}`,
-					reviewDate: Date.now() - i * 24 * 60 * 60 * 1000,
-					quality: i % 2 === 0 ? 4 : 1, // Alternating success/failure
-					wasSuccessful: i % 2 === 0,
 					easeFactorBefore: 2.5,
+					quality: i % 2 === 0 ? 4 : 1,
+					reviewDate: Date.now() - i * 24 * 60 * 60 * 1000, // Alternating success/failure
+					userId: "user1",
+					wasSuccessful: i % 2 === 0,
 				});
 			}
 

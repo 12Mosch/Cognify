@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { memo } from "react";
+import { memo, useId } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	Area,
@@ -14,9 +14,56 @@ import {
 import { api } from "../../../convex/_generated/api";
 import ChartWidget from "./ChartWidget";
 
+// Types for Recharts components
+interface ActivityTooltipProps {
+	active?: boolean;
+	payload?: Array<{
+		dataKey: string;
+		name: string;
+		value: number;
+		color: string;
+	}>;
+	label?: string;
+}
+
+interface PayloadEntry {
+	dataKey: string;
+	name: string;
+	value: number;
+	color: string;
+}
+
 interface StudyActivityChartProps {
 	dateRange: "7d" | "30d" | "90d" | "all";
 }
+
+// Custom Tooltip Component (moved outside to avoid nested component definition)
+const CustomTooltip = ({ active, payload, label }: ActivityTooltipProps) => {
+	if (active && payload && payload.length) {
+		return (
+			<div className="rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-lg dark:bg-slate-900">
+				<p className="mb-2 font-semibold text-slate-200">{label}</p>
+				{payload.map((entry: PayloadEntry, index: number) => (
+					<div
+						className="flex items-center gap-2 text-sm"
+						key={`${entry.dataKey}-${index}`}
+					>
+						<div
+							className="h-3 w-3 rounded-full"
+							style={{ backgroundColor: entry.color }}
+						></div>
+						<span className="text-slate-300">
+							{entry.name}:{" "}
+							<span className="font-semibold text-white">{entry.value}</span>
+							{entry.dataKey === "timeSpent" && " min"}
+						</span>
+					</div>
+				))}
+			</div>
+		);
+	}
+	return null;
+};
 
 /**
  * Study Activity Chart Component
@@ -33,6 +80,9 @@ const StudyActivityChart = memo(function StudyActivityChart({
 	dateRange,
 }: StudyActivityChartProps) {
 	const { t } = useTranslation();
+	const cardsGradientId = useId();
+	const sessionsGradientId = useId();
+	const timeGradientId = useId();
 
 	// Fetch real study activity data from Convex
 	const data = useQuery(api.statistics.getStudyActivityData, { dateRange });
@@ -57,30 +107,6 @@ const StudyActivityChart = memo(function StudyActivityChart({
 			</div>
 		);
 	}
-
-	const CustomTooltip = ({ active, payload, label }: any) => {
-		if (active && payload && payload.length) {
-			return (
-				<div className="rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-lg dark:bg-slate-900">
-					<p className="mb-2 font-semibold text-slate-200">{label}</p>
-					{payload.map((entry: any, index: number) => (
-						<div key={index} className="flex items-center gap-2 text-sm">
-							<div
-								className="h-3 w-3 rounded-full"
-								style={{ backgroundColor: entry.color }}
-							></div>
-							<span className="text-slate-300">
-								{entry.name}:{" "}
-								<span className="font-semibold text-white">{entry.value}</span>
-								{entry.dataKey === "timeSpent" && " min"}
-							</span>
-						</div>
-					))}
-				</div>
-			);
-		}
-		return null;
-	};
 
 	// Prepare footer content
 	const totalCards = data.reduce((sum, day) => sum + day.cardsStudied, 0);
@@ -132,10 +158,10 @@ const StudyActivityChart = memo(function StudyActivityChart({
 
 	return (
 		<ChartWidget
-			title={t("statistics.charts.studyActivity.title")}
-			subtitle={t("statistics.charts.studyActivity.subtitle")}
 			chartHeight="h-80"
 			footer={footerContent}
+			subtitle={t("statistics.charts.studyActivity.subtitle")}
+			title={t("statistics.charts.studyActivity.title")}
 		>
 			{/* Chart Legend */}
 			<div className="mb-6 flex items-center gap-4 text-sm">
@@ -160,88 +186,88 @@ const StudyActivityChart = memo(function StudyActivityChart({
 			</div>
 
 			{/* Chart Content */}
-			<ResponsiveContainer width="100%" height="100%">
+			<ResponsiveContainer height="100%" width="100%">
 				<AreaChart
 					data={data}
-					margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+					margin={{ bottom: 0, left: 0, right: 30, top: 10 }}
 				>
 					<defs>
-						<linearGradient id="cardsGradient" x1="0" y1="0" x2="0" y2="1">
+						<linearGradient id={cardsGradientId} x1="0" x2="0" y1="0" y2="1">
 							<stop offset="5%" stopColor="#60a5fa" stopOpacity={0.3} />
 							<stop offset="95%" stopColor="#60a5fa" stopOpacity={0} />
 						</linearGradient>
-						<linearGradient id="sessionsGradient" x1="0" y1="0" x2="0" y2="1">
+						<linearGradient id={sessionsGradientId} x1="0" x2="0" y1="0" y2="1">
 							<stop offset="5%" stopColor="#22d3ee" stopOpacity={0.3} />
 							<stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
 						</linearGradient>
-						<linearGradient id="timeGradient" x1="0" y1="0" x2="0" y2="1">
+						<linearGradient id={timeGradientId} x1="0" x2="0" y1="0" y2="1">
 							<stop offset="5%" stopColor="#4ade80" stopOpacity={0.3} />
 							<stop offset="95%" stopColor="#4ade80" stopOpacity={0} />
 						</linearGradient>
 					</defs>
 
 					<CartesianGrid
-						strokeDasharray="3 3"
-						stroke="#e2e8f0"
 						className="dark:stroke-slate-700"
+						stroke="#e2e8f0"
+						strokeDasharray="3 3"
 					/>
 
 					<XAxis
-						dataKey="displayDate"
-						stroke="#64748b"
-						fontSize={12}
-						tickLine={false}
 						axisLine={false}
+						dataKey="displayDate"
+						fontSize={12}
+						stroke="#64748b"
+						tickLine={false}
 					/>
 
 					<YAxis
-						stroke="#64748b"
-						fontSize={12}
-						tickLine={false}
 						axisLine={false}
+						fontSize={12}
+						stroke="#64748b"
+						tickLine={false}
 					/>
 
 					<Tooltip content={<CustomTooltip />} />
 
 					{/* Areas */}
 					<Area
-						type="monotone"
 						dataKey="cardsStudied"
+						fill={`url(#${cardsGradientId})`}
+						name={t("statistics.charts.studyActivity.cardsStudied")}
 						stroke="#60a5fa"
 						strokeWidth={2}
-						fill="url(#cardsGradient)"
-						name={t("statistics.charts.studyActivity.cardsStudied")}
+						type="monotone"
 					/>
 
 					{/* Lines for additional metrics */}
 					<Line
-						type="monotone"
-						dataKey="sessions"
-						stroke="#22d3ee"
-						strokeWidth={2}
-						dot={{ fill: "#22d3ee", strokeWidth: 2, r: 4 }}
 						activeDot={{
+							fill: "#ffffff",
 							r: 6,
 							stroke: "#22d3ee",
 							strokeWidth: 2,
-							fill: "#ffffff",
 						}}
+						dataKey="sessions"
+						dot={{ fill: "#22d3ee", r: 4, strokeWidth: 2 }}
 						name={t("statistics.charts.studyActivity.sessions")}
+						stroke="#22d3ee"
+						strokeWidth={2}
+						type="monotone"
 					/>
 
 					<Line
-						type="monotone"
-						dataKey="timeSpent"
-						stroke="#4ade80"
-						strokeWidth={2}
-						dot={{ fill: "#4ade80", strokeWidth: 2, r: 4 }}
 						activeDot={{
+							fill: "#ffffff",
 							r: 6,
 							stroke: "#4ade80",
 							strokeWidth: 2,
-							fill: "#ffffff",
 						}}
+						dataKey="timeSpent"
+						dot={{ fill: "#4ade80", r: 4, strokeWidth: 2 }}
 						name={t("statistics.charts.studyActivity.timeMinutes")}
+						stroke="#4ade80"
+						strokeWidth={2}
+						type="monotone"
 					/>
 				</AreaChart>
 			</ResponsiveContainer>

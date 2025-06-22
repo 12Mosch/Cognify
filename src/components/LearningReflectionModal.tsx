@@ -1,9 +1,9 @@
 import { useMutation, useQuery } from "convex/react";
-import { TFunction } from "i18next";
+import type { TFunction } from "i18next";
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import type { Id } from "../../convex/_generated/dataModel";
 import { showErrorToast } from "../lib/toast";
 import { calculateDifficulty } from "../utils/difficulty";
 
@@ -52,8 +52,8 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 			category: isValidReflectionCategory(prompt.category)
 				? prompt.category
 				: "understanding", // Safe fallback - 'understanding' is a neutral, widely applicable category
-			prompt: prompt.prompt,
 			priority: prompt.priority,
+			prompt: prompt.prompt,
 		};
 	};
 
@@ -111,11 +111,11 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 		try {
 			await saveReflection({
 				category: selectedPrompt.category,
-				prompt: selectedPrompt.prompt,
-				response: reflectionResponse.trim(),
-				rating: reflectionRating,
-				sessionId,
 				deckId: sessionContext?.deckId,
+				prompt: selectedPrompt.prompt,
+				rating: reflectionRating,
+				response: reflectionResponse.trim(),
+				sessionId,
 			});
 
 			// Move to next step or close
@@ -207,9 +207,9 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 							</div>
 						</div>
 						<button
-							onClick={onClose}
-							className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
 							aria-label={t("common.close", "Close")}
+							className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
+							onClick={onClose}
 							type="button"
 						>
 							✕
@@ -219,7 +219,7 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 					{/* Step indicator */}
 					<div className="mt-4 flex items-center gap-2">
 						{["prompts", "strategies", "calibration"].map((step, index) => (
-							<div key={step} className="flex items-center">
+							<div className="flex items-center" key={step}>
 								<div
 									className={`flex h-8 w-8 items-center justify-center rounded-full font-medium text-sm ${
 										currentStep === step
@@ -255,27 +255,27 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 				<div className="p-6">
 					{currentStep === "prompts" && (
 						<ReflectionPromptsStep
-							prompts={reflectionPrompts || []}
-							selectedPrompt={selectedPrompt}
+							getCategoryIcon={getCategoryIcon}
+							getPriorityStyle={getPriorityStyle}
+							onRatingChange={setReflectionRating}
+							onResponseChange={setReflectionResponse}
 							onSelectPrompt={(prompt) =>
 								setSelectedPrompt(
 									prompt ? convertToSelectedPrompt(prompt) : null,
 								)
 							}
-							response={reflectionResponse}
-							onResponseChange={setReflectionResponse}
+							prompts={reflectionPrompts || []}
 							rating={reflectionRating}
-							onRatingChange={setReflectionRating}
-							getPriorityStyle={getPriorityStyle}
-							getCategoryIcon={getCategoryIcon}
+							response={reflectionResponse}
+							selectedPrompt={selectedPrompt}
 							t={t}
 						/>
 					)}
 
 					{currentStep === "strategies" && (
 						<StrategyRecommendationsStep
-							strategies={strategyRecommendations || []}
 							onNext={() => setCurrentStep("calibration")}
+							strategies={strategyRecommendations || []}
 							t={t}
 						/>
 					)}
@@ -293,17 +293,19 @@ const LearningReflectionModal = memo(function LearningReflectionModal({
 				{currentStep === "prompts" && (
 					<div className="flex justify-between border-slate-200 border-t p-6 dark:border-slate-700">
 						<button
-							onClick={onClose}
 							className="px-4 py-2 text-slate-600 transition-colors hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+							onClick={onClose}
+							type="button"
 						>
 							{t("reflection.skip", "Skip")}
 						</button>
 						<button
-							onClick={() => void handleSubmitReflection()}
+							className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-600"
 							disabled={
 								!selectedPrompt || !reflectionResponse.trim() || isSubmitting
 							}
-							className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-600"
+							onClick={() => void handleSubmitReflection()}
+							type="button"
 						>
 							{isSubmitting
 								? t("reflection.saving", "Saving...")
@@ -389,13 +391,14 @@ const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
 				<div className="space-y-3">
 					{prompts.map((prompt, index: number) => (
 						<button
-							key={index}
-							onClick={() => onSelectPrompt(prompt)}
 							className={`w-full rounded-lg border-2 p-4 text-left transition-colors ${
 								selectedPrompt?.prompt === prompt.prompt
 									? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
 									: `${getPriorityStyle(prompt.priority)} hover:border-slate-300 dark:hover:border-slate-600`
 							}`}
+							key={`${prompt.category}-${prompt.prompt.slice(0, 20)}-${index}`}
+							onClick={() => onSelectPrompt(prompt)}
+							type="button"
 						>
 							<div className="flex items-start gap-3">
 								<span className="text-2xl">
@@ -438,33 +441,34 @@ const ReflectionPromptsStep = memo(function ReflectionPromptsStep({
 						{t("reflection.yourResponse", "Your reflection")}
 					</h3>
 					<textarea
-						value={response}
+						className="h-32 w-full resize-none rounded-lg border border-slate-200 bg-white p-4 text-slate-900 placeholder-slate-500 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400"
 						onChange={(e) => onResponseChange(e.target.value)}
 						placeholder={t(
 							"reflection.responsePlaceholder",
 							"Share your thoughts and insights...",
 						)}
-						className="h-32 w-full resize-none rounded-lg border border-slate-200 bg-white p-4 text-slate-900 placeholder-slate-500 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400"
+						value={response}
 					/>
 
 					{/* Rating */}
 					<div className="mt-4">
-						<label className="mb-2 block font-medium text-slate-700 text-sm dark:text-slate-300">
+						<div className="mb-2 block font-medium text-slate-700 text-sm dark:text-slate-300">
 							{t(
 								"reflection.rateExperience",
 								"How would you rate this learning experience?",
 							)}
-						</label>
+						</div>
 						<div className="flex items-center gap-2">
 							{[1, 2, 3, 4, 5].map((value) => (
 								<button
-									key={value}
-									onClick={() => onRatingChange(value)}
 									className={`h-10 w-10 rounded-full border-2 font-medium transition-colors ${
 										rating === value
 											? "border-blue-500 bg-blue-500 text-white"
 											: "border-slate-300 text-slate-600 hover:border-blue-400 dark:border-slate-600 dark:text-slate-400"
 									}`}
+									key={value}
+									onClick={() => onRatingChange(value)}
+									type="button"
 								>
 									{value}
 								</button>
@@ -521,8 +525,8 @@ const StrategyRecommendationsStep = memo(function StrategyRecommendationsStep({
 			<div className="space-y-4">
 				{strategies.slice(0, 3).map((rec) => (
 					<div
-						key={rec.strategy.id}
 						className="rounded-lg bg-slate-50 p-4 dark:bg-slate-700"
+						key={rec.strategy.id}
 					>
 						<div className="mb-2 flex items-start justify-between">
 							<h4 className="font-semibold text-slate-900 dark:text-slate-100">
@@ -562,8 +566,9 @@ const StrategyRecommendationsStep = memo(function StrategyRecommendationsStep({
 
 			<div className="flex justify-end">
 				<button
-					onClick={onNext}
 					className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700"
+					onClick={onNext}
+					type="button"
 				>
 					{t("reflection.continue", "Continue")}
 				</button>
@@ -656,8 +661,8 @@ const CalibrationInsightsStep = memo(function CalibrationInsightsStep({
 				<div className="space-y-2">
 					{insights.recommendations.map((rec: string, index: number) => (
 						<div
-							key={index}
 							className="flex items-start gap-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20"
+							key={`recommendation-${rec.slice(0, 20)}-${index}`}
 						>
 							<span className="text-blue-600 dark:text-blue-400">💡</span>
 							<span className="text-slate-700 text-sm dark:text-slate-300">
@@ -670,8 +675,9 @@ const CalibrationInsightsStep = memo(function CalibrationInsightsStep({
 
 			<div className="flex justify-end">
 				<button
-					onClick={onClose}
 					className="rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700"
+					onClick={onClose}
+					type="button"
 				>
 					{t("reflection.complete", "Complete")}
 				</button>

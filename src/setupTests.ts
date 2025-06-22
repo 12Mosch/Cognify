@@ -9,10 +9,6 @@ global.IntersectionObserver = class IntersectionObserver {
 	root = null;
 	rootMargin = "";
 	thresholds = [];
-
-	constructor() {
-		// Mock constructor - intentionally empty
-	}
 	disconnect() {
 		// Mock method - intentionally empty
 	}
@@ -25,13 +21,10 @@ global.IntersectionObserver = class IntersectionObserver {
 	takeRecords() {
 		return [];
 	}
-} as any;
+} as unknown as IntersectionObserver;
 
 // Mock ResizeObserver for components that use it (like charts)
 global.ResizeObserver = class ResizeObserver {
-	constructor() {
-		// Mock constructor - intentionally empty
-	}
 	disconnect() {
 		// Mock method - intentionally empty
 	}
@@ -41,42 +34,42 @@ global.ResizeObserver = class ResizeObserver {
 	unobserve() {
 		// Mock method - intentionally empty
 	}
-} as any;
+} as unknown as ResizeObserver;
 
 // Mock matchMedia for responsive components
 Object.defineProperty(window, "matchMedia", {
-	writable: true,
 	value: jest.fn().mockImplementation((query) => ({
-		matches: false,
-		media: query,
-		onchange: null,
-		addListener: jest.fn(), // deprecated
-		removeListener: jest.fn(), // deprecated
 		addEventListener: jest.fn(),
-		removeEventListener: jest.fn(),
+		addListener: jest.fn(),
 		dispatchEvent: jest.fn(),
+		matches: false, // deprecated
+		media: query, // deprecated
+		onchange: null,
+		removeEventListener: jest.fn(),
+		removeListener: jest.fn(),
 	})),
+	writable: true,
 });
 
 // Mock scrollTo for components that use it
 Object.defineProperty(window, "scrollTo", {
-	writable: true,
 	value: jest.fn(),
+	writable: true,
 });
 
 // Mock localStorage and sessionStorage with in-memory store
 const makeMemoryStorage = () => {
 	const store: Record<string, string> = {};
 	return {
-		getItem: jest.fn((k) => store[k] ?? null),
-		setItem: jest.fn((k, v) => {
-			store[k] = String(v);
+		clear: jest.fn(() => {
+			Object.keys(store).forEach((k) => delete store[k]);
 		}),
+		getItem: jest.fn((k) => store[k] ?? null),
 		removeItem: jest.fn((k) => {
 			delete store[k];
 		}),
-		clear: jest.fn(() => {
-			Object.keys(store).forEach((k) => delete store[k]);
+		setItem: jest.fn((k, v) => {
+			store[k] = String(v);
 		}),
 	};
 };
@@ -93,19 +86,19 @@ Object.defineProperty(window, "sessionStorage", {
 
 // Mock URL.createObjectURL for file handling tests
 Object.defineProperty(URL, "createObjectURL", {
-	writable: true,
 	value: jest.fn(() => "mocked-url"),
+	writable: true,
 });
 
 Object.defineProperty(URL, "revokeObjectURL", {
-	writable: true,
 	value: jest.fn(),
+	writable: true,
 });
 
 // Suppress console errors in tests unless explicitly needed
 const originalError = console.error;
 beforeAll(() => {
-	console.error = (...args: any[]) => {
+	console.error = (...args: unknown[]) => {
 		if (
 			typeof args[0] === "string" &&
 			args[0].includes("Warning: ReactDOM.render is deprecated")

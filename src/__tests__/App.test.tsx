@@ -47,38 +47,42 @@ jest.mock("@clerk/clerk-react", () => {
 		onClick?: () => void;
 		labelIcon?: React.ReactNode;
 	}) => (
-		<div data-testid={`user-button-action-${slugify(label)}`} onClick={onClick}>
+		<button
+			data-testid={`user-button-action-${slugify(label)}`}
+			onClick={onClick}
+			type="button"
+		>
 			{label}
-		</div>
+		</button>
 	);
 
 	return {
-		useUser: jest.fn(),
+		Authenticated: ({ children }: { children: React.ReactNode }) => (
+			<div data-testid="authenticated">{children}</div>
+		),
 		SignInButton: ({ children }: { children: React.ReactNode }) => (
 			<div data-testid="sign-in-button">{children}</div>
 		),
 		SignUpButton: ({ children }: { children: React.ReactNode }) => (
 			<div data-testid="sign-up-button">{children}</div>
 		),
-		UserButton: MockUserButton,
-		Authenticated: ({ children }: { children: React.ReactNode }) => (
-			<div data-testid="authenticated">{children}</div>
-		),
 		Unauthenticated: ({ children }: { children: React.ReactNode }) => (
 			<div data-testid="unauthenticated">{children}</div>
 		),
+		UserButton: MockUserButton,
+		useUser: jest.fn(),
 	};
 });
 
 // Mock Convex
 jest.mock("convex/react", () => ({
-	useQuery: jest.fn(),
 	Authenticated: ({ children }: { children: React.ReactNode }) => (
 		<div data-testid="authenticated">{children}</div>
 	),
 	Unauthenticated: ({ children }: { children: React.ReactNode }) => (
 		<div data-testid="unauthenticated">{children}</div>
 	),
+	useQuery: jest.fn(),
 }));
 
 // Mock react-hot-toast
@@ -89,23 +93,23 @@ jest.mock("react-hot-toast", () => ({
 // Mock react-i18next
 jest.mock("react-i18next", () => ({
 	useTranslation: () => ({
+		i18n: {
+			changeLanguage: jest.fn(),
+		},
 		t: (key: string, options?: any) => {
 			// Return English translations for testing
 			const translations: Record<string, string> = {
-				"app.title": "Cognify",
 				"app.goToMainDashboard": "Go to main dashboard",
-				"navigation.settings": "Settings",
-				"navigation.signOut": "Sign Out",
-				"auth.welcome": `Welcome to ${options?.appName || "Cognify"}`,
+				"app.title": "Cognify",
+				"auth.signIn": "Sign In",
 				"auth.signInPrompt":
 					"Sign in to create and manage your flashcard decks",
-				"auth.signIn": "Sign In",
 				"auth.signUp": "Sign Up",
+				"auth.welcome": `Welcome to ${options?.appName || "Cognify"}`,
+				"navigation.settings": "Settings",
+				"navigation.signOut": "Sign Out",
 			};
 			return translations[key] || key;
-		},
-		i18n: {
-			changeLanguage: jest.fn(),
 		},
 	}),
 }));
@@ -130,6 +134,8 @@ jest.mock("../components/SettingsModal", () => {
 
 // Mock analytics
 jest.mock("../lib/analytics", () => ({
+	hasUserBeenTrackedForRegistration: jest.fn(() => false),
+	markUserAsTrackedForRegistration: jest.fn(),
 	useAnalytics: () => ({
 		trackUserSignUp: jest.fn(),
 	}),
@@ -137,16 +143,14 @@ jest.mock("../lib/analytics", () => ({
 		identifyUser: jest.fn(),
 	}),
 	usePrivacyCompliantAnalytics: () => ({
+		grantConsent: jest.fn(),
 		privacySettings: {
 			analyticsConsent: "pending",
 			functionalConsent: "pending",
 			marketingConsent: "pending",
 		},
-		grantConsent: jest.fn(),
 		revokeConsent: jest.fn(),
 	}),
-	hasUserBeenTrackedForRegistration: jest.fn(() => false),
-	markUserAsTrackedForRegistration: jest.fn(),
 }));
 
 const mockUseUser = useUser as jest.MockedFunction<typeof useUser>;
@@ -156,12 +160,12 @@ describe("App Component", () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockUseUser.mockReturnValue({
+			isLoaded: true,
 			user: {
-				id: "test-user-id",
 				firstName: "Test",
+				id: "test-user-id",
 				lastName: "User",
 			},
-			isLoaded: true,
 		} as any);
 		mockUseQuery.mockReturnValue([]);
 	});

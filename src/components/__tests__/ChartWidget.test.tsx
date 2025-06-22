@@ -16,8 +16,8 @@ describe("ChartWidget", () => {
 	it("renders with title and subtitle", () => {
 		render(
 			<ChartWidget
-				title="Test Chart"
 				subtitle="This is a test chart description"
+				title="Test Chart"
 			>
 				{mockChildren}
 			</ChartWidget>,
@@ -30,10 +30,14 @@ describe("ChartWidget", () => {
 	});
 
 	it("renders header actions when provided", () => {
-		const headerActions = <button data-testid="export-button">Export</button>;
+		const headerActions = (
+			<button data-testid="export-button" type="button">
+				Export
+			</button>
+		);
 
 		render(
-			<ChartWidget title="Test Chart" headerActions={headerActions}>
+			<ChartWidget headerActions={headerActions} title="Test Chart">
 				{mockChildren}
 			</ChartWidget>,
 		);
@@ -45,7 +49,7 @@ describe("ChartWidget", () => {
 		const footer = <div data-testid="chart-footer">Chart Footer Content</div>;
 
 		render(
-			<ChartWidget title="Test Chart" footer={footer}>
+			<ChartWidget footer={footer} title="Test Chart">
 				{mockChildren}
 			</ChartWidget>,
 		);
@@ -55,7 +59,7 @@ describe("ChartWidget", () => {
 
 	it("applies custom chart height", () => {
 		render(
-			<ChartWidget title="Test Chart" chartHeight="h-96">
+			<ChartWidget chartHeight="h-96" title="Test Chart">
 				{mockChildren}
 			</ChartWidget>,
 		);
@@ -73,7 +77,7 @@ describe("ChartWidget", () => {
 
 	it("has proper accessibility structure", () => {
 		render(
-			<ChartWidget title="Test Chart" subtitle="Chart description">
+			<ChartWidget subtitle="Chart description" title="Test Chart">
 				{mockChildren}
 			</ChartWidget>,
 		);

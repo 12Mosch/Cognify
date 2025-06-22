@@ -7,16 +7,6 @@ import { mutation, query } from "./_generated/server";
  */
 export const getDecksForUser = query({
 	args: {},
-	returns: v.array(
-		v.object({
-			_id: v.id("decks"),
-			_creationTime: v.number(),
-			userId: v.string(),
-			name: v.string(),
-			description: v.string(),
-			cardCount: v.number(),
-		}),
-	),
 	handler: async (ctx, _args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -35,6 +25,16 @@ export const getDecksForUser = query({
 
 		return decks;
 	},
+	returns: v.array(
+		v.object({
+			_creationTime: v.number(),
+			_id: v.id("decks"),
+			cardCount: v.number(),
+			description: v.string(),
+			name: v.string(),
+			userId: v.string(),
+		}),
+	),
 });
 
 /**
@@ -43,10 +43,9 @@ export const getDecksForUser = query({
  */
 export const createDeck = mutation({
 	args: {
-		name: v.string(),
 		description: v.string(),
+		name: v.string(),
 	},
-	returns: v.id("decks"),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -71,14 +70,15 @@ export const createDeck = mutation({
 
 		// Insert the new deck into the database
 		const deckId = await ctx.db.insert("decks", {
-			userId: identity.subject,
-			name: args.name.trim(),
+			cardCount: 0,
 			description: args.description.trim(),
-			cardCount: 0, // Initialize with zero cards
+			name: args.name.trim(),
+			userId: identity.subject, // Initialize with zero cards
 		});
 
 		return deckId;
 	},
+	returns: v.id("decks"),
 });
 
 /**
@@ -88,10 +88,9 @@ export const createDeck = mutation({
 export const updateDeck = mutation({
 	args: {
 		deckId: v.id("decks"),
-		name: v.string(),
 		description: v.string(),
+		name: v.string(),
 	},
-	returns: v.null(),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -126,12 +125,13 @@ export const updateDeck = mutation({
 
 		// Update the deck
 		await ctx.db.patch(args.deckId, {
-			name: args.name.trim(),
 			description: args.description.trim(),
+			name: args.name.trim(),
 		});
 
 		return null;
 	},
+	returns: v.null(),
 });
 
 /**
@@ -142,7 +142,6 @@ export const deleteDeck = mutation({
 	args: {
 		deckId: v.id("decks"),
 	},
-	returns: v.null(),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -177,6 +176,7 @@ export const deleteDeck = mutation({
 
 		return null;
 	},
+	returns: v.null(),
 });
 
 /**
@@ -187,17 +187,6 @@ export const getDeckById = query({
 	args: {
 		deckId: v.id("decks"),
 	},
-	returns: v.union(
-		v.object({
-			_id: v.id("decks"),
-			_creationTime: v.number(),
-			userId: v.string(),
-			name: v.string(),
-			description: v.string(),
-			cardCount: v.number(),
-		}),
-		v.null(),
-	),
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
 		const identity = await ctx.auth.getUserIdentity();
@@ -220,4 +209,15 @@ export const getDeckById = query({
 
 		return deck;
 	},
+	returns: v.union(
+		v.object({
+			_creationTime: v.number(),
+			_id: v.id("decks"),
+			cardCount: v.number(),
+			description: v.string(),
+			name: v.string(),
+			userId: v.string(),
+		}),
+		v.null(),
+	),
 });
