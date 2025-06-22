@@ -54,6 +54,7 @@ export default function AdaptiveStudyMode({
 		sessionStartTime: number;
 	} | null>(null);
 	const [reviewResults, setReviewResults] = useState<number[]>([]); // Track quality ratings for each review
+	const [sessionCompleted, setSessionCompleted] = useState(false); // Track if session is completed
 
 	// Ref to track timeout for personalized message cleanup
 	const messageTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -224,14 +225,15 @@ export default function AdaptiveStudyMode({
 			const finalStats = {
 				...sessionStats,
 				averageSuccess: actualAverageSuccess,
-				cardsReviewed: studyQueue.length,
+				cardsReviewed: studyQueue?.length || 0,
 				sessionDuration,
 			};
 			setSessionStats(finalStats);
+			setSessionCompleted(true); // Mark session as completed to prevent loading states
 			setShowReflectionModal(true);
 
 			// Check for session-based achievements
-			await handleSessionCompletionAchievements(studyQueue.length);
+			await handleSessionCompletionAchievements(studyQueue?.length || 0);
 		},
 		[
 			sessionStats,
@@ -345,12 +347,12 @@ export default function AdaptiveStudyMode({
 		return () => window.removeEventListener("keydown", handleKeyPress);
 	}, [isFlipped, showConfidenceRating, handleFlipCard, handleKeyboardReview]);
 
-	// Loading states
-	if (!deck || !studyQueue) {
+	// Loading states - don't show skeleton if session is completed
+	if ((!deck || !studyQueue) && !sessionCompleted) {
 		return <FlashcardSkeleton />;
 	}
 
-	if (studyQueue.length === 0) {
+	if (studyQueue && studyQueue.length === 0) {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4 dark:from-slate-900 dark:to-slate-800">
 				<div className="text-center">
@@ -373,9 +375,35 @@ export default function AdaptiveStudyMode({
 		);
 	}
 
-	// Additional safety check for currentCard
-	if (!currentCard) {
+	// Additional safety check for currentCard - don't show skeleton if session is completed
+	if (!currentCard && !sessionCompleted) {
 		return <FlashcardSkeleton />;
+	}
+
+	// If session is completed, show the reflection modal or exit
+	if (sessionCompleted) {
+		return (
+			<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4 dark:from-slate-900 dark:to-slate-800">
+				<LearningReflectionModal
+					isOpen={showReflectionModal}
+					onClose={() => {
+						setShowReflectionModal(false);
+						onExit();
+					}}
+					sessionContext={
+						sessionStats
+							? {
+									averageSuccess: sessionStats.averageSuccess,
+									cardsReviewed: sessionStats.cardsReviewed,
+									deckId,
+									sessionDuration: sessionStats.sessionDuration,
+								}
+							: undefined
+					}
+					sessionId={`session_${Date.now()}`}
+				/>
+			</div>
+		);
 	}
 
 	return (
@@ -391,14 +419,14 @@ export default function AdaptiveStudyMode({
 						← {t("study.exit", "Exit")}
 					</button>
 					<h1 className="font-semibold text-slate-900 text-xl dark:text-slate-100">
-						{deck.name}
+						{deck?.name || ""}
 					</h1>
 					<span className="rounded-full bg-blue-100 px-2 py-1 text-blue-700 text-sm dark:bg-blue-900 dark:text-blue-300">
 						{t("study.adaptive", "Adaptive")}
 					</span>
 				</div>
 				<div className="text-slate-600 text-sm dark:text-slate-400">
-					{currentCardIndex + 1} / {studyQueue.length}
+					{currentCardIndex + 1} / {studyQueue?.length || 0}
 				</div>
 			</div>
 
@@ -448,7 +476,7 @@ export default function AdaptiveStudyMode({
 					>
 						<div className="p-8 text-center">
 							<div className="text-lg text-slate-900 leading-relaxed dark:text-slate-100">
-								{isFlipped ? currentCard.back : currentCard.front}
+								{isFlipped ? (currentCard?.back || "") : (currentCard?.front || "")}
 							</div>
 							{!isFlipped && (
 								<div className="mt-6 text-slate-500 text-sm dark:text-slate-400">
@@ -523,25 +551,7 @@ export default function AdaptiveStudyMode({
 				</div>
 			</div>
 
-			{/* Learning Reflection Modal */}
-			<LearningReflectionModal
-				isOpen={showReflectionModal}
-				onClose={() => {
-					setShowReflectionModal(false);
-					onExit();
-				}}
-				sessionContext={
-					sessionStats
-						? {
-								averageSuccess: sessionStats.averageSuccess,
-								cardsReviewed: sessionStats.cardsReviewed,
-								deckId,
-								sessionDuration: sessionStats.sessionDuration,
-							}
-						: undefined
-				}
-				sessionId={`session_${Date.now()}`}
-			/>
+
 		</div>
 	);
 }
