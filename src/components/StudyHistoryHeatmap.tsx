@@ -131,7 +131,7 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 					<div className="flex">
 						{/* Day Labels */}
 						<div className="mr-2 flex flex-col">
-							{dayLabels.map((label) => (
+							{dayLabels.map((label, dayIndex) => (
 								<div
 									className="mb-1 flex h-3 items-center text-slate-500 text-xs dark:text-slate-400"
 									key={label}
