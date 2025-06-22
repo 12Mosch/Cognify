@@ -127,7 +127,7 @@ export function validatePostHogConfig(): PostHogConfigValidation {
 
 	const missingKey =
 		!posthogKey ||
-		posthogKey.trim() === "" ||
+		posthogKey === "" ||
 		posthogKey === "your_posthog_project_api_key_here";
 	const missingHost = !posthogHost || posthogHost.trim() === "";
 
