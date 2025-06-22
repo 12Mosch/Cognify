@@ -68,9 +68,11 @@ export default function AdaptiveStudyMode({
 	);
 	const checkAchievements = useMutation(api.gamification.checkAchievements);
 
-	// Get current card
+	// Get current card with bounds checking
 	const currentCard =
-		studyQueue && studyQueue.length > 0 ? studyQueue[currentCardIndex] : null;
+		studyQueue && studyQueue.length > 0 && currentCardIndex < studyQueue.length
+			? studyQueue[currentCardIndex]
+			: null;
 
 	// Helper function to show achievement notifications with staggered timing
 	const showAchievementNotifications = useCallback(
@@ -264,7 +266,7 @@ export default function AdaptiveStudyMode({
 				await handleStudyAchievements(quality, currentCard._id);
 
 				// Move to next card or finish session
-				if (currentCardIndex < studyQueue?.length - 1) {
+				if (studyQueue && currentCardIndex < studyQueue.length - 1) {
 					moveToNextCard();
 				} else {
 					await completeSession(quality);
@@ -369,6 +371,11 @@ export default function AdaptiveStudyMode({
 				</div>
 			</div>
 		);
+	}
+
+	// Additional safety check for currentCard
+	if (!currentCard) {
+		return <FlashcardSkeleton />;
 	}
 
 	return (
