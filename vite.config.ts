@@ -6,13 +6,12 @@ import { defineConfig } from "vite";
 // https://vite.dev/config/
 export default defineConfig({
 	plugins: [
-		react(),
-		tailwindcss(),
 		react({
 			babel: {
 				plugins: ["babel-plugin-react-compiler"],
 			}
-		})
+		}),
+		tailwindcss(),
 	],
 	resolve: {
 		alias: {
