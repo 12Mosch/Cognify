@@ -1,4 +1,5 @@
 import { useQuery } from "convex/react";
+import type { TFunction } from "i18next";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
@@ -25,7 +26,7 @@ interface ConceptClustersViewProps {
 	}>;
 	selectedCluster: string | null;
 	onSelectCluster: (clusterId: string | null) => void;
-	t: ReturnType<typeof useTranslation>["t"];
+	t: TFunction;
 }
 
 interface LearningPathsViewProps {
@@ -41,7 +42,7 @@ interface LearningPathsViewProps {
 			estimatedDifficulty: number;
 		}>;
 	}>;
-	t: ReturnType<typeof useTranslation>["t"];
+	t: TFunction;
 }
 
 interface KnowledgeGraphViewProps {
@@ -49,7 +50,7 @@ interface KnowledgeGraphViewProps {
 		nodes: Array<{ id: string; label: string; type: string }>;
 		edges: Array<{ source: string; target: string; type: string }>;
 	} | null;
-	t: ReturnType<typeof useTranslation>["t"];
+	t: TFunction;
 }
 
 /**
