@@ -343,7 +343,7 @@ const WeeklyScheduleDay = memo(function WeeklyScheduleDay({
 					{day.recommendations.slice(0, 2).map((rec) => (
 						<div
 							className="flex items-center justify-between rounded p-2 text-sm transition-colors duration-200 hover:bg-slate-100 dark:hover:bg-slate-600"
-							key={rec.cardId}
+							key={rec.timeSlot}
 						>
 							<span className="text-slate-600 transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 								{rec.startTime} • {rec.duration}min
