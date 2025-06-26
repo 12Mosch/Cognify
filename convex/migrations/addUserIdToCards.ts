@@ -31,7 +31,9 @@ export const addUserIdToExistingCards = internalMutation({
 			// Get a batch of cards that don't have userId field
 			let cardsQuery = ctx.db.query("cards");
 			if (lastId) {
-				cardsQuery = cardsQuery.filter((q) => q.gt(q.field("_id"), lastId as Id<"cards">));
+				cardsQuery = cardsQuery.filter((q) =>
+					q.gt(q.field("_id"), lastId as Id<"cards">),
+				);
 			}
 
 			const cards = await cardsQuery

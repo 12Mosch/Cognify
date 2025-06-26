@@ -43,7 +43,11 @@ interface DeckPerformanceChartProps {
 }
 
 // Custom Tooltip Component - avoid using hooks to prevent React Compiler issues
-const CustomTooltip = ({ active, payload, t }: DeckTooltipProps & { t: (key: string) => string }) => {
+const CustomTooltip = ({
+	active,
+	payload,
+	t,
+}: DeckTooltipProps & { t: (key: string) => string }) => {
 	"use no memo"; // Directive to prevent React Compiler optimization
 
 	if (active && payload && payload.length) {

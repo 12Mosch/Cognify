@@ -78,8 +78,10 @@ export const migrateStudySessionsDateField = internalMutation({
 			if (sessionAny.date && !sessionAny.sessionDate) {
 				// Validate that the date field is a string before copying
 				const dateValue = sessionAny.date;
-				if (typeof dateValue !== 'string') {
-					console.error(`Session ${session._id} has invalid date type: ${typeof dateValue}`);
+				if (typeof dateValue !== "string") {
+					console.error(
+						`Session ${session._id} has invalid date type: ${typeof dateValue}`,
+					);
 					continue;
 				}
 

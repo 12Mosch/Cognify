@@ -476,7 +476,7 @@ export default function AdaptiveStudyMode({
 					>
 						<div className="p-8 text-center">
 							<div className="text-lg text-slate-900 leading-relaxed dark:text-slate-100">
-								{isFlipped ? (currentCard?.back || "") : (currentCard?.front || "")}
+								{isFlipped ? currentCard?.back || "" : currentCard?.front || ""}
 							</div>
 							{!isFlipped && (
 								<div className="mt-6 text-slate-500 text-sm dark:text-slate-400">
@@ -550,8 +550,6 @@ export default function AdaptiveStudyMode({
 					{t("study.toFlip", "to flip")}, 1-4 {t("study.toRate", "to rate")}
 				</div>
 			</div>
-
-
 		</div>
 	);
 }
