@@ -1,13 +1,6 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	Cell,
-	Pie,
-	PieChart,
-	ResponsiveContainer,
-	Tooltip,
-	type TooltipContentProps,
-} from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import ChartWidget from "./ChartWidget";
 
 // Types for Recharts components - Updated for v3 compatibility
@@ -19,20 +12,21 @@ type ChartDataItem = {
 	totalCards?: number;
 };
 
-interface CustomTooltipProps extends TooltipContentProps<number, string> {
+interface CustomTooltipProps {
 	active?: boolean;
 	payload?: Array<{
 		payload: ChartDataItem;
 	}>;
+	label?: string | number;
 }
 
 interface LabelProps {
-	cx: number;
-	cy: number;
-	midAngle: number | undefined;
-	innerRadius: number;
-	outerRadius: number;
-	percent: number;
+	cx?: number;
+	cy?: number;
+	midAngle?: number;
+	innerRadius?: number;
+	outerRadius?: number;
+	percent?: number;
 }
 
 interface SpacedRepetitionInsights {
@@ -109,7 +103,18 @@ const CustomLabel = ({
 }: LabelProps) => {
 	"use no memo"; // Directive to prevent React Compiler optimization
 
-	if (percent < 0.05 || midAngle === undefined) return null; // Don't show labels for very small segments or when midAngle is undefined
+	// Check if all required properties are defined
+	if (
+		percent === undefined ||
+		percent < 0.05 ||
+		midAngle === undefined ||
+		cx === undefined ||
+		cy === undefined ||
+		innerRadius === undefined ||
+		outerRadius === undefined
+	) {
+		return null;
+	}
 
 	const RADIAN = Math.PI / 180;
 	const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
