@@ -1,4 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { resetGestureTutorial } from "../../lib/gestureTutorialUtils";
+import { showSuccessToast } from "../../lib/toast";
 import SettingsModal from "../SettingsModal";
 
 // Mock the child components
@@ -16,6 +18,16 @@ jest.mock("../FeatureFlagDemo", () => {
 	));
 });
 
+// Mock the tutorial utils
+jest.mock("../../lib/gestureTutorialUtils", () => ({
+	resetGestureTutorial: jest.fn(),
+}));
+
+// Mock toast
+jest.mock("../../lib/toast", () => ({
+	showSuccessToast: jest.fn(),
+}));
+
 // Mock analytics
 jest.mock("../../lib/analytics", () => ({
 	usePrivacyCompliantAnalytics: () => ({
@@ -29,6 +41,12 @@ jest.mock("../../lib/analytics", () => ({
 	}),
 }));
 
+const mockResetGestureTutorial = jest.mocked(resetGestureTutorial);
+const mockShowSuccessToast = jest.mocked(showSuccessToast);
+
+// Mock window.confirm
+const originalConfirm = window.confirm;
+
 describe("SettingsModal", () => {
 	const mockOnClose = jest.fn();
 	const originalAddEventListener = document.addEventListener.bind(document);
@@ -38,6 +56,7 @@ describe("SettingsModal", () => {
 	const mockRemoveEventListener = jest.fn();
 
 	beforeEach(() => {
+		jest.clearAllMocks();
 		mockOnClose.mockClear();
 		mockAddEventListener.mockClear();
 		mockRemoveEventListener.mockClear();
@@ -46,6 +65,8 @@ describe("SettingsModal", () => {
 		// Mock event listeners
 		document.addEventListener = mockAddEventListener;
 		document.removeEventListener = mockRemoveEventListener;
+		// Mock window.confirm
+		window.confirm = jest.fn();
 	});
 
 	afterEach(() => {
@@ -54,6 +75,8 @@ describe("SettingsModal", () => {
 		// Restore original event listeners
 		document.addEventListener = originalAddEventListener;
 		document.removeEventListener = originalRemoveEventListener;
+		// Restore window.confirm
+		window.confirm = originalConfirm;
 	});
 
 	it("renders nothing when closed", () => {
@@ -186,5 +209,97 @@ describe("SettingsModal", () => {
 
 		keydownHandler?.({ key: "Space" });
 		expect(mockOnClose).not.toHaveBeenCalled();
+	});
+
+	describe("Tutorial Reset Functionality", () => {
+		it("renders tutorial settings in account tab", () => {
+			render(<SettingsModal isOpen={true} onClose={mockOnClose} />);
+
+			// Should be on account tab by default
+			expect(screen.getByText("settings.tutorials.title")).toBeInTheDocument();
+			expect(
+				screen.getByText("settings.tutorials.resetAll"),
+			).toBeInTheDocument();
+			expect(
+				screen.getByText("settings.tutorials.resetBasic"),
+			).toBeInTheDocument();
+			expect(
+				screen.getByText("settings.tutorials.resetSpaced"),
+			).toBeInTheDocument();
+		});
+
+		it("resets all tutorials when confirmed", async () => {
+			(window.confirm as jest.Mock).mockReturnValue(true);
+
+			render(<SettingsModal isOpen={true} onClose={mockOnClose} />);
+
+			const resetAllButton = screen.getByRole("button", { name: "Reset All" });
+			fireEvent.click(resetAllButton);
+
+			await waitFor(() => {
+				expect(window.confirm).toHaveBeenCalledWith(
+					"settings.tutorials.confirmReset",
+				);
+				expect(mockResetGestureTutorial).toHaveBeenCalledWith();
+				expect(mockShowSuccessToast).toHaveBeenCalledWith(
+					"settings.tutorials.resetAllSuccess",
+				);
+			});
+		});
+
+		it("resets basic tutorial when confirmed", async () => {
+			(window.confirm as jest.Mock).mockReturnValue(true);
+
+			render(<SettingsModal isOpen={true} onClose={mockOnClose} />);
+
+			// Get the first "Reset" button (basic mode)
+			const resetButtons = screen.getAllByRole("button", { name: "Reset" });
+			const resetBasicButton = resetButtons[0];
+			fireEvent.click(resetBasicButton);
+
+			await waitFor(() => {
+				expect(window.confirm).toHaveBeenCalled();
+				expect(mockResetGestureTutorial).toHaveBeenCalledWith("basic");
+				expect(mockShowSuccessToast).toHaveBeenCalledWith(
+					"settings.tutorials.resetBasicSuccess",
+				);
+			});
+		});
+
+		it("resets spaced repetition tutorial when confirmed", async () => {
+			(window.confirm as jest.Mock).mockReturnValue(true);
+
+			render(<SettingsModal isOpen={true} onClose={mockOnClose} />);
+
+			// Get the second "Reset" button (spaced repetition)
+			const resetButtons = screen.getAllByRole("button", { name: "Reset" });
+			const resetSpacedButton = resetButtons[1];
+			fireEvent.click(resetSpacedButton);
+
+			await waitFor(() => {
+				expect(window.confirm).toHaveBeenCalled();
+				expect(mockResetGestureTutorial).toHaveBeenCalledWith(
+					"spaced-repetition",
+				);
+				expect(mockShowSuccessToast).toHaveBeenCalledWith(
+					"settings.tutorials.resetSpacedSuccess",
+				);
+			});
+		});
+
+		it("does not reset tutorials when cancelled", async () => {
+			(window.confirm as jest.Mock).mockReturnValue(false);
+
+			render(<SettingsModal isOpen={true} onClose={mockOnClose} />);
+
+			const resetAllButton = screen.getByRole("button", { name: "Reset All" });
+			fireEvent.click(resetAllButton);
+
+			await waitFor(() => {
+				expect(window.confirm).toHaveBeenCalled();
+				expect(mockResetGestureTutorial).not.toHaveBeenCalled();
+				expect(mockShowSuccessToast).not.toHaveBeenCalled();
+			});
+		});
 	});
 });

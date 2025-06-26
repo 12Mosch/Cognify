@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { resetGestureTutorial } from "../lib/gestureTutorialUtils";
+import { showSuccessToast } from "../lib/toast";
 import FeatureFlagDemo from "./FeatureFlagDemo";
 import PrivacySettings from "./PrivacySettings";
 
@@ -15,6 +17,26 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 	const titleId = useId();
 
 	const { t } = useTranslation();
+
+	// Tutorial reset handlers
+	const handleResetTutorial = (studyMode?: "basic" | "spaced-repetition") => {
+		const confirmMessage = t("settings.tutorials.confirmReset");
+		if (window.confirm(confirmMessage)) {
+			if (studyMode) {
+				resetGestureTutorial(studyMode);
+			} else {
+				resetGestureTutorial();
+			}
+
+			if (studyMode === "basic") {
+				showSuccessToast(t("settings.tutorials.resetBasicSuccess"));
+			} else if (studyMode === "spaced-repetition") {
+				showSuccessToast(t("settings.tutorials.resetSpacedSuccess"));
+			} else {
+				showSuccessToast(t("settings.tutorials.resetAllSuccess"));
+			}
+		}
+	};
 
 	// Handle ESC key and focus management
 	useEffect(() => {
@@ -201,22 +223,92 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 					{/* Content Area */}
 					<div className="flex-1 overflow-y-auto">
 						{activeTab === "account" && (
-							<div className="p-6">
-								<div className="mb-6">
+							<div className="space-y-8 p-6">
+								{/* Privacy Settings Section */}
+								<div>
 									<h3 className="mb-2 font-semibold text-lg text-slate-900 dark:text-slate-100">
 										{t("settings.privacy.title")}
 									</h3>
 									<p className="mb-4 text-slate-600 dark:text-slate-400">
 										{t("settings.privacy.description")}
 									</p>
+									<PrivacySettings
+										embedded={true}
+										isOpen={true}
+										onClose={() => {
+											// Embedded component - no close action needed
+										}}
+									/>
 								</div>
-								<PrivacySettings
-									embedded={true}
-									isOpen={true}
-									onClose={() => {
-										// Embedded component - no close action needed
-									}}
-								/>
+
+								{/* Tutorial Settings Section */}
+								<div className="border-slate-200 border-t pt-8 dark:border-slate-700">
+									<h3 className="mb-2 font-semibold text-lg text-slate-900 dark:text-slate-100">
+										{t("settings.tutorials.title")}
+									</h3>
+									<p className="mb-6 text-slate-600 dark:text-slate-400">
+										{t("settings.tutorials.description")}
+									</p>
+
+									<div className="space-y-4">
+										{/* Reset All Tutorials */}
+										<div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+											<div>
+												<h4 className="font-medium text-slate-900 dark:text-slate-100">
+													{t("settings.tutorials.resetAll")}
+												</h4>
+												<p className="text-slate-600 text-sm dark:text-slate-400">
+													Reset both basic and spaced repetition tutorials
+												</p>
+											</div>
+											<button
+												className="rounded-md bg-slate-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:bg-slate-500 dark:hover:bg-slate-600"
+												onClick={() => handleResetTutorial()}
+												type="button"
+											>
+												Reset All
+											</button>
+										</div>
+
+										{/* Reset Basic Mode Tutorial */}
+										<div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+											<div>
+												<h4 className="font-medium text-slate-900 dark:text-slate-100">
+													{t("settings.tutorials.resetBasic")}
+												</h4>
+												<p className="text-slate-600 text-sm dark:text-slate-400">
+													Reset tutorial for basic study mode
+												</p>
+											</div>
+											<button
+												className="rounded-md bg-blue-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+												onClick={() => handleResetTutorial("basic")}
+												type="button"
+											>
+												Reset
+											</button>
+										</div>
+
+										{/* Reset Spaced Repetition Tutorial */}
+										<div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+											<div>
+												<h4 className="font-medium text-slate-900 dark:text-slate-100">
+													{t("settings.tutorials.resetSpaced")}
+												</h4>
+												<p className="text-slate-600 text-sm dark:text-slate-400">
+													Reset tutorial for spaced repetition mode
+												</p>
+											</div>
+											<button
+												className="rounded-md bg-green-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-green-500 dark:hover:bg-green-600"
+												onClick={() => handleResetTutorial("spaced-repetition")}
+												type="button"
+											>
+												Reset
+											</button>
+										</div>
+									</div>
+								</div>
 							</div>
 						)}
 

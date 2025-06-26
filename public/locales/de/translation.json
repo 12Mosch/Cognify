@@ -321,7 +321,18 @@
 			"account": "Konto",
 			"security": "Sicherheit"
 		},
-		"title": "Einstellungen"
+		"title": "Einstellungen",
+		"tutorials": {
+			"confirmReset": "Sind Sie sicher, dass Sie alle Tutorial-Fortschritte zurücksetzen möchten? Dies zeigt Gesten-Tutorials bei Ihrer nächsten Lernsitzung wieder an.",
+			"description": "Setzen Sie den Tutorial-Abschlussstatus zurück, um Gesten-Tutorials erneut zu sehen.",
+			"resetAll": "Alle Tutorials zurücksetzen",
+			"resetAllSuccess": "Alle Tutorials wurden erfolgreich zurückgesetzt!",
+			"resetBasic": "Basis-Modus Tutorial zurücksetzen",
+			"resetBasicSuccess": "Basis-Modus Tutorial wurde zurückgesetzt!",
+			"resetSpaced": "Spaced-Repetition Tutorial zurücksetzen",
+			"resetSpacedSuccess": "Spaced-Repetition Tutorial wurde zurückgesetzt!",
+			"title": "Tutorial-Einstellungen"
+		}
 	},
 	"statistics": {
 		"activity": {

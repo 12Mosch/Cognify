@@ -321,7 +321,18 @@
 			"account": "Account",
 			"security": "Security"
 		},
-		"title": "Settings"
+		"title": "Settings",
+		"tutorials": {
+			"confirmReset": "Are you sure you want to reset all tutorial progress? This will show gesture tutorials again on your next study session.",
+			"description": "Reset tutorial completion status to see gesture tutorials again.",
+			"resetAll": "Reset All Tutorials",
+			"resetAllSuccess": "All tutorials have been reset successfully!",
+			"resetBasic": "Reset Basic Mode Tutorial",
+			"resetBasicSuccess": "Basic mode tutorial has been reset!",
+			"resetSpaced": "Reset Spaced Repetition Tutorial",
+			"resetSpacedSuccess": "Spaced repetition tutorial has been reset!",
+			"title": "Tutorial Settings"
+		}
 	},
 	"statistics": {
 		"activity": {
