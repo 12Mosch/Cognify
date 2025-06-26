@@ -16,6 +16,7 @@ The application has been fully internationalized with support for multiple langu
 - Dashboard and deck management (DeckView, PostSessionSummary)
 - Settings and modals (SettingsModal)
 - Toast notifications and error messages
+- Smart scheduling system (backend Convex functions)
 - All user-facing text throughout the application
 
 ## Architecture
@@ -79,6 +80,18 @@ The i18n configuration includes:
 3. `htmlTag` - HTML lang attribute
 4. `path` - URL path-based detection
 5. `subdomain` - Subdomain-based detection
+
+### Backend Translation Support
+
+The application includes a backend translation utility (`convex/utils/translations.ts`) for Convex functions that return user-facing strings:
+
+- **Simple translation function**: `t(key, language, interpolations)`
+- **Helper functions**: `getTimeSlotName()`, `getAction()`, `buildReasoning()`, etc.
+- **Language normalization**: Handles region codes like "en-US" → "en"
+- **Fallback support**: Falls back to English if translation not found
+- **Type safety**: Full TypeScript support with proper typing
+
+Backend functions accept an optional `language` parameter to return localized strings.
 
 ## Usage
 

@@ -365,25 +365,52 @@
 		"saveError": "Reflexion konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
 	},
 	"scheduling": {
+		"actions": {
+			"startStudyingNow": "Jetzt mit dem Lernen beginnen",
+			"waitForOptimalTime": "Auf optimale Zeit warten"
+		},
 		"currentTime": "Aktueller Zeitslot",
 		"dueCards": "Fällige Karten",
 		"energy": {
+			"high": "hoch",
+			"low": "niedrig",
 			"medium": "mittel"
 		},
 		"energyLevel": "Vorhergesagtes Energieniveau",
+		"errors": {
+			"userNotAuthenticated": "Benutzer muss authentifiziert sein"
+		},
 		"newCards": "Neue Karten",
+		"nextOptimal": "Nächste optimale Zeit",
 		"noWeeklyData": "Wöchentlicher Zeitplan wird nach mehr Lernsitzungen angezeigt",
+		"priority": {
+			"high": "hoch",
+			"low": "niedrig",
+			"medium": "mittel"
+		},
+		"reasoning": {
+			"basedOnSuccessRate": "Basierend auf Ihrer {{successRate}}% Erfolgsquote während {{timeSlot}}",
+			"considerWaiting": "Erwägen Sie zu warten bis {{nextOptimalTime}} für bessere Leistung",
+			"optimalStudyTime": "Dies ist Ihre optimale Lernzeit mit {{successRate}}% Erfolgsquote",
+			"withPreviousSessions": " ({{sessionCount}} vorherige Sitzungen)"
+		},
 		"showToday": "Heute anzeigen",
 		"showWeekly": "Wöchentlich anzeigen",
 		"suboptimal": "Suboptimal",
 		"subtitle": "KI-gestützte Lernempfehlungen",
 		"timeSlots": {
 			"afternoon": "Nachmittag",
+			"afternoonTime": "Nachmittag (13-17 Uhr)",
 			"earlyMorning": "Früher Morgen",
+			"earlyMorningTime": "Früher Morgen (5-9 Uhr)",
 			"evening": "Abend",
+			"eveningTime": "Abend (17-21 Uhr)",
 			"lateNight": "Späte Nacht",
+			"lateNightTime": "Späte Nacht (0-5 Uhr)",
 			"morning": "Morgen",
-			"night": "Nacht"
+			"morningTime": "Morgen (9-13 Uhr)",
+			"night": "Nacht",
+			"nightTime": "Nacht (21-24 Uhr)"
 		},
 		"title": "Intelligente Terminplanung"
 	},

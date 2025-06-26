@@ -1,6 +1,13 @@
 import { v } from "convex/values";
 import { getTimeSlot, type TimeSlot } from "../src/utils/scheduling";
 import { mutation, query } from "./_generated/server";
+import {
+	buildReasoning,
+	getAction,
+	getErrorMessage,
+	getTimeSlotName,
+	normalizeLanguage,
+} from "./utils/translations";
 
 /**
  * Smart Study Scheduling System
@@ -40,21 +47,6 @@ interface StudySchedule {
 	totalEstimatedCards: number;
 	estimatedStudyTime: number; // minutes
 	optimalTimeSlot: TimeSlot;
-}
-
-/**
- * Get human-readable time slot name
- */
-function getTimeSlotName(slot: TimeSlot): string {
-	const names = {
-		afternoon: "Afternoon (1-5 PM)",
-		early_morning: "Early Morning (5-9 AM)",
-		evening: "Evening (5-9 PM)",
-		late_night: "Late Night (12-5 AM)",
-		morning: "Morning (9 AM-1 PM)",
-		night: "Night (9 PM-12 AM)",
-	};
-	return names[slot];
 }
 
 /**
@@ -122,15 +114,22 @@ function calculateStudyPriority(
 export const getStudyRecommendations = query({
 	args: {
 		daysAhead: v.optional(v.number()), // Default 7 days
+		language: v.optional(v.string()), // User's preferred language
 		userTimeZone: v.optional(v.string()), // IANA timezone
 	},
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			throw new Error(
+				getErrorMessage(
+					"userNotAuthenticated",
+					normalizeLanguage(args.language),
+				),
+			);
 		}
 
 		const daysAhead = args.daysAhead || 7;
+		const language = normalizeLanguage(args.language);
 
 		// Get user's learning pattern
 		const learningPattern = await ctx.db
@@ -197,9 +196,14 @@ export const getStudyRecommendations = query({
 					);
 
 					// Generate reasoning
-					let reasoning = `Based on your ${Math.round(performance.successRate * 100)}% success rate during ${getTimeSlotName(timeSlot).toLowerCase()}`;
+					let reasoning = buildReasoning("basedOnSuccessRate", language, {
+						successRate: Math.round(performance.successRate * 100),
+						timeSlot: getTimeSlotName(timeSlot, language).toLowerCase(),
+					});
 					if (performance.reviewCount >= 10) {
-						reasoning += ` (${performance.reviewCount} previous sessions)`;
+						reasoning += buildReasoning("withPreviousSessions", language, {
+							sessionCount: performance.reviewCount,
+						});
 					}
 
 					// Determine priority using helper function
@@ -275,13 +279,21 @@ export const getStudyRecommendations = query({
  */
 export const getTodayStudyRecommendations = query({
 	args: {
+		language: v.optional(v.string()), // User's preferred language
 		userTimeZone: v.optional(v.string()),
 	},
-	handler: async (ctx, _args) => {
+	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			throw new Error(
+				getErrorMessage(
+					"userNotAuthenticated",
+					normalizeLanguage(args.language),
+				),
+			);
 		}
+
+		const language = normalizeLanguage(args.language);
 
 		const now = new Date();
 		const currentHour = now.getHours();
@@ -324,7 +336,7 @@ export const getTodayStudyRecommendations = query({
 
 		const nextOptimalTime =
 			futureSlots.length > 0
-				? getTimeSlotName(futureSlots[0][0] as TimeSlot)
+				? getTimeSlotName(futureSlots[0][0] as TimeSlot, language)
 				: undefined;
 
 		// Count due and new cards using efficient user-based indexes
@@ -373,19 +385,23 @@ export const getTodayStudyRecommendations = query({
 			);
 
 			immediateRecommendation = {
-				action: "Start studying now",
+				action: getAction("startStudyingNow", language),
 				confidence: currentSlotPerformance.successRate,
 				estimatedDuration: duration,
 				expectedCards,
-				reasoning: `This is your optimal study time with ${Math.round(currentSlotPerformance.successRate * 100)}% success rate`,
+				reasoning: buildReasoning("optimalStudyTime", language, {
+					successRate: Math.round(currentSlotPerformance.successRate * 100),
+				}),
 			};
 		} else if (dueCardsCount > 0 && !isOptimalTime && nextOptimalTime) {
 			immediateRecommendation = {
-				action: "Wait for optimal time",
+				action: getAction("waitForOptimalTime", language),
 				confidence: 0.6,
 				estimatedDuration: 0,
 				expectedCards: 0,
-				reasoning: `Consider waiting until ${nextOptimalTime} for better performance`,
+				reasoning: buildReasoning("considerWaiting", language, {
+					nextOptimalTime,
+				}),
 			};
 		}
 
@@ -429,13 +445,19 @@ export const recordStudyPreferences = mutation({
 	args: {
 		availableDays: v.array(v.string()),
 		dailyGoal: v.number(), // minutes
+		language: v.optional(v.string()), // User's preferred language
 		preferredDuration: v.number(), // cards per day
 		preferredTimeSlots: v.array(v.string()), // days of week
 	},
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			throw new Error(
+				getErrorMessage(
+					"userNotAuthenticated",
+					normalizeLanguage(args.language),
+				),
+			);
 		}
 
 		// Store or update user preferences

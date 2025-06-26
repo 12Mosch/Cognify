@@ -21,19 +21,21 @@ interface SmartSchedulingWidgetProps {
 const SmartSchedulingWidget = memo(function SmartSchedulingWidget({
 	className = "",
 }: SmartSchedulingWidgetProps) {
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const [showWeeklySchedule, setShowWeeklySchedule] = useState(false);
 
 	// Fetch today's recommendations and weekly schedule
 	const todayRecommendations = useQuery(
 		api.smartScheduling.getTodayStudyRecommendations,
 		{
+			language: i18n.language,
 			userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		},
 	);
 
 	const weeklySchedule = useQuery(api.smartScheduling.getStudyRecommendations, {
 		daysAhead: 7,
+		language: i18n.language,
 		userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 	});
 

@@ -365,25 +365,52 @@
 		"saveError": "Failed to save reflection. Please try again."
 	},
 	"scheduling": {
+		"actions": {
+			"startStudyingNow": "Start studying now",
+			"waitForOptimalTime": "Wait for optimal time"
+		},
 		"currentTime": "Current Time Slot",
 		"dueCards": "Due Cards",
 		"energy": {
+			"high": "high",
+			"low": "low",
 			"medium": "medium"
 		},
 		"energyLevel": "Predicted Energy Level",
+		"errors": {
+			"userNotAuthenticated": "User must be authenticated"
+		},
 		"newCards": "New Cards",
+		"nextOptimal": "Next optimal time",
 		"noWeeklyData": "Weekly schedule will appear after more study sessions",
+		"priority": {
+			"high": "high",
+			"low": "low",
+			"medium": "medium"
+		},
+		"reasoning": {
+			"basedOnSuccessRate": "Based on your {{successRate}}% success rate during {{timeSlot}}",
+			"considerWaiting": "Consider waiting until {{nextOptimalTime}} for better performance",
+			"optimalStudyTime": "This is your optimal study time with {{successRate}}% success rate",
+			"withPreviousSessions": " ({{sessionCount}} previous sessions)"
+		},
 		"showToday": "Show Today",
 		"showWeekly": "Show Weekly",
 		"suboptimal": "Sub-optimal",
 		"subtitle": "AI-powered study recommendations",
 		"timeSlots": {
 			"afternoon": "Afternoon",
+			"afternoonTime": "Afternoon (1-5 PM)",
 			"earlyMorning": "Early Morning",
+			"earlyMorningTime": "Early Morning (5-9 AM)",
 			"evening": "Evening",
+			"eveningTime": "Evening (5-9 PM)",
 			"lateNight": "Late Night",
+			"lateNightTime": "Late Night (12-5 AM)",
 			"morning": "Morning",
-			"night": "Night"
+			"morningTime": "Morning (9 AM-1 PM)",
+			"night": "Night",
+			"nightTime": "Night (9 PM-12 AM)"
 		},
 		"title": "Smart Scheduling"
 	},
