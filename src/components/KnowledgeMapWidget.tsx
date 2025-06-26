@@ -74,11 +74,12 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
 	// Fetch contextual learning data
 	const conceptClusters = useQuery(api.contextualLearning.getConceptClusters, {
 		deckId,
+		language: t("common.languageCode", "en"),
 	});
 
 	const learningPaths = useQuery(
 		api.contextualLearning.getLearningPathRecommendations,
-		deckId ? { deckId } : "skip",
+		deckId ? { deckId, language: t("common.languageCode", "en") } : "skip",
 	);
 
 	const knowledgeGraph = useQuery(
@@ -86,6 +87,7 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
 		{
 			deckId,
 			includeDecks: false,
+			language: t("common.languageCode", "en"),
 		},
 	);
 

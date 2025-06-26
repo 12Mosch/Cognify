@@ -506,6 +506,29 @@ export function generateHeatmapGrid(studyData: Array<...>, locale: string = 'en-
 11. **Localize dates properly** - Use `i18n.resolvedLanguage` with `toLocaleDateString()` for date formatting
 12. **Pass locale to utility functions** - Ensure date utilities accept and use locale parameters
 
+## Recent Fixes
+
+### Knowledge Map Internationalization Fix (2025-01-26)
+
+Fixed an issue where the Knowledge Map widget was displaying concept names and descriptions in English even when the user had switched to German.
+
+**Problem**: The frontend wasn't passing the user's current language preference to the Convex backend functions, causing all server-generated content to default to English.
+
+**Solution**:
+1. **Added language code to translation files**: Added `"languageCode": "en"` and `"languageCode": "de"` to the respective translation files under the `common` section.
+
+2. **Updated Convex query calls**: Modified the `KnowledgeMapWidget` component to pass the current language to all Convex queries:
+   ```typescript
+   const conceptClusters = useQuery(api.contextualLearning.getConceptClusters, {
+     deckId,
+     language: t("common.languageCode", "en"),
+   });
+   ```
+
+3. **Backend translation support**: The Convex functions in `contextualLearning.ts` already supported language parameters and used the translation utility to generate localized concept names and descriptions.
+
+**Result**: Concept groups now show as "Konzeptgruppe 1", "Konzeptgruppe 2", etc. in German, and descriptions like "Related concepts" are properly translated to "Verwandte Konzepte".
+
 ## Migration Notes
 
 When adding new user-facing text:
@@ -515,3 +538,4 @@ When adding new user-facing text:
 3. **Replace hardcoded strings** with `t('namespace.key')` calls
 4. **Test both languages** to ensure proper layout and functionality
 5. **Update tests** to work with translation keys instead of hardcoded text
+6. **Pass language to Convex queries** when backend functions return user-facing strings
