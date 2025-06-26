@@ -112,7 +112,7 @@ const UpcomingReviewsWidget = memo(function UpcomingReviewsWidget({
 					{upcomingReviews.slice(0, 7).map((review) => (
 						<div
 							className="flex cursor-pointer items-center justify-between rounded-lg border border-slate-200 bg-white p-3 transition-all duration-200 hover:scale-[1.02] hover:border-slate-300 hover:shadow-md dark:border-slate-600 dark:bg-slate-700 dark:hover:border-slate-500"
-							key={`${review.cardId}-${review.nextReviewDate}`}
+							key={`${review.date}-${review.count}`}
 						>
 							<div className="flex items-center gap-3">
 								{/* Urgency Indicator */}

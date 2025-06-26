@@ -91,6 +91,7 @@ While we initially attempted to use Convex's `FunctionReturnType` utility for au
 - Color-coded urgency indicators (today, tomorrow, soon, later)
 - Card counts per review date
 - Summary statistics
+- **Data Structure**: Uses aggregated review data with `date` and `count` properties for efficient rendering
 
 #### Learning Streak Widget
 - Circular progress indicator for current streak
