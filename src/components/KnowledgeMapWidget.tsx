@@ -332,7 +332,7 @@ const LearningPathsView = memo(function LearningPathsView({
 						</div>
 						<div className="text-right">
 							<div className="font-medium text-slate-900 text-sm transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
-								~{path.estimatedTime} min
+								~{path.estimatedTime} {t("knowledge.paths.minutes", "min")}
 							</div>
 							<div className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
 								{Math.round(path.confidence * 100)}%{" "}
@@ -363,7 +363,7 @@ const LearningPathsView = memo(function LearningPathsView({
 							))}
 							{path.path.length > 5 && (
 								<div className="flex items-center px-3 py-2 text-slate-500 text-sm transition-colors hover:text-slate-400 dark:text-slate-400 dark:hover:text-slate-300">
-									+{path.path.length - 5} more
+									+{path.path.length - 5} {t("knowledge.paths.more", "more")}
 								</div>
 							)}
 						</div>

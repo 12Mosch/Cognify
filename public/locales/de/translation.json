@@ -321,6 +321,7 @@
 	"knowledge": {
 		"clusters": {
 			"cards": "Karten",
+			"centerCard": "Repräsentative Karte",
 			"description": "Verwandte Konzepte, die basierend auf inhaltlicher Ähnlichkeit gruppiert sind",
 			"difficulty": "Schwierigkeit",
 			"mastered": "gemeistert"
@@ -337,7 +338,9 @@
 			"nodes": "Konzepte",
 			"placeholder": "Interaktive Graphvisualisierung würde hier erscheinen",
 			"types": {
-				"related": "verwandt"
+				"prerequisite": "Voraussetzung",
+				"related": "verwandt",
+				"similar": "ähnlich"
 			}
 		},
 		"noData": {
@@ -346,7 +349,11 @@
 		},
 		"paths": {
 			"confidence": "Vertrauen",
+			"description": "Empfohlene Sequenzen zum effektiven Lernen Ihrer Karten",
+			"minutes": "Min",
+			"more": "weitere",
 			"noData": "Lernpfade werden angezeigt, wenn Sie mehr Karten in diesem Stapel haben",
+			"sequence": "Lernsequenz",
 			"types": {
 				"conceptual": "Konzeptueller Pfad",
 				"difficulty_based": "Schwierigkeitsbasierter Pfad",

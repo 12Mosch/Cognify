@@ -321,6 +321,7 @@
 	"knowledge": {
 		"clusters": {
 			"cards": "cards",
+			"centerCard": "Representative Card",
 			"description": "Related concepts grouped together based on content similarity",
 			"difficulty": "Difficulty",
 			"mastered": "mastered"
@@ -337,7 +338,9 @@
 			"nodes": "Concepts",
 			"placeholder": "Interactive graph visualization would appear here",
 			"types": {
-				"related": "related"
+				"prerequisite": "prerequisite",
+				"related": "related",
+				"similar": "similar"
 			}
 		},
 		"noData": {
@@ -346,7 +349,11 @@
 		},
 		"paths": {
 			"confidence": "confidence",
+			"description": "Recommended sequences for learning your cards effectively",
+			"minutes": "min",
+			"more": "more",
 			"noData": "Learning paths will appear when you have more cards in this deck",
+			"sequence": "Learning Sequence",
 			"types": {
 				"conceptual": "Conceptual Path",
 				"difficulty_based": "Difficulty-Based Path",
