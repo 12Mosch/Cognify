@@ -21,13 +21,35 @@ import { query } from "./_generated/server";
  * - Uses efficient similarity thresholds to reduce computation
  */
 
-// interface CardRelationship {
-//   cardId1: string;
-//   cardId2: string;
-//   relationshipType: 'similar' | 'prerequisite' | 'related' | 'opposite' | 'example';
-//   strength: number; // 0-1 scale
-//   reason: string;
-// }
+// Constants for relationship types and reasons
+export const RELATIONSHIP_TYPES = {
+	CONTAINS: "contains",
+	PREREQUISITE: "prerequisite",
+	RELATED: "related",
+	SIMILAR: "similar",
+	UNRELATED: "unrelated",
+	WEAKLY_RELATED: "weakly_related",
+} as const;
+
+export const RELATIONSHIP_REASONS = {
+	FEW_COMMON_TERMS: "Few common terms",
+	INSUFFICIENT_CONTENT: "Insufficient content",
+	NO_COMMON_TERMS: "No common terms",
+	NO_MEANINGFUL_CONTENT: "No meaningful content",
+	RELATED_CONCEPTS: "Related concepts",
+	VERY_SIMILAR_CONTENT: "Very similar content",
+} as const;
+
+export type RelationshipType =
+	(typeof RELATIONSHIP_TYPES)[keyof typeof RELATIONSHIP_TYPES];
+export type RelationshipReason =
+	(typeof RELATIONSHIP_REASONS)[keyof typeof RELATIONSHIP_REASONS];
+
+interface CardRelationship {
+	type: RelationshipType;
+	strength: number; // 0-1 scale
+	reason: RelationshipReason;
+}
 
 interface ConceptCluster {
 	id: string;
@@ -56,7 +78,7 @@ interface KnowledgeGraphNode {
 interface KnowledgeGraphEdge {
 	source: string;
 	target: string;
-	type: "similar" | "prerequisite" | "related" | "contains";
+	type: RelationshipType | "contains";
 	weight: number; // Strength of relationship
 	label?: string;
 }
@@ -404,11 +426,7 @@ export const getKnowledgeGraphData = query({
 						label: relationship.type,
 						source: `card_${cardsForRelationships[i]._id}`,
 						target: `card_${cardsForRelationships[j]._id}`,
-						type: relationship.type as
-							| "similar"
-							| "prerequisite"
-							| "related"
-							| "contains",
+						type: relationship.type,
 						weight: relationship.strength,
 					});
 				}
@@ -571,14 +589,18 @@ export const getLearningPathRecommendations = query({
 function calculateCardRelationship(
 	card1: Doc<"cards">,
 	card2: Doc<"cards">,
-): { type: string; strength: number; reason: string } {
+): CardRelationship {
 	// Optimized text similarity calculation with early termination
 	const text1 = `${card1.front} ${card1.back}`.toLowerCase();
 	const text2 = `${card2.front} ${card2.back}`.toLowerCase();
 
 	// Early termination for very short texts or identical cards
 	if (text1.length < 3 || text2.length < 3 || text1 === text2) {
-		return { reason: "Insufficient content", strength: 0, type: "unrelated" };
+		return {
+			reason: RELATIONSHIP_REASONS.INSUFFICIENT_CONTENT,
+			strength: 0,
+			type: RELATIONSHIP_TYPES.UNRELATED,
+		};
 	}
 
 	const words1 = new Set(text1.split(/\s+/).filter((word) => word.length > 2)); // Filter short words
@@ -586,34 +608,47 @@ function calculateCardRelationship(
 
 	// Early termination if no meaningful words
 	if (words1.size === 0 || words2.size === 0) {
-		return { reason: "No meaningful content", strength: 0, type: "unrelated" };
+		return {
+			reason: RELATIONSHIP_REASONS.NO_MEANINGFUL_CONTENT,
+			strength: 0,
+			type: RELATIONSHIP_TYPES.UNRELATED,
+		};
 	}
 
 	const intersection = new Set(Array.from(words1).filter((x) => words2.has(x)));
 
 	// Early termination if no common words
 	if (intersection.size === 0) {
-		return { reason: "No common terms", strength: 0, type: "unrelated" };
+		return {
+			reason: RELATIONSHIP_REASONS.NO_COMMON_TERMS,
+			strength: 0,
+			type: RELATIONSHIP_TYPES.UNRELATED,
+		};
 	}
 
 	const union = new Set([...Array.from(words1), ...Array.from(words2)]);
 	const similarity = intersection.size / union.size;
 
-	let type = "related";
-	let reason = "Shares common terms";
-
+	// Determine relationship type and reason based on similarity score
 	if (similarity > 0.6) {
-		type = "similar";
-		reason = "Very similar content";
+		return {
+			reason: RELATIONSHIP_REASONS.VERY_SIMILAR_CONTENT,
+			strength: similarity,
+			type: RELATIONSHIP_TYPES.SIMILAR,
+		};
 	} else if (similarity > 0.3) {
-		type = "related";
-		reason = "Related concepts";
+		return {
+			reason: RELATIONSHIP_REASONS.RELATED_CONCEPTS,
+			strength: similarity,
+			type: RELATIONSHIP_TYPES.RELATED,
+		};
 	} else {
-		type = "weakly_related";
-		reason = "Few common terms";
+		return {
+			reason: RELATIONSHIP_REASONS.FEW_COMMON_TERMS,
+			strength: similarity,
+			type: RELATIONSHIP_TYPES.WEAKLY_RELATED,
+		};
 	}
-
-	return { reason, strength: similarity, type };
 }
 
 function performSimpleClustering(cards: Doc<"cards">[]): ConceptCluster[] {

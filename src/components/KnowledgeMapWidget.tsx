@@ -3,6 +3,7 @@ import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import { RELATIONSHIP_TYPES } from "../../convex/contextualLearning";
 
 type TabId = "clusters" | "paths" | "graph";
 
@@ -426,7 +427,11 @@ const KnowledgeGraphView = memo(function KnowledgeGraphView({
 					{t("knowledge.graph.connectionTypes", "Connection Types")}
 				</h5>
 				<div className="space-y-2">
-					{["similar", "related", "prerequisite"].map((type) => {
+					{[
+						RELATIONSHIP_TYPES.SIMILAR,
+						RELATIONSHIP_TYPES.RELATED,
+						RELATIONSHIP_TYPES.PREREQUISITE,
+					].map((type) => {
 						const count = graphData.edges.filter(
 							(edge) => edge.type === type,
 						).length;
