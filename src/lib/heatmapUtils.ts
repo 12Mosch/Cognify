@@ -3,6 +3,8 @@
  * Handles date calculations, grid generation, and activity level determination
  */
 
+import i18n from "../i18n";
+
 export interface HeatmapDay {
 	date: string; // YYYY-MM-DD format
 	cardsStudied: number;
@@ -251,13 +253,19 @@ export function formatTooltipContent(
 	});
 
 	if (day.cardsStudied === 0) {
-		return `No study activity on ${formattedDate}`;
+		return `${i18n.t("statistics.heatmap.tooltip.noActivity")} ${formattedDate}`;
 	}
 
-	const cardText = day.cardsStudied === 1 ? "card" : "cards";
-	const sessionText = day.sessionCount === 1 ? "session" : "sessions";
+	const cardText =
+		day.cardsStudied === 1
+			? i18n.t("statistics.heatmap.tooltip.card")
+			: i18n.t("statistics.heatmap.tooltip.cards");
+	const sessionText =
+		day.sessionCount === 1
+			? i18n.t("statistics.heatmap.tooltip.session")
+			: i18n.t("statistics.heatmap.tooltip.sessions");
 
-	let tooltip = `${day.cardsStudied} ${cardText} studied on ${formattedDate}`;
+	let tooltip = `${day.cardsStudied} ${cardText} ${i18n.t("statistics.heatmap.tooltip.studiedOn")} ${formattedDate}`;
 
 	if (day.sessionCount > 1) {
 		tooltip += ` (${day.sessionCount} ${sessionText})`;

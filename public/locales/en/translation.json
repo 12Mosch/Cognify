@@ -63,6 +63,86 @@
 		"whatsNext": "What's Next?",
 		"yes": "Yes"
 	},
+	"components": {
+		"errorBoundary": {
+			"authConfigError": "Authentication Configuration Error",
+			"componentStack": "Component Stack:",
+			"reloadPage": "Reload Page",
+			"showTechnicalDetails": "Show technical details",
+			"temporaryIssue": "We encountered a temporary issue. You can try again or reload the page.",
+			"tryAgain": "Try Again",
+			"unexpectedError": "An unexpected error occurred. Please reload the page or contact support if the problem persists."
+		},
+		"gestureTutorial": {
+			"basicMode": {
+				"flipCards": {
+					"description": "Swipe left or tap anywhere to flip the card and see the answer.",
+					"instruction": "Try swiping left on any flashcard to reveal the answer.",
+					"title": "Flip Cards"
+				},
+				"nextCard": {
+					"description": "Swipe right to move to the next card in your deck.",
+					"instruction": "Swipe right when you're ready for the next question.",
+					"title": "Next Card"
+				},
+				"welcome": {
+					"description": "Learn how to navigate flashcards with simple gestures.",
+					"instruction": "Swipe gestures make studying faster and more intuitive.",
+					"title": "Welcome to Touch Controls!"
+				}
+			},
+			"buttons": {
+				"gotIt": "Got it",
+				"next": "Next",
+				"previous": "Previous",
+				"skipTutorial": "Skip Tutorial"
+			},
+			"spacedRepetition": {
+				"flipCards": {
+					"description": "Swipe left or tap to reveal the answer.",
+					"instruction": "Swipe left to see the answer and rate your knowledge.",
+					"title": "Flip Cards"
+				},
+				"rateAgain": {
+					"description": "Swipe down when you didn't know the answer.",
+					"instruction": "Down swipe = \"Again\" - study this card more.",
+					"title": "Rate Again"
+				},
+				"rateEasy": {
+					"description": "Swipe right when you knew the answer perfectly.",
+					"instruction": "Right swipe = \"Easy\" - you knew this perfectly!",
+					"title": "Rate Easy"
+				},
+				"welcome": {
+					"description": "Learn gesture controls for spaced repetition study mode.",
+					"instruction": "Gestures help you rate cards quickly during study sessions.",
+					"title": "Welcome to Smart Study!"
+				}
+			}
+		},
+		"helpIcon": {
+			"ariaLabel": "Show keyboard shortcuts help",
+			"helpIcon": "Help icon",
+			"title": "Keyboard shortcuts (?)"
+		},
+		"keyboardShortcuts": {
+			"closeHelp": "to close this help",
+			"closeIcon": "Close icon",
+			"closeShortcutsHelp": "Close shortcuts help",
+			"pressEscToClose": "Press",
+			"title": "Keyboard Shortcuts"
+		},
+		"loading": {
+			"card": "Loading card",
+			"deck": "Loading deck",
+			"decks": "Loading decks",
+			"deckView": "Loading deck view",
+			"default": "Loading",
+			"flashcard": "Loading flashcard",
+			"statistics": "Loading statistics",
+			"studyHistoryHeatmap": "Loading study history heatmap"
+		}
+	},
 	"dashboard": {
 		"buttons": {
 			"createDeck": "Create Deck",
@@ -480,7 +560,15 @@
 				"studyRate": "Study rate"
 			},
 			"subtitle": "{{count}} days of study activity in the last year",
-			"title": "Study Activity"
+			"title": "Study Activity",
+			"tooltip": {
+				"card": "card",
+				"cards": "cards",
+				"noActivity": "No study activity on",
+				"session": "session",
+				"sessions": "sessions",
+				"studiedOn": "studied on"
+			}
 		},
 		"loading": {
 			"chartTitle": "Loading {{title}}...",

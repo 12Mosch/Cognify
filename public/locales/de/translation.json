@@ -63,6 +63,86 @@
 		"whatsNext": "Was kommt als Nächstes?",
 		"yes": "Ja"
 	},
+	"components": {
+		"errorBoundary": {
+			"authConfigError": "Authentifizierungskonfigurationsfehler",
+			"componentStack": "Komponenten-Stack:",
+			"reloadPage": "Seite neu laden",
+			"showTechnicalDetails": "Technische Details anzeigen",
+			"temporaryIssue": "Wir sind auf ein vorübergehendes Problem gestoßen. Sie können es erneut versuchen oder die Seite neu laden.",
+			"tryAgain": "Erneut versuchen",
+			"unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte laden Sie die Seite neu oder wenden Sie sich an den Support, wenn das Problem weiterhin besteht."
+		},
+		"gestureTutorial": {
+			"basicMode": {
+				"flipCards": {
+					"description": "Wischen Sie nach links oder tippen Sie irgendwo, um die Karte umzudrehen und die Antwort zu sehen.",
+					"instruction": "Versuchen Sie, auf einer beliebigen Karteikarte nach links zu wischen, um die Antwort zu enthüllen.",
+					"title": "Karten umdrehen"
+				},
+				"nextCard": {
+					"description": "Wischen Sie nach rechts, um zur nächsten Karte in Ihrem Stapel zu gelangen.",
+					"instruction": "Wischen Sie nach rechts, wenn Sie für die nächste Frage bereit sind.",
+					"title": "Nächste Karte"
+				},
+				"welcome": {
+					"description": "Lernen Sie, wie Sie Karteikarten mit einfachen Gesten navigieren.",
+					"instruction": "Wischgesten machen das Lernen schneller und intuitiver.",
+					"title": "Willkommen bei der Touch-Steuerung!"
+				}
+			},
+			"buttons": {
+				"gotIt": "Verstanden",
+				"next": "Weiter",
+				"previous": "Zurück",
+				"skipTutorial": "Tutorial überspringen"
+			},
+			"spacedRepetition": {
+				"flipCards": {
+					"description": "Wischen Sie nach links oder tippen Sie, um die Antwort zu enthüllen.",
+					"instruction": "Wischen Sie nach links, um die Antwort zu sehen und Ihr Wissen zu bewerten.",
+					"title": "Karten umdrehen"
+				},
+				"rateAgain": {
+					"description": "Wischen Sie nach unten, wenn Sie die Antwort nicht wussten.",
+					"instruction": "Nach unten wischen = \"Nochmal\" - lernen Sie diese Karte mehr.",
+					"title": "Als \"Nochmal\" bewerten"
+				},
+				"rateEasy": {
+					"description": "Wischen Sie nach rechts, wenn Sie die Antwort perfekt wussten.",
+					"instruction": "Nach rechts wischen = \"Einfach\" - Sie wussten das perfekt!",
+					"title": "Als \"Einfach\" bewerten"
+				},
+				"welcome": {
+					"description": "Lernen Sie Gestensteuerung für den Spaced-Repetition-Lernmodus.",
+					"instruction": "Gesten helfen Ihnen, Karten während Lernsitzungen schnell zu bewerten.",
+					"title": "Willkommen beim intelligenten Lernen!"
+				}
+			}
+		},
+		"helpIcon": {
+			"ariaLabel": "Tastenkürzel-Hilfe anzeigen",
+			"helpIcon": "Hilfe-Symbol",
+			"title": "Tastenkürzel (?)"
+		},
+		"keyboardShortcuts": {
+			"closeHelp": "Hilfe schließen",
+			"closeIcon": "Schließen-Symbol",
+			"closeShortcutsHelp": "Tastenkürzel-Hilfe schließen",
+			"pressEscToClose": "zu schließen diese Hilfe",
+			"title": "Tastenkürzel"
+		},
+		"loading": {
+			"card": "Karte wird geladen",
+			"deck": "Stapel wird geladen",
+			"decks": "Stapel werden geladen",
+			"deckView": "Stapelansicht wird geladen",
+			"default": "Laden",
+			"flashcard": "Karteikarte wird geladen",
+			"statistics": "Statistiken werden geladen",
+			"studyHistoryHeatmap": "Lernverlauf-Heatmap wird geladen"
+		}
+	},
 	"dashboard": {
 		"buttons": {
 			"createDeck": "Stapel erstellen",
@@ -480,7 +560,15 @@
 				"studyRate": "Lernrate"
 			},
 			"subtitle": "{{count}} Tage Lernaktivität im letzten Jahr",
-			"title": "Lernaktivität"
+			"title": "Lernaktivität",
+			"tooltip": {
+				"card": "Karte",
+				"cards": "Karten",
+				"noActivity": "Keine Lernaktivität am",
+				"session": "Sitzung",
+				"sessions": "Sitzungen",
+				"studiedOn": "gelernt am"
+			}
 		},
 		"loading": {
 			"chartTitle": "{{title}} wird geladen...",

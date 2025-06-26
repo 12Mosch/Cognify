@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 /**
  * Skeleton Components for Loading States
@@ -29,10 +30,12 @@ const SkeletonElement = memo(function SkeletonElement({
  * Skeleton for individual deck cards in the dashboard grid
  */
 export const DeckCardSkeleton = memo(function DeckCardSkeleton() {
+	const { t } = useTranslation();
+
 	return (
 		<output
 			aria-busy="true"
-			aria-label="Loading deck"
+			aria-label={t("components.loading.deck")}
 			className="rounded-xl border border-slate-200/60 bg-gradient-to-br from-white to-slate-50 p-8 shadow-sm dark:border-slate-700/60 dark:from-slate-800 dark:to-slate-900"
 			role="status"
 		>
@@ -73,10 +76,12 @@ export const DeckListSkeleton = memo(function DeckListSkeleton({
 }: {
 	count?: number;
 }) {
+	const { t } = useTranslation();
+
 	return (
 		<output
 			aria-busy="true"
-			aria-label="Loading decks"
+			aria-label={t("components.loading.decks")}
 			className="mx-auto flex max-w-6xl flex-col gap-8"
 			role="status"
 		>
@@ -106,10 +111,12 @@ export const DeckListSkeleton = memo(function DeckListSkeleton({
  * Skeleton for flashcard content in study modes
  */
 export const FlashcardSkeleton = memo(function FlashcardSkeleton() {
+	const { t } = useTranslation();
+
 	return (
 		<output
 			aria-busy="true"
-			aria-label="Loading flashcard"
+			aria-label={t("components.loading.flashcard")}
 			className="mx-auto flex max-w-4xl flex-col gap-8"
 			role="status"
 		>
@@ -154,10 +161,12 @@ export const DeckViewSkeleton = memo(function DeckViewSkeleton({
 }: {
 	cardCount?: number;
 }) {
+	const { t } = useTranslation();
+
 	return (
 		<output
 			aria-busy="true"
-			aria-label="Loading deck view"
+			aria-label={t("components.loading.deckView")}
 			className="mx-auto flex max-w-6xl flex-col gap-8"
 			role="status"
 		>
@@ -188,10 +197,12 @@ export const DeckViewSkeleton = memo(function DeckViewSkeleton({
  * Skeleton for individual card items in deck view
  */
 const CardItemSkeleton = memo(function CardItemSkeleton() {
+	const { t } = useTranslation();
+
 	return (
 		<output
 			aria-busy="true"
-			aria-label="Loading card"
+			aria-label={t("components.loading.card")}
 			className="rounded-lg border-2 border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800"
 		>
 			<div className="flex h-full min-h-[200px] flex-col">
@@ -220,10 +231,12 @@ const CardItemSkeleton = memo(function CardItemSkeleton() {
  * Skeleton for small statistics or counts
  */
 export const StatsSkeleton = memo(function StatsSkeleton() {
+	const { t } = useTranslation();
+
 	return (
 		<output
 			aria-busy="true"
-			aria-label="Loading statistics"
+			aria-label={t("components.loading.statistics")}
 			className="flex items-center gap-2"
 			role="status"
 		>
@@ -237,6 +250,7 @@ export const StatsSkeleton = memo(function StatsSkeleton() {
  * Skeleton for Study History Heatmap
  */
 export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
+	const { t } = useTranslation();
 	// Generate skeleton grid structure (similar to actual heatmap)
 	const weeks = Array.from({ length: 53 }, (_, weekIndex) => weekIndex);
 	const days = Array.from({ length: 7 }, (_, dayIndex) => dayIndex);
@@ -261,7 +275,7 @@ export const HeatmapSkeleton = memo(function HeatmapSkeleton() {
 	return (
 		<output
 			aria-busy="true"
-			aria-label="Loading study history heatmap"
+			aria-label={t("components.loading.studyHistoryHeatmap")}
 			className="rounded-lg border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800"
 			role="status"
 		>
@@ -361,6 +375,7 @@ export const GenericSkeleton = memo(function GenericSkeleton({
 }: {
 	type?: "default" | "deck-list" | "flashcard" | "deck-view";
 }) {
+	const { t } = useTranslation();
 	switch (type) {
 		case "deck-list":
 			return <DeckListSkeleton />;
@@ -372,7 +387,7 @@ export const GenericSkeleton = memo(function GenericSkeleton({
 			return (
 				<output
 					aria-busy="true"
-					aria-label="Loading"
+					aria-label={t("components.loading.default")}
 					className="mx-auto flex max-w-4xl flex-col gap-8"
 					role="status"
 				>

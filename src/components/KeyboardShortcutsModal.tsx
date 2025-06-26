@@ -3,6 +3,7 @@
  */
 
 import { useEffect, useId } from "react";
+import { useTranslation } from "react-i18next";
 import type { KeyboardShortcutGroup } from "../types/keyboard";
 
 interface KeyboardShortcutsModalProps {
@@ -19,6 +20,7 @@ function KeyboardShortcutsModal({
 	studyMode,
 }: KeyboardShortcutsModalProps) {
 	const titleId = useId();
+	const { t } = useTranslation();
 	// Handle Escape key to close modal
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
@@ -67,16 +69,16 @@ function KeyboardShortcutsModal({
 						className="font-semibold text-slate-900 text-xl dark:text-slate-100"
 						id={titleId}
 					>
-						Keyboard Shortcuts
+						{t("components.keyboardShortcuts.title")}
 					</h2>
 					<button
-						aria-label="Close shortcuts help"
+						aria-label={t("components.keyboardShortcuts.closeShortcutsHelp")}
 						className="text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
 						onClick={onClose}
 						type="button"
 					>
 						<svg
-							aria-label="Close icon"
+							aria-label={t("components.keyboardShortcuts.closeIcon")}
 							fill="none"
 							height="24"
 							role="img"
@@ -85,7 +87,7 @@ function KeyboardShortcutsModal({
 							viewBox="0 0 24 24"
 							width="24"
 						>
-							<title>Close icon</title>
+							<title>{t("components.keyboardShortcuts.closeIcon")}</title>
 							<line x1="18" x2="6" y1="6" y2="18" />
 							<line x1="6" x2="18" y1="6" y2="18" />
 						</svg>
@@ -127,11 +129,11 @@ function KeyboardShortcutsModal({
 					{/* Footer note */}
 					<div className="mt-6 border-slate-200 border-t pt-4 dark:border-slate-700">
 						<p className="text-center text-slate-500 text-xs dark:text-slate-400">
-							Press{" "}
+							{t("components.keyboardShortcuts.pressEscToClose")}{" "}
 							<kbd className="rounded bg-slate-200 px-1 py-0.5 text-xs dark:bg-slate-600">
 								Esc
 							</kbd>{" "}
-							to close this help
+							{t("components.keyboardShortcuts.closeHelp")}
 						</p>
 					</div>
 				</div>

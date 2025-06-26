@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { isTouchDevice } from "../lib/gestureUtils";
 
 interface GestureTutorialProps {
@@ -19,6 +20,7 @@ export function GestureTutorial({
 	studyMode,
 }: GestureTutorialProps) {
 	const [currentStep, setCurrentStep] = useState(0);
+	const { t } = useTranslation();
 
 	// Reset step when modal opens
 	useEffect(() => {
@@ -34,51 +36,77 @@ export function GestureTutorial({
 
 	const basicModeSteps = [
 		{
-			description: "Learn how to navigate flashcards with simple gestures.",
+			description: t(
+				"components.gestureTutorial.basicMode.welcome.description",
+			),
 			gesture: "👋",
-			instruction: "Swipe gestures make studying faster and more intuitive.",
-			title: "Welcome to Touch Controls!",
+			instruction: t(
+				"components.gestureTutorial.basicMode.welcome.instruction",
+			),
+			title: t("components.gestureTutorial.basicMode.welcome.title"),
 		},
 		{
-			description:
-				"Swipe left or tap anywhere to flip the card and see the answer.",
+			description: t(
+				"components.gestureTutorial.basicMode.flipCards.description",
+			),
 			gesture: "👈",
-			instruction: "Try swiping left on any flashcard to reveal the answer.",
-			title: "Flip Cards",
+			instruction: t(
+				"components.gestureTutorial.basicMode.flipCards.instruction",
+			),
+			title: t("components.gestureTutorial.basicMode.flipCards.title"),
 		},
 		{
-			description: "Swipe right to move to the next card in your deck.",
+			description: t(
+				"components.gestureTutorial.basicMode.nextCard.description",
+			),
 			gesture: "👉",
-			instruction: "Swipe right when you're ready for the next question.",
-			title: "Next Card",
+			instruction: t(
+				"components.gestureTutorial.basicMode.nextCard.instruction",
+			),
+			title: t("components.gestureTutorial.basicMode.nextCard.title"),
 		},
 	];
 
 	const spacedRepetitionSteps = [
 		{
-			description: "Learn gesture controls for spaced repetition study mode.",
+			description: t(
+				"components.gestureTutorial.spacedRepetition.welcome.description",
+			),
 			gesture: "🧠",
-			instruction:
-				"Gestures help you rate cards quickly during study sessions.",
-			title: "Welcome to Smart Study!",
+			instruction: t(
+				"components.gestureTutorial.spacedRepetition.welcome.instruction",
+			),
+			title: t("components.gestureTutorial.spacedRepetition.welcome.title"),
 		},
 		{
-			description: "Swipe left or tap to reveal the answer.",
+			description: t(
+				"components.gestureTutorial.spacedRepetition.flipCards.description",
+			),
 			gesture: "👈",
-			instruction: "Swipe left to see the answer and rate your knowledge.",
-			title: "Flip Cards",
+			instruction: t(
+				"components.gestureTutorial.spacedRepetition.flipCards.instruction",
+			),
+			title: t("components.gestureTutorial.spacedRepetition.flipCards.title"),
 		},
 		{
-			description: "Swipe right when you knew the answer perfectly.",
+			description: t(
+				"components.gestureTutorial.spacedRepetition.rateEasy.description",
+			),
 			gesture: "👉",
-			instruction: 'Right swipe = "Easy" - you knew this perfectly!',
-			title: "Rate Easy",
+			instruction: t(
+				"components.gestureTutorial.spacedRepetition.rateEasy.instruction",
+			),
+			title: t("components.gestureTutorial.spacedRepetition.rateEasy.title"),
 		},
 		{
-			description: "Swipe down when you didn't know the answer.",
+			description: t(
+				"components.gestureTutorial.spacedRepetition.rateAgain.description",
+			),
 			gesture: "👇",
-			instruction: 'Down swipe = "Again" - study this card more.',
-			title: "Rate Again",
+			instruction: t(
+				"components.gestureTutorial.spacedRepetition.rateAgain.instruction",
+			),
+			title: t("components.gestureTutorial.spacedRepetition.rateAgain.title"),
 		},
 	];
 
@@ -152,7 +180,7 @@ export function GestureTutorial({
 							onClick={handleSkip}
 							type="button"
 						>
-							Skip Tutorial
+							{t("components.gestureTutorial.buttons.skipTutorial")}
 						</button>
 
 						<div className="flex space-x-3">
@@ -162,7 +190,7 @@ export function GestureTutorial({
 									onClick={handlePrevious}
 									type="button"
 								>
-									Previous
+									{t("components.gestureTutorial.buttons.previous")}
 								</button>
 							)}
 
@@ -171,7 +199,9 @@ export function GestureTutorial({
 								onClick={handleNext}
 								type="button"
 							>
-								{currentStep === steps.length - 1 ? "Get Started!" : "Next"}
+								{currentStep === steps.length - 1
+									? t("components.gestureTutorial.buttons.gotIt")
+									: t("components.gestureTutorial.buttons.next")}
 							</button>
 						</div>
 					</div>

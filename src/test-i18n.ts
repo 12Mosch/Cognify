@@ -14,6 +14,12 @@ const mockTranslations = {
 				"{{count}} Tage Lernaktivität im letzten Jahr",
 			// Basic German translations for testing
 			"statistics.heatmap.title": "Lernaktivität",
+			"statistics.heatmap.tooltip.card": "Karte",
+			"statistics.heatmap.tooltip.cards": "Karten",
+			"statistics.heatmap.tooltip.noActivity": "Keine Lernaktivität am",
+			"statistics.heatmap.tooltip.session": "Sitzung",
+			"statistics.heatmap.tooltip.sessions": "Sitzungen",
+			"statistics.heatmap.tooltip.studiedOn": "gelernt am",
 			"statistics.loading.dashboard": "Statistik-Dashboard wird geladen",
 			"statistics.widgets.learningStreak.title": "Lernserie",
 		},
@@ -36,6 +42,81 @@ const mockTranslations = {
 			"common.studyMode": "Study Mode",
 			"common.success": "Success",
 			"common.whatsNext": "What's Next?",
+
+			// Components
+			"components.errorBoundary.authConfigError":
+				"Authentication Configuration Error",
+			"components.errorBoundary.componentStack": "Component Stack:",
+			"components.errorBoundary.reloadPage": "Reload Page",
+			"components.errorBoundary.showTechnicalDetails": "Show technical details",
+			"components.errorBoundary.temporaryIssue":
+				"We encountered a temporary issue. You can try again or reload the page.",
+			"components.errorBoundary.tryAgain": "Try Again",
+			"components.errorBoundary.unexpectedError":
+				"An unexpected error occurred. Please reload the page or contact support if the problem persists.",
+			"components.gestureTutorial.basicMode.flipCards.description":
+				"Swipe left or tap anywhere to flip the card and see the answer.",
+			"components.gestureTutorial.basicMode.flipCards.instruction":
+				"Try swiping left on any flashcard to reveal the answer.",
+			"components.gestureTutorial.basicMode.flipCards.title": "Flip Cards",
+			"components.gestureTutorial.basicMode.nextCard.description":
+				"Swipe right to move to the next card in your deck.",
+			"components.gestureTutorial.basicMode.nextCard.instruction":
+				"Swipe right when you're ready for the next question.",
+			"components.gestureTutorial.basicMode.nextCard.title": "Next Card",
+
+			"components.gestureTutorial.basicMode.welcome.description":
+				"Learn how to navigate flashcards with simple gestures.",
+			"components.gestureTutorial.basicMode.welcome.instruction":
+				"Swipe gestures make studying faster and more intuitive.",
+			"components.gestureTutorial.basicMode.welcome.title":
+				"Welcome to Touch Controls!",
+			"components.gestureTutorial.buttons.gotIt": "Got it",
+			"components.gestureTutorial.buttons.next": "Next",
+			"components.gestureTutorial.buttons.previous": "Previous",
+			"components.gestureTutorial.buttons.skipTutorial": "Skip Tutorial",
+			"components.gestureTutorial.spacedRepetition.flipCards.description":
+				"Swipe left or tap to reveal the answer.",
+			"components.gestureTutorial.spacedRepetition.flipCards.instruction":
+				"Swipe left to see the answer and rate your knowledge.",
+			"components.gestureTutorial.spacedRepetition.flipCards.title":
+				"Flip Cards",
+			"components.gestureTutorial.spacedRepetition.rateAgain.description":
+				"Swipe down when you didn't know the answer.",
+			"components.gestureTutorial.spacedRepetition.rateAgain.instruction":
+				'Down swipe = "Again" - study this card more.',
+			"components.gestureTutorial.spacedRepetition.rateAgain.title":
+				"Rate Again",
+			"components.gestureTutorial.spacedRepetition.rateEasy.description":
+				"Swipe right when you knew the answer perfectly.",
+			"components.gestureTutorial.spacedRepetition.rateEasy.instruction":
+				'Right swipe = "Easy" - you knew this perfectly!',
+			"components.gestureTutorial.spacedRepetition.rateEasy.title": "Rate Easy",
+			"components.gestureTutorial.spacedRepetition.welcome.description":
+				"Learn gesture controls for spaced repetition study mode.",
+			"components.gestureTutorial.spacedRepetition.welcome.instruction":
+				"Gestures help you rate cards quickly during study sessions.",
+			"components.gestureTutorial.spacedRepetition.welcome.title":
+				"Welcome to Smart Study!",
+
+			"components.helpIcon.ariaLabel": "Show keyboard shortcuts help",
+			"components.helpIcon.helpIcon": "Help icon",
+			"components.helpIcon.title": "Keyboard shortcuts (?)",
+
+			"components.keyboardShortcuts.closeHelp": "to close this help",
+			"components.keyboardShortcuts.closeIcon": "Close icon",
+			"components.keyboardShortcuts.closeShortcutsHelp": "Close shortcuts help",
+			"components.keyboardShortcuts.pressEscToClose": "Press",
+			"components.keyboardShortcuts.title": "Keyboard Shortcuts",
+
+			"components.loading.card": "Loading card",
+			"components.loading.deck": "Loading deck",
+			"components.loading.decks": "Loading decks",
+			"components.loading.deckView": "Loading deck view",
+			"components.loading.default": "Loading",
+			"components.loading.flashcard": "Loading flashcard",
+			"components.loading.statistics": "Loading statistics",
+			"components.loading.studyHistoryHeatmap": "Loading study history heatmap",
 			"dashboard.buttons.createDeck": "Create Deck",
 			"dashboard.buttons.quickAddCard": "Quick Add Card",
 			"dashboard.buttons.showStatistics": "Show Statistics",
@@ -235,6 +316,12 @@ const mockTranslations = {
 
 			// Study History Heatmap
 			"statistics.heatmap.title": "Study Activity",
+			"statistics.heatmap.tooltip.card": "card",
+			"statistics.heatmap.tooltip.cards": "cards",
+			"statistics.heatmap.tooltip.noActivity": "No study activity on",
+			"statistics.heatmap.tooltip.session": "session",
+			"statistics.heatmap.tooltip.sessions": "sessions",
+			"statistics.heatmap.tooltip.studiedOn": "studied on",
 			"statistics.loading.chartTitle": "Loading {{title}}...",
 			"statistics.loading.dashboard": "Loading statistics dashboard",
 			"statistics.table.deckPerformance.headers.avgEase": "Avg. Ease",

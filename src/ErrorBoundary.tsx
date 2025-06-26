@@ -1,5 +1,6 @@
 import { usePostHog } from "posthog-js/react";
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import i18n from "./i18n";
 import { hasAnalyticsConsent, trackErrorBoundary } from "./lib/analytics";
 
 interface ErrorBoundaryProps {
@@ -357,7 +358,7 @@ class ErrorBoundaryClass extends Component<
 		return (
 			<div className="container mx-auto flex max-w-2xl flex-col gap-4 border border-red-500/50 bg-red-500/20 p-8">
 				<h1 className="font-bold text-red-700 text-xl dark:text-red-400">
-					Authentication Configuration Error
+					{i18n.t("components.errorBoundary.authConfigError")}
 				</h1>
 				<div className="space-y-3">
 					<p>
@@ -386,7 +387,7 @@ class ErrorBoundaryClass extends Component<
 					)}
 					<details className="mt-4">
 						<summary className="cursor-pointer text-slate-600 text-sm hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
-							Show technical details
+							{i18n.t("components.errorBoundary.showTechnicalDetails")}
 						</summary>
 						<pre className="mt-2 overflow-auto rounded bg-slate-100 p-3 text-xs dark:bg-slate-800">
 							{errorText}
@@ -429,8 +430,8 @@ class ErrorBoundaryClass extends Component<
 				<div className="space-y-4">
 					<p className="text-slate-700 dark:text-slate-300">
 						{isRecoverable
-							? "We encountered a temporary issue. You can try again or reload the page."
-							: "An unexpected error occurred. Please reload the page or contact support if the problem persists."}
+							? i18n.t("components.errorBoundary.temporaryIssue")
+							: i18n.t("components.errorBoundary.unexpectedError")}
 					</p>
 
 					<div className="flex flex-col gap-3 sm:flex-row">
@@ -440,7 +441,7 @@ class ErrorBoundaryClass extends Component<
 								onClick={this.handleRetry}
 								type="button"
 							>
-								Try Again{" "}
+								{i18n.t("components.errorBoundary.tryAgain")}{" "}
 								{this.state.retryCount > 0 && `(${this.state.retryCount}/3)`}
 							</button>
 						)}
@@ -449,7 +450,7 @@ class ErrorBoundaryClass extends Component<
 							onClick={this.handleReload}
 							type="button"
 						>
-							Reload Page
+							{i18n.t("components.errorBoundary.reloadPage")}
 						</button>
 					</div>
 
@@ -474,7 +475,9 @@ class ErrorBoundaryClass extends Component<
 							)}
 							{this.state.errorInfo?.componentStack && (
 								<div>
-									<h4 className="font-medium text-sm">Component Stack:</h4>
+									<h4 className="font-medium text-sm">
+										{i18n.t("components.errorBoundary.componentStack")}
+									</h4>
 									<pre className="max-h-40 overflow-auto rounded bg-slate-100 p-3 text-xs dark:bg-slate-800">
 										{this.state.errorInfo?.componentStack}
 									</pre>
