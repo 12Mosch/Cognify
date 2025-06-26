@@ -3,7 +3,7 @@ import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import { RELATIONSHIP_TYPES } from "../../convex/contextualLearning";
+import { RELATIONSHIP_TYPES } from "../types/relationships";
 
 type TabId = "clusters" | "paths" | "graph";
 

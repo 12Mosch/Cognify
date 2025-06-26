@@ -21,29 +21,13 @@ import { query } from "./_generated/server";
  * - Uses efficient similarity thresholds to reduce computation
  */
 
-// Constants for relationship types and reasons
-export const RELATIONSHIP_TYPES = {
-	CONTAINS: "contains",
-	PREREQUISITE: "prerequisite",
-	RELATED: "related",
-	SIMILAR: "similar",
-	UNRELATED: "unrelated",
-	WEAKLY_RELATED: "weakly_related",
-} as const;
-
-export const RELATIONSHIP_REASONS = {
-	FEW_COMMON_TERMS: "Few common terms",
-	INSUFFICIENT_CONTENT: "Insufficient content",
-	NO_COMMON_TERMS: "No common terms",
-	NO_MEANINGFUL_CONTENT: "No meaningful content",
-	RELATED_CONCEPTS: "Related concepts",
-	VERY_SIMILAR_CONTENT: "Very similar content",
-} as const;
-
-export type RelationshipType =
-	(typeof RELATIONSHIP_TYPES)[keyof typeof RELATIONSHIP_TYPES];
-export type RelationshipReason =
-	(typeof RELATIONSHIP_REASONS)[keyof typeof RELATIONSHIP_REASONS];
+// Import shared relationship types and constants
+import {
+	RELATIONSHIP_REASONS,
+	RELATIONSHIP_TYPES,
+	type RelationshipReason,
+	type RelationshipType,
+} from "../src/types/relationships";
 
 interface CardRelationship {
 	type: RelationshipType;
