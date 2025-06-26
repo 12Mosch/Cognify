@@ -21,6 +21,11 @@ interface CreateDeckFormProps {
 	onCancel?: () => void;
 }
 
+interface CreateDeckFormData extends Record<string, unknown> {
+	name: string;
+	description: string;
+}
+
 export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
@@ -43,7 +48,10 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 	const errorId = useId();
 
 	// Form error monitoring
-	const formErrorMonitor = withFormErrorMonitoring("create_deck", posthog);
+	const formErrorMonitor = withFormErrorMonitoring<CreateDeckFormData>(
+		"create_deck",
+		posthog,
+	);
 
 	// Focus management hooks
 	const { storeTriggerElement, restoreFocus } = useFocusManagement(showForm);
@@ -99,10 +107,7 @@ export function CreateDeckForm({ onSuccess, onCancel }: CreateDeckFormProps) {
 
 			formErrorMonitor.trackValidationErrors(validationErrors, {
 				attemptNumber: currentAttempt,
-				formData: {
-					descriptionLength: description.length,
-					nameLength: name.length,
-				},
+				formData: { description, name },
 				userId: user?.id,
 			});
 

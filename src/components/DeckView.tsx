@@ -397,6 +397,11 @@ interface AddCardFormProps {
 	onSuccess: () => void;
 }
 
+interface CardFormData extends Record<string, unknown> {
+	front: string;
+	back: string;
+}
+
 function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 	const [front, setFront] = useState("");
 	const [back, setBack] = useState("");
@@ -411,7 +416,10 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 	const { user } = useUser();
 	const posthog = usePostHog();
 	const { trackConvexMutation, captureError } = useErrorMonitoring();
-	const formErrorMonitor = withFormErrorMonitoring("add_card_to_deck", posthog);
+	const formErrorMonitor = withFormErrorMonitoring<CardFormData>(
+		"add_card_to_deck",
+		posthog,
+	);
 	const addCard = useMutation(api.cards.addCardToDeck);
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -631,7 +639,10 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 	const { user } = useUser();
 	const posthog = usePostHog();
 	const { trackConvexMutation, captureError } = useErrorMonitoring();
-	const formErrorMonitor = withFormErrorMonitoring("edit_card", posthog);
+	const formErrorMonitor = withFormErrorMonitoring<CardFormData>(
+		"edit_card",
+		posthog,
+	);
 	const updateCard = useMutation(api.cards.updateCard);
 
 	const handleSubmit = (e: React.FormEvent) => {

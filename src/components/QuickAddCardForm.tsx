@@ -22,6 +22,12 @@ interface QuickAddCardFormProps {
 	onCancel?: () => void;
 }
 
+interface QuickAddCardFormData extends Record<string, unknown> {
+	front: string;
+	back: string;
+	selectedDeckId: Id<"decks">;
+}
+
 export function QuickAddCardForm({
 	onSuccess,
 	onCancel,
@@ -53,7 +59,10 @@ export function QuickAddCardForm({
 		useErrorMonitoring();
 
 	// Form error monitoring
-	const formErrorMonitor = withFormErrorMonitoring("quick_add_card", posthog);
+	const formErrorMonitor = withFormErrorMonitoring<QuickAddCardFormData>(
+		"quick_add_card",
+		posthog,
+	);
 
 	// Focus management hooks
 	const { storeTriggerElement, restoreFocus } = useFocusManagement(showForm);

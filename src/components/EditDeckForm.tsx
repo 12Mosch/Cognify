@@ -33,6 +33,11 @@ interface EditDeckFormProps {
 	forceShowForm?: boolean;
 }
 
+interface EditDeckFormData extends Record<string, unknown> {
+	name: string;
+	description: string;
+}
+
 export function EditDeckForm({
 	deck,
 	onSuccess,
@@ -60,7 +65,10 @@ export function EditDeckForm({
 	const errorId = useId();
 
 	// Form error monitoring
-	const formErrorMonitor = withFormErrorMonitoring("edit_deck", posthog);
+	const formErrorMonitor = withFormErrorMonitoring<EditDeckFormData>(
+		"edit_deck",
+		posthog,
+	);
 
 	// Focus management hooks
 	const { storeTriggerElement, restoreFocus } = useFocusManagement(showForm);
