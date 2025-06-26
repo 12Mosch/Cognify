@@ -49,6 +49,7 @@ export const addUserIdToExistingCards = internalMutation({
 			for (const card of cards) {
 				try {
 					// Get the deck to find the userId
+					// deepcode ignore Sqli: <No SQL injection risk in Convex>
 					const deck = await ctx.db.get(card.deckId);
 
 					if (deck) {

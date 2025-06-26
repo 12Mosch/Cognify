@@ -277,7 +277,8 @@ export const reviewCardAdaptive = mutation({
 			throw new Error("Card not found");
 		}
 
-		const deck = await ctx.db.get(card.deckId);
+		// deepcode ignore Sqli: <No SQL injection risk in Convex>
+  		const deck = await ctx.db.get(card.deckId);
 		if (!deck || deck.userId !== identity.subject) {
 			throw new Error("You can only review your own cards");
 		}

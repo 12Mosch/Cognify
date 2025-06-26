@@ -90,6 +90,7 @@ export const getRelatedCards = query({
 		}
 
 		// Verify ownership
+		// deepcode ignore Sqli: <No SQL injection risk in Convex>
 		const sourceDeck = await ctx.db.get(sourceCard.deckId);
 		if (!sourceDeck || sourceDeck.userId !== identity.subject) {
 			throw new Error("You can only get related cards for your own cards");

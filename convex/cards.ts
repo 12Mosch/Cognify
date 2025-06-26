@@ -152,6 +152,7 @@ export const updateCard = mutation({
 		}
 
 		// Verify that the user owns the deck containing this card
+		// deepcode ignore Sqli: <No SQL injection risk in Convex>
 		const deck = await ctx.db.get(existingCard.deckId);
 
 		if (!deck) {
@@ -224,6 +225,7 @@ export const deleteCard = mutation({
 		}
 
 		// Verify that the user owns the deck containing this card
+		// deepcode ignore Sqli: <No SQL injection risk in Convex>
 		const deck = await ctx.db.get(existingCard.deckId);
 
 		if (!deck) {

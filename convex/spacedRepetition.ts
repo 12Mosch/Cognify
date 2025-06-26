@@ -124,6 +124,7 @@ export const reviewCard = mutation({
 		}
 
 		// Get the deck to verify ownership
+		// deepcode ignore Sqli: <No SQL injection risk in Convex>
 		const deck = await ctx.db.get(card.deckId);
 
 		if (!deck) {
@@ -529,6 +530,7 @@ export const initializeCardForSpacedRepetition = mutation({
 		}
 
 		// Get the deck to verify ownership
+		// deepcode ignore Sqli: <No SQL injection risk in Convex>
 		const deck = await ctx.db.get(card.deckId);
 
 		if (!deck) {
