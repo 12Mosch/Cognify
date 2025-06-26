@@ -26,9 +26,6 @@ const config = {
 		},
 	},
 
-	// Error handling
-	errorOnDeprecated: true, // Enable with --coverage flag
-
 	// ES modules support
 	extensionsToTreatAsEsm: [".ts", ".tsx"],
 
