@@ -278,7 +278,7 @@ export const reviewCardAdaptive = mutation({
 		}
 
 		// deepcode ignore Sqli: <No SQL injection risk in Convex>
-  		const deck = await ctx.db.get(card.deckId);
+		const deck = await ctx.db.get(card.deckId);
 		if (!deck || deck.userId !== identity.subject) {
 			throw new Error("You can only review your own cards");
 		}
