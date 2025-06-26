@@ -42,9 +42,9 @@ interface DeckPerformanceChartProps {
 	onDeckSelect: (deckId: string | null) => void;
 }
 
-// Custom Tooltip Component (moved outside to avoid nested component definition)
-const CustomTooltip = ({ active, payload }: DeckTooltipProps) => {
-	const { t } = useTranslation();
+// Custom Tooltip Component - avoid using hooks to prevent React Compiler issues
+const CustomTooltip = ({ active, payload, t }: DeckTooltipProps & { t: (key: string) => string }) => {
+	"use no memo"; // Directive to prevent React Compiler optimization
 
 	if (active && payload && payload.length) {
 		const data = payload[0].payload;
@@ -300,7 +300,7 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
 						tickLine={false}
 					/>
 
-					<Tooltip content={<CustomTooltip />} />
+					<Tooltip content={<CustomTooltip t={t} />} />
 
 					<Bar
 						cursor="pointer"

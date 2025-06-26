@@ -39,6 +39,8 @@ interface StudyActivityChartProps {
 
 // Custom Tooltip Component (moved outside to avoid nested component definition)
 const CustomTooltip = ({ active, payload, label }: ActivityTooltipProps) => {
+	"use no memo"; // Directive to prevent React Compiler optimization
+
 	if (active && payload && payload.length) {
 		return (
 			<div className="rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-lg dark:bg-slate-900">

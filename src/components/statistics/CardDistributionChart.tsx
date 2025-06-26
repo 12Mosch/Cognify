@@ -52,8 +52,11 @@ interface CardDistributionChartProps {
 	cardDistribution: CardDistribution;
 }
 
-// Custom Tooltip Component (moved outside to avoid nested component definition)
+// Custom Tooltip Component - defined as a regular function to avoid React Compiler issues
+// This function is called by Recharts outside of React's component lifecycle
 const CustomTooltip = ({ active, payload }: TooltipProps) => {
+	"use no memo"; // Directive to prevent React Compiler optimization
+
 	if (active && payload && payload.length) {
 		const data = payload[0].payload;
 		const totalCards = data.totalCards || 1; // Fallback to prevent division by zero
@@ -85,7 +88,8 @@ const CustomTooltip = ({ active, payload }: TooltipProps) => {
 	return null;
 };
 
-// Custom Label Component (moved outside to avoid nested component definition)
+// Custom Label Component - defined as a regular function to avoid React Compiler issues
+// This function is called by Recharts outside of React's component lifecycle
 const CustomLabel = ({
 	cx,
 	cy,
@@ -94,6 +98,8 @@ const CustomLabel = ({
 	outerRadius,
 	percent,
 }: LabelProps) => {
+	"use no memo"; // Directive to prevent React Compiler optimization
+
 	if (percent < 0.05) return null; // Don't show labels for very small segments
 
 	const RADIAN = Math.PI / 180;
