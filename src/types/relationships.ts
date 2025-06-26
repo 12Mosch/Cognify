@@ -14,12 +14,12 @@ export const RELATIONSHIP_TYPES = {
 } as const;
 
 export const RELATIONSHIP_REASONS = {
-	FEW_COMMON_TERMS: "Few common terms",
-	INSUFFICIENT_CONTENT: "Insufficient content",
-	NO_COMMON_TERMS: "No common terms",
-	NO_MEANINGFUL_CONTENT: "No meaningful content",
-	RELATED_CONCEPTS: "Related concepts",
-	VERY_SIMILAR_CONTENT: "Very similar content",
+	FEW_COMMON_TERMS: "relationships.reasons.fewCommonTerms",
+	INSUFFICIENT_CONTENT: "relationships.reasons.insufficientContent",
+	NO_COMMON_TERMS: "relationships.reasons.noCommonTerms",
+	NO_MEANINGFUL_CONTENT: "relationships.reasons.noMeaningfulContent",
+	RELATED_CONCEPTS: "relationships.reasons.relatedConcepts",
+	VERY_SIMILAR_CONTENT: "relationships.reasons.verySimilarContent",
 } as const;
 
 export type RelationshipType =

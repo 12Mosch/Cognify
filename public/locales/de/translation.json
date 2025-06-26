@@ -75,6 +75,43 @@
 		"unlocked": "freigeschaltet",
 		"unlockedOn": "Freigeschaltet am"
 	},
+	"adaptiveLearning": {
+		"errors": {
+			"cardNotFound": "Karte nicht gefunden",
+			"onlyOwnCards": "Sie können nur Ihre eigenen Karten überprüfen",
+			"userNotAuthenticated": "Benutzer muss authentifiziert sein"
+		},
+		"messages": {
+			"challenging": "Das scheint herausfordernd zu sein - erwägen Sie, verwandte Konzepte zu wiederholen.",
+			"greatJob": "Großartige Arbeit!",
+			"masteringWell": "Sie beherrschen dieses Thema gut!",
+			"steadyProgress": "Sie machen stetige Fortschritte!"
+		},
+		"priorities": {
+			"high": "high",
+			"low": "low",
+			"medium": "medium"
+		},
+		"recommendations": {
+			"focusDifficultCards": {
+				"description": "Ihre Erfolgsrate bei schwierigen Karten beträgt {{successRate}}%. Erwägen Sie kürzere Intervalle oder zusätzliche Wiederholungstechniken.",
+				"title": "Konzentrieren Sie sich auf schwierige Karten"
+			},
+			"increaseFrequency": {
+				"description": "Ihre Lerngeschwindigkeit ist unter dem Optimum. Erwägen Sie kürzere, häufigere Lernsitzungen.",
+				"title": "Erhöhen Sie die Lernhäufigkeit"
+			},
+			"optimizeStudyTime": {
+				"description": "Ihre beste Leistung ist während {{timeSlot}} mit {{successRate}}% Erfolgsrate.",
+				"title": "Optimieren Sie Ihre Lernzeit"
+			}
+		},
+		"types": {
+			"difficultyManagement": "difficulty_management",
+			"timeOptimization": "time_optimization",
+			"velocityImprovement": "velocity_improvement"
+		}
+	},
 	"analytics": {
 		"timeSlots": {
 			"afternoon": "13-17 Uhr",
@@ -195,6 +232,36 @@
 			"flashcard": "Karteikarte wird geladen",
 			"statistics": "Statistiken werden geladen",
 			"studyHistoryHeatmap": "Lernverlauf-Heatmap wird geladen"
+		}
+	},
+	"contextualLearning": {
+		"clustering": {
+			"conceptGroup": "Konzeptgruppe {{number}}"
+		},
+		"descriptions": {
+			"difficultyProgression": "Beginnen Sie mit einfacheren Konzepten und steigern Sie allmählich die Schwierigkeit",
+			"prerequisiteOrder": "Lernen Sie grundlegende Konzepte vor fortgeschrittenen",
+			"relatedConcepts": "Verwandte Konzepte",
+			"reviewFocused": "Konzentrieren Sie sich auf Karten, die Sie am schwierigsten finden"
+		},
+		"errors": {
+			"cardNotFound": "Karte nicht gefunden",
+			"centerCardNotFound": "Zentrale Karte {{cardId}} nicht im Karten-Array gefunden",
+			"onlyOwnCards": "Sie können nur verwandte Karten für Ihre eigenen Karten abrufen",
+			"onlyOwnDecks": "Sie können nur Cluster für Ihre eigenen Decks abrufen",
+			"onlyOwnGraphData": "Sie können nur Graphdaten für Ihre eigenen Decks abrufen",
+			"onlyOwnLearningPaths": "Sie können nur Lernpfade für Ihre eigenen Decks abrufen",
+			"userNotAuthenticated": "Benutzer muss authentifiziert sein"
+		},
+		"pathTypes": {
+			"difficultyProgression": "difficulty_progression",
+			"prerequisiteOrder": "prerequisite_order",
+			"reviewFocused": "review_focused"
+		},
+		"reasons": {
+			"estimatedDifficulty": "Geschätzte Schwierigkeit: {{percentage}}%",
+			"foundationalConcept": "Grundlegendes Konzept",
+			"successRate": "Erfolgsrate: {{percentage}}%"
 		}
 	},
 	"dashboard": {
@@ -431,6 +498,16 @@
 	},
 	"reflection": {
 		"saveError": "Reflexion konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+	},
+	"relationships": {
+		"reasons": {
+			"fewCommonTerms": "Wenige gemeinsame Begriffe",
+			"insufficientContent": "Unzureichender Inhalt",
+			"noCommonTerms": "Keine gemeinsamen Begriffe",
+			"noMeaningfulContent": "Kein sinnvoller Inhalt",
+			"relatedConcepts": "Verwandte Konzepte",
+			"verySimilarContent": "Sehr ähnlicher Inhalt"
+		}
 	},
 	"scheduling": {
 		"actions": {

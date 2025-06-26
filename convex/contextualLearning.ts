@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { query } from "./_generated/server";
+import { normalizeLanguage, t } from "./utils/translations";
 
 /**
  * Contextual Learning Features
@@ -73,27 +74,32 @@ interface KnowledgeGraphEdge {
 export const getRelatedCards = query({
 	args: {
 		cardId: v.id("cards"),
+		language: v.optional(v.string()),
 		limit: v.optional(v.number()),
 	},
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			const language = normalizeLanguage(args.language);
+			throw new Error(
+				t("contextualLearning.errors.userNotAuthenticated", language),
+			);
 		}
 
 		const limit = args.limit || 5;
+		const language = normalizeLanguage(args.language);
 
 		// Get the source card
 		const sourceCard = await ctx.db.get(args.cardId);
 		if (!sourceCard) {
-			throw new Error("Card not found");
+			throw new Error(t("contextualLearning.errors.cardNotFound", language));
 		}
 
 		// Verify ownership
 		// deepcode ignore Sqli: <No SQL injection risk in Convex>
 		const sourceDeck = await ctx.db.get(sourceCard.deckId);
 		if (!sourceDeck || sourceDeck.userId !== identity.subject) {
-			throw new Error("You can only get related cards for your own cards");
+			throw new Error(t("contextualLearning.errors.onlyOwnCards", language));
 		}
 
 		// Optimized card loading: limit scope to same deck and sample from other decks
@@ -179,12 +185,18 @@ export const getRelatedCards = query({
 export const getConceptClusters = query({
 	args: {
 		deckId: v.optional(v.id("decks")),
+		language: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			const language = normalizeLanguage(args.language);
+			throw new Error(
+				t("contextualLearning.errors.userNotAuthenticated", language),
+			);
 		}
+
+		const language = normalizeLanguage(args.language);
 
 		// Get cards to cluster
 		let cards = [];
@@ -192,7 +204,7 @@ export const getConceptClusters = query({
 			// Verify deck ownership
 			const deck = await ctx.db.get(args.deckId);
 			if (!deck || deck.userId !== identity.subject) {
-				throw new Error("You can only get clusters for your own decks");
+				throw new Error(t("contextualLearning.errors.onlyOwnDecks", language));
 			}
 
 			cards = await ctx.db
@@ -225,7 +237,7 @@ export const getConceptClusters = query({
 		}
 
 		// Simple clustering based on text similarity
-		const clusters = performSimpleClustering(cards);
+		const clusters = performSimpleClustering(cards, language);
 
 		// Get user's review data for mastery calculation
 		const reviews = await ctx.db
@@ -265,7 +277,9 @@ export const getConceptClusters = query({
 				const centerCard = cards.find((c) => c._id === cluster.centerCard);
 				if (!centerCard) {
 					console.error(
-						`Center card ${cluster.centerCard} not found in cards array`,
+						t("contextualLearning.errors.centerCardNotFound", language, {
+							cardId: cluster.centerCard,
+						}),
 					);
 					return null; // Return null for invalid clusters
 				}
@@ -314,12 +328,18 @@ export const getKnowledgeGraphData = query({
 	args: {
 		deckId: v.optional(v.id("decks")),
 		includeDecks: v.optional(v.boolean()),
+		language: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			const language = normalizeLanguage(args.language);
+			throw new Error(
+				t("contextualLearning.errors.userNotAuthenticated", language),
+			);
 		}
+
+		const language = normalizeLanguage(args.language);
 
 		const nodes: KnowledgeGraphNode[] = [];
 		const edges: KnowledgeGraphEdge[] = [];
@@ -329,7 +349,9 @@ export const getKnowledgeGraphData = query({
 		if (args.deckId) {
 			const deck = await ctx.db.get(args.deckId);
 			if (!deck || deck.userId !== identity.subject) {
-				throw new Error("You can only get graph data for your own decks");
+				throw new Error(
+					t("contextualLearning.errors.onlyOwnGraphData", language),
+				);
 			}
 			targetDecks = [deck];
 		} else {
@@ -467,12 +489,18 @@ export const getKnowledgeGraphData = query({
 export const getLearningPathRecommendations = query({
 	args: {
 		deckId: v.optional(v.id("decks")),
+		language: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			const language = normalizeLanguage(args.language);
+			throw new Error(
+				t("contextualLearning.errors.userNotAuthenticated", language),
+			);
 		}
+
+		const language = normalizeLanguage(args.language);
 
 		// If no deckId provided, return empty array
 		if (!args.deckId) {
@@ -485,7 +513,9 @@ export const getLearningPathRecommendations = query({
 		// Verify deck ownership
 		const deck = await ctx.db.get(deckId);
 		if (!deck || deck.userId !== identity.subject) {
-			throw new Error("You can only get learning paths for your own decks");
+			throw new Error(
+				t("contextualLearning.errors.onlyOwnLearningPaths", language),
+			);
 		}
 
 		// Get deck cards
@@ -513,39 +543,58 @@ export const getLearningPathRecommendations = query({
 		const paths = [];
 
 		// 1. Difficulty-based path (easy to hard)
-		const difficultyPath = generateDifficultyBasedPath(cards, deckReviews);
+		const difficultyPath = generateDifficultyBasedPath(
+			cards,
+			deckReviews,
+			language,
+		);
 		if (difficultyPath.length > 0) {
 			paths.push({
 				confidence: 0.8,
-				description:
-					"Start with easier concepts and gradually increase difficulty",
+				description: t(
+					"contextualLearning.descriptions.difficultyProgression",
+					language,
+				),
 				estimatedTime: difficultyPath.length * 2,
 				path: difficultyPath, // 2 minutes per card
-				pathType: "difficulty_progression",
+				pathType: t(
+					"contextualLearning.pathTypes.difficultyProgression",
+					language,
+				),
 			});
 		}
 
 		// 2. Prerequisite-based path
-		const prerequisitePath = generatePrerequisitePath(cards, deckReviews);
+		const prerequisitePath = generatePrerequisitePath(
+			cards,
+			deckReviews,
+			language,
+		);
 		if (prerequisitePath.length > 0) {
 			paths.push({
 				confidence: 0.7,
-				description: "Learn foundational concepts before advanced ones",
+				description: t(
+					"contextualLearning.descriptions.prerequisiteOrder",
+					language,
+				),
 				estimatedTime: prerequisitePath.length * 2.5,
 				path: prerequisitePath,
-				pathType: "prerequisite_order",
+				pathType: t("contextualLearning.pathTypes.prerequisiteOrder", language),
 			});
 		}
 
 		// 3. Review-focused path (struggling cards first)
-		const reviewPath = generateReviewFocusedPath(cards, deckReviews);
+		const reviewPath = generateReviewFocusedPath(cards, deckReviews, language);
 		if (reviewPath.length > 0) {
 			paths.push({
 				confidence: 0.9,
-				description: "Focus on cards you find most challenging",
+				description: t(
+					"contextualLearning.descriptions.reviewFocused",
+					language,
+				),
 				estimatedTime: reviewPath.length * 3,
 				path: reviewPath,
-				pathType: "review_focused",
+				pathType: t("contextualLearning.pathTypes.reviewFocused", language),
 			});
 		}
 
@@ -636,7 +685,11 @@ function calculateCardRelationship(
 	}
 }
 
-function performSimpleClustering(cards: Doc<"cards">[]): ConceptCluster[] {
+function performSimpleClustering(
+	cards: Doc<"cards">[],
+	language = "en",
+): ConceptCluster[] {
+	const normalizedLanguage = normalizeLanguage(language);
 	// Optimized clustering based on text similarity with performance limits
 	const clusters: ConceptCluster[] = [];
 	const used = new Set();
@@ -650,11 +703,18 @@ function performSimpleClustering(cards: Doc<"cards">[]): ConceptCluster[] {
 		const cluster: ConceptCluster = {
 			cardIds: [cards[i]._id],
 			centerCard: cards[i]._id,
-			description: "Related concepts",
+			description: t(
+				"contextualLearning.descriptions.relatedConcepts",
+				normalizedLanguage,
+			),
 			difficulty: 0.5,
 			id: `cluster_${i}`,
 			masteryLevel: 0,
-			name: `Concept Group ${i + 1}`,
+			name: t(
+				"contextualLearning.clustering.conceptGroup",
+				normalizedLanguage,
+				{ number: i + 1 },
+			),
 		};
 
 		used.add(cards[i]._id);
@@ -688,7 +748,9 @@ function performSimpleClustering(cards: Doc<"cards">[]): ConceptCluster[] {
 function generateDifficultyBasedPath(
 	cards: Doc<"cards">[],
 	reviews: Doc<"cardReviews">[],
+	language: string,
 ) {
+	const normalizedLanguage = normalizeLanguage(language);
 	// Sort cards by estimated difficulty (based on review success rates)
 	const cardDifficulties = cards.map((card) => {
 		const cardReviews = reviews.filter((r) => r.cardId === card._id);
@@ -701,7 +763,11 @@ function generateDifficultyBasedPath(
 			cardId: card._id,
 			estimatedDifficulty: 1 - successRate,
 			front: card.front,
-			reason: `Estimated difficulty: ${Math.round((1 - successRate) * 100)}%`,
+			reason: t(
+				"contextualLearning.reasons.estimatedDifficulty",
+				normalizedLanguage,
+				{ percentage: Math.round((1 - successRate) * 100) },
+			),
 		};
 	});
 
@@ -713,14 +779,19 @@ function generateDifficultyBasedPath(
 function generatePrerequisitePath(
 	cards: Doc<"cards">[],
 	_reviews: Doc<"cardReviews">[],
+	language: string,
 ) {
+	const normalizedLanguage = normalizeLanguage(language);
 	// Simple heuristic: shorter cards are often more basic
 	return cards
 		.map((card) => ({
 			cardId: card._id,
 			estimatedDifficulty: card.front.length / 100,
 			front: card.front,
-			reason: "Foundational concept", // Simple heuristic
+			reason: t(
+				"contextualLearning.reasons.foundationalConcept",
+				normalizedLanguage,
+			), // Simple heuristic
 		}))
 		.sort((a, b) => a.estimatedDifficulty - b.estimatedDifficulty)
 		.slice(0, 8);
@@ -729,7 +800,9 @@ function generatePrerequisitePath(
 function generateReviewFocusedPath(
 	cards: Doc<"cards">[],
 	reviews: Doc<"cardReviews">[],
+	language: string,
 ) {
+	const normalizedLanguage = normalizeLanguage(language);
 	// Focus on cards with low success rates
 	const strugglingCards = cards
 		.map((card) => {
@@ -744,7 +817,11 @@ function generateReviewFocusedPath(
 				cardId: card._id,
 				estimatedDifficulty: 1 - successRate,
 				front: card.front,
-				reason: `Success rate: ${Math.round(successRate * 100)}%`,
+				reason: t(
+					"contextualLearning.reasons.successRate",
+					normalizedLanguage,
+					{ percentage: Math.round(successRate * 100) },
+				),
 				reviewCount: cardReviews.length,
 			};
 		})

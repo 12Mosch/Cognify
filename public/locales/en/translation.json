@@ -75,6 +75,43 @@
 		"unlocked": "unlocked",
 		"unlockedOn": "Unlocked on"
 	},
+	"adaptiveLearning": {
+		"errors": {
+			"cardNotFound": "Card not found",
+			"onlyOwnCards": "You can only review your own cards",
+			"userNotAuthenticated": "User must be authenticated"
+		},
+		"messages": {
+			"challenging": "This seems challenging - consider reviewing related concepts.",
+			"greatJob": "Great job!",
+			"masteringWell": "You're mastering this topic well!",
+			"steadyProgress": "You're making steady progress!"
+		},
+		"priorities": {
+			"high": "high",
+			"low": "low",
+			"medium": "medium"
+		},
+		"recommendations": {
+			"focusDifficultCards": {
+				"description": "Your success rate with difficult cards is {{successRate}}%. Consider shorter intervals or additional review techniques.",
+				"title": "Focus on Difficult Cards"
+			},
+			"increaseFrequency": {
+				"description": "Your learning velocity is below optimal. Consider shorter, more frequent study sessions.",
+				"title": "Increase Study Frequency"
+			},
+			"optimizeStudyTime": {
+				"description": "Your best performance is during {{timeSlot}} with {{successRate}}% success rate.",
+				"title": "Optimize Your Study Time"
+			}
+		},
+		"types": {
+			"difficultyManagement": "difficulty_management",
+			"timeOptimization": "time_optimization",
+			"velocityImprovement": "velocity_improvement"
+		}
+	},
 	"analytics": {
 		"timeSlots": {
 			"afternoon": "1-5 PM",
@@ -195,6 +232,36 @@
 			"flashcard": "Loading flashcard",
 			"statistics": "Loading statistics",
 			"studyHistoryHeatmap": "Loading study history heatmap"
+		}
+	},
+	"contextualLearning": {
+		"clustering": {
+			"conceptGroup": "Concept Group {{number}}"
+		},
+		"descriptions": {
+			"difficultyProgression": "Start with easier concepts and gradually increase difficulty",
+			"prerequisiteOrder": "Learn foundational concepts before advanced ones",
+			"relatedConcepts": "Related concepts",
+			"reviewFocused": "Focus on cards you find most challenging"
+		},
+		"errors": {
+			"cardNotFound": "Card not found",
+			"centerCardNotFound": "Center card {{cardId}} not found in cards array",
+			"onlyOwnCards": "You can only get related cards for your own cards",
+			"onlyOwnDecks": "You can only get clusters for your own decks",
+			"onlyOwnGraphData": "You can only get graph data for your own decks",
+			"onlyOwnLearningPaths": "You can only get learning paths for your own decks",
+			"userNotAuthenticated": "User must be authenticated"
+		},
+		"pathTypes": {
+			"difficultyProgression": "difficulty_progression",
+			"prerequisiteOrder": "prerequisite_order",
+			"reviewFocused": "review_focused"
+		},
+		"reasons": {
+			"estimatedDifficulty": "Estimated difficulty: {{percentage}}%",
+			"foundationalConcept": "Foundational concept",
+			"successRate": "Success rate: {{percentage}}%"
 		}
 	},
 	"dashboard": {
@@ -431,6 +498,16 @@
 	},
 	"reflection": {
 		"saveError": "Failed to save reflection. Please try again."
+	},
+	"relationships": {
+		"reasons": {
+			"fewCommonTerms": "Few common terms",
+			"insufficientContent": "Insufficient content",
+			"noCommonTerms": "No common terms",
+			"noMeaningfulContent": "No meaningful content",
+			"relatedConcepts": "Related concepts",
+			"verySimilarContent": "Very similar content"
+		}
 	},
 	"scheduling": {
 		"actions": {

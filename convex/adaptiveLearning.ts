@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { getTimeSlot, type TimeSlot } from "../src/utils/scheduling";
 import { api } from "./_generated/api";
 import { mutation, query } from "./_generated/server";
+import { normalizeLanguage, t } from "./utils/translations";
 
 /**
  * Adaptive Learning Algorithm for Personalized Spaced Repetition
@@ -175,11 +176,16 @@ function calculateAdaptiveSM2(
  * Get or create learning pattern for user
  */
 export const getUserLearningPattern = query({
-	args: {},
-	handler: async (ctx, _args) => {
+	args: {
+		language: v.optional(v.string()),
+	},
+	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			const language = normalizeLanguage(args.language);
+			throw new Error(
+				t("adaptiveLearning.errors.userNotAuthenticated", language),
+			);
 		}
 
 		const pattern = await ctx.db
@@ -262,25 +268,31 @@ export const reviewCardAdaptive = mutation({
 	args: {
 		cardId: v.id("cards"),
 		confidenceRating: v.optional(v.number()),
+		language: v.optional(v.string()),
 		quality: v.number(),
 		responseTime: v.optional(v.number()),
 	},
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			const language = normalizeLanguage(args.language);
+			throw new Error(
+				t("adaptiveLearning.errors.userNotAuthenticated", language),
+			);
 		}
+
+		const language = normalizeLanguage(args.language);
 
 		// Get card and verify ownership
 		const card = await ctx.db.get(args.cardId);
 		if (!card) {
-			throw new Error("Card not found");
+			throw new Error(t("adaptiveLearning.errors.cardNotFound", language));
 		}
 
 		// deepcode ignore Sqli: <No SQL injection risk in Convex>
 		const deck = await ctx.db.get(card.deckId);
 		if (!deck || deck.userId !== identity.subject) {
-			throw new Error("You can only review your own cards");
+			throw new Error(t("adaptiveLearning.errors.onlyOwnCards", language));
 		}
 
 		// Get user's learning pattern
@@ -333,14 +345,22 @@ export const reviewCardAdaptive = mutation({
 		});
 
 		// Generate personalized message
-		let personalizedMessage = "Great job! ";
+		let personalizedMessage = `${t("adaptiveLearning.messages.greatJob", language)} `;
 		if (result.confidence > 0.8) {
-			personalizedMessage += "You're mastering this topic well!";
+			personalizedMessage += t(
+				"adaptiveLearning.messages.masteringWell",
+				language,
+			);
 		} else if (result.confidence < 0.4) {
-			personalizedMessage +=
-				"This seems challenging - consider reviewing related concepts.";
+			personalizedMessage += t(
+				"adaptiveLearning.messages.challenging",
+				language,
+			);
 		} else {
-			personalizedMessage += "You're making steady progress!";
+			personalizedMessage += t(
+				"adaptiveLearning.messages.steadyProgress",
+				language,
+			);
 		}
 
 		// Trigger learning pattern update (async)
@@ -563,6 +583,7 @@ export const updateLearningPattern = mutation({
  */
 export const getLearningInsights = query({
 	args: {
+		language: v.optional(v.string()),
 		timeRange: v.optional(
 			v.union(
 				v.literal("7d"),
@@ -575,8 +596,13 @@ export const getLearningInsights = query({
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			const language = normalizeLanguage(args.language);
+			throw new Error(
+				t("adaptiveLearning.errors.userNotAuthenticated", language),
+			);
 		}
+
+		const language = normalizeLanguage(args.language);
 
 		// Get learning pattern
 		const learningPattern = await ctx.db
@@ -632,10 +658,20 @@ export const getLearningInsights = query({
 			const bestTime = timePerformance[0];
 			recommendations.push({
 				actionable: true,
-				description: `Your best performance is during ${bestTime[0].replace(/_/g, " ")} with ${Math.round(bestTime[1].successRate * 100)}% success rate.`,
+				description: t(
+					"adaptiveLearning.recommendations.optimizeStudyTime.description",
+					language,
+					{
+						successRate: Math.round(bestTime[1].successRate * 100),
+						timeSlot: bestTime[0].replace(/_/g, " "),
+					},
+				),
 				priority: "high" as const,
-				title: "Optimize Your Study Time",
-				type: "time_optimization",
+				title: t(
+					"adaptiveLearning.recommendations.optimizeStudyTime.title",
+					language,
+				),
+				type: t("adaptiveLearning.types.timeOptimization", language),
 			});
 		}
 
@@ -645,10 +681,19 @@ export const getLearningInsights = query({
 		if (hardCardsSuccess < 0.6) {
 			recommendations.push({
 				actionable: true,
-				description: `Your success rate with difficult cards is ${Math.round(hardCardsSuccess * 100)}%. Consider shorter intervals or additional review techniques.`,
+				description: t(
+					"adaptiveLearning.recommendations.focusDifficultCards.description",
+					language,
+					{
+						successRate: Math.round(hardCardsSuccess * 100),
+					},
+				),
 				priority: "medium" as const,
-				title: "Focus on Difficult Cards",
-				type: "difficulty_management",
+				title: t(
+					"adaptiveLearning.recommendations.focusDifficultCards.title",
+					language,
+				),
+				type: t("adaptiveLearning.types.difficultyManagement", language),
 			});
 		}
 
@@ -656,11 +701,16 @@ export const getLearningInsights = query({
 		if (learningPattern.learningVelocity < 0.5) {
 			recommendations.push({
 				actionable: true,
-				description:
-					"Your learning velocity is below optimal. Consider shorter, more frequent study sessions.",
+				description: t(
+					"adaptiveLearning.recommendations.increaseFrequency.description",
+					language,
+				),
 				priority: "medium" as const,
-				title: "Increase Study Frequency",
-				type: "velocity_improvement",
+				title: t(
+					"adaptiveLearning.recommendations.increaseFrequency.title",
+					language,
+				),
+				type: t("adaptiveLearning.types.velocityImprovement", language),
 			});
 		}
 
