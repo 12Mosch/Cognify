@@ -51,9 +51,11 @@ export function t(
 	if (interpolations) {
 		return Object.entries(interpolations).reduce(
 			(str, [placeholder, replacement]) => {
+				// Basic validation for potentially unsafe content
+				const safeReplacement = String(replacement).replace(/<script|javascript:/gi, '');
 				return str.replace(
 					new RegExp(`{{${placeholder}}}`, "g"),
-					String(replacement),
+					safeReplacement,
 				);
 			},
 			value,
