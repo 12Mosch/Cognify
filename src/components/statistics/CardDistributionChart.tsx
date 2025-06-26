@@ -1,26 +1,35 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import {
+	Cell,
+	Pie,
+	PieChart,
+	ResponsiveContainer,
+	Tooltip,
+	type TooltipContentProps,
+} from "recharts";
 import ChartWidget from "./ChartWidget";
 
-// Types for Recharts components
-interface TooltipProps {
+// Types for Recharts components - Updated for v3 compatibility
+type ChartDataItem = {
+	name: string;
+	value: number;
+	color: string;
+	description: string;
+	totalCards?: number;
+};
+
+interface CustomTooltipProps extends TooltipContentProps<number, string> {
 	active?: boolean;
 	payload?: Array<{
-		payload: {
-			name: string;
-			value: number;
-			color: string;
-			description: string;
-			totalCards?: number;
-		};
+		payload: ChartDataItem;
 	}>;
 }
 
 interface LabelProps {
 	cx: number;
 	cy: number;
-	midAngle: number;
+	midAngle: number | undefined;
 	innerRadius: number;
 	outerRadius: number;
 	percent: number;
@@ -54,7 +63,7 @@ interface CardDistributionChartProps {
 
 // Custom Tooltip Component - defined as a regular function to avoid React Compiler issues
 // This function is called by Recharts outside of React's component lifecycle
-const CustomTooltip = ({ active, payload }: TooltipProps) => {
+const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
 	"use no memo"; // Directive to prevent React Compiler optimization
 
 	if (active && payload && payload.length) {
@@ -100,7 +109,7 @@ const CustomLabel = ({
 }: LabelProps) => {
 	"use no memo"; // Directive to prevent React Compiler optimization
 
-	if (percent < 0.05) return null; // Don't show labels for very small segments
+	if (percent < 0.05 || midAngle === undefined) return null; // Don't show labels for very small segments or when midAngle is undefined
 
 	const RADIAN = Math.PI / 180;
 	const radius = innerRadius + (outerRadius - innerRadius) * 0.5;

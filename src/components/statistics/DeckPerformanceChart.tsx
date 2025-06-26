@@ -7,18 +7,21 @@ import {
 	Cell,
 	ResponsiveContainer,
 	Tooltip,
+	type TooltipContentProps,
 	XAxis,
 	YAxis,
 } from "recharts";
 import ChartWidget from "./ChartWidget";
 
-// Types for Recharts components
-interface DeckTooltipProps {
+// Types for Recharts components - Updated for v3 compatibility
+type DeckChartDataItem = DeckPerformance & {
+	shortName: string;
+};
+
+interface DeckTooltipProps extends TooltipContentProps<number, string> {
 	active?: boolean;
 	payload?: Array<{
-		payload: DeckPerformance & {
-			shortName: string;
-		};
+		payload: DeckChartDataItem;
 	}>;
 }
 

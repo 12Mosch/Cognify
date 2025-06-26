@@ -8,14 +8,15 @@ import {
 	Line,
 	ResponsiveContainer,
 	Tooltip,
+	type TooltipContentProps,
 	XAxis,
 	YAxis,
 } from "recharts";
 import { api } from "../../../convex/_generated/api";
 import ChartWidget from "./ChartWidget";
 
-// Types for Recharts components
-interface ActivityTooltipProps {
+// Types for Recharts components - Updated for v3 compatibility
+interface ActivityTooltipProps extends TooltipContentProps<number, string> {
 	active?: boolean;
 	payload?: Array<{
 		dataKey: string;
@@ -23,7 +24,7 @@ interface ActivityTooltipProps {
 		value: number;
 		color: string;
 	}>;
-	label?: string;
+	label?: string | number | undefined;
 }
 
 interface PayloadEntry {
