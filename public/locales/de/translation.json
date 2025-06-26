@@ -17,6 +17,60 @@
 		"recent": "Kürzliche Erfolge",
 		"showAll": "Alle anzeigen",
 		"showSummary": "Zusammenfassung anzeigen",
+		"specific": {
+			"century_scholar": {
+				"description": "Lerne 100 aufeinanderfolgende Tage",
+				"name": "Jahrhundert-Gelehrter"
+			},
+			"deck_creator": {
+				"description": "Erstelle dein erstes Deck",
+				"name": "Deck-Ersteller"
+			},
+			"deck_master": {
+				"description": "Meistere ein ganzes Deck (80%+ Karten gemeistert)",
+				"name": "Deck-Meister"
+			},
+			"early_bird": {
+				"description": "Lerne vor 8 Uhr morgens für 7 aufeinanderfolgende Tage",
+				"name": "Frühaufsteher"
+			},
+			"first_mastery": {
+				"description": "Meistere deine erste Karte (5+ erfolgreiche Wiederholungen)",
+				"name": "Erste Meisterschaft"
+			},
+			"first_streak": {
+				"description": "Absolviere deine erste Lernsitzung",
+				"name": "Erste Schritte"
+			},
+			"marathon_runner": {
+				"description": "Wiederhole 500 Karten an einem einzigen Tag",
+				"name": "Marathon-Läufer"
+			},
+			"month_master": {
+				"description": "Lerne 30 aufeinanderfolgende Tage",
+				"name": "Monats-Meister"
+			},
+			"night_owl": {
+				"description": "Lerne nach 22 Uhr für 7 aufeinanderfolgende Tage",
+				"name": "Nachteule"
+			},
+			"perfectionist": {
+				"description": "Erreiche 100% Erfolgsquote in einer 50+ Karten-Sitzung",
+				"name": "Perfektionist"
+			},
+			"prolific_creator": {
+				"description": "Erstelle 10 Decks",
+				"name": "Produktiver Ersteller"
+			},
+			"speed_learner": {
+				"description": "Wiederhole 100 Karten an einem einzigen Tag",
+				"name": "Schnell-Lerner"
+			},
+			"week_warrior": {
+				"description": "Lerne 7 aufeinanderfolgende Tage",
+				"name": "Wochen-Krieger"
+			}
+		},
 		"title": "Erfolge",
 		"unlocked": "freigeschaltet",
 		"unlockedOn": "Freigeschaltet am"
@@ -206,6 +260,7 @@
 		"network": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
 		"notFound": "Die angeforderte Ressource wurde nicht gefunden.",
 		"unauthorized": "Sie sind nicht berechtigt, diese Aktion auszuführen.",
+		"userNotAuthenticated": "Benutzer muss authentifiziert sein",
 		"validation": "Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut."
 	},
 	"forms": {
@@ -255,6 +310,12 @@
 			"maxLength": "{{field}} darf nicht mehr als {{max}} Zeichen enthalten",
 			"required": "Dieses Feld ist erforderlich",
 			"selectDeckRequired": "Bitte wählen Sie einen Stapel aus"
+		}
+	},
+	"gamification": {
+		"module": {
+			"description": "Dieses Modul bietet umfassende Gamification-Funktionen einschließlich Erfolgs-Abzeichen und Freischaltungen, Fortschrittsvisualisierung und Meilensteine, Lernherausforderungen und Ziele, soziale Funktionen (optional) und Motivations- und Engagement-Tracking.",
+			"title": "Erweiterte Gamification-System"
 		}
 	},
 	"knowledge": {

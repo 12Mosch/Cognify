@@ -6,6 +6,11 @@ import {
 	query,
 } from "./_generated/server";
 import { CACHE_TTL, CacheKeys, getCachedData, withCache } from "./utils/cache";
+import {
+	normalizeLanguage,
+	type SupportedLanguage,
+	t,
+} from "./utils/translations";
 
 /**
  * Enhanced Gamification System
@@ -44,50 +49,64 @@ interface Achievement {
 	isSecret: boolean; // Hidden until unlocked
 }
 
-// Predefined achievements
-const ACHIEVEMENTS: Achievement[] = [
+/**
+ * Get achievement data with translations
+ */
+function getAchievementData(
+	achievementId: string,
+	language: SupportedLanguage,
+): Achievement {
+	const baseAchievement = ACHIEVEMENTS_BASE.find((a) => a.id === achievementId);
+	if (!baseAchievement) {
+		throw new Error(`Achievement not found: ${achievementId}`);
+	}
+
+	return {
+		...baseAchievement,
+		description: t(
+			`achievements.specific.${achievementId}.description`,
+			language,
+		),
+		name: t(`achievements.specific.${achievementId}.name`, language),
+	};
+}
+
+// Predefined achievements base data (without translations)
+const ACHIEVEMENTS_BASE: Omit<Achievement, "name" | "description">[] = [
 	// Streak Achievements
 	{
 		category: "streak",
 		criteria: { type: "study_sessions", value: 1 },
-		description: "Complete your first study session",
 		icon: "🌱",
 		id: "first_streak",
 		isSecret: false,
-		name: "Getting Started",
 		points: 10,
 		tier: "bronze",
 	},
 	{
 		category: "streak",
 		criteria: { type: "streak_days", value: 7 },
-		description: "Study for 7 consecutive days",
 		icon: "⚔️",
 		id: "week_warrior",
 		isSecret: false,
-		name: "Week Warrior",
 		points: 50,
 		tier: "silver",
 	},
 	{
 		category: "streak",
 		criteria: { type: "streak_days", value: 30 },
-		description: "Study for 30 consecutive days",
 		icon: "👑",
 		id: "month_master",
 		isSecret: false,
-		name: "Month Master",
 		points: 200,
 		tier: "gold",
 	},
 	{
 		category: "streak",
 		criteria: { type: "streak_days", value: 100 },
-		description: "Study for 100 consecutive days",
 		icon: "💎",
 		id: "century_scholar",
 		isSecret: false,
-		name: "Century Scholar",
 		points: 500,
 		tier: "platinum",
 	},
@@ -96,33 +115,27 @@ const ACHIEVEMENTS: Achievement[] = [
 	{
 		category: "mastery",
 		criteria: { type: "mastered_cards", value: 1 },
-		description: "Master your first card (5+ successful reviews)",
 		icon: "🎯",
 		id: "first_mastery",
 		isSecret: false,
-		name: "First Mastery",
 		points: 15,
 		tier: "bronze",
 	},
 	{
 		category: "mastery",
 		criteria: { type: "deck_mastery_percentage", value: 80 },
-		description: "Master an entire deck (80%+ cards mastered)",
 		icon: "🏆",
 		id: "deck_master",
 		isSecret: false,
-		name: "Deck Master",
 		points: 150,
 		tier: "gold",
 	},
 	{
 		category: "mastery",
 		criteria: { type: "perfect_session", value: 50 },
-		description: "Achieve 100% success rate in a 50+ card session",
 		icon: "✨",
 		id: "perfectionist",
 		isSecret: true,
-		name: "Perfectionist",
 		points: 300,
 		tier: "platinum",
 	},
@@ -131,22 +144,18 @@ const ACHIEVEMENTS: Achievement[] = [
 	{
 		category: "velocity",
 		criteria: { type: "daily_cards", value: 100 },
-		description: "Review 100 cards in a single day",
 		icon: "⚡",
 		id: "speed_learner",
 		isSecret: false,
-		name: "Speed Learner",
 		points: 75,
 		tier: "silver",
 	},
 	{
 		category: "velocity",
 		criteria: { type: "daily_cards", value: 500 },
-		description: "Review 500 cards in a single day",
 		icon: "🏃‍♂️",
 		id: "marathon_runner",
 		isSecret: true,
-		name: "Marathon Runner",
 		points: 400,
 		tier: "platinum",
 	},
@@ -155,22 +164,18 @@ const ACHIEVEMENTS: Achievement[] = [
 	{
 		category: "consistency",
 		criteria: { type: "early_morning_streak", value: 7 },
-		description: "Study before 8 AM for 7 consecutive days",
 		icon: "🌅",
 		id: "early_bird",
 		isSecret: false,
-		name: "Early Bird",
 		points: 60,
 		tier: "silver",
 	},
 	{
 		category: "consistency",
 		criteria: { type: "night_study_streak", value: 7 },
-		description: "Study after 10 PM for 7 consecutive days",
 		icon: "🦉",
 		id: "night_owl",
 		isSecret: false,
-		name: "Night Owl",
 		points: 60,
 		tier: "silver",
 	},
@@ -179,22 +184,18 @@ const ACHIEVEMENTS: Achievement[] = [
 	{
 		category: "exploration",
 		criteria: { type: "decks_created", value: 1 },
-		description: "Create your first deck",
 		icon: "📚",
 		id: "deck_creator",
 		isSecret: false,
-		name: "Deck Creator",
 		points: 20,
 		tier: "bronze",
 	},
 	{
 		category: "exploration",
 		criteria: { type: "decks_created", value: 10 },
-		description: "Create 10 decks",
 		icon: "🎨",
 		id: "prolific_creator",
 		isSecret: false,
-		name: "Prolific Creator",
 		points: 180,
 		tier: "gold",
 	},
@@ -204,11 +205,14 @@ const ACHIEVEMENTS: Achievement[] = [
  * Get user's achievements and progress
  */
 export const getUserAchievements = query({
-	args: {},
-	handler: async (ctx, _args) => {
+	args: {
+		language: v.optional(v.string()),
+	},
+	handler: async (ctx, args) => {
+		const language = normalizeLanguage(args.language);
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			throw new Error(t("errors.userNotAuthenticated", language));
 		}
 
 		// Get user's unlocked achievements
@@ -218,15 +222,19 @@ export const getUserAchievements = query({
 			.collect();
 
 		const unlockedAchievements = userAchievements
-			.map((ua) => ({
-				achievement: ACHIEVEMENTS.find((a) => a.id === ua.achievementId),
-				achievementId: ua.achievementId,
-				unlockedAt: ua.unlockedAt,
-			}))
-			.filter(
-				(ua): ua is typeof ua & { achievement: Achievement } =>
-					ua.achievement !== undefined,
-			);
+			.map((ua) => {
+				const baseAchievement = ACHIEVEMENTS_BASE.find(
+					(a) => a.id === ua.achievementId,
+				);
+				if (!baseAchievement) return null;
+
+				return {
+					achievement: getAchievementData(ua.achievementId, language),
+					achievementId: ua.achievementId,
+					unlockedAt: ua.unlockedAt,
+				};
+			})
+			.filter((ua): ua is NonNullable<typeof ua> => ua !== null);
 
 		const totalPoints = unlockedAchievements.reduce(
 			(sum, ua) => sum + ua.achievement.points,
@@ -235,7 +243,7 @@ export const getUserAchievements = query({
 
 		// Calculate progress toward next achievements
 		const unlockedIds = new Set(userAchievements.map((ua) => ua.achievementId));
-		const availableAchievements = ACHIEVEMENTS.filter(
+		const availableAchievements = ACHIEVEMENTS_BASE.filter(
 			(a) => !unlockedIds.has(a.id) && !a.isSecret,
 		);
 
@@ -243,7 +251,8 @@ export const getUserAchievements = query({
 		const userStats = await calculateUserStatsQuery(ctx, identity.subject);
 
 		const nextAchievements = availableAchievements
-			.map((achievement) => {
+			.map((baseAchievement) => {
+				const achievement = getAchievementData(baseAchievement.id, language);
 				const { progress, currentValue, targetValue } =
 					calculateAchievementProgress(achievement, userStats);
 				return {
@@ -272,25 +281,28 @@ export const getUserAchievements = query({
 				unlockedAchievements.filter(
 					(ua) => ua.achievement.category === "consistency",
 				).length /
-				ACHIEVEMENTS.filter((a) => a.category === "consistency").length,
+				ACHIEVEMENTS_BASE.filter((a) => a.category === "consistency").length,
 			exploration:
 				unlockedAchievements.filter(
 					(ua) => ua.achievement.category === "exploration",
 				).length /
-				ACHIEVEMENTS.filter((a) => a.category === "exploration").length,
+				ACHIEVEMENTS_BASE.filter((a) => a.category === "exploration").length,
 			mastery:
 				unlockedAchievements.filter(
 					(ua) => ua.achievement.category === "mastery",
-				).length / ACHIEVEMENTS.filter((a) => a.category === "mastery").length,
+				).length /
+				ACHIEVEMENTS_BASE.filter((a) => a.category === "mastery").length,
 			social: 0,
 			streak:
 				unlockedAchievements.filter(
 					(ua) => ua.achievement.category === "streak",
-				).length / ACHIEVEMENTS.filter((a) => a.category === "streak").length,
+				).length /
+				ACHIEVEMENTS_BASE.filter((a) => a.category === "streak").length,
 			velocity:
 				unlockedAchievements.filter(
 					(ua) => ua.achievement.category === "velocity",
-				).length / ACHIEVEMENTS.filter((a) => a.category === "velocity").length, // Not implemented yet
+				).length /
+				ACHIEVEMENTS_BASE.filter((a) => a.category === "velocity").length,
 		};
 
 		return {
@@ -361,13 +373,15 @@ export const getUserAchievements = query({
  */
 export const checkAchievements = mutation({
 	args: {
+		language: v.optional(v.string()),
 		triggerData: v.optional(v.any()), // e.g., "study_session", "deck_created", "streak_updated"
 		triggerType: v.string(),
 	},
 	handler: async (ctx, args) => {
+		const language = normalizeLanguage(args.language);
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) {
-			throw new Error("User must be authenticated");
+			throw new Error(t("errors.userNotAuthenticated", language));
 		}
 
 		// Get currently unlocked achievements
@@ -383,9 +397,10 @@ export const checkAchievements = mutation({
 
 		// Check each achievement
 		const newlyUnlocked = [];
-		for (const achievement of ACHIEVEMENTS) {
-			if (unlockedIds.has(achievement.id)) continue;
+		for (const baseAchievement of ACHIEVEMENTS_BASE) {
+			if (unlockedIds.has(baseAchievement.id)) continue;
 
+			const achievement = getAchievementData(baseAchievement.id, language);
 			const { progress } = calculateAchievementProgress(achievement, userStats);
 			if (progress >= 1.0) {
 				// Unlock achievement

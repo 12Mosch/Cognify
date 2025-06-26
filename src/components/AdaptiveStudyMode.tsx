@@ -33,7 +33,7 @@ export default function AdaptiveStudyMode({
 	deckId,
 	onExit,
 }: AdaptiveStudyModeProps) {
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const { trackStudySessionStarted } = useAnalytics();
 
 	// Component state
@@ -157,6 +157,7 @@ export default function AdaptiveStudyMode({
 		async (quality: number, cardId: Id<"cards">) => {
 			try {
 				const newAchievements = await checkAchievements({
+					language: i18n.language,
 					triggerData: { cardId, deckId, quality },
 					triggerType: "study_session",
 				});
@@ -165,7 +166,7 @@ export default function AdaptiveStudyMode({
 				console.error("Error checking achievements:", error);
 			}
 		},
-		[checkAchievements, deckId, showAchievementNotifications],
+		[checkAchievements, deckId, showAchievementNotifications, i18n.language],
 	);
 
 	// Handle session completion achievements
@@ -173,6 +174,7 @@ export default function AdaptiveStudyMode({
 		async (cardsReviewed: number) => {
 			try {
 				const sessionAchievements = await checkAchievements({
+					language: i18n.language,
 					triggerData: { cardsReviewed, deckId },
 					triggerType: "session_complete",
 				});
@@ -181,7 +183,7 @@ export default function AdaptiveStudyMode({
 				console.error("Error checking session achievements:", error);
 			}
 		},
-		[checkAchievements, deckId, showAchievementNotifications],
+		[checkAchievements, deckId, showAchievementNotifications, i18n.language],
 	);
 
 	// Move to next card in the study queue

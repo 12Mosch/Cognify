@@ -17,6 +17,60 @@
 		"recent": "Recent Achievements",
 		"showAll": "Show All",
 		"showSummary": "Show Summary",
+		"specific": {
+			"century_scholar": {
+				"description": "Study for 100 consecutive days",
+				"name": "Century Scholar"
+			},
+			"deck_creator": {
+				"description": "Create your first deck",
+				"name": "Deck Creator"
+			},
+			"deck_master": {
+				"description": "Master an entire deck (80%+ cards mastered)",
+				"name": "Deck Master"
+			},
+			"early_bird": {
+				"description": "Study before 8 AM for 7 consecutive days",
+				"name": "Early Bird"
+			},
+			"first_mastery": {
+				"description": "Master your first card (5+ successful reviews)",
+				"name": "First Mastery"
+			},
+			"first_streak": {
+				"description": "Complete your first study session",
+				"name": "Getting Started"
+			},
+			"marathon_runner": {
+				"description": "Review 500 cards in a single day",
+				"name": "Marathon Runner"
+			},
+			"month_master": {
+				"description": "Study for 30 consecutive days",
+				"name": "Month Master"
+			},
+			"night_owl": {
+				"description": "Study after 10 PM for 7 consecutive days",
+				"name": "Night Owl"
+			},
+			"perfectionist": {
+				"description": "Achieve 100% success rate in a 50+ card session",
+				"name": "Perfectionist"
+			},
+			"prolific_creator": {
+				"description": "Create 10 decks",
+				"name": "Prolific Creator"
+			},
+			"speed_learner": {
+				"description": "Review 100 cards in a single day",
+				"name": "Speed Learner"
+			},
+			"week_warrior": {
+				"description": "Study for 7 consecutive days",
+				"name": "Week Warrior"
+			}
+		},
 		"title": "Achievements",
 		"unlocked": "unlocked",
 		"unlockedOn": "Unlocked on"
@@ -206,6 +260,7 @@
 		"network": "Network error. Please check your connection.",
 		"notFound": "The requested resource was not found.",
 		"unauthorized": "You are not authorized to perform this action.",
+		"userNotAuthenticated": "User must be authenticated",
 		"validation": "Please check your input and try again."
 	},
 	"forms": {
@@ -255,6 +310,12 @@
 			"maxLength": "{{field}} cannot exceed {{max}} characters",
 			"required": "This field is required",
 			"selectDeckRequired": "Please select a deck"
+		}
+	},
+	"gamification": {
+		"module": {
+			"description": "This module provides comprehensive gamification features including achievement badges and unlocks, progress visualization and milestones, learning challenges and goals, social features (optional), and motivation and engagement tracking.",
+			"title": "Enhanced Gamification System"
 		}
 	},
 	"knowledge": {

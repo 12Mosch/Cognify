@@ -21,12 +21,14 @@ interface AchievementsWidgetProps {
 const AchievementsWidget = memo(function AchievementsWidget({
 	className = "",
 }: AchievementsWidgetProps) {
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 	const [showAllAchievements, setShowAllAchievements] = useState(false);
 
-	// Fetch user achievements
-	const achievementsData = useQuery(api.gamification.getUserAchievements);
+	// Fetch user achievements with current language
+	const achievementsData = useQuery(api.gamification.getUserAchievements, {
+		language: i18n.language,
+	});
 
 	// Loading state
 	if (achievementsData === undefined) {
