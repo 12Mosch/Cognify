@@ -28,7 +28,7 @@ interface QuickAddCardFormProps {
 interface QuickAddCardFormData extends Record<string, unknown> {
 	front: string;
 	back: string;
-	selectedDeckId: Id<"decks">;
+	selectedDeckId: Id<"decks"> | null;
 	frontImageId?: Id<"_storage">;
 	backImageId?: Id<"_storage">;
 }
@@ -165,8 +165,10 @@ export function QuickAddCardForm({
 			formErrorMonitor.trackValidationErrors(validationErrors, {
 				attemptNumber: currentAttempt,
 				formData: {
-					backLength: back.length,
-					frontLength: front.length,
+					back,
+					backImageId: backImage?.storageId,
+					front,
+					frontImageId: frontImage?.storageId,
 					selectedDeckId,
 				},
 				userId: user?.id,

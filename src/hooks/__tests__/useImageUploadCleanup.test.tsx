@@ -172,7 +172,10 @@ describe("useCardImageCleanup", () => {
 		};
 
 		await act(async () => {
-			await result.current.handleFrontImageSelect(mockImageData, mockSetFrontImage);
+			await result.current.handleFrontImageSelect(
+				mockImageData,
+				mockSetFrontImage,
+			);
 		});
 
 		expect(mockSetFrontImage).toHaveBeenCalledWith(mockImageData);
@@ -189,7 +192,10 @@ describe("useCardImageCleanup", () => {
 		};
 
 		await act(async () => {
-			await result.current.handleBackImageSelect(mockImageData, mockSetBackImage);
+			await result.current.handleBackImageSelect(
+				mockImageData,
+				mockSetBackImage,
+			);
 		});
 
 		expect(mockSetBackImage).toHaveBeenCalledWith(mockImageData);
