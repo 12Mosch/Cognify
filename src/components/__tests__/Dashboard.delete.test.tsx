@@ -360,5 +360,17 @@ describe("Dashboard Delete Deck Functionality", () => {
 			DeleteDeckConfirmationModal,
 		} = require("../DeleteDeckConfirmationModal");
 		expect(DeleteDeckConfirmationModal).toBeDefined();
+
+		// Test basic rendering
+		const { container } = render(
+			<DeleteDeckConfirmationModal
+				cardCount={5}
+				deckName="Test Deck"
+				isOpen={false}
+				onCancel={jest.fn()}
+				onConfirm={jest.fn()}
+			/>,
+		);
+		expect(container).toBeInTheDocument();
 	});
 });
