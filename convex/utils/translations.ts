@@ -51,11 +51,21 @@ export function t(
 	if (interpolations) {
 		return Object.entries(interpolations).reduce(
 			(str, [placeholder, replacement]) => {
-				//  validation for potentially unsafe content
-				const safeReplacement = String(replacement).replace(
-					/<script|javascript:|data:|vbscript:/gi,
-					"",
-				);
+				// Enhanced security validation for potentially unsafe content
+				// Protects against XSS via script tags and dangerous URL schemes
+				// Uses iterative replacement to prevent nested/overlapping patterns
+				let safeReplacement = String(replacement);
+				let previous: string;
+
+				// Apply sanitization repeatedly until no more replacements occur
+				do {
+					previous = safeReplacement;
+					safeReplacement = safeReplacement.replace(
+						/<script|javascript:|data:|vbscript:/gi,
+						"",
+					);
+				} while (safeReplacement !== previous);
+
 				return str.replace(
 					new RegExp(`{{${placeholder}}}`, "g"),
 					safeReplacement,
