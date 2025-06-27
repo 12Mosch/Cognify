@@ -10,27 +10,17 @@ import {
 	withFormErrorMonitoring,
 } from "../lib/errorMonitoring";
 import { showErrorToast, showSuccessToast, toastHelpers } from "../lib/toast";
+import type { Card, CardImageData } from "../types/cards";
+import { CardImage } from "./CardImage";
 import { DeleteDeckConfirmationModal } from "./DeleteDeckConfirmationModal";
 import { DifficultyIndicator } from "./DifficultyIndicator";
 import { EditDeckForm } from "./EditDeckForm";
+import { PhotoUpload } from "./PhotoUpload";
 import { DeckViewSkeleton } from "./skeletons/SkeletonComponents";
 
 interface DeckViewProps {
 	deckId: Id<"decks">;
 	onBack: () => void;
-}
-
-interface Card {
-	_id: Id<"cards">;
-	_creationTime: number;
-	deckId: Id<"decks">;
-	front: string;
-	back: string;
-	// Spaced repetition fields
-	repetition?: number;
-	easeFactor?: number;
-	interval?: number;
-	dueDate?: number;
 }
 
 function DeckView({ deckId, onBack }: DeckViewProps) {
@@ -325,8 +315,16 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
 							<div className="pointer-events-none mb-2 text-slate-500 text-xs uppercase tracking-wide">
 								{t("forms.quickAddCard.front")}
 							</div>
-							<div className="pointer-events-none text-sm leading-relaxed">
-								{card.front}
+							<div className="pointer-events-none space-y-3">
+								{card.frontImageUrl && (
+									<CardImage
+										alt="Front side content"
+										className="mx-auto max-h-32 max-w-full rounded-md object-contain"
+										fallbackClassName="max-h-32"
+										src={card.frontImageUrl}
+									/>
+								)}
+								<div className="text-sm leading-relaxed">{card.front}</div>
 							</div>
 						</div>
 
@@ -335,8 +333,16 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
 							<div className="pointer-events-none mb-2 text-slate-500 text-xs uppercase tracking-wide">
 								{t("forms.quickAddCard.back")}
 							</div>
-							<div className="pointer-events-none text-sm leading-relaxed">
-								{card.back}
+							<div className="pointer-events-none space-y-3">
+								{card.backImageUrl && (
+									<CardImage
+										alt="Back side content"
+										className="mx-auto max-h-32 max-w-full rounded-md object-contain"
+										fallbackClassName="max-h-32"
+										src={card.backImageUrl}
+									/>
+								)}
+								<div className="text-sm leading-relaxed">{card.back}</div>
 							</div>
 						</div>
 					</div>
@@ -352,6 +358,49 @@ const CardItem = memo(function CardItem({ card, onEdit }: CardItemProps) {
 						>
 							{isFlipped ? t("study.showFront") : t("study.showBack")}
 						</button>
+
+						{/* Image indicators */}
+						<div className="flex items-center gap-1">
+							{card.frontImageUrl && (
+								<div className="flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 dark:bg-blue-900">
+									<svg
+										className="h-3 w-3 text-blue-600 dark:text-blue-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+									>
+										<title>Front has image</title>
+										<path
+											clipRule="evenodd"
+											d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+											fillRule="evenodd"
+										/>
+									</svg>
+									<span className="text-blue-600 text-xs dark:text-blue-400">
+										F
+									</span>
+								</div>
+							)}
+							{card.backImageUrl && (
+								<div className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 dark:bg-green-900">
+									<svg
+										className="h-3 w-3 text-green-600 dark:text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+									>
+										<title>Back has image</title>
+										<path
+											clipRule="evenodd"
+											d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+											fillRule="evenodd"
+										/>
+									</svg>
+									<span className="text-green-600 text-xs dark:text-green-400">
+										B
+									</span>
+								</div>
+							)}
+						</div>
+
 						<DifficultyIndicator
 							easeFactor={card.easeFactor}
 							interval={card.interval}
@@ -420,13 +469,17 @@ interface AddCardFormProps {
 }
 
 interface CardFormData extends Record<string, unknown> {
-	front: string;
 	back: string;
+	backImageId?: Id<"_storage">;
+	front: string;
+	frontImageId?: Id<"_storage">;
 }
 
 function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 	const [front, setFront] = useState("");
 	const [back, setBack] = useState("");
+	const [frontImage, setFrontImage] = useState<CardImageData | null>(null);
+	const [backImage, setBackImage] = useState<CardImageData | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [submissionAttempt, setSubmissionAttempt] = useState(0);
@@ -505,8 +558,10 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 						try {
 							return await addCard({
 								back: formData.back.trim(),
+								backImageId: formData.backImageId,
 								deckId,
 								front: formData.front.trim(),
+								frontImageId: formData.frontImageId,
 							});
 						} catch (error) {
 							// Track Convex mutation errors
@@ -522,7 +577,12 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 							throw error;
 						}
 					},
-					{ back, front },
+					{
+						back,
+						backImageId: backImage?.storageId,
+						front,
+						frontImageId: frontImage?.storageId,
+					},
 					{
 						submissionAttempt: currentAttempt,
 						userId: user?.id,
@@ -531,6 +591,8 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 
 				setFront("");
 				setBack("");
+				setFrontImage(null);
+				setBackImage(null);
 				setError(null);
 				setSubmissionAttempt(0);
 				onSuccess();
@@ -612,6 +674,20 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 					</div>
 				</div>
 
+				{/* Front Image Upload */}
+				<PhotoUpload
+					disabled={isSubmitting}
+					label={t("forms.quickAddCard.frontImage", "Front Image (Optional)")}
+					onImageSelect={setFrontImage}
+				/>
+
+				{/* Back Image Upload */}
+				<PhotoUpload
+					disabled={isSubmitting}
+					label={t("forms.quickAddCard.backImage", "Back Image (Optional)")}
+					onImageSelect={setBackImage}
+				/>
+
 				{error && (
 					<div className="rounded-md border border-red-200 bg-red-50 p-3 text-red-600 text-sm dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
 						{error}
@@ -650,6 +726,8 @@ interface EditCardFormProps {
 function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 	const [front, setFront] = useState(card.front);
 	const [back, setBack] = useState(card.back);
+	const [frontImage, setFrontImage] = useState<CardImageData | null>(null);
+	const [backImage, setBackImage] = useState<CardImageData | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [submissionAttempt, setSubmissionAttempt] = useState(0);
@@ -728,8 +806,10 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 						try {
 							return await updateCard({
 								back: formData.back.trim(),
+								backImageId: formData.backImageId,
 								cardId: card._id,
 								front: formData.front.trim(),
+								frontImageId: formData.frontImageId,
 							});
 						} catch (error) {
 							// Track Convex mutation errors
@@ -746,7 +826,12 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 							throw error;
 						}
 					},
-					{ back, front },
+					{
+						back,
+						backImageId: backImage?.storageId,
+						front,
+						frontImageId: frontImage?.storageId,
+					},
 					{
 						submissionAttempt: currentAttempt,
 						userId: user?.id,
@@ -832,6 +917,22 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 						})}
 					</div>
 				</div>
+
+				{/* Front Image Upload */}
+				<PhotoUpload
+					currentImageUrl={card.frontImageUrl}
+					disabled={isSubmitting}
+					label={t("forms.quickAddCard.frontImage", "Front Image (Optional)")}
+					onImageSelect={setFrontImage}
+				/>
+
+				{/* Back Image Upload */}
+				<PhotoUpload
+					currentImageUrl={card.backImageUrl}
+					disabled={isSubmitting}
+					label={t("forms.quickAddCard.backImage", "Back Image (Optional)")}
+					onImageSelect={setBackImage}
+				/>
 
 				{error && (
 					<div className="rounded-md border border-red-200 bg-red-50 p-3 text-red-600 text-sm dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">

@@ -58,16 +58,18 @@ export default defineSchema({
 
 	// Cards table - stores individual flashcards
 	cards: defineTable({
-		back: v.string(), // Reference to the deck this card belongs to
-		deckId: v.id("decks"), // ID of the user who owns this card (denormalized for performance)
-		dueDate: v.optional(v.number()), // Front side of the card (question/prompt)
-		easeFactor: v.optional(v.number()), // Back side of the card (answer)
-		front: v.string(), // Number of successful repetitions (default: 0)
-		interval: v.optional(v.number()), // Ease factor for scheduling (default: 2.5)
+		back: v.string(), // Back side of the card (answer)
+		backImageId: v.optional(v.id("_storage")), // Optional image for back side
+		deckId: v.id("decks"), // Reference to the deck this card belongs to
+		dueDate: v.optional(v.number()), // Unix timestamp when card is due for review
+		easeFactor: v.optional(v.number()), // Ease factor for scheduling (default: 2.5)
+		front: v.string(), // Front side of the card (question/prompt)
+		frontImageId: v.optional(v.id("_storage")), // Optional image for front side
+		interval: v.optional(v.number()), // Days until next review (default: 1)
 
 		// Spaced Repetition fields (SM-2 algorithm)
-		repetition: v.optional(v.number()), // Days until next review (default: 1)
-		userId: v.string(), // Unix timestamp when card is due for review
+		repetition: v.optional(v.number()), // Number of successful repetitions (default: 0)
+		userId: v.string(), // ID of the user who owns this card (denormalized for performance)
 	})
 		.index("by_deckId", ["deckId"]) // Index for efficient queries by deck
 		.index("by_dueDate", ["dueDate"]) // Index for spaced repetition due date queries
