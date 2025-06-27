@@ -49,7 +49,7 @@
 		"dev": "npm-run-all --parallel dev:frontend dev:backend",
 		"dev:backend": "convex dev",
 		"dev:frontend": "vite --open",
-		"lint": "tsc && npx @biomejs/biome check",
+		"lint": "tsc && npx @biomejs/biome check . --write",
 		"predev": "convex dev --until-success && convex dashboard",
 		"preview": "vite preview",
 		"test": "jest",
