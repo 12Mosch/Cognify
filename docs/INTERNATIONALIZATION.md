@@ -49,7 +49,7 @@ src/
 src/lib/
 └── toast.ts                          # ✅ Internationalized toast messages
 
-public/
+src/
 └── locales/
     ├── en/
     │   └── translation.json           # English translations (comprehensive)
@@ -236,8 +236,8 @@ The `LanguageSwitcher` component provides a dropdown interface for users to manu
 
 1. **Create translation file**:
    ```bash
-   mkdir -p public/locales/[language-code]
-   cp public/locales/en/translation.json public/locales/[language-code]/translation.json
+   mkdir -p src/locales/[language-code]
+   cp src/locales/en/translation.json src/locales/[language-code]/translation.json
    ```
 
 2. **Translate content**:
@@ -246,7 +246,7 @@ The `LanguageSwitcher` component provides a dropdown interface for users to manu
 3. **Update configuration**:
    ```ts
    // In src/i18n.ts
-   import newLanguageTranslation from '../public/locales/[language-code]/translation.json';
+   import newLanguageTranslation from './locales/[language-code]/translation.json';
    
    const resources = {
      en: { translation: enTranslation },

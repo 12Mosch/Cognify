@@ -1,7 +1,7 @@
 import "react-i18next";
 
 // Import the default translation file to infer types
-import enTranslation from "../../public/locales/en/translation.json";
+import enTranslation from "../locales/en/translation.json";
 
 declare module "react-i18next" {
 	interface CustomTypeOptions {

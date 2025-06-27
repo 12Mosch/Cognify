@@ -1,7 +1,7 @@
-import deTranslations from "../../public/locales/de/translation.json";
+import deTranslations from "../../src/locales/de/translation.json";
 
 // Import translation files directly
-import enTranslations from "../../public/locales/en/translation.json";
+import enTranslations from "../../src/locales/en/translation.json";
 import type { TimeSlot } from "../../src/utils/scheduling";
 
 export type SupportedLanguage = "en" | "de";
@@ -52,7 +52,10 @@ export function t(
 		return Object.entries(interpolations).reduce(
 			(str, [placeholder, replacement]) => {
 				// Basic validation for potentially unsafe content
-				const safeReplacement = String(replacement).replace(/<script|javascript:/gi, '');
+				const safeReplacement = String(replacement).replace(
+					/<script|javascript:/gi,
+					"",
+				);
 				return str.replace(
 					new RegExp(`{{${placeholder}}}`, "g"),
 					safeReplacement,
