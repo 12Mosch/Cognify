@@ -1,6 +1,7 @@
 import { useMutation } from "convex/react";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import {
@@ -10,6 +11,12 @@ import {
 	SUPPORTED_IMAGE_TYPES,
 	type SupportedImageType,
 } from "../types/cards";
+import {
+	type CompressionResult,
+	compressImage,
+	getBestSupportedFormat,
+	getCompressionStats,
+} from "../utils/imageCompression";
 
 interface PhotoUploadProps {
 	onImageSelect: (imageData: CardImageData | null) => void;
@@ -62,13 +69,18 @@ export function PhotoUpload({
 	const [previewUrl, setPreviewUrl] = useState<string | null>(
 		currentImageUrl || null,
 	);
+	const [compressionProgress, setCompressionProgress] = useState<number>(0);
+	const [compressionStats, setCompressionStats] = useState<string | null>(null);
+	const [isCompressing, setIsCompressing] = useState(false);
 
 	const generateUploadUrl = useMutation(api.cards.generateUploadUrl);
 
 	const handleFileSelect = useCallback(
 		async (file: File) => {
 			setUploadError(null);
+			setCompressionStats(null);
 			setIsUploading(true);
+			setIsCompressing(false);
 
 			try {
 				// Validate file
@@ -78,17 +90,53 @@ export function PhotoUpload({
 					return;
 				}
 
-				// Create preview URL
+				// Create preview URL for original file
 				const preview = URL.createObjectURL(file);
 				setPreviewUrl(preview);
+
+				let finalFile = file;
+				let compressionResult: CompressionResult | null = null;
+
+				// Compress image if compression is enabled
+				if (IMAGE_UPLOAD_CONSTRAINTS.compression.enabled) {
+					setIsCompressing(true);
+
+					try {
+						compressionResult = await compressImage(file, {
+							format: getBestSupportedFormat(),
+							maxSizeMB: IMAGE_UPLOAD_CONSTRAINTS.compression.maxSizeMB,
+							maxWidthOrHeight:
+								IMAGE_UPLOAD_CONSTRAINTS.compression.maxWidthOrHeight,
+							onProgress: setCompressionProgress,
+							quality: IMAGE_UPLOAD_CONSTRAINTS.compression.quality,
+						});
+
+						finalFile = compressionResult.file;
+						setCompressionStats(getCompressionStats(compressionResult));
+
+						// Update preview with compressed image
+						const compressedPreview = URL.createObjectURL(finalFile);
+						URL.revokeObjectURL(preview); // Clean up original preview
+						setPreviewUrl(compressedPreview);
+					} catch (compressionError) {
+						console.warn(
+							"Image compression failed, using original file:",
+							compressionError,
+						);
+						setCompressionStats("Compression failed, using original file");
+						// Continue with original file
+					} finally {
+						setIsCompressing(false);
+					}
+				}
 
 				// Generate upload URL
 				const uploadUrl = await generateUploadUrl();
 
-				// Upload file
+				// Upload file (compressed or original)
 				const response = await fetch(uploadUrl, {
-					body: file,
-					headers: { "Content-Type": file.type },
+					body: finalFile,
+					headers: { "Content-Type": finalFile.type },
 					method: "POST",
 				});
 
@@ -100,8 +148,8 @@ export function PhotoUpload({
 
 				// Create image data object
 				const imageData: CardImageData = {
-					file,
-					preview,
+					file: finalFile,
+					preview: URL.createObjectURL(finalFile),
 					storageId: storageId as Id<"_storage">,
 				};
 
@@ -114,6 +162,7 @@ export function PhotoUpload({
 				setPreviewUrl(currentImageUrl || null);
 			} finally {
 				setIsUploading(false);
+				setIsCompressing(false);
 			}
 		},
 		[generateUploadUrl, onImageSelect, currentImageUrl],
@@ -132,6 +181,8 @@ export function PhotoUpload({
 	const handleRemoveImage = useCallback(() => {
 		setPreviewUrl(null);
 		setUploadError(null);
+		setCompressionStats(null);
+		setCompressionProgress(0);
 		onImageSelect(null);
 
 		// Clear file input
@@ -188,8 +239,23 @@ export function PhotoUpload({
 							<div className="flex flex-col items-center space-y-2">
 								<div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
 								<span className="text-slate-600 text-sm dark:text-slate-400">
-									{t("common.loading")}
+									{isCompressing
+										? t("forms.compressing", "Compressing image...")
+										: t("forms.uploading", "Uploading...")}
 								</span>
+								{isCompressing && compressionProgress > 0 && (
+									<div className="w-full max-w-xs">
+										<div className="h-1 w-full rounded-full bg-slate-200 dark:bg-slate-700">
+											<div
+												className="h-1 rounded-full bg-blue-500 transition-all duration-300"
+												style={{ width: `${compressionProgress}%` }}
+											/>
+										</div>
+										<span className="text-slate-500 text-xs dark:text-slate-400">
+											{compressionProgress}%
+										</span>
+									</div>
+								)}
 							</div>
 						) : (
 							<div className="flex flex-col items-center space-y-2">
@@ -233,9 +299,19 @@ export function PhotoUpload({
 				<p className="text-red-600 text-sm dark:text-red-400">{uploadError}</p>
 			)}
 
+			{/* Compression Stats */}
+			{compressionStats && (
+				<p className="text-green-600 text-sm dark:text-green-400">
+					{compressionStats}
+				</p>
+			)}
+
 			{/* Help Text */}
 			<p className="text-slate-500 text-xs dark:text-slate-400">
-				{t("forms.imageUploadHelp", "Supports JPEG, PNG, WebP. Max 10MB.")}
+				{t(
+					"forms.imageUploadHelp",
+					"Supports JPEG, PNG, WebP, AVIF. Automatically compressed for optimal performance.",
+				)}
 			</p>
 		</div>
 	);

@@ -1,6 +1,9 @@
 {
 	"dependencies": {
 		"@clerk/clerk-react": "^5.32.2",
+		"@jsquash/avif": "^2.1.1",
+		"@jsquash/webp": "^1.5.0",
+		"browser-image-compression": "^2.0.2",
 		"convex": "^1.25.0",
 		"file-saver": "^2.0.5",
 		"i18next": "^25.2.1",

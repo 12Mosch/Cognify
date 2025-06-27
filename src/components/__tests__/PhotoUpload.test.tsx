@@ -18,6 +18,32 @@ jest.mock("react-i18next", () => ({
 	}),
 }));
 
+// Mock the image compression utility
+jest.mock("../../utils/imageCompression", () => ({
+	compressImage: jest.fn().mockResolvedValue({
+		compressedSize: 500000,
+		compressionRatio: 0.5,
+		file: new File(["compressed"], "test.avif", { type: "image/avif" }),
+		format: "avif",
+		originalSize: 1000000,
+	}),
+	getBestSupportedFormat: jest.fn().mockReturnValue("jpeg"),
+	getCompressionStats: jest
+		.fn()
+		.mockReturnValue(
+			"Compressed from 1.00MB to 0.50MB (50.0% reduction) using AVIF",
+		),
+}));
+
+// Mock jSquash packages
+jest.mock("@jsquash/avif", () => ({
+	encode: jest.fn().mockResolvedValue(new ArrayBuffer(500000)),
+}));
+
+jest.mock("@jsquash/webp", () => ({
+	encode: jest.fn().mockResolvedValue(new ArrayBuffer(600000)),
+}));
+
 // Mock fetch globally
 global.fetch = jest.fn();
 
@@ -44,7 +70,9 @@ describe("PhotoUpload", () => {
 		expect(screen.getByText("Test Image Upload")).toBeInTheDocument();
 		expect(screen.getByText("Add Image")).toBeInTheDocument();
 		expect(
-			screen.getByText("Supports JPEG, PNG, WebP. Max 10MB."),
+			screen.getByText(
+				"Supports JPEG, PNG, WebP, AVIF. Automatically compressed for optimal performance.",
+			),
 		).toBeInTheDocument();
 	});
 
@@ -88,8 +116,8 @@ describe("PhotoUpload", () => {
 
 		await waitFor(() => {
 			expect(global.fetch).toHaveBeenCalledWith(mockUploadUrl, {
-				body: file,
-				headers: { "Content-Type": "image/jpeg" },
+				body: expect.any(File),
+				headers: { "Content-Type": "image/avif" },
 				method: "POST",
 			});
 		});
@@ -203,9 +231,9 @@ describe("PhotoUpload", () => {
 
 		fireEvent.change(fileInput, { target: { files: [file] } });
 
-		// Should show loading state while generating upload URL
+		// Should show loading state while compressing/uploading
 		await waitFor(() => {
-			expect(screen.getByText("common.loading")).toBeInTheDocument();
+			expect(screen.getByText("Compressing image...")).toBeInTheDocument();
 		});
 	});
 

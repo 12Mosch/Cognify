@@ -83,22 +83,47 @@ export interface FileValidationResult {
 }
 
 /**
- * Supported image file types
+ * Supported input image file types (before compression)
  */
-export const SUPPORTED_IMAGE_TYPES = [
+export const SUPPORTED_INPUT_IMAGE_TYPES = [
 	"image/jpeg",
 	"image/jpg",
 	"image/png",
 	"image/webp",
 ] as const;
 
-export type SupportedImageType = (typeof SUPPORTED_IMAGE_TYPES)[number];
+/**
+ * Supported output image file types (after compression)
+ */
+export const SUPPORTED_OUTPUT_IMAGE_TYPES = [
+	"image/avif",
+	"image/webp",
+	"image/jpeg",
+	"image/png",
+] as const;
+
+export type SupportedInputImageType =
+	(typeof SUPPORTED_INPUT_IMAGE_TYPES)[number];
+export type SupportedOutputImageType =
+	(typeof SUPPORTED_OUTPUT_IMAGE_TYPES)[number];
+
+// Maintain backward compatibility
+export const SUPPORTED_IMAGE_TYPES = SUPPORTED_INPUT_IMAGE_TYPES;
+export type SupportedImageType = SupportedInputImageType;
 
 /**
  * Image upload constraints
  */
 export const IMAGE_UPLOAD_CONSTRAINTS = {
-	maxSizeBytes: 10 * 1024 * 1024, // 10MB
+	// Compression settings
+	compression: {
+		enabled: true,
+		maxSizeMB: 2, // Target size after compression
+		maxWidthOrHeight: 1920,
+		quality: 80,
+		targetFormat: "avif" as const,
+	},
+	maxSizeBytes: 10 * 1024 * 1024, // 10MB (before compression)
 	maxSizeMB: 10,
-	supportedTypes: SUPPORTED_IMAGE_TYPES,
+	supportedTypes: SUPPORTED_INPUT_IMAGE_TYPES,
 } as const;

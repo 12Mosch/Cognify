@@ -138,6 +138,80 @@ Added comprehensive TypeScript types in `src/types/cards.ts`:
 - Minimal impact on main bundle
 - Lazy loading of upload components (future enhancement)
 
+## Image Compression Implementation (New Feature)
+
+### Overview
+
+The photo upload feature now includes automatic client-side image compression to optimize performance and reduce storage costs. Images are compressed before upload using modern compression algorithms.
+
+### Compression Strategy
+
+The system uses a hybrid approach for optimal compression:
+
+1. **AVIF Format (Primary)**
+   - Uses `@jsquash/avif` for WebAssembly-based AVIF encoding
+   - Provides best compression ratios (typically 50-80% smaller than JPEG)
+   - Fallback to WebP/JPEG if AVIF encoding fails or is unsupported
+
+2. **WebP Format (Secondary)**
+   - Uses `@jsquash/webp` for WebAssembly-based WebP encoding
+   - Better compression than JPEG with wide browser support
+   - Fallback to JPEG if WebP encoding fails
+
+3. **JPEG/PNG (Fallback)**
+   - Uses `browser-image-compression` library
+   - Handles resizing and quality optimization
+   - Maintains compatibility across all browsers
+
+### Compression Settings
+
+Default compression configuration:
+```typescript
+{
+  format: 'avif',           // Target format
+  quality: 80,              // Quality level (0-100)
+  maxSizeMB: 2,            // Target file size after compression
+  maxWidthOrHeight: 1920,   // Maximum dimension
+}
+```
+
+### Browser Compatibility
+
+- **AVIF Support**: Modern browsers (Chrome 85+, Firefox 93+)
+- **WebP Support**: Most modern browsers
+- **JPEG Fallback**: Universal support
+- **Automatic Detection**: System detects browser capabilities and chooses best format
+
+### User Experience
+
+Users now see:
+- "Compressing image..." status during compression
+- Progress bar showing compression progress (0-100%)
+- Compression statistics: "Compressed from 5.2MB to 1.1MB (78% reduction) using AVIF"
+- Error messages if compression fails with fallback information
+
+### Dependencies Added
+
+- `browser-image-compression`: General image compression and resizing
+- `@jsquash/avif`: WebAssembly-based AVIF encoding (jSquash)
+- `@jsquash/webp`: WebAssembly-based WebP encoding (jSquash)
+
+### Typical Compression Results
+
+- **AVIF**: 50-80% size reduction vs JPEG
+- **WebP**: 25-50% size reduction vs JPEG
+- **JPEG (optimized)**: 10-30% size reduction vs original
+- **Processing time**: 1-3 seconds for typical images
+
+### Error Handling
+
+The compression system includes comprehensive fallback strategies:
+1. Try AVIF compression first
+2. If AVIF fails, try WebP compression
+3. If WebP fails, use JPEG compression
+4. If all compression fails, upload original file
+5. Display appropriate user feedback for each scenario
+
 ## Testing
 
 ### Unit Tests
@@ -157,7 +231,7 @@ Added comprehensive TypeScript types in `src/types/cards.ts`:
 1. **Drag-and-Drop Upload** - More intuitive file selection
 2. **Image Editing** - Basic crop and resize functionality
 3. **Multiple Images** - Support for multiple images per card side
-4. **Image Compression** - Automatic optimization for storage efficiency
+4. **~~Image Compression~~** - ✅ **IMPLEMENTED** - Automatic client-side compression with AVIF/WebP support
 5. **Bulk Upload** - Upload multiple images at once
 6. **Image Search** - Integration with stock photo services
 
@@ -194,9 +268,16 @@ Added comprehensive TypeScript types in `src/types/cards.ts`:
    - Try refreshing the page
 
 3. **Slow Upload**
-   - Large files take longer to upload
-   - Consider compressing images before upload
+   - Large files are automatically compressed before upload
+   - Compression may take 1-3 seconds for large images
    - Check internet connection speed
+   - Monitor compression progress bar
+
+4. **Compression Fails**
+   - System automatically falls back to WebP or JPEG
+   - Original file is uploaded if all compression fails
+   - Check browser console for detailed error messages
+   - Ensure browser supports WebAssembly for AVIF compression
 
 ### Debug Information
 - Upload errors are logged to console
