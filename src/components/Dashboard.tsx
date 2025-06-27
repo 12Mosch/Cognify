@@ -7,7 +7,6 @@ import {
 	Suspense,
 	useEffect,
 	useImperativeHandle,
-	useRef,
 	useState,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,7 +16,7 @@ import { useErrorMonitoring } from "../lib/errorMonitoring";
 import { toastHelpers } from "../lib/toast";
 import AchievementsWidget from "./AchievementsWidget";
 import { CreateDeckForm } from "./CreateDeckForm";
-import { DeleteDeckConfirmationModal } from "./DeleteDeckConfirmationModal";
+
 import KnowledgeMapWidget from "./KnowledgeMapWidget";
 import PrivacyBanner from "./PrivacyBanner";
 import { QuickAddCardForm } from "./QuickAddCardForm";
@@ -380,29 +379,6 @@ const DeckCard = memo(function DeckCard({
 	onManageCards: () => void;
 }) {
 	const { t, i18n } = useTranslation();
-	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-	const [showDropdown, setShowDropdown] = useState(false);
-	const dropdownRef = useRef<HTMLDivElement>(null);
-
-	// Close dropdown when clicking outside
-	useEffect(() => {
-		function handleClickOutside(event: MouseEvent) {
-			if (
-				dropdownRef.current &&
-				!dropdownRef.current.contains(event.target as Node)
-			) {
-				setShowDropdown(false);
-			}
-		}
-
-		if (showDropdown) {
-			document.addEventListener("mousedown", handleClickOutside);
-		}
-
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside);
-		};
-	}, [showDropdown]);
 
 	const formatDate = (timestamp: number) => {
 		// Get the current language from i18n
@@ -563,79 +539,8 @@ const DeckCard = memo(function DeckCard({
 					>
 						{t("deck.studyNow")}
 					</button>
-
-					{/* Dropdown Menu */}
-					<div className="relative" ref={dropdownRef}>
-						<button
-							aria-expanded={showDropdown}
-							aria-haspopup="true"
-							aria-label={t("deck.moreOptionsAria", { deckName: deck.name })}
-							className="rounded-lg border border-slate-200/50 bg-slate-100 p-2.5 text-slate-600 transition-all duration-200 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 dark:border-slate-600/50 dark:bg-slate-700/50 dark:text-slate-400 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-900 dark:hover:bg-slate-700"
-							onClick={() => setShowDropdown(!showDropdown)}
-							type="button"
-						>
-							<svg
-								aria-hidden="true"
-								className="h-4 w-4"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2"
-								viewBox="0 0 24 24"
-							>
-								<path
-									d="M12 6v.01M12 12v.01M12 18v.01"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-							</svg>
-						</button>
-
-						{showDropdown && (
-							<div className="absolute top-full right-0 z-10 mt-1 w-48 rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
-								<button
-									className="flex w-full items-center px-4 py-2 text-left text-red-600 text-sm transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-									onClick={() => {
-										setShowDropdown(false);
-										setShowDeleteConfirm(true);
-									}}
-									type="button"
-								>
-									<svg
-										aria-hidden="true"
-										className="mr-2 h-4 w-4"
-										fill="none"
-										stroke="currentColor"
-										strokeWidth="2"
-										viewBox="0 0 24 24"
-									>
-										<path
-											d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-											strokeLinecap="round"
-											strokeLinejoin="round"
-										/>
-									</svg>
-									{t("deckView.deleteDeck")}
-								</button>
-							</div>
-						)}
-					</div>
 				</div>
 			</div>
-
-			{/* Delete Deck Confirmation Modal */}
-			<DeleteDeckConfirmationModal
-				deck={{
-					_id: deck._id,
-					cardCount: deck.cardCount,
-					name: deck.name,
-				}}
-				isOpen={showDeleteConfirm}
-				onClose={() => setShowDeleteConfirm(false)}
-				onConfirm={() => {
-					// Deck deletion is handled by the modal
-					// The dashboard will automatically refresh due to the query
-				}}
-			/>
 		</div>
 	);
 });
