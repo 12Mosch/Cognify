@@ -51,9 +51,9 @@ export function t(
 	if (interpolations) {
 		return Object.entries(interpolations).reduce(
 			(str, [placeholder, replacement]) => {
-				// Basic validation for potentially unsafe content
+				//  validation for potentially unsafe content
 				const safeReplacement = String(replacement).replace(
-					/<script|javascript:/gi,
+					/<script|javascript:|data:|vbscript:/gi,
 					"",
 				);
 				return str.replace(
