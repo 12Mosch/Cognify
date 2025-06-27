@@ -9,6 +9,30 @@ import KeyboardShortcutsModal from "../KeyboardShortcutsModal";
 
 const mockOnClose = jest.fn();
 
+// Mock translation function for tests
+const mockT = (key: string): string => {
+	const translations: Record<string, string> = {
+		"study.shortcuts.descriptions.againWhenAnswerShown":
+			"Again (when answer is shown)",
+		"study.shortcuts.descriptions.easyWhenAnswerShown":
+			"Easy (when answer is shown)",
+		"study.shortcuts.descriptions.flipCard": "Flip card",
+		"study.shortcuts.descriptions.goodWhenAnswerShown":
+			"Good (when answer is shown)",
+		"study.shortcuts.descriptions.hardWhenAnswerShown":
+			"Hard (when answer is shown)",
+		"study.shortcuts.descriptions.nextCard": "Next card",
+		"study.shortcuts.descriptions.previousCard": "Previous card",
+		"study.shortcuts.descriptions.showKeyboardShortcutsHelp":
+			"Show keyboard shortcuts help",
+		"study.shortcuts.groups.cardNavigation": "Card Navigation",
+		"study.shortcuts.groups.navigation": "Navigation",
+		"study.shortcuts.groups.ratingWhenAnswerShown":
+			"Rating (when answer is shown)",
+	};
+	return translations[key] || key;
+};
+
 describe("KeyboardShortcutsModal", () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -26,7 +50,7 @@ describe("KeyboardShortcutsModal", () => {
 			<KeyboardShortcutsModal
 				isOpen={false}
 				onClose={mockOnClose}
-				shortcuts={getKeyboardShortcuts("basic")}
+				shortcuts={getKeyboardShortcuts("basic", mockT)}
 				studyMode="basic"
 			/>,
 		);
@@ -39,7 +63,7 @@ describe("KeyboardShortcutsModal", () => {
 			<KeyboardShortcutsModal
 				isOpen={true}
 				onClose={mockOnClose}
-				shortcuts={getKeyboardShortcuts("basic")}
+				shortcuts={getKeyboardShortcuts("basic", mockT)}
 				studyMode="basic"
 			/>,
 		);
@@ -64,7 +88,7 @@ describe("KeyboardShortcutsModal", () => {
 			<KeyboardShortcutsModal
 				isOpen={true}
 				onClose={mockOnClose}
-				shortcuts={getKeyboardShortcuts("basic")}
+				shortcuts={getKeyboardShortcuts("basic", mockT)}
 				studyMode="basic"
 			/>,
 		);
@@ -86,7 +110,7 @@ describe("KeyboardShortcutsModal", () => {
 			<KeyboardShortcutsModal
 				isOpen={true}
 				onClose={mockOnClose}
-				shortcuts={getKeyboardShortcuts("spaced-repetition")}
+				shortcuts={getKeyboardShortcuts("spaced-repetition", mockT)}
 				studyMode="spaced-repetition"
 			/>,
 		);
@@ -123,7 +147,7 @@ describe("KeyboardShortcutsModal", () => {
 			<KeyboardShortcutsModal
 				isOpen={true}
 				onClose={mockOnClose}
-				shortcuts={getKeyboardShortcuts("basic")}
+				shortcuts={getKeyboardShortcuts("basic", mockT)}
 				studyMode="basic"
 			/>,
 		);
@@ -139,7 +163,7 @@ describe("KeyboardShortcutsModal", () => {
 			<KeyboardShortcutsModal
 				isOpen={true}
 				onClose={mockOnClose}
-				shortcuts={getKeyboardShortcuts("basic")}
+				shortcuts={getKeyboardShortcuts("basic", mockT)}
 				studyMode="basic"
 			/>,
 		);
@@ -155,7 +179,7 @@ describe("KeyboardShortcutsModal", () => {
 			<KeyboardShortcutsModal
 				isOpen={true}
 				onClose={mockOnClose}
-				shortcuts={getKeyboardShortcuts("basic")}
+				shortcuts={getKeyboardShortcuts("basic", mockT)}
 				studyMode="basic"
 			/>,
 		);
@@ -170,7 +194,7 @@ describe("KeyboardShortcutsModal", () => {
 			<KeyboardShortcutsModal
 				isOpen={false}
 				onClose={mockOnClose}
-				shortcuts={getKeyboardShortcuts("basic")}
+				shortcuts={getKeyboardShortcuts("basic", mockT)}
 				studyMode="basic"
 			/>,
 		);
@@ -181,7 +205,7 @@ describe("KeyboardShortcutsModal", () => {
 			<KeyboardShortcutsModal
 				isOpen={true}
 				onClose={mockOnClose}
-				shortcuts={getKeyboardShortcuts("basic")}
+				shortcuts={getKeyboardShortcuts("basic", mockT)}
 				studyMode="basic"
 			/>,
 		);
@@ -194,7 +218,7 @@ describe("KeyboardShortcutsModal", () => {
 			<KeyboardShortcutsModal
 				isOpen={true}
 				onClose={mockOnClose}
-				shortcuts={getKeyboardShortcuts("basic")}
+				shortcuts={getKeyboardShortcuts("basic", mockT)}
 				studyMode="basic"
 			/>,
 		);

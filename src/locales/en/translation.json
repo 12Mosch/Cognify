@@ -218,9 +218,11 @@
 			"title": "Keyboard shortcuts (?)"
 		},
 		"keyboardShortcuts": {
+			"availableShortcutsFor": "Available shortcuts for",
 			"closeHelp": "to close this help",
 			"closeIcon": "Close icon",
 			"closeShortcutsHelp": "Close shortcuts help",
+			"mode": "mode",
 			"pressEscToClose": "Press",
 			"title": "Keyboard Shortcuts"
 		},
@@ -982,13 +984,29 @@
 			"returnToDashboard": "Return to Dashboard"
 		},
 		"shortcuts": {
+			"descriptions": {
+				"againWhenAnswerShown": "Again",
+				"easyWhenAnswerShown": "Easy",
+				"flipCard": "Flip card",
+				"goodWhenAnswerShown": "Good",
+				"hardWhenAnswerShown": "Hard",
+				"nextCard": "Next card",
+				"previousCard": "Previous card",
+				"showKeyboardShortcutsHelp": "Show keyboard shortcuts help"
+			},
 			"difficulty1": "Again (1)",
 			"difficulty2": "Hard (2)",
 			"difficulty3": "Good (3)",
 			"difficulty4": "Easy (4)",
 			"flip": "Flip card",
+			"groups": {
+				"cardNavigation": "Card Navigation",
+				"navigation": "Navigation",
+				"ratingWhenAnswerShown": "Rating"
+			},
 			"help": "Show shortcuts",
 			"next": "Next card",
+			"previous": "Previous card",
 			"title": "Keyboard Shortcuts"
 		},
 		"showAnswer": "Show Answer",

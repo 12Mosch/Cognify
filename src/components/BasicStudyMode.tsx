@@ -466,7 +466,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 			<KeyboardShortcutsModal
 				isOpen={showKeyboardHelp}
 				onClose={() => setShowKeyboardHelp(false)}
-				shortcuts={getKeyboardShortcuts("basic")}
+				shortcuts={getKeyboardShortcuts("basic", t)}
 				studyMode="basic"
 			/>
 

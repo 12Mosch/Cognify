@@ -971,7 +971,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 			<KeyboardShortcutsModal
 				isOpen={showKeyboardHelp}
 				onClose={() => setShowKeyboardHelp(false)}
-				shortcuts={getKeyboardShortcuts("spaced-repetition")}
+				shortcuts={getKeyboardShortcuts("spaced-repetition", t)}
 				studyMode="spaced-repetition"
 			/>
 

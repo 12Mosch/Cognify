@@ -17,9 +17,18 @@ This document describes the comprehensive keyboard shortcuts system implemented 
 ### Spaced Repetition Mode Shortcuts
 When the answer is shown (card is flipped):
 - **1**: Rate as "Again" (didn't know at all)
-- **2**: Rate as "Hard" (knew with difficulty)  
+- **2**: Rate as "Hard" (knew with difficulty)
 - **3**: Rate as "Good" (knew well)
 - **4**: Rate as "Easy" (knew perfectly)
+
+## Internationalization
+
+The keyboard shortcuts system is fully internationalized with support for multiple languages:
+
+- **Translation Keys**: All shortcut descriptions and group titles use i18n translation keys
+- **Dynamic Translation**: Shortcuts are translated at runtime based on user's language preference
+- **Supported Languages**: English (en) and German (de)
+- **Translation Structure**: Organized under `study.shortcuts.descriptions.*` and `study.shortcuts.groups.*` keys
 
 ## Implementation Details
 

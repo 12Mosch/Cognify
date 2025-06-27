@@ -103,9 +103,12 @@ const mockTranslations = {
 			"components.helpIcon.helpIcon": "Help icon",
 			"components.helpIcon.title": "Keyboard shortcuts (?)",
 
+			"components.keyboardShortcuts.availableShortcutsFor":
+				"Available shortcuts for",
 			"components.keyboardShortcuts.closeHelp": "to close this help",
 			"components.keyboardShortcuts.closeIcon": "Close icon",
 			"components.keyboardShortcuts.closeShortcutsHelp": "Close shortcuts help",
+			"components.keyboardShortcuts.mode": "mode",
 			"components.keyboardShortcuts.pressEscToClose": "Press",
 			"components.keyboardShortcuts.title": "Keyboard Shortcuts",
 

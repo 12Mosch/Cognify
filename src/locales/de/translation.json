@@ -218,10 +218,12 @@
 			"title": "Tastenkürzel (?)"
 		},
 		"keyboardShortcuts": {
-			"closeHelp": "Hilfe schließen",
+			"availableShortcutsFor": "Verfügbare Tastenkürzel für",
+			"closeHelp": "um diese Hilfe zu schließen",
 			"closeIcon": "Schließen-Symbol",
 			"closeShortcutsHelp": "Tastenkürzel-Hilfe schließen",
-			"pressEscToClose": "zu schließen diese Hilfe",
+			"mode": "Modus",
+			"pressEscToClose": "Drücke",
 			"title": "Tastenkürzel"
 		},
 		"loading": {
@@ -982,13 +984,29 @@
 			"returnToDashboard": "Zum Dashboard zurückkehren"
 		},
 		"shortcuts": {
+			"descriptions": {
+				"againWhenAnswerShown": "Nochmal",
+				"easyWhenAnswerShown": "Einfach",
+				"flipCard": "Karte umdrehen",
+				"goodWhenAnswerShown": "Gut",
+				"hardWhenAnswerShown": "Schwer",
+				"nextCard": "Nächste Karte",
+				"previousCard": "Vorherige Karte",
+				"showKeyboardShortcutsHelp": "Tastenkürzel-Hilfe anzeigen"
+			},
 			"difficulty1": "Nochmal (1)",
 			"difficulty2": "Schwer (2)",
 			"difficulty3": "Gut (3)",
 			"difficulty4": "Einfach (4)",
 			"flip": "Karte umdrehen",
+			"groups": {
+				"cardNavigation": "Kartennavigation",
+				"navigation": "Navigation",
+				"ratingWhenAnswerShown": "Bewertung"
+			},
 			"help": "Tastenkürzel anzeigen",
 			"next": "Nächste Karte",
+			"previous": "Vorherige Karte",
 			"title": "Tastenkürzel"
 		},
 		"showAnswer": "Antwort zeigen",

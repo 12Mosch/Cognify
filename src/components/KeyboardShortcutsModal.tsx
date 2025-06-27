@@ -97,7 +97,9 @@ function KeyboardShortcutsModal({
 				{/* Content */}
 				<div className="p-6">
 					<p className="mb-6 text-slate-600 text-sm dark:text-slate-400">
-						Available shortcuts for <strong>{studyModeTitle}</strong> mode:
+						{t("components.keyboardShortcuts.availableShortcutsFor")}{" "}
+						<strong>{studyModeTitle}</strong>{" "}
+						{t("components.keyboardShortcuts.mode")}:
 					</p>
 
 					{shortcuts.map((group, groupIndex) => (

@@ -399,6 +399,7 @@ All major user-facing components have been internationalized:
 - **Toast Messages**: All success, error, and info notifications
 - **Error Handling**: Generic and specific error messages
 - **Streak Display**: Complete internationalization with status messages and milestone tracking
+- **Keyboard Shortcuts**: Complete internationalization of keyboard shortcut descriptions and group titles
 
 ### 🔧 Toast Message Internationalization
 
