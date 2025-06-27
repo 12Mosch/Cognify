@@ -5,36 +5,22 @@ import "@testing-library/jest-dom";
 import "./test-i18n";
 
 // Mock IntersectionObserver for components that use it
-global.IntersectionObserver = class IntersectionObserver {
-	root = null;
-	rootMargin = "";
-	thresholds = [];
-	disconnect() {
-		// Mock method - intentionally empty
-	}
-	observe() {
-		// Mock method - intentionally empty
-	}
-	unobserve() {
-		// Mock method - intentionally empty
-	}
-	takeRecords() {
-		return [];
-	}
-} as unknown as IntersectionObserver;
+global.IntersectionObserver = jest.fn().mockImplementation(() => ({
+	disconnect: jest.fn(),
+	observe: jest.fn(),
+	root: null,
+	rootMargin: "",
+	takeRecords: jest.fn(() => []),
+	thresholds: [],
+	unobserve: jest.fn(),
+}));
 
 // Mock ResizeObserver for components that use it (like charts)
-global.ResizeObserver = class ResizeObserver {
-	disconnect() {
-		// Mock method - intentionally empty
-	}
-	observe() {
-		// Mock method - intentionally empty
-	}
-	unobserve() {
-		// Mock method - intentionally empty
-	}
-} as unknown as ResizeObserver;
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+	disconnect: jest.fn(),
+	observe: jest.fn(),
+	unobserve: jest.fn(),
+}));
 
 // Mock matchMedia for responsive components
 Object.defineProperty(window, "matchMedia", {
