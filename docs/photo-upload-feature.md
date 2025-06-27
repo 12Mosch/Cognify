@@ -34,6 +34,7 @@ cards: defineTable({
 1. **`generateUploadUrl`** - Generates secure upload URLs for authenticated users
 2. **Updated `addCardToDeck`** - Now accepts optional image IDs
 3. **Updated `updateCard`** - Now supports updating card images
+4. **`deleteFile`** - Deletes files from storage (used for cleanup of orphaned files)
 
 #### New Queries
 
@@ -58,9 +59,33 @@ cards: defineTable({
 #### Updated Components
 
 1. **`DeckView`** - Updated forms to include photo upload options
-2. **`SpacedRepetitionMode`** - Displays images during study sessions
-3. **`BasicStudyMode`** - Displays images during study sessions
-4. **`AdaptiveStudyMode`** - Displays images during study sessions
+2. **`QuickAddCardForm`** - Added image upload support with cleanup
+3. **`SpacedRepetitionMode`** - Displays images during study sessions
+4. **`BasicStudyMode`** - Displays images during study sessions
+5. **`AdaptiveStudyMode`** - Displays images during study sessions
+
+#### Image Upload Cleanup System
+
+A comprehensive cleanup system prevents orphaned files when card creation is cancelled:
+
+**New Hooks:**
+- `useImageUploadCleanup` - Core cleanup functionality
+- `useCardImageCleanup` - Enhanced version for card forms
+
+**Cleanup Triggers:**
+- Cancel button click
+- ESC key press
+- Modal close/navigation away
+- Page refresh/browser close
+- Component unmount
+
+**Features:**
+- Tracks uploaded file IDs during card creation
+- Automatically deletes orphaned files on cancellation
+- Prevents cleanup when card is successfully created
+- Handles multiple images (front and back)
+- Graceful error handling for failed deletions
+- Fire-and-forget cleanup on unmount
 
 #### New Types
 
@@ -308,6 +333,14 @@ updateCard({
   backImageId?: Id<"_storage">,
   // ... other fields
 }): Promise<void>
+
+// Delete file from storage (cleanup)
+deleteFile({
+  storageId: Id<"_storage">
+}): Promise<{
+  success: boolean,
+  error?: string
+}>
 ```
 
 ### Queries
@@ -339,3 +372,59 @@ getCardsForDeck(deckId: Id<"decks">): Promise<Card[]>
 - Users are responsible for appropriate content
 - No automatic content moderation (future enhancement)
 - Standard terms of service apply
+
+### File Cleanup Security
+- Only authenticated users can delete files
+- Users can only delete files they uploaded
+- Cleanup operations are logged for debugging
+- Failed deletions are handled gracefully without breaking UI
+- Cleanup is fire-and-forget on component unmount to prevent blocking
+
+## Implementation Details
+
+### Cleanup Hook Usage
+
+```typescript
+// Basic cleanup hook
+const {
+  registerUploadedImage,
+  unregisterUploadedImage,
+  markCardCreated,
+  cleanupUploadedFiles,
+  resetCleanupState,
+} = useImageUploadCleanup();
+
+// Enhanced hook for card forms
+const {
+  handleFrontImageSelect,
+  handleBackImageSelect,
+  markCardCreated,
+  cleanupUploadedFiles,
+  resetCleanupState,
+} = useCardImageCleanup();
+```
+
+### Integration Example
+
+```typescript
+// In a card creation form
+const handleCancel = async () => {
+  await cleanupUploadedFiles(); // Clean up orphaned files
+  onCancel();
+};
+
+const handleSubmit = async () => {
+  try {
+    await createCard({
+      frontImageId: frontImage?.storageId,
+      backImageId: backImage?.storageId,
+      // ... other fields
+    });
+    markCardCreated(); // Prevent cleanup
+    onSuccess();
+  } catch (error) {
+    // Cleanup will happen automatically if card creation fails
+    throw error;
+  }
+};
+```

@@ -308,6 +308,40 @@ export const generateUploadUrl = mutation({
 });
 
 /**
+ * Delete a file from storage.
+ * Only authenticated users can delete files they uploaded.
+ * This is used for cleaning up orphaned files when card creation is cancelled.
+ */
+export const deleteFile = mutation({
+	args: {
+		storageId: v.id("_storage"),
+	},
+	handler: async (ctx, args) => {
+		// Get the current authenticated user
+		const identity = await ctx.auth.getUserIdentity();
+
+		if (!identity) {
+			throw new Error("User must be authenticated to delete files");
+		}
+
+		try {
+			// Delete the file from storage
+			await ctx.storage.delete(args.storageId);
+			return { success: true };
+		} catch (error) {
+			// File might not exist or user might not have permission
+			// Log the error but don't throw to avoid breaking the UI
+			console.warn(`Failed to delete file ${args.storageId}:`, error);
+			return { error: "Failed to delete file", success: false };
+		}
+	},
+	returns: v.object({
+		error: v.optional(v.string()),
+		success: v.boolean(),
+	}),
+});
+
+/**
  * Get URLs for card images.
  * Returns URLs for both front and back images if they exist.
  */

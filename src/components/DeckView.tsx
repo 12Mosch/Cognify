@@ -5,6 +5,7 @@ import { memo, useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import { useCardImageCleanup } from "../hooks/useImageUploadCleanup";
 import {
 	useErrorMonitoring,
 	withFormErrorMonitoring,
@@ -497,6 +498,26 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 	);
 	const addCard = useMutation(api.cards.addCardToDeck);
 
+	// Image upload cleanup hook
+	const {
+		handleFrontImageSelect,
+		handleBackImageSelect,
+		markCardCreated,
+		cleanupUploadedFiles,
+		resetCleanupState,
+	} = useCardImageCleanup();
+
+	// Reset cleanup state when form opens
+	useEffect(() => {
+		resetCleanupState();
+	}, [resetCleanupState]);
+
+	// Custom cancel handler that includes cleanup
+	const handleCancel = async () => {
+		await cleanupUploadedFiles();
+		onCancel();
+	};
+
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		setError(null);
@@ -589,6 +610,9 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 					},
 				);
 
+				// Mark card creation as successful to prevent cleanup
+				markCardCreated();
+
 				setFront("");
 				setBack("");
 				setFrontImage(null);
@@ -629,7 +653,16 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 		<div className="rounded-lg border-2 border-slate-200 bg-slate-100 p-6 dark:border-slate-700 dark:bg-slate-800">
 			<h3 className="mb-4 font-bold text-lg">{t("deckView.addCard")}</h3>
 
-			<form className="space-y-4" onSubmit={handleSubmit}>
+			<form
+				className="space-y-4"
+				onKeyDown={(e) => {
+					if (e.key === "Escape") {
+						e.preventDefault();
+						void handleCancel();
+					}
+				}}
+				onSubmit={handleSubmit}
+			>
 				<div>
 					<label className="mb-2 block font-medium text-sm" htmlFor={frontId}>
 						{t("forms.quickAddCard.front")} *
@@ -678,14 +711,18 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 				<PhotoUpload
 					disabled={isSubmitting}
 					label={t("forms.quickAddCard.frontImage", "Front Image (Optional)")}
-					onImageSelect={setFrontImage}
+					onImageSelect={(imageData) =>
+						void handleFrontImageSelect(imageData, setFrontImage, frontImage)
+					}
 				/>
 
 				{/* Back Image Upload */}
 				<PhotoUpload
 					disabled={isSubmitting}
 					label={t("forms.quickAddCard.backImage", "Back Image (Optional)")}
-					onImageSelect={setBackImage}
+					onImageSelect={(imageData) =>
+						void handleBackImageSelect(imageData, setBackImage, backImage)
+					}
 				/>
 
 				{error && (
@@ -706,7 +743,7 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 					</button>
 					<button
 						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
-						onClick={onCancel}
+						onClick={() => void handleCancel()}
 						type="button"
 					>
 						{t("common.cancel")}
@@ -744,6 +781,26 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 		posthog,
 	);
 	const updateCard = useMutation(api.cards.updateCard);
+
+	// Image upload cleanup hook
+	const {
+		handleFrontImageSelect,
+		handleBackImageSelect,
+		markCardCreated,
+		cleanupUploadedFiles,
+		resetCleanupState,
+	} = useCardImageCleanup();
+
+	// Reset cleanup state when form opens
+	useEffect(() => {
+		resetCleanupState();
+	}, [resetCleanupState]);
+
+	// Custom cancel handler that includes cleanup
+	const handleCancel = async () => {
+		await cleanupUploadedFiles();
+		onCancel();
+	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -838,6 +895,9 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 					},
 				);
 
+				// Mark card update as successful to prevent cleanup
+				markCardCreated();
+
 				setError(null);
 				setSubmissionAttempt(0);
 				onSuccess();
@@ -875,7 +935,16 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 		<div className="rounded-lg border-2 border-slate-200 bg-slate-100 p-6 dark:border-slate-700 dark:bg-slate-800">
 			<h3 className="mb-4 font-bold text-lg">{t("deckView.editCard")}</h3>
 
-			<form className="space-y-4" onSubmit={handleSubmit}>
+			<form
+				className="space-y-4"
+				onKeyDown={(e) => {
+					if (e.key === "Escape") {
+						e.preventDefault();
+						void handleCancel();
+					}
+				}}
+				onSubmit={handleSubmit}
+			>
 				<div>
 					<label className="mb-2 block font-medium text-sm" htmlFor={frontId}>
 						{t("forms.quickAddCard.front")} *
@@ -923,7 +992,9 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 					currentImageUrl={card.frontImageUrl}
 					disabled={isSubmitting}
 					label={t("forms.quickAddCard.frontImage", "Front Image (Optional)")}
-					onImageSelect={setFrontImage}
+					onImageSelect={(imageData) =>
+						void handleFrontImageSelect(imageData, setFrontImage, frontImage)
+					}
 				/>
 
 				{/* Back Image Upload */}
@@ -931,7 +1002,9 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 					currentImageUrl={card.backImageUrl}
 					disabled={isSubmitting}
 					label={t("forms.quickAddCard.backImage", "Back Image (Optional)")}
-					onImageSelect={setBackImage}
+					onImageSelect={(imageData) =>
+						void handleBackImageSelect(imageData, setBackImage, backImage)
+					}
 				/>
 
 				{error && (
@@ -952,7 +1025,7 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 					</button>
 					<button
 						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
-						onClick={onCancel}
+						onClick={() => void handleCancel()}
 						type="button"
 					>
 						{t("common.cancel")}
