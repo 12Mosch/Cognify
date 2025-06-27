@@ -10,7 +10,11 @@ import {
 	isTouchDevice,
 	useFlashcardGestures,
 } from "../lib/gestureUtils";
-import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
+import {
+	getKeyboardShortcuts,
+	isShortcutKey,
+	type TranslationFunction,
+} from "../types/keyboard";
 import { DifficultyIndicator } from "./DifficultyIndicator";
 import GestureTutorial from "./GestureTutorial";
 import HelpIcon from "./HelpIcon";
@@ -484,7 +488,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 			<KeyboardShortcutsModal
 				isOpen={showKeyboardHelp}
 				onClose={() => setShowKeyboardHelp(false)}
-				shortcuts={getKeyboardShortcuts("basic", t)}
+				shortcuts={getKeyboardShortcuts("basic", t as TranslationFunction)}
 				studyMode="basic"
 			/>
 

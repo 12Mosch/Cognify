@@ -8,7 +8,10 @@ export interface KeyboardShortcut {
 	context?: "flip" | "navigation" | "rating" | "general";
 }
 
-export type TranslationFunction = (key: string) => string;
+export type TranslationFunction = (
+	key: string,
+	options?: Record<string, unknown>,
+) => string;
 
 export interface KeyboardShortcutGroup {
 	title: string;
