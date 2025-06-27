@@ -210,22 +210,39 @@ export const getDueCardsForDeck = query({
 		const now = Date.now();
 
 		// Get cards that are due for review (dueDate <= now)
-		return await ctx.db
+		const dueCards = await ctx.db
 			.query("cards")
 			.withIndex("by_deckId_and_dueDate", (q) =>
 				q.eq("deckId", args.deckId).lte("dueDate", now),
 			)
 			.collect();
+
+		// Add image URLs to each card
+		return await Promise.all(
+			dueCards.map(async (card) => ({
+				...card,
+				backImageUrl: card.backImageId
+					? await ctx.storage.getUrl(card.backImageId)
+					: null,
+				frontImageUrl: card.frontImageId
+					? await ctx.storage.getUrl(card.frontImageId)
+					: null,
+			})),
+		);
 	},
 	returns: v.array(
 		v.object({
 			_creationTime: v.number(),
 			_id: v.id("cards"),
 			back: v.string(),
+			backImageId: v.optional(v.id("_storage")),
+			backImageUrl: v.union(v.string(), v.null()),
 			deckId: v.id("decks"),
 			dueDate: v.optional(v.number()),
 			easeFactor: v.optional(v.number()),
 			front: v.string(),
+			frontImageId: v.optional(v.id("_storage")),
+			frontImageUrl: v.union(v.string(), v.null()),
 			interval: v.optional(v.number()),
 			repetition: v.optional(v.number()),
 			userId: v.string(),
@@ -300,17 +317,32 @@ export const getStudyQueue = query({
 			}
 		}
 
-		return queue;
+		// 5. Add image URLs to each card
+		return await Promise.all(
+			queue.map(async (card) => ({
+				...card,
+				backImageUrl: card.backImageId
+					? await ctx.storage.getUrl(card.backImageId)
+					: null,
+				frontImageUrl: card.frontImageId
+					? await ctx.storage.getUrl(card.frontImageId)
+					: null,
+			})),
+		);
 	},
 	returns: v.array(
 		v.object({
 			_creationTime: v.number(),
 			_id: v.id("cards"),
 			back: v.string(),
+			backImageId: v.optional(v.id("_storage")),
+			backImageUrl: v.union(v.string(), v.null()),
 			deckId: v.id("decks"),
 			dueDate: v.optional(v.number()),
 			easeFactor: v.optional(v.number()),
 			front: v.string(),
+			frontImageId: v.optional(v.id("_storage")),
+			frontImageUrl: v.union(v.string(), v.null()),
 			interval: v.optional(v.number()),
 			repetition: v.optional(v.number()),
 			userId: v.string(),
@@ -351,22 +383,39 @@ export const getNewCardsForDeck = query({
 		// Get cards that have never been reviewed (repetition = 0) using efficient database index
 		// This query uses the compound index to find new cards directly in the database
 		// Note: Cards should be initialized with repetition = 0 when created for this to work efficiently
-		return await ctx.db
+		const newCards = await ctx.db
 			.query("cards")
 			.withIndex("by_deckId_and_repetition", (q) =>
 				q.eq("deckId", args.deckId).eq("repetition", 0),
 			)
 			.take(limit);
+
+		// Add image URLs to each card
+		return await Promise.all(
+			newCards.map(async (card) => ({
+				...card,
+				backImageUrl: card.backImageId
+					? await ctx.storage.getUrl(card.backImageId)
+					: null,
+				frontImageUrl: card.frontImageId
+					? await ctx.storage.getUrl(card.frontImageId)
+					: null,
+			})),
+		);
 	},
 	returns: v.array(
 		v.object({
 			_creationTime: v.number(),
 			_id: v.id("cards"),
 			back: v.string(),
+			backImageId: v.optional(v.id("_storage")),
+			backImageUrl: v.union(v.string(), v.null()),
 			deckId: v.id("decks"),
 			dueDate: v.optional(v.number()),
 			easeFactor: v.optional(v.number()),
 			front: v.string(),
+			frontImageId: v.optional(v.id("_storage")),
+			frontImageUrl: v.union(v.string(), v.null()),
 			interval: v.optional(v.number()),
 			repetition: v.optional(v.number()),
 			userId: v.string(),

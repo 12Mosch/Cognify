@@ -477,8 +477,28 @@ export default function AdaptiveStudyMode({
 						type="button"
 					>
 						<div className="p-8 text-center">
-							<div className="text-lg text-slate-900 leading-relaxed dark:text-slate-100">
-								{isFlipped ? currentCard?.back || "" : currentCard?.front || ""}
+							<div className="space-y-4">
+								{/* Display image if available */}
+								{isFlipped && currentCard?.backImageUrl && (
+									<img
+										alt="Back side content"
+										className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+										src={currentCard.backImageUrl}
+									/>
+								)}
+								{!isFlipped && currentCard?.frontImageUrl && (
+									<img
+										alt="Front side content"
+										className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+										src={currentCard.frontImageUrl}
+									/>
+								)}
+								{/* Display text content */}
+								<div className="text-lg text-slate-900 leading-relaxed dark:text-slate-100">
+									{isFlipped
+										? currentCard?.back || ""
+										: currentCard?.front || ""}
+								</div>
 							</div>
 							{!isFlipped && (
 								<div className="mt-6 text-slate-500 text-sm dark:text-slate-400">

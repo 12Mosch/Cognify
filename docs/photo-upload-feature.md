@@ -60,6 +60,7 @@ cards: defineTable({
 1. **`DeckView`** - Updated forms to include photo upload options
 2. **`SpacedRepetitionMode`** - Displays images during study sessions
 3. **`BasicStudyMode`** - Displays images during study sessions
+4. **`AdaptiveStudyMode`** - Displays images during study sessions
 
 #### New Types
 
