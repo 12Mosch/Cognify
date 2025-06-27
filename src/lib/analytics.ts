@@ -262,6 +262,7 @@ export type AnalyticsEvent =
 	| "user_signed_up"
 	| "deck_created"
 	| "deck_updated"
+	| "deck_deleted"
 	| "card_created"
 	| "study_session_started"
 	| "study_session_completed"
@@ -297,6 +298,11 @@ export interface AnalyticsEventData {
 	deck_updated: {
 		deckId?: string;
 		deckName?: string;
+	};
+	deck_deleted: {
+		deckId?: string;
+		deckName?: string;
+		cardCount?: number;
 	};
 	card_created: {
 		cardId?: string;

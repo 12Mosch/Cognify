@@ -356,7 +356,9 @@ describe("Dashboard Delete Deck Functionality", () => {
 
 	// Test that the delete functionality components can be imported and used
 	it("can import and use DeleteDeckConfirmationModal", () => {
-		const { DeleteDeckConfirmationModal } = require("../DeleteDeckConfirmationModal");
+		const {
+			DeleteDeckConfirmationModal,
+		} = require("../DeleteDeckConfirmationModal");
 		expect(DeleteDeckConfirmationModal).toBeDefined();
 	});
 });
