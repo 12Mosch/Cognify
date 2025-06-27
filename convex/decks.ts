@@ -135,6 +135,75 @@ export const updateDeck = mutation({
 });
 
 /**
+ * Delete a deck and all its associated cards.
+ * Only the owner of the deck can delete it.
+ * This operation is irreversible and removes all cards in the deck.
+ */
+export const deleteDeck = mutation({
+	args: {
+		deckId: v.id("decks"),
+	},
+	handler: async (ctx, args) => {
+		// Get the current authenticated user
+		const identity = await ctx.auth.getUserIdentity();
+
+		if (!identity) {
+			throw new Error("User must be authenticated to delete a deck");
+		}
+
+		// Get the existing deck to verify ownership
+		const existingDeck = await ctx.db.get(args.deckId);
+
+		if (!existingDeck) {
+			throw new Error("Deck not found");
+		}
+
+		if (existingDeck.userId !== identity.subject) {
+			throw new Error("You can only delete your own decks");
+		}
+
+		// Get all cards in this deck to delete them
+		const cards = await ctx.db
+			.query("cards")
+			.withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
+			.collect();
+
+		// Delete all cards in the deck first
+		for (const card of cards) {
+			await ctx.db.delete(card._id);
+		}
+
+		// Delete any card reviews associated with this deck
+		const cardReviews = await ctx.db
+			.query("cardReviews")
+			.withIndex("by_deckId_and_date", (q) => q.eq("deckId", args.deckId))
+			.collect();
+
+		for (const review of cardReviews) {
+			await ctx.db.delete(review._id);
+		}
+
+		// Delete any study sessions associated with this deck
+		const studySessions = await ctx.db
+			.query("studySessions")
+			.withIndex("by_userId_and_deckId", (q) =>
+				q.eq("userId", identity.subject).eq("deckId", args.deckId),
+			)
+			.collect();
+
+		for (const session of studySessions) {
+			await ctx.db.delete(session._id);
+		}
+
+		// Finally, delete the deck itself
+		await ctx.db.delete(args.deckId);
+
+		return null;
+	},
+	returns: v.null(),
+});
+
+/**
  * Get a single deck by ID.
  * Only the owner of the deck can access it.
  */

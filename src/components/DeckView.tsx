@@ -10,6 +10,7 @@ import {
 	withFormErrorMonitoring,
 } from "../lib/errorMonitoring";
 import { showErrorToast, showSuccessToast, toastHelpers } from "../lib/toast";
+import { DeleteDeckConfirmationModal } from "./DeleteDeckConfirmationModal";
 import { DifficultyIndicator } from "./DifficultyIndicator";
 import { EditDeckForm } from "./EditDeckForm";
 import { DeckViewSkeleton } from "./skeletons/SkeletonComponents";
@@ -36,6 +37,7 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
 	const [showAddForm, setShowAddForm] = useState(false);
 	const [editingCard, setEditingCard] = useState<Card | null>(null);
 	const [showEditDeckForm, setShowEditDeckForm] = useState(false);
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 	const [errorTracked, setErrorTracked] = useState<{
 		deck?: boolean;
 		cards?: boolean;
@@ -138,6 +140,14 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
 				</div>
 				<div className="flex items-center gap-3">
 					<button
+						aria-label={t("deckView.deleteDeckAria", { deckName: deck.name })}
+						className="rounded-md border-2 border-red-300 bg-red-100 px-4 py-3 font-medium text-red-700 text-sm transition-opacity hover:opacity-80 dark:border-red-600 dark:bg-red-900/20 dark:text-red-400"
+						onClick={() => setShowDeleteConfirm(true)}
+						type="button"
+					>
+						{t("deckView.deleteDeck")}
+					</button>
+					<button
 						aria-label={t("deck.editDeckAria", { deckName: deck.name })}
 						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-3 font-medium text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
 						onClick={() => setShowEditDeckForm(true)}
@@ -203,6 +213,18 @@ function DeckView({ deckId, onBack }: DeckViewProps) {
 					))}
 				</div>
 			)}
+
+			{/* Delete Deck Confirmation Modal */}
+			<DeleteDeckConfirmationModal
+				deck={{
+					_id: deckId,
+					cardCount: cards.length,
+					name: deck.name,
+				}}
+				isOpen={showDeleteConfirm}
+				onClose={() => setShowDeleteConfirm(false)}
+				onConfirm={onBack}
+			/>
 		</div>
 	);
 }

@@ -572,6 +572,22 @@ export function trackDeckUpdated(
 }
 
 /**
+ * Track deck deletion event
+ */
+export function trackDeckDeleted(
+	posthog: ReturnType<typeof usePostHog> | null,
+	deckId?: string,
+	deckName?: string,
+	cardCount?: number,
+): void {
+	trackEvent(posthog, "deck_deleted", {
+		cardCount,
+		deckId,
+		deckName,
+	});
+}
+
+/**
  * Track card creation event
  */
 export function trackCardCreated(
@@ -1987,6 +2003,11 @@ export function useAnalytics() {
 		) => trackConvexQueryError(posthog, queryName, error, context),
 		trackDeckCreated: (deckId?: string, deckName?: string) =>
 			trackDeckCreated(posthog, deckId, deckName),
+		trackDeckDeleted: (
+			deckId?: string,
+			deckName?: string,
+			cardCount?: number,
+		) => trackDeckDeleted(posthog, deckId, deckName, cardCount),
 		trackDeckUpdated: (deckId?: string, deckName?: string) =>
 			trackDeckUpdated(posthog, deckId, deckName),
 		trackDifficultyRated: (
