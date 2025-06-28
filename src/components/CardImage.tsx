@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface CardImageProps {
 	src: string;
@@ -21,13 +21,15 @@ export function CardImage({
 	const prevSrcRef = useRef<string>(src);
 
 	// Reset state when src changes
-	if (prevSrcRef.current !== src) {
-		prevSrcRef.current = src;
-		if (isLoading === false || hasError === true) {
-			setIsLoading(true);
-			setHasError(false);
+	useEffect(() => {
+		if (prevSrcRef.current !== src) {
+			prevSrcRef.current = src;
+			if (isLoading === false || hasError === true) {
+				setIsLoading(true);
+				setHasError(false);
+			}
 		}
-	}
+	}, [src, isLoading, hasError]);
 
 	const handleLoad = () => {
 		setIsLoading(false);
