@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { CacheInvalidation } from "./utils/cache";
+import { addImageUrlsToCards } from "./utils/imageUrlCache";
 
 /**
  * SM-2 Algorithm Implementation for Spaced Repetition
@@ -217,18 +218,8 @@ export const getDueCardsForDeck = query({
 			)
 			.collect();
 
-		// Add image URLs to each card
-		return await Promise.all(
-			dueCards.map(async (card) => ({
-				...card,
-				backImageUrl: card.backImageId
-					? await ctx.storage.getUrl(card.backImageId)
-					: null,
-				frontImageUrl: card.frontImageId
-					? await ctx.storage.getUrl(card.frontImageId)
-					: null,
-			})),
-		);
+		// Add image URLs to each card using optimized caching
+		return await addImageUrlsToCards(ctx, dueCards);
 	},
 	returns: v.array(
 		v.object({
@@ -317,18 +308,8 @@ export const getStudyQueue = query({
 			}
 		}
 
-		// 5. Add image URLs to each card
-		return await Promise.all(
-			queue.map(async (card) => ({
-				...card,
-				backImageUrl: card.backImageId
-					? await ctx.storage.getUrl(card.backImageId)
-					: null,
-				frontImageUrl: card.frontImageId
-					? await ctx.storage.getUrl(card.frontImageId)
-					: null,
-			})),
-		);
+		// 5. Add image URLs to each card using optimized caching
+		return await addImageUrlsToCards(ctx, queue);
 	},
 	returns: v.array(
 		v.object({
@@ -390,18 +371,8 @@ export const getNewCardsForDeck = query({
 			)
 			.take(limit);
 
-		// Add image URLs to each card
-		return await Promise.all(
-			newCards.map(async (card) => ({
-				...card,
-				backImageUrl: card.backImageId
-					? await ctx.storage.getUrl(card.backImageId)
-					: null,
-				frontImageUrl: card.frontImageId
-					? await ctx.storage.getUrl(card.frontImageId)
-					: null,
-			})),
-		);
+		// Add image URLs to each card using optimized caching
+		return await addImageUrlsToCards(ctx, newCards);
 	},
 	returns: v.array(
 		v.object({

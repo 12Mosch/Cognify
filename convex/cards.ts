@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
+import { addImageUrlsToCards } from "./utils/imageUrlCache";
 
 /**
  * Get all cards for a specific deck.
@@ -36,18 +37,8 @@ export const getCardsForDeck = query({
 			.order("desc") // Most recently created first
 			.collect();
 
-		// Add image URLs to each card
-		return await Promise.all(
-			cards.map(async (card) => ({
-				...card,
-				backImageUrl: card.backImageId
-					? await ctx.storage.getUrl(card.backImageId)
-					: null,
-				frontImageUrl: card.frontImageId
-					? await ctx.storage.getUrl(card.frontImageId)
-					: null,
-			})),
-		);
+		// Add image URLs to each card using optimized caching
+		return await addImageUrlsToCards(ctx, cards);
 	},
 	returns: v.array(
 		v.object({
@@ -369,13 +360,33 @@ export const getCardImageUrls = query({
 			throw new Error("You can only access images from your own cards");
 		}
 
-		// Generate URLs for images if they exist
-		const frontImageUrl = card.frontImageId
-			? await ctx.storage.getUrl(card.frontImageId)
-			: null;
-		const backImageUrl = card.backImageId
-			? await ctx.storage.getUrl(card.backImageId)
-			: null;
+		// Generate URLs for images if they exist using optimized concurrent fetching
+		const imagePromises: Promise<string | null>[] = [];
+		const imageTypes: ("front" | "back")[] = [];
+
+		if (card.frontImageId) {
+			imagePromises.push(ctx.storage.getUrl(card.frontImageId));
+			imageTypes.push("front");
+		}
+		if (card.backImageId) {
+			imagePromises.push(ctx.storage.getUrl(card.backImageId));
+			imageTypes.push("back");
+		}
+
+		// Fetch all URLs concurrently
+		const imageUrls = await Promise.all(imagePromises);
+
+		// Map results back to the correct image types
+		let frontImageUrl: string | null = null;
+		let backImageUrl: string | null = null;
+
+		for (let i = 0; i < imageTypes.length; i++) {
+			if (imageTypes[i] === "front") {
+				frontImageUrl = imageUrls[i];
+			} else if (imageTypes[i] === "back") {
+				backImageUrl = imageUrls[i];
+			}
+		}
 
 		return {
 			backImageUrl,
