@@ -416,7 +416,7 @@ export async function withRetryAndErrorMonitoring<T>(
 	const maxRetries = context.maxRetries ?? 3;
 	const retryDelay = context.retryDelay ?? 1000;
 
-	let lastError: Error;
+	let lastError: Error | undefined;
 
 	for (let attempt = 0; attempt <= maxRetries; attempt++) {
 		try {
@@ -441,10 +441,8 @@ export async function withRetryAndErrorMonitoring<T>(
 		}
 	}
 
-	if (lastError) {
-		throw lastError;
-	}
-	throw new Error("All retry attempts failed");
+	// If we have a lastError, throw it; otherwise throw a generic error
+	throw lastError ?? new Error("All retry attempts failed");
 }
 
 /**

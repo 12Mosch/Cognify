@@ -57,12 +57,20 @@ describe("StreakDisplay", () => {
 		jest.clearAllMocks();
 		mockUseAnalytics.mockReturnValue({
 			captureError: jest.fn(),
+			configValidation: {
+				isValid: true,
+				missingHost: false,
+				missingKey: false,
+				warnings: [],
+			},
+			isConfigured: true,
 			posthog: mockPosthog,
 			trackCardCreated: jest.fn(),
 			trackCardFlipped: jest.fn(),
 			trackConvexMutationError: jest.fn(),
 			trackConvexQueryError: jest.fn(),
 			trackDeckCreated: jest.fn(),
+			trackDeckDeleted: jest.fn(),
 			trackDeckUpdated: jest.fn(),
 			trackDifficultyRated: jest.fn(),
 			trackStudySessionCompleted: jest.fn(),

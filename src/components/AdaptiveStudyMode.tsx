@@ -63,7 +63,10 @@ export default function AdaptiveStudyMode({
 	const decks = useQuery(api.decks.getDecksForUser);
 	const deck = decks?.find((d) => d._id === deckId);
 	const studyQueue = useQuery(api.spacedRepetition.getStudyQueue, { deckId });
-	const learningPattern = useQuery(api.adaptiveLearning.getUserLearningPattern);
+	const learningPattern = useQuery(
+		api.adaptiveLearning.getUserLearningPattern,
+		{},
+	);
 	const reviewCardAdaptive = useMutation(
 		api.adaptiveLearning.reviewCardAdaptive,
 	);

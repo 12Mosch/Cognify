@@ -7,7 +7,6 @@ import {
 	Cell,
 	ResponsiveContainer,
 	Tooltip,
-	type TooltipContentProps,
 	XAxis,
 	YAxis,
 } from "recharts";
@@ -18,15 +17,11 @@ type DeckChartDataItem = DeckPerformance & {
 	shortName: string;
 };
 
-interface DeckTooltipProps extends TooltipContentProps<number, string> {
+interface DeckTooltipProps {
 	active?: boolean;
 	payload?: Array<{
 		payload: DeckChartDataItem;
 	}>;
-}
-
-interface BarClickData {
-	deckId: string;
 }
 
 interface DeckPerformance {
@@ -45,12 +40,27 @@ interface DeckPerformanceChartProps {
 	onDeckSelect: (deckId: string | null) => void;
 }
 
+// Helper function to safely convert translation results to strings
+const safeTranslate = (
+	translateFn: (key: string) => unknown,
+	key: string,
+): string => {
+	try {
+		const result = translateFn(key);
+		return typeof result === "string" ? result : String(result);
+	} catch {
+		return key; // Fallback to key if translation fails
+	}
+};
+
 // Custom Tooltip Component - avoid using hooks to prevent React Compiler issues
 const CustomTooltip = ({
 	active,
 	payload,
 	t,
-}: DeckTooltipProps & { t: (key: string) => string }) => {
+}: DeckTooltipProps & {
+	t: (key: string) => unknown;
+}) => {
 	"use no memo"; // Directive to prevent React Compiler optimization
 
 	if (active && payload && payload.length) {
@@ -61,13 +71,18 @@ const CustomTooltip = ({
 				<div className="space-y-2 text-sm">
 					<div className="flex justify-between">
 						<span className="text-slate-300">
-							{t("statistics.charts.deckPerformance.totalCards")}:
+							{safeTranslate(t, "statistics.charts.deckPerformance.totalCards")}
+							:
 						</span>
 						<span className="font-semibold text-white">{data.totalCards}</span>
 					</div>
 					<div className="flex justify-between">
 						<span className="text-slate-300">
-							{t("statistics.charts.deckPerformance.masteredCards")}:
+							{safeTranslate(
+								t,
+								"statistics.charts.deckPerformance.masteredCards",
+							)}
+							:
 						</span>
 						<span className="font-semibold text-white">
 							{data.masteredCards}
@@ -75,7 +90,11 @@ const CustomTooltip = ({
 					</div>
 					<div className="flex justify-between">
 						<span className="text-slate-300">
-							{t("statistics.charts.deckPerformance.masteryPercentage")}:
+							{safeTranslate(
+								t,
+								"statistics.charts.deckPerformance.masteryPercentage",
+							)}
+							:
 						</span>
 						<span className="font-semibold text-white">
 							{data.masteryPercentage.toFixed(1)}%
@@ -84,7 +103,11 @@ const CustomTooltip = ({
 					{data.averageEaseFactor && (
 						<div className="flex justify-between">
 							<span className="text-slate-300">
-								{t("statistics.charts.deckPerformance.averageEase")}:
+								{safeTranslate(
+									t,
+									"statistics.charts.deckPerformance.averageEase",
+								)}
+								:
 							</span>
 							<span className="font-semibold text-white">
 								{data.averageEaseFactor.toFixed(2)}
@@ -94,7 +117,10 @@ const CustomTooltip = ({
 				</div>
 				<div className="mt-3 border-slate-600 border-t pt-2">
 					<p className="text-slate-400 text-xs">
-						{t("statistics.charts.deckPerformance.clickToSelect")}
+						{safeTranslate(
+							t,
+							"statistics.charts.deckPerformance.clickToSelect",
+						)}
 					</p>
 				</div>
 			</div>
@@ -146,9 +172,14 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
 		}
 	};
 
-	const handleBarClick = (data: BarClickData) => {
-		const newSelectedId = selectedDeckId === data.deckId ? null : data.deckId;
-		onDeckSelect(newSelectedId);
+	const handleBarClick = (_data: unknown, index: number) => {
+		// We need to get the data from the chartData array using the index
+		const chartItem = chartData[index];
+		if (chartItem?.deckId) {
+			const newSelectedId =
+				selectedDeckId === chartItem.deckId ? null : chartItem.deckId;
+			onDeckSelect(newSelectedId);
+		}
 	};
 
 	if (chartData.length === 0) {
@@ -307,7 +338,9 @@ const DeckPerformanceChart = memo(function DeckPerformanceChart({
 						tickLine={false}
 					/>
 
-					<Tooltip content={<CustomTooltip t={t} />} />
+					<Tooltip
+						content={<CustomTooltip t={t as (key: string) => unknown} />}
+					/>
 
 					<Bar
 						cursor="pointer"

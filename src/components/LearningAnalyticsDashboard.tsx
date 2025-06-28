@@ -33,7 +33,10 @@ const LearningAnalyticsDashboard = memo(function LearningAnalyticsDashboard({
 	>("30d");
 
 	// Fetch learning analytics data
-	const learningPattern = useQuery(api.adaptiveLearning.getUserLearningPattern);
+	const learningPattern = useQuery(
+		api.adaptiveLearning.getUserLearningPattern,
+		{},
+	);
 	const spacedRepetitionInsights = useQuery(
 		api.statistics.getSpacedRepetitionInsights,
 	);
