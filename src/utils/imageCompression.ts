@@ -2,6 +2,8 @@ import { encode as encodeAvif } from "@jsquash/avif";
 import { encode as encodeWebp } from "@jsquash/webp";
 import imageCompression from "browser-image-compression";
 
+const DEBUG = process.env.NODE_ENV === "development";
+
 /**
  * Supported compression formats
  */
@@ -330,22 +332,28 @@ export async function compressImage(
 	let actualFormat = finalOptions.format;
 
 	// Debug logging for format detection
-	console.log("Image compression debug:", {
-		avifSupported: isAvifSupported(),
-		requestedFormat: finalOptions.format,
-		userAgent: navigator.userAgent,
-		webpSupported: isWebpSupported(),
-	});
+	if (DEBUG) {
+		console.log("Image compression debug:", {
+			avifSupported: isAvifSupported(),
+			requestedFormat: finalOptions.format,
+			userAgent: navigator.userAgent,
+			webpSupported: isWebpSupported(),
+		});
+	}
 
 	try {
 		// Try to compress with the requested format
 		if (finalOptions.format === "avif") {
 			// Check if AVIF is supported, fallback to WebP or JPEG if not
 			if (!isAvifSupported()) {
-				console.warn("AVIF not supported by browser, falling back to WebP");
+				if (DEBUG) {
+					console.warn("AVIF not supported by browser, falling back to WebP");
+				}
 				actualFormat = isWebpSupported() ? "webp" : "jpeg";
 			} else {
-				console.log("AVIF is supported, proceeding with AVIF compression");
+				if (DEBUG) {
+					console.log("AVIF is supported, proceeding with AVIF compression");
+				}
 			}
 
 			if (actualFormat === "avif") {
@@ -353,10 +361,12 @@ export async function compressImage(
 					compressedFile = await compressToAvif(file, finalOptions);
 				} catch (avifError) {
 					// AVIF failed, try WebP as immediate fallback
-					console.warn(
-						"AVIF compression failed, trying WebP fallback:",
-						avifError,
-					);
+					if (DEBUG) {
+						console.warn(
+							"AVIF compression failed, trying WebP fallback:",
+							avifError,
+						);
+					}
 					actualFormat = isWebpSupported() ? "webp" : "jpeg";
 					if (actualFormat === "webp") {
 						compressedFile = await compressToWebp(file, {
@@ -387,10 +397,12 @@ export async function compressImage(
 			compressedFile = await compressWithBrowserCompression(file, finalOptions);
 		}
 	} catch (error) {
-		console.warn(
-			`Compression with ${finalOptions.format} failed, falling back to JPEG:`,
-			error,
-		);
+		if (DEBUG) {
+			console.warn(
+				`Compression with ${finalOptions.format} failed, falling back to JPEG:`,
+				error,
+			);
+		}
 
 		// Fallback to JPEG compression
 		actualFormat = "jpeg";
@@ -404,12 +416,14 @@ export async function compressImage(
 	const compressionRatio = originalSize > 0 ? compressedSize / originalSize : 1;
 
 	// Debug logging for final result
-	console.log("Image compression result:", {
-		compressedSize: `${(compressedSize / 1024).toFixed(1)}KB`,
-		compressionRatio: `${(compressionRatio * 100).toFixed(1)}%`,
-		finalFormat: actualFormat,
-		originalSize: `${(originalSize / 1024).toFixed(1)}KB`,
-	});
+	if (DEBUG) {
+		console.log("Image compression result:", {
+			compressedSize: `${(compressedSize / 1024).toFixed(1)}KB`,
+			compressionRatio: `${(compressionRatio * 100).toFixed(1)}%`,
+			finalFormat: actualFormat,
+			originalSize: `${(originalSize / 1024).toFixed(1)}KB`,
+		});
+	}
 
 	return {
 		compressedSize,
