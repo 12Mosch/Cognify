@@ -56,7 +56,7 @@ export function isAvifSupported(): boolean {
 	const userAgent = navigator.userAgent;
 
 	// Chrome/Chromium 85+
-	const chromeMatch = userAgent.match(/(?:Chrome|Chromium|Edge)\/(\d+)/);
+	const chromeMatch = userAgent.match(/(?:Chrome|Chromium|Edg)\/(\d+)/);
 	if (chromeMatch && parseInt(chromeMatch[1]) >= 85) {
 		return true;
 	}
