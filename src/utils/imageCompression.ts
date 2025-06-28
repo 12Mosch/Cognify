@@ -55,11 +55,9 @@ export function isAvifSupported(): boolean {
 	const userAgent = navigator.userAgent;
 
 	// Chrome/Chromium 85+
-	if (userAgent.includes("Chrome/")) {
-		const chromeVersion = userAgent.match(/Chrome\/(\d+)/);
-		if (chromeVersion && parseInt(chromeVersion[1]) >= 85) {
-			return true;
-		}
+	const chromeMatch = userAgent.match(/(?:Chrome|Chromium|Edge)\/(\d+)/);
+	if (chromeMatch && parseInt(chromeMatch[1]) >= 85) {
+		return true;
 	}
 
 	// Firefox 93+
