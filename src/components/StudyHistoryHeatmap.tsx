@@ -12,6 +12,9 @@ import {
 } from "../lib/heatmapUtils";
 import { HeatmapSkeleton } from "./skeletons/SkeletonComponents";
 
+// Day names array - moved outside component to avoid recreation on every render
+const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 /**
  * Study History Heatmap Component
  *
@@ -134,15 +137,6 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 							{dayLabels.map((label, dayIndex) => {
 								// Create unique keys for day labels to avoid React warnings
 								// Since we have duplicate letters (T for Tue/Thu, S for Sun/Sat)
-								const dayNames = [
-									"Sun",
-									"Mon",
-									"Tue",
-									"Wed",
-									"Thu",
-									"Fri",
-									"Sat",
-								];
 								const uniqueKey = `day-${dayNames[dayIndex]}`;
 
 								return (
