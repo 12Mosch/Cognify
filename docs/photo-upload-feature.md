@@ -322,7 +322,7 @@ The image compression system includes comprehensive debug logging that can be co
   - Fallback scenarios and error details
 
 **Example Debug Output (Development Only):**
-```
+```console
 Image compression debug: {
   avifSupported: true,
   requestedFormat: "avif",

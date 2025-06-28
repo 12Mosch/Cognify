@@ -9,7 +9,7 @@ Enhanced the `useImageUploadCleanup` hook to immediately delete files when they 
 ## Changes Made
 
 ### 1. Added `deleteSpecificFile` function
-- Immediately deletes a specific file when user removes it
+- Immediately deletes a specific file when the user removes it
 - Removes the file from tracking regardless of deletion success
 - Includes proper error handling
 
@@ -31,7 +31,7 @@ Enhanced the `useImageUploadCleanup` hook to immediately delete files when they 
 ## How it works now
 
 1. **Image Upload**: File is uploaded and tracked for potential cleanup
-2. **Image Removal**: When user clicks "x", file is immediately deleted from storage
+2. **Image Removal**: When user clicks "x", the file is immediately deleted from storage
 3. **Form Cancellation**: Any remaining tracked files are cleaned up
 4. **Successful Creation**: Files are marked as "used" and won't be cleaned up
 
