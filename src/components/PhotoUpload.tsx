@@ -33,7 +33,8 @@ function validateFile(file: File): FileValidationResult {
 	// Check file type
 	if (!SUPPORTED_IMAGE_TYPES.includes(file.type as SupportedImageType)) {
 		return {
-			error: "Unsupported file type. Please upload JPEG, PNG, WebP or AVIF images.",
+			error:
+				"Unsupported file type. Please upload JPEG, PNG, WebP or AVIF images.",
 			isValid: false,
 		};
 	}
