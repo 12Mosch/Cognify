@@ -13,6 +13,7 @@ This document describes the implementation of the "Delete Deck" feature that all
 - **Authorization**: Users can only delete their own decks
 - **Cascading deletion**: Removes all associated cards, card reviews, and study sessions
 - **Image cleanup**: Automatically deletes all images (frontImageId and backImageId) associated with cards in the deck from Convex File Storage
+- **Image cleanup**: Automatically deletes all images (frontImageId and backImageId) associated with cards in the deck from Convex File Storage
 - **Error handling**: Proper error messages for authentication, authorization, and not found cases
 
 ### 2. UI Components
@@ -165,7 +166,7 @@ The `deleteDeck` mutation includes comprehensive image cleanup:
 
 - **Authentication required**: Users must be logged in to delete decks
 - **Authorization enforced**: Users can only delete their own decks
-- **Cascading deletion**: All associated data is properly cleaned up
+- **Cascading deletion**: All associated data is thoroughly cleaned up
 - **Image cleanup**: All associated images are deleted from Convex File Storage to prevent orphaned files
 - **Transaction safety**: All deletions happen in a single transaction
 

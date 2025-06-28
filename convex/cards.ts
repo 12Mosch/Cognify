@@ -266,7 +266,7 @@ export const deleteCard = mutation({
 		}
 
 		// Delete associated images from storage before deleting the card
-		const imagesToDelete: string[] = [];
+		const imagesToDelete: Id<"_storage">[] = [];
 		if (existingCard.frontImageId) {
 			imagesToDelete.push(existingCard.frontImageId);
 		}
