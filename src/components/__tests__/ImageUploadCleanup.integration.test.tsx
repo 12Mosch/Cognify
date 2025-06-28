@@ -18,15 +18,21 @@ const mockDecks = [
 ];
 
 jest.mock("convex/react", () => ({
-	useMutation: (mutation: any) => {
-		if (mutation.toString().includes("addCardToDeck")) {
-			return mockAddCard;
-		}
-		if (mutation.toString().includes("deleteFile")) {
-			return mockDeleteFile;
-		}
-		return jest.fn();
-	},
+	useMutation: jest.fn((mutation: any) => {
+		// Create a mock function that will be called with arguments
+		const mockFn = jest.fn().mockImplementation((args: any) => {
+			// Determine which mock to call based on the arguments
+			if (args?.storageId) {
+				return mockDeleteFile(args);
+			}
+			// Default to addCard for other arguments
+			return mockAddCard(args);
+		});
+
+		// Store reference to the mutation for potential inspection
+		(mockFn as any)._mutationRef = mutation;
+		return mockFn;
+	}),
 	useQuery: () => mockDecks,
 }));
 
@@ -80,37 +86,78 @@ jest.mock("../../lib/toast", () => ({
 	showErrorToast: jest.fn(),
 }));
 
+// Don't mock the useCardImageCleanup hook - let it use the real implementation
+// This way it can properly interact with the component's state
+
 // Mock translation
 jest.mock("react-i18next", () => ({
 	useTranslation: () => ({
-		t: (key: string, defaultValue?: string) => defaultValue || key,
+		t: (key: string, options?: any) => {
+			// Handle specific translation keys
+			if (key === "forms.quickAddCard.cancel") {
+				return "Cancel";
+			}
+			if (key === "common.cancel") {
+				return "Cancel";
+			}
+
+			// Handle interpolation for character count and other dynamic content
+			if (typeof options === "object" && options !== null) {
+				if (key === "forms.quickAddCard.characterCount") {
+					return `${options.current}/${options.max}`;
+				}
+				// For other keys with interpolation, return a simple string
+				return key.replace(/\{\{(\w+)\}\}/g, (match, prop) => options[prop] || match);
+			}
+			return key;
+		},
 	}),
 }));
 
 // Mock PhotoUpload component
 jest.mock("../PhotoUpload", () => ({
-	PhotoUpload: ({ onImageSelect, label }: any) => (
-		<div
-			data-testid={`photo-upload-${label.toLowerCase().replace(/\s+/g, "-")}`}
-		>
-			<button
-				onClick={() => {
-					const mockImageData: CardImageData = {
-						file: new File(["test"], "test.jpg", { type: "image/jpeg" }),
-						preview: "blob:test-url",
-						storageId: "test-storage-id" as Id<"_storage">,
-					};
-					onImageSelect(mockImageData);
-				}}
-				type="button"
+	PhotoUpload: ({ onImageSelect, label }: any) => {
+		// Convert translation keys to readable text for testing
+		const getDisplayLabel = (label: string) => {
+			if (label === "forms.quickAddCard.frontImage") {
+				return "Front Image (Optional)";
+			}
+			if (label === "forms.quickAddCard.backImage") {
+				return "Back Image (Optional)";
+			}
+			return label;
+		};
+
+		const displayLabel = getDisplayLabel(label);
+
+		return (
+			<div
+				data-testid={`photo-upload-${label.toLowerCase().replace(/\s+/g, "-").replace(/\./g, "")}`}
 			>
-				Upload {label}
-			</button>
-			<button onClick={() => onImageSelect(null)} type="button">
-				Remove {label}
-			</button>
-		</div>
-	),
+				<button
+					onClick={() => {
+						const mockImageData: CardImageData = {
+							file: new File(["test"], "test.jpg", { type: "image/jpeg" }),
+							preview: "blob:test-url",
+							storageId: "test-storage-id" as Id<"_storage">,
+						};
+						onImageSelect(mockImageData);
+					}}
+					type="button"
+				>
+					Upload {displayLabel}
+				</button>
+				<button
+					onClick={() => {
+						onImageSelect(null);
+					}}
+					type="button"
+				>
+					Remove {displayLabel}
+				</button>
+			</div>
+		);
+	},
 }));
 
 describe("Image Upload Cleanup Integration", () => {
@@ -135,7 +182,7 @@ describe("Image Upload Cleanup Integration", () => {
 		await user.click(frontImageUpload);
 
 		// Cancel the form
-		const cancelButton = screen.getByText("common.cancel");
+		const cancelButton = screen.getByText("Cancel");
 		await user.click(cancelButton);
 
 		// Should call cleanup
@@ -215,9 +262,13 @@ describe("Image Upload Cleanup Integration", () => {
 			});
 		});
 
-		// Should NOT call cleanup
+		// Wait for the success callback to be called
+		await waitFor(() => {
+			expect(mockOnSuccess).toHaveBeenCalled();
+		});
+
+		// Should NOT call cleanup when card is successfully created
 		expect(mockDeleteFile).not.toHaveBeenCalled();
-		expect(mockOnSuccess).toHaveBeenCalled();
 	});
 
 	it("should clean up multiple uploaded images", async () => {
@@ -239,7 +290,7 @@ describe("Image Upload Cleanup Integration", () => {
 		await user.click(backImageUpload);
 
 		// Cancel the form
-		const cancelButton = screen.getByText("common.cancel");
+		const cancelButton = screen.getByText("Cancel");
 		await user.click(cancelButton);
 
 		// Should call cleanup for both images
@@ -256,6 +307,8 @@ describe("Image Upload Cleanup Integration", () => {
 	it("should handle cleanup errors gracefully", async () => {
 		const user = userEvent.setup();
 		const mockOnCancel = jest.fn();
+
+		// Mock deleteFile to reject but not throw in the component
 		mockDeleteFile.mockRejectedValue(new Error("Delete failed"));
 
 		render(<QuickAddCardForm onCancel={mockOnCancel} />);
@@ -269,11 +322,13 @@ describe("Image Upload Cleanup Integration", () => {
 		await user.click(frontImageUpload);
 
 		// Cancel the form - should not throw even if cleanup fails
-		const cancelButton = screen.getByText("common.cancel");
+		const cancelButton = screen.getByText("Cancel");
 		await user.click(cancelButton);
 
 		await waitFor(() => {
-			expect(mockDeleteFile).toHaveBeenCalled();
+			expect(mockDeleteFile).toHaveBeenCalledWith({
+				storageId: "test-storage-id",
+			});
 		});
 
 		expect(mockOnCancel).toHaveBeenCalled();
@@ -298,7 +353,7 @@ describe("Image Upload Cleanup Integration", () => {
 		await user.click(removeButton);
 
 		// Cancel the form
-		const cancelButton = screen.getByText("common.cancel");
+		const cancelButton = screen.getByText("Cancel");
 		await user.click(cancelButton);
 
 		// Should not call cleanup since image was already removed

@@ -785,14 +785,15 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 			/>
 
 			{/* Flashcard with 3D Flip Animation - Takes remaining height */}
-			<button
+			<div
 				aria-label={
 					isFlipped ? "Click to show question" : "Click to show answer"
 				}
-				className="flashcard-container flex-1 cursor-pointer border-none bg-transparent p-0"
+				className="flashcard-container flex-1 cursor-pointer"
 				onClick={handleFlipCard}
 				onKeyDown={handleKeyDown}
-				type="button"
+				role="button"
+				tabIndex={0}
 				{...gestureHandlers}
 			>
 				<div className={`flashcard-inner ${isFlipped ? "flipped" : ""}`}>
@@ -972,7 +973,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 						</div>
 					</div>
 				</div>
-			</button>
+			</div>
 
 			{/* Keyboard Shortcuts Modal */}
 			<KeyboardShortcutsModal
