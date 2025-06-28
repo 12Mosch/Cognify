@@ -176,6 +176,11 @@ export function PhotoUpload({
 					);
 				}
 
+				// Clean up existing compressed preview URL to prevent memory leak
+				if (compressedPreview) {
+					URL.revokeObjectURL(compressedPreview);
+				}
+
 				// Create image data object
 				const imageData: CardImageData = {
 					file: finalFile,
