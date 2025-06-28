@@ -338,6 +338,7 @@
 		"validation": "Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut."
 	},
 	"forms": {
+		"addImage": "Bild hinzufügen",
 		"createDeck": {
 			"buttonLabel": "Neuen Stapel erstellen",
 			"cancel": "Abbrechen",

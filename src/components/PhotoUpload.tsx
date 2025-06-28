@@ -33,7 +33,7 @@ function validateFile(file: File): FileValidationResult {
 	// Check file type
 	if (!SUPPORTED_IMAGE_TYPES.includes(file.type as SupportedImageType)) {
 		return {
-			error: "Unsupported file type. Please upload JPEG, PNG, or WebP images.",
+			error: "Unsupported file type. Please upload JPEG, PNG, WebP or AVIF images.",
 			isValid: false,
 		};
 	}
@@ -274,6 +274,7 @@ export function PhotoUpload({
 				) : (
 					// Upload Button
 					<button
+						aria-label={t("forms.addImage", "Add Image")}
 						className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-slate-300 border-dashed bg-slate-50 transition-colors hover:border-slate-400 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:hover:border-slate-500 dark:hover:bg-slate-700"
 						disabled={disabled || isUploading}
 						onClick={handleClick}

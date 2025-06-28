@@ -338,6 +338,7 @@
 		"validation": "Please check your input and try again."
 	},
 	"forms": {
+		"addImage": "Add image",
 		"createDeck": {
 			"buttonLabel": "Create new deck",
 			"cancel": "Cancel",
