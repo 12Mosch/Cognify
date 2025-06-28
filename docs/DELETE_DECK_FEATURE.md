@@ -12,6 +12,7 @@ This document describes the implementation of the "Delete Deck" feature that all
 - **Authentication**: Requires user authentication to delete decks
 - **Authorization**: Users can only delete their own decks
 - **Cascading deletion**: Removes all associated cards, card reviews, and study sessions
+- **Image cleanup**: Automatically deletes all images (frontImageId and backImageId) associated with cards in the deck from Convex File Storage
 - **Error handling**: Proper error messages for authentication, authorization, and not found cases
 
 ### 2. UI Components
@@ -140,11 +141,32 @@ export function trackDeckDeleted(
 3. Confirm deletion in the modal dialog
 4. Dashboard automatically refreshes to show updated deck list
 
+## Image Cleanup Implementation
+
+### Card Deletion (`convex/cards.ts`)
+
+The `deleteCard` mutation has been enhanced to include automatic image cleanup:
+
+- **Image identification**: Checks for both `frontImageId` and `backImageId` on the card being deleted
+- **Storage cleanup**: Deletes associated images from Convex File Storage before removing the card from the database
+- **Error resilience**: Image deletion failures are logged but don't prevent card deletion
+- **Performance**: Batch processes multiple images if both front and back images exist
+
+### Deck Deletion (`convex/decks.ts`)
+
+The `deleteDeck` mutation includes comprehensive image cleanup:
+
+- **Bulk image collection**: Gathers all `frontImageId` and `backImageId` values from all cards in the deck
+- **Batch deletion**: Efficiently deletes all collected images from Convex File Storage
+- **Error handling**: Individual image deletion failures are logged but don't prevent deck deletion
+- **Order of operations**: Images are deleted before cards to ensure proper cleanup sequence
+
 ## Security Considerations
 
 - **Authentication required**: Users must be logged in to delete decks
 - **Authorization enforced**: Users can only delete their own decks
 - **Cascading deletion**: All associated data is properly cleaned up
+- **Image cleanup**: All associated images are deleted from Convex File Storage to prevent orphaned files
 - **Transaction safety**: All deletions happen in a single transaction
 
 ## Accessibility Features
