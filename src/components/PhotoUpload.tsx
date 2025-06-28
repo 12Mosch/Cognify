@@ -82,6 +82,9 @@ export function PhotoUpload({
 			setIsUploading(true);
 			setIsCompressing(false);
 
+			let preview: string | null = null;
+			let compressedPreview: string | null = null;
+
 			try {
 				// Validate file
 				const validation = validateFile(file);
@@ -91,7 +94,7 @@ export function PhotoUpload({
 				}
 
 				// Create preview URL for original file
-				const preview = URL.createObjectURL(file);
+				preview = URL.createObjectURL(file);
 				setPreviewUrl(preview);
 
 				let finalFile = file;
@@ -115,8 +118,9 @@ export function PhotoUpload({
 						setCompressionStats(getCompressionStats(compressionResult));
 
 						// Update preview with compressed image
-						const compressedPreview = URL.createObjectURL(finalFile);
+						compressedPreview = URL.createObjectURL(finalFile);
 						URL.revokeObjectURL(preview); // Clean up original preview
+						preview = null; // Mark as cleaned up
 						setPreviewUrl(compressedPreview);
 					} catch (compressionError) {
 						console.warn(
@@ -131,26 +135,52 @@ export function PhotoUpload({
 				}
 
 				// Generate upload URL
-				const uploadUrl = await generateUploadUrl();
-
-				// Upload file (compressed or original)
-				const response = await fetch(uploadUrl, {
-					body: finalFile,
-					headers: { "Content-Type": finalFile.type },
-					method: "POST",
-				});
-
-				if (!response.ok) {
-					throw new Error("Failed to upload image");
+				let uploadUrl: string;
+				try {
+					uploadUrl = await generateUploadUrl();
+				} catch (uploadUrlError) {
+					throw new Error(
+						`Failed to generate upload URL: ${uploadUrlError instanceof Error ? uploadUrlError.message : "Unknown error"}`,
+					);
 				}
 
-				const { storageId } = await response.json();
+				// Upload file (compressed or original)
+				let response: Response;
+				try {
+					response = await fetch(uploadUrl, {
+						body: finalFile,
+						headers: { "Content-Type": finalFile.type },
+						method: "POST",
+					});
+
+					if (!response.ok) {
+						throw new Error(`Upload failed with status ${response.status}`);
+					}
+				} catch (uploadError) {
+					throw new Error(
+						`Failed to upload image: ${uploadError instanceof Error ? uploadError.message : "Network error"}`,
+					);
+				}
+
+				// Parse response
+				let storageId: Id<"_storage">;
+				try {
+					const responseData = await response.json();
+					storageId = responseData.storageId as Id<"_storage">;
+					if (!storageId) {
+						throw new Error("No storage ID returned from upload");
+					}
+				} catch (parseError) {
+					throw new Error(
+						`Failed to parse upload response: ${parseError instanceof Error ? parseError.message : "Invalid response"}`,
+					);
+				}
 
 				// Create image data object
 				const imageData: CardImageData = {
 					file: finalFile,
 					preview: URL.createObjectURL(finalFile),
-					storageId: storageId as Id<"_storage">,
+					storageId,
 				};
 
 				onImageSelect(imageData);
@@ -159,6 +189,15 @@ export function PhotoUpload({
 				setUploadError(
 					error instanceof Error ? error.message : "Failed to upload image",
 				);
+
+				// Clean up any created object URLs
+				if (preview && preview !== currentImageUrl) {
+					URL.revokeObjectURL(preview);
+				}
+				if (compressedPreview && compressedPreview !== currentImageUrl) {
+					URL.revokeObjectURL(compressedPreview);
+				}
+
 				setPreviewUrl(currentImageUrl || null);
 			} finally {
 				setIsUploading(false);
