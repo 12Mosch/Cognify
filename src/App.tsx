@@ -6,6 +6,7 @@ import {
 	UserButton,
 	useUser,
 } from "@clerk/clerk-react";
+import { Analytics } from "@vercel/analytics/react";
 import { Authenticated, Unauthenticated } from "convex/react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
@@ -180,6 +181,7 @@ export default function App() {
 					},
 				}}
 			/>
+			<Analytics />
 			<Suspense fallback={null}>
 				<SpeedInsights />
 			</Suspense>
