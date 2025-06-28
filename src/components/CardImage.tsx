@@ -87,6 +87,7 @@ export function CardImage({
 			<img
 				alt={alt}
 				className={`${className} ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-200`}
+				crossOrigin="anonymous"
 				onError={handleError}
 				onLoad={handleLoad}
 				src={src}

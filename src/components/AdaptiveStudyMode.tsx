@@ -483,6 +483,7 @@ export default function AdaptiveStudyMode({
 									<img
 										alt="Back side content"
 										className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+										crossOrigin="anonymous"
 										src={currentCard.backImageUrl}
 									/>
 								)}
@@ -490,6 +491,7 @@ export default function AdaptiveStudyMode({
 									<img
 										alt="Front side content"
 										className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+										crossOrigin="anonymous"
 										src={currentCard.frontImageUrl}
 									/>
 								)}

@@ -411,6 +411,74 @@ getCardsForDeck(deckId: Id<"decks">): Promise<Card[]>
 - Failed deletions are handled gracefully without breaking UI
 - Cleanup is fire-and-forget on component unmount to prevent blocking
 
+## Race Condition Prevention
+
+The photo upload system includes several mechanisms to prevent race conditions and ensure data consistency:
+
+### Image Upload State Management
+
+The `PhotoUpload` component tracks upload states and communicates them to parent components to prevent premature form submission:
+
+```typescript
+// PhotoUpload component exposes loading states
+interface PhotoUploadProps {
+  onImageSelect: (imageData: CardImageData | null) => void;
+  onLoadingStateChange?: (isLoading: boolean) => void;
+  // ... other props
+}
+
+// Parent components track image upload states
+const [isFrontImageUploading, setIsFrontImageUploading] = useState(false);
+const [isBackImageUploading, setIsBackImageUploading] = useState(false);
+```
+
+### Form Submission Protection
+
+Card creation forms are protected against race conditions through multiple layers:
+
+1. **Button State Management**: Submit buttons are disabled when images are uploading
+2. **Validation Checks**: Form submission validates that no images are still processing
+3. **Loading Indicators**: Users see clear feedback about image processing status
+
+```typescript
+// Submit button disabled during image processing
+<button
+  disabled={
+    isSubmitting ||
+    isFrontImageUploading ||
+    isBackImageUploading ||
+    !front.trim() ||
+    !back.trim()
+  }
+  type="submit"
+>
+  {isSubmitting
+    ? t("forms.quickAddCard.adding")
+    : isFrontImageUploading || isBackImageUploading
+      ? t("forms.quickAddCard.processingImages", "Processing images...")
+      : t("forms.quickAddCard.add")}
+</button>
+
+// Validation in form submission
+if (isFrontImageUploading || isBackImageUploading) {
+  setError(t("forms.validation.imagesStillUploading", "Please wait for images to finish uploading"));
+  return;
+}
+```
+
+### COEP Compatibility
+
+Images from Convex File Storage include `crossOrigin="anonymous"` to work with the app's Cross-Origin Embedder Policy headers required for AVIF/WebP compression:
+
+```typescript
+<img
+  alt="Card content"
+  className="..."
+  crossOrigin="anonymous"
+  src={imageUrl}
+/>
+```
+
 ## Implementation Details
 
 ### Cleanup Hook Usage

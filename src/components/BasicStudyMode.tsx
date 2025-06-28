@@ -373,6 +373,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 										<img
 											alt="Front side content"
 											className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+											crossOrigin="anonymous"
 											src={currentCard.frontImageUrl}
 										/>
 									)}
@@ -419,6 +420,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 										<img
 											alt="Back side content"
 											className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+											crossOrigin="anonymous"
 											src={currentCard.backImageUrl}
 										/>
 									)}

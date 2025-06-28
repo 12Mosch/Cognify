@@ -24,6 +24,7 @@ interface PhotoUploadProps {
 	label: string;
 	disabled?: boolean;
 	className?: string;
+	onLoadingStateChange?: (isLoading: boolean) => void;
 }
 
 /**
@@ -62,6 +63,7 @@ export function PhotoUpload({
 	label,
 	disabled = false,
 	className = "",
+	onLoadingStateChange,
 }: PhotoUploadProps) {
 	const { t } = useTranslation();
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -82,6 +84,7 @@ export function PhotoUpload({
 			setCompressionStats(null);
 			setIsUploading(true);
 			setIsCompressing(false);
+			onLoadingStateChange?.(true);
 
 			let preview: string | null = null;
 			let compressedPreview: string | null = null;
@@ -128,7 +131,12 @@ export function PhotoUpload({
 							"Image compression failed, using original file:",
 							compressionError,
 						);
-						setCompressionStats("Compression failed, using original file");
+						setCompressionStats(
+							t(
+								"forms.compressionFailed",
+								"Compression failed, using original file",
+							),
+						);
 						// Continue with original file
 					} finally {
 						setIsCompressing(false);
@@ -208,9 +216,16 @@ export function PhotoUpload({
 			} finally {
 				setIsUploading(false);
 				setIsCompressing(false);
+				onLoadingStateChange?.(false);
 			}
 		},
-		[generateUploadUrl, onImageSelect, currentImageUrl],
+		[
+			generateUploadUrl,
+			onImageSelect,
+			currentImageUrl,
+			onLoadingStateChange,
+			t,
+		],
 	);
 
 	const handleFileInputChange = useCallback(

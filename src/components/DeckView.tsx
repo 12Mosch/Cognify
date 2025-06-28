@@ -484,6 +484,8 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [submissionAttempt, setSubmissionAttempt] = useState(0);
+	const [isFrontImageUploading, setIsFrontImageUploading] = useState(false);
+	const [isBackImageUploading, setIsBackImageUploading] = useState(false);
 
 	const frontId = useId();
 	const backId = useId();
@@ -527,6 +529,17 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 
 		// Client-side validation with error tracking
 		const validationErrors: Record<string, string[]> = {};
+
+		// Check if images are still uploading
+		if (isFrontImageUploading || isBackImageUploading) {
+			setError(
+				t(
+					"forms.validation.imagesStillUploading",
+					"Please wait for images to finish uploading",
+				),
+			);
+			return;
+		}
 
 		if (!front.trim()) {
 			validationErrors.front = [t("forms.validation.frontRequired")];
@@ -714,6 +727,7 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 					onImageSelect={(imageData) =>
 						void handleFrontImageSelect(imageData, setFrontImage, frontImage)
 					}
+					onLoadingStateChange={setIsFrontImageUploading}
 				/>
 
 				{/* Back Image Upload */}
@@ -723,6 +737,7 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 					onImageSelect={(imageData) =>
 						void handleBackImageSelect(imageData, setBackImage, backImage)
 					}
+					onLoadingStateChange={setIsBackImageUploading}
 				/>
 
 				{error && (
@@ -734,12 +749,23 @@ function AddCardForm({ deckId, onCancel, onSuccess }: AddCardFormProps) {
 				<div className="flex gap-3 pt-2">
 					<button
 						className="rounded-md border-2 bg-dark px-4 py-2 font-medium text-light text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-light dark:text-dark"
-						disabled={isSubmitting || !front.trim() || !back.trim()}
+						disabled={
+							isSubmitting ||
+							isFrontImageUploading ||
+							isBackImageUploading ||
+							!front.trim() ||
+							!back.trim()
+						}
 						type="submit"
 					>
 						{isSubmitting
 							? t("forms.quickAddCard.adding")
-							: t("forms.quickAddCard.add")}
+							: isFrontImageUploading || isBackImageUploading
+								? t(
+										"forms.quickAddCard.processingImages",
+										"Processing images...",
+									)
+								: t("forms.quickAddCard.add")}
 					</button>
 					<button
 						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
@@ -768,6 +794,8 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [submissionAttempt, setSubmissionAttempt] = useState(0);
+	const [isFrontImageUploading, setIsFrontImageUploading] = useState(false);
+	const [isBackImageUploading, setIsBackImageUploading] = useState(false);
 
 	const frontId = useId();
 	const backId = useId();
@@ -811,6 +839,17 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 
 		// Client-side validation with error tracking
 		const validationErrors: Record<string, string[]> = {};
+
+		// Check if images are still uploading
+		if (isFrontImageUploading || isBackImageUploading) {
+			setError(
+				t(
+					"forms.validation.imagesStillUploading",
+					"Please wait for images to finish uploading",
+				),
+			);
+			return;
+		}
 
 		if (!front.trim()) {
 			validationErrors.front = [t("forms.validation.frontRequired")];
@@ -995,6 +1034,7 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 					onImageSelect={(imageData) =>
 						void handleFrontImageSelect(imageData, setFrontImage, frontImage)
 					}
+					onLoadingStateChange={setIsFrontImageUploading}
 				/>
 
 				{/* Back Image Upload */}
@@ -1005,6 +1045,7 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 					onImageSelect={(imageData) =>
 						void handleBackImageSelect(imageData, setBackImage, backImage)
 					}
+					onLoadingStateChange={setIsBackImageUploading}
 				/>
 
 				{error && (
@@ -1016,12 +1057,23 @@ function EditCardForm({ card, onCancel, onSuccess }: EditCardFormProps) {
 				<div className="flex gap-3 pt-2">
 					<button
 						className="rounded-md border-2 bg-dark px-4 py-2 font-medium text-light text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-light dark:text-dark"
-						disabled={isSubmitting || !front.trim() || !back.trim()}
+						disabled={
+							isSubmitting ||
+							isFrontImageUploading ||
+							isBackImageUploading ||
+							!front.trim() ||
+							!back.trim()
+						}
 						type="submit"
 					>
 						{isSubmitting
 							? t("forms.quickAddCard.updating")
-							: t("deckView.editCard")}
+							: isFrontImageUploading || isBackImageUploading
+								? t(
+										"forms.quickAddCard.processingImages",
+										"Processing images...",
+									)
+								: t("deckView.editCard")}
 					</button>
 					<button
 						className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"

@@ -48,6 +48,8 @@ export function QuickAddCardForm({
 	const [error, setError] = useState<string | null>(null);
 	const [showForm, setShowForm] = useState(false);
 	const [submissionAttempt, setSubmissionAttempt] = useState(0);
+	const [isFrontImageUploading, setIsFrontImageUploading] = useState(false);
+	const [isBackImageUploading, setIsBackImageUploading] = useState(false);
 
 	// Generate unique IDs for form elements
 	const titleId = useId();
@@ -124,6 +126,17 @@ export function QuickAddCardForm({
 
 		// Client-side validation with error tracking
 		const validationErrors: Record<string, string[]> = {};
+
+		// Check if images are still uploading
+		if (isFrontImageUploading || isBackImageUploading) {
+			setError(
+				t(
+					"forms.validation.imagesStillUploading",
+					"Please wait for images to finish uploading",
+				),
+			);
+			return;
+		}
 
 		if (!selectedDeckId) {
 			validationErrors.deckId = [t("forms.validation.selectDeckRequired")];
@@ -465,6 +478,7 @@ export function QuickAddCardForm({
 										frontImage,
 									)
 								}
+								onLoadingStateChange={setIsFrontImageUploading}
 							/>
 
 							{/* Back Image Upload */}
@@ -477,6 +491,7 @@ export function QuickAddCardForm({
 								onImageSelect={(imageData) =>
 									void handleBackImageSelect(imageData, setBackImage, backImage)
 								}
+								onLoadingStateChange={setIsBackImageUploading}
 							/>
 
 							{error && (
@@ -495,6 +510,8 @@ export function QuickAddCardForm({
 									className="rounded-md border-2 bg-dark px-4 py-2 font-medium text-light text-sm transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-light dark:text-dark"
 									disabled={
 										isSubmitting ||
+										isFrontImageUploading ||
+										isBackImageUploading ||
 										!selectedDeckId ||
 										!front.trim() ||
 										!back.trim()
@@ -503,7 +520,12 @@ export function QuickAddCardForm({
 								>
 									{isSubmitting
 										? t("forms.quickAddCard.adding")
-										: t("forms.quickAddCard.add")}
+										: isFrontImageUploading || isBackImageUploading
+											? t(
+													"forms.quickAddCard.processingImages",
+													"Processing images...",
+												)
+											: t("forms.quickAddCard.add")}
 								</button>
 								<button
 									className="rounded-md border-2 border-slate-300 bg-slate-200 px-4 py-2 text-dark text-sm transition-opacity hover:opacity-80 dark:border-slate-600 dark:bg-slate-700 dark:text-light"
