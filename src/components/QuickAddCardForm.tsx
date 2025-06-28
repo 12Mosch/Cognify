@@ -284,7 +284,12 @@ export function QuickAddCardForm({
 
 	async function handleCancel() {
 		// Clean up any uploaded images
-		await cleanupUploadedFiles();
+		try {
+			await cleanupUploadedFiles();
+		} catch (error) {
+			// Log cleanup errors but don't prevent form cancellation
+			console.warn("Failed to cleanup uploaded files:", error);
+		}
 
 		setSelectedDeckId(null);
 		setFront("");
