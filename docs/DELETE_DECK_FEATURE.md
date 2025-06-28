@@ -165,7 +165,7 @@ The `deleteDeck` mutation includes comprehensive image cleanup:
 
 - **Authentication required**: Users must be logged in to delete decks
 - **Authorization enforced**: Users can only delete their own decks
-- **Cascading deletion**: All associated data is properly cleaned up
+- **Cascading deletion**: All associated data is thoroughly cleaned up
 - **Image cleanup**: All associated images are deleted from Convex File Storage to prevent orphaned files
 - **Transaction safety**: All deletions happen in a single transaction
 
