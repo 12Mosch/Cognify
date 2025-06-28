@@ -309,6 +309,37 @@ The compression system includes comprehensive fallback strategies:
 - Network requests can be monitored in browser dev tools
 - Server errors are handled gracefully with user feedback
 
+### Debug Logging Control
+
+The image compression system includes comprehensive debug logging that can be controlled via environment variables:
+
+- **Development Mode**: Debug logging is enabled when `NODE_ENV === 'development'`
+- **Production Mode**: Debug logging is disabled to prevent console clutter
+- **Debug Output Includes**:
+  - Browser format support detection (AVIF, WebP)
+  - Compression format selection logic
+  - Compression results and statistics
+  - Fallback scenarios and error details
+
+**Example Debug Output (Development Only):**
+```
+Image compression debug: {
+  avifSupported: true,
+  requestedFormat: "avif",
+  userAgent: "Chrome/120.0.0.0",
+  webpSupported: true
+}
+
+Image compression result: {
+  originalSize: "5.2MB",
+  compressedSize: "1.1MB",
+  compressionRatio: "21.2%",
+  finalFormat: "avif"
+}
+```
+
+This ensures clean production logs while maintaining debugging capabilities during development.
+
 ## API Reference
 
 ### Mutations
