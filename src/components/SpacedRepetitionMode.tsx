@@ -785,6 +785,7 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 			/>
 
 			{/* Flashcard with 3D Flip Animation - Takes remaining height */}
+			{/* biome-ignore lint/a11y/useSemanticElements: Container needs to hold other buttons, so div with role="button" is appropriate */}
 			<div
 				aria-label={
 					isFlipped ? "Click to show question" : "Click to show answer"
