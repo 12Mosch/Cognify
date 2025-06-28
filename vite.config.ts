@@ -5,6 +5,17 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+	build: {
+		rollupOptions: {
+			external: (id) => {
+				// Externalize problematic worker files from jsquash packages
+				if (id.includes("@jsquash") && id.includes("_mt.js")) {
+					return true;
+				}
+				return false;
+			},
+		},
+	},
 	optimizeDeps: {
 		exclude: ["@jsquash/avif", "@jsquash/webp"],
 	},
@@ -26,5 +37,8 @@ export default defineConfig({
 			"Cross-Origin-Embedder-Policy": "require-corp",
 			"Cross-Origin-Opener-Policy": "same-origin",
 		},
+	},
+	worker: {
+		format: "es",
 	},
 });
