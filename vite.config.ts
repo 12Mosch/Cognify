@@ -5,6 +5,9 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+	optimizeDeps: {
+		exclude: ["@jsquash/avif", "@jsquash/webp"],
+	},
 	plugins: [
 		react({
 			babel: {
@@ -16,6 +19,12 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
+		},
+	},
+	server: {
+		headers: {
+			"Cross-Origin-Embedder-Policy": "require-corp",
+			"Cross-Origin-Opener-Policy": "same-origin",
 		},
 	},
 });

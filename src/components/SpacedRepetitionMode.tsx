@@ -26,6 +26,7 @@ import {
 	isTouchDevice,
 	useFlashcardGestures,
 } from "../lib/gestureUtils";
+import type { Card } from "../types/cards";
 import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
 import { DifficultyIndicator } from "./DifficultyIndicator";
 import GestureTutorial from "./GestureTutorial";
@@ -38,18 +39,6 @@ import { FlashcardSkeleton } from "./skeletons/SkeletonComponents";
 interface SpacedRepetitionModeProps {
 	deckId: Id<"decks">;
 	onExit: () => void;
-}
-
-interface Card {
-	_id: Id<"cards">;
-	_creationTime: number;
-	deckId: Id<"decks">;
-	front: string;
-	back: string;
-	repetition?: number;
-	easeFactor?: number;
-	interval?: number;
-	dueDate?: number;
 }
 
 /**
@@ -796,14 +785,16 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 			/>
 
 			{/* Flashcard with 3D Flip Animation - Takes remaining height */}
-			<button
+			{/* biome-ignore lint/a11y/useSemanticElements: Container needs to hold other buttons, so div with role="button" is appropriate */}
+			<div
 				aria-label={
 					isFlipped ? "Click to show question" : "Click to show answer"
 				}
-				className="flashcard-container flex-1 cursor-pointer border-none bg-transparent p-0"
+				className="flashcard-container flex-1 cursor-pointer"
 				onClick={handleFlipCard}
 				onKeyDown={handleKeyDown}
-				type="button"
+				role="button"
+				tabIndex={0}
 				{...gestureHandlers}
 			>
 				<div className={`flashcard-inner ${isFlipped ? "flipped" : ""}`}>
@@ -828,9 +819,18 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 								className="flex-1 overflow-y-auto px-2 py-4"
 								style={{ minHeight: 0 }}
 							>
-								<p className="break-words text-center text-2xl text-slate-900 leading-relaxed dark:text-slate-100">
-									{currentCard.front}
-								</p>
+								<div className="space-y-4">
+									{currentCard.frontImageUrl && (
+										<img
+											alt="Front side content"
+											className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+											src={currentCard.frontImageUrl}
+										/>
+									)}
+									<p className="break-words text-center text-2xl text-slate-900 leading-relaxed dark:text-slate-100">
+										{currentCard.front}
+									</p>
+								</div>
 							</div>
 						</div>
 						{/* Fixed bottom section for controls */}
@@ -877,9 +877,18 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 								className="flex-1 overflow-y-auto px-2 py-2"
 								style={{ minHeight: 0 }}
 							>
-								<p className="break-words text-center text-2xl text-slate-900 leading-relaxed dark:text-slate-100">
-									{currentCard.back}
-								</p>
+								<div className="space-y-4">
+									{currentCard.backImageUrl && (
+										<img
+											alt="Back side content"
+											className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+											src={currentCard.backImageUrl}
+										/>
+									)}
+									<p className="break-words text-center text-2xl text-slate-900 leading-relaxed dark:text-slate-100">
+										{currentCard.back}
+									</p>
+								</div>
 							</div>
 						</div>
 						{/* Fixed bottom section for controls */}
@@ -965,13 +974,16 @@ function SpacedRepetitionMode({ deckId, onExit }: SpacedRepetitionModeProps) {
 						</div>
 					</div>
 				</div>
-			</button>
+			</div>
 
 			{/* Keyboard Shortcuts Modal */}
 			<KeyboardShortcutsModal
 				isOpen={showKeyboardHelp}
 				onClose={() => setShowKeyboardHelp(false)}
-				shortcuts={getKeyboardShortcuts("spaced-repetition", t)}
+				shortcuts={getKeyboardShortcuts(
+					"spaced-repetition",
+					t as (key: string) => string,
+				)}
 				studyMode="spaced-repetition"
 			/>
 

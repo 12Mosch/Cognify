@@ -12,6 +12,9 @@ import {
 } from "../lib/heatmapUtils";
 import { HeatmapSkeleton } from "./skeletons/SkeletonComponents";
 
+// Day names array - moved outside component to avoid recreation on every render
+const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 /**
  * Study History Heatmap Component
  *
@@ -131,16 +134,22 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 					<div className="flex">
 						{/* Day Labels */}
 						<div className="mr-2 flex flex-col">
-							{dayLabels.map((label, dayIndex) => (
-								<div
-									className="mb-1 flex h-3 items-center text-slate-500 text-xs dark:text-slate-400"
-									key={label}
-								>
-									{dayIndex % 2 === 1 && (
-										<span className="w-3 text-center">{label}</span>
-									)}
-								</div>
-							))}
+							{dayLabels.map((label, dayIndex) => {
+								// Create unique keys for day labels to avoid React warnings
+								// Since we have duplicate letters (T for Tue/Thu, S for Sun/Sat)
+								const uniqueKey = `day-${dayNames[dayIndex]}`;
+
+								return (
+									<div
+										className="mb-1 flex h-3 items-center text-slate-500 text-xs dark:text-slate-400"
+										key={uniqueKey}
+									>
+										{dayIndex % 2 === 1 && (
+											<span className="w-3 text-center">{label}</span>
+										)}
+									</div>
+								);
+							})}
 						</div>
 
 						{/* Heatmap Squares */}

@@ -1,5 +1,7 @@
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
+import { addImageUrlsToCards } from "./utils/imageUrlCache";
 
 /**
  * Get all cards for a specific deck.
@@ -29,21 +31,28 @@ export const getCardsForDeck = query({
 		}
 
 		// Query all cards for this deck using the index
-		return await ctx.db
+		const cards = await ctx.db
 			.query("cards")
 			.withIndex("by_deckId", (q) => q.eq("deckId", args.deckId))
 			.order("desc") // Most recently created first
 			.collect();
+
+		// Add image URLs to each card using optimized caching
+		return await addImageUrlsToCards(ctx, cards);
 	},
 	returns: v.array(
 		v.object({
 			_creationTime: v.number(),
 			_id: v.id("cards"),
 			back: v.string(),
+			backImageId: v.optional(v.id("_storage")),
+			backImageUrl: v.union(v.string(), v.null()),
 			deckId: v.id("decks"),
 			dueDate: v.optional(v.number()),
 			easeFactor: v.optional(v.number()),
 			front: v.string(),
+			frontImageId: v.optional(v.id("_storage")),
+			frontImageUrl: v.union(v.string(), v.null()),
 			interval: v.optional(v.number()),
 			// Spaced repetition fields
 			repetition: v.optional(v.number()),
@@ -59,8 +68,10 @@ export const getCardsForDeck = query({
 export const addCardToDeck = mutation({
 	args: {
 		back: v.string(),
+		backImageId: v.optional(v.id("_storage")),
 		deckId: v.id("decks"),
 		front: v.string(),
+		frontImageId: v.optional(v.id("_storage")),
 	},
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
@@ -101,14 +112,16 @@ export const addCardToDeck = mutation({
 		// Insert the new card into the database with initialized spaced repetition fields
 		const cardId = await ctx.db.insert("cards", {
 			back: args.back.trim(),
-			deckId: args.deckId, // Denormalize userId for efficient filtering
-			dueDate: Date.now(),
-			easeFactor: 2.5,
-			front: args.front.trim(), // New card, never reviewed
-			interval: 1, // Default ease factor
+			backImageId: args.backImageId,
+			deckId: args.deckId, // Reference to the deck this card belongs to
+			dueDate: Date.now(), // Available for study immediately
+			easeFactor: 2.5, // Default ease factor
+			front: args.front.trim(), // Front side of the card (question/prompt)
+			frontImageId: args.frontImageId,
+			interval: 1, // Default interval (1 day)
 			// Initialize spaced repetition fields for optimal query performance
-			repetition: 0, // Default interval (1 day)
-			userId: identity.subject, // Available for study immediately
+			repetition: 0, // New card, never reviewed
+			userId: identity.subject, // Denormalize userId for efficient filtering
 		});
 
 		// Increment the deck's card count for performance optimization
@@ -128,8 +141,10 @@ export const addCardToDeck = mutation({
 export const updateCard = mutation({
 	args: {
 		back: v.optional(v.string()),
+		backImageId: v.optional(v.id("_storage")),
 		cardId: v.id("cards"),
 		front: v.optional(v.string()),
+		frontImageId: v.optional(v.id("_storage")),
 	},
 	handler: async (ctx, args) => {
 		// Get the current authenticated user
@@ -164,7 +179,12 @@ export const updateCard = mutation({
 		}
 
 		// Prepare update object
-		const updates: { front?: string; back?: string } = {};
+		const updates: {
+			front?: string;
+			back?: string;
+			frontImageId?: Id<"_storage"> | undefined;
+			backImageId?: Id<"_storage"> | undefined;
+		} = {};
 
 		if (args.front !== undefined) {
 			if (!args.front.trim()) {
@@ -184,6 +204,15 @@ export const updateCard = mutation({
 				throw new Error("Card back content cannot exceed 1000 characters");
 			}
 			updates.back = args.back.trim();
+		}
+
+		// Handle image updates (allow setting to undefined to remove images)
+		if (args.frontImageId !== undefined) {
+			updates.frontImageId = args.frontImageId;
+		}
+
+		if (args.backImageId !== undefined) {
+			updates.backImageId = args.backImageId;
 		}
 
 		// Only update if there are changes
@@ -247,4 +276,96 @@ export const deleteCard = mutation({
 		return null;
 	},
 	returns: v.null(),
+});
+
+/**
+ * Generate an upload URL for card images.
+ * Only authenticated users can generate upload URLs.
+ */
+export const generateUploadUrl = mutation({
+	args: {},
+	handler: async (ctx) => {
+		// Get the current authenticated user
+		const identity = await ctx.auth.getUserIdentity();
+
+		if (!identity) {
+			throw new Error("User must be authenticated to upload files");
+		}
+
+		// Generate and return the upload URL
+		return await ctx.storage.generateUploadUrl();
+	},
+	returns: v.string(),
+});
+
+/**
+ * Delete a file from storage.
+ * Only authenticated users can delete files they uploaded.
+ * This is used for cleaning up orphaned files when card creation is cancelled.
+ */
+export const deleteFile = mutation({
+	args: {
+		storageId: v.id("_storage"),
+	},
+	handler: async (ctx, args) => {
+		// Get the current authenticated user
+		const identity = await ctx.auth.getUserIdentity();
+
+		if (!identity) {
+			throw new Error("User must be authenticated to delete files");
+		}
+
+		try {
+			// Delete the file from storage
+			await ctx.storage.delete(args.storageId);
+			return { success: true };
+		} catch (error) {
+			// File might not exist or user might not have permission
+			// Log the error but don't throw to avoid breaking the UI
+			console.warn(`Failed to delete file ${args.storageId}:`, error);
+			return { error: "Failed to delete file", success: false };
+		}
+	},
+	returns: v.object({
+		error: v.optional(v.string()),
+		success: v.boolean(),
+	}),
+});
+
+/**
+ * Get URLs for card images.
+ * Returns URLs for both front and back images if they exist.
+ */
+export const getCardImageUrls = query({
+	args: {
+		cardId: v.id("cards"),
+	},
+	handler: async (ctx, args) => {
+		// Get the current authenticated user
+		const identity = await ctx.auth.getUserIdentity();
+
+		if (!identity) {
+			throw new Error("User must be authenticated to access card images");
+		}
+
+		// Get the card
+		const card = await ctx.db.get(args.cardId);
+
+		if (!card) {
+			throw new Error("Card not found");
+		}
+
+		// Verify that the user owns the card
+		if (card.userId !== identity.subject) {
+			throw new Error("You can only access images from your own cards");
+		}
+
+		// Use the optimized image URL fetching utility
+		const [cardWithUrls] = await addImageUrlsToCards(ctx, [card]);
+
+		return {
+			backImageUrl: cardWithUrls.backImageUrl,
+			frontImageUrl: cardWithUrls.frontImageUrl,
+		};
+	},
 });

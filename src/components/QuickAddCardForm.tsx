@@ -10,12 +10,15 @@ import {
 	useFocusManagement,
 	useModalEffects,
 } from "../hooks/useFocusManagement";
+import { useCardImageCleanup } from "../hooks/useImageUploadCleanup";
 import { useAnalytics } from "../lib/analytics";
 import {
 	useErrorMonitoring,
 	withFormErrorMonitoring,
 } from "../lib/errorMonitoring";
 import { showErrorToast } from "../lib/toast";
+import type { CardImageData } from "../types/cards";
+import { PhotoUpload } from "./PhotoUpload";
 
 interface QuickAddCardFormProps {
 	onSuccess?: () => void;
@@ -25,7 +28,9 @@ interface QuickAddCardFormProps {
 interface QuickAddCardFormData extends Record<string, unknown> {
 	front: string;
 	back: string;
-	selectedDeckId: Id<"decks">;
+	selectedDeckId: Id<"decks"> | null;
+	frontImageId?: Id<"_storage">;
+	backImageId?: Id<"_storage">;
 }
 
 export function QuickAddCardForm({
@@ -37,6 +42,8 @@ export function QuickAddCardForm({
 	);
 	const [front, setFront] = useState("");
 	const [back, setBack] = useState("");
+	const [frontImage, setFrontImage] = useState<CardImageData | null>(null);
+	const [backImage, setBackImage] = useState<CardImageData | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [showForm, setShowForm] = useState(false);
@@ -67,7 +74,24 @@ export function QuickAddCardForm({
 	// Focus management hooks
 	const { storeTriggerElement, restoreFocus } = useFocusManagement(showForm);
 	const firstSelectRef = useRef<HTMLSelectElement>(null);
+
+	// Image upload cleanup hook
+	const {
+		handleFrontImageSelect,
+		handleBackImageSelect,
+		markCardCreated,
+		cleanupUploadedFiles,
+		resetCleanupState,
+	} = useCardImageCleanup();
+
 	useModalEffects(showForm, handleCancel);
+
+	// Reset cleanup state when form opens
+	useEffect(() => {
+		if (showForm) {
+			resetCleanupState();
+		}
+	}, [showForm, resetCleanupState]);
 
 	// Track query errors if they occur
 	useEffect(() => {
@@ -141,8 +165,10 @@ export function QuickAddCardForm({
 			formErrorMonitor.trackValidationErrors(validationErrors, {
 				attemptNumber: currentAttempt,
 				formData: {
-					backLength: back.length,
-					frontLength: front.length,
+					back,
+					backImageId: backImage?.storageId,
+					front,
+					frontImageId: frontImage?.storageId,
 					selectedDeckId,
 				},
 				userId: user?.id,
@@ -162,8 +188,10 @@ export function QuickAddCardForm({
 						try {
 							return await addCard({
 								back: formData.back.trim(),
+								backImageId: formData.backImageId,
 								deckId: formData.selectedDeckId as Id<"decks">,
 								front: formData.front.trim(),
+								frontImageId: formData.frontImageId,
 							});
 						} catch (error) {
 							// Track Convex mutation errors
@@ -179,12 +207,21 @@ export function QuickAddCardForm({
 							throw error;
 						}
 					},
-					{ back, front, selectedDeckId: selectedDeckId as Id<"decks"> },
+					{
+						back,
+						backImageId: backImage?.storageId,
+						front,
+						frontImageId: frontImage?.storageId,
+						selectedDeckId: selectedDeckId as Id<"decks">,
+					},
 					{
 						submissionAttempt: currentAttempt,
 						userId: user?.id,
 					},
 				);
+
+				// Mark card creation as successful to prevent cleanup
+				markCardCreated();
 
 				// Track card creation event
 				const selectedDeck = decks?.find((deck) => deck._id === selectedDeckId);
@@ -194,6 +231,8 @@ export function QuickAddCardForm({
 				setSelectedDeckId(null);
 				setFront("");
 				setBack("");
+				setFrontImage(null);
+				setBackImage(null);
 				setError(null);
 				setSubmissionAttempt(0);
 				shouldCloseForms = true;
@@ -243,10 +282,20 @@ export function QuickAddCardForm({
 		void submitCard();
 	};
 
-	function handleCancel() {
+	async function handleCancel() {
+		// Clean up any uploaded images
+		try {
+			await cleanupUploadedFiles();
+		} catch (error) {
+			// Log cleanup errors but don't prevent form cancellation
+			console.warn("Failed to cleanup uploaded files:", error);
+		}
+
 		setSelectedDeckId(null);
 		setFront("");
 		setBack("");
+		setFrontImage(null);
+		setBackImage(null);
 		setError(null);
 		setShowForm(false);
 		restoreFocus();
@@ -306,7 +355,16 @@ export function QuickAddCardForm({
 							{t("forms.quickAddCard.title")}
 						</h3>
 
-						<form className="space-y-4" onSubmit={handleSubmit}>
+						<form
+							className="space-y-4"
+							onKeyDown={(e) => {
+								if (e.key === "Escape") {
+									e.preventDefault();
+									void handleCancel();
+								}
+							}}
+							onSubmit={handleSubmit}
+						>
 							{/* Deck Selection */}
 							<div>
 								<label
@@ -392,6 +450,34 @@ export function QuickAddCardForm({
 									})}
 								</div>
 							</div>
+
+							{/* Front Image Upload */}
+							<PhotoUpload
+								disabled={isSubmitting}
+								label={t(
+									"forms.quickAddCard.frontImage",
+									"Front Image (Optional)",
+								)}
+								onImageSelect={(imageData) =>
+									void handleFrontImageSelect(
+										imageData,
+										setFrontImage,
+										frontImage,
+									)
+								}
+							/>
+
+							{/* Back Image Upload */}
+							<PhotoUpload
+								disabled={isSubmitting}
+								label={t(
+									"forms.quickAddCard.backImage",
+									"Back Image (Optional)",
+								)}
+								onImageSelect={(imageData) =>
+									void handleBackImageSelect(imageData, setBackImage, backImage)
+								}
+							/>
 
 							{error && (
 								<div

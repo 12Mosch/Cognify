@@ -10,7 +10,11 @@ import {
 	isTouchDevice,
 	useFlashcardGestures,
 } from "../lib/gestureUtils";
-import { getKeyboardShortcuts, isShortcutKey } from "../types/keyboard";
+import {
+	getKeyboardShortcuts,
+	isShortcutKey,
+	type TranslationFunction,
+} from "../types/keyboard";
 import { DifficultyIndicator } from "./DifficultyIndicator";
 import GestureTutorial from "./GestureTutorial";
 import HelpIcon from "./HelpIcon";
@@ -364,9 +368,18 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 								className="flex-1 overflow-y-auto px-2 py-4"
 								style={{ minHeight: 0 }}
 							>
-								<p className="break-words text-center text-slate-900 text-xl dark:text-slate-100">
-									{currentCard.front}
-								</p>
+								<div className="space-y-4">
+									{currentCard.frontImageUrl && (
+										<img
+											alt="Front side content"
+											className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+											src={currentCard.frontImageUrl}
+										/>
+									)}
+									<p className="break-words text-center text-slate-900 text-xl dark:text-slate-100">
+										{currentCard.front}
+									</p>
+								</div>
 							</div>
 						</div>
 						{/* Fixed bottom section for controls */}
@@ -401,9 +414,18 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 								className="flex-1 overflow-y-auto px-2 py-4"
 								style={{ minHeight: 0 }}
 							>
-								<p className="break-words text-center text-slate-900 text-xl dark:text-slate-100">
-									{currentCard.back}
-								</p>
+								<div className="space-y-4">
+									{currentCard.backImageUrl && (
+										<img
+											alt="Back side content"
+											className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+											src={currentCard.backImageUrl}
+										/>
+									)}
+									<p className="break-words text-center text-slate-900 text-xl dark:text-slate-100">
+										{currentCard.back}
+									</p>
+								</div>
 							</div>
 						</div>
 						{/* Fixed bottom section for controls */}
@@ -466,7 +488,7 @@ function BasicStudyMode({ deckId, onExit }: BasicStudyModeProps) {
 			<KeyboardShortcutsModal
 				isOpen={showKeyboardHelp}
 				onClose={() => setShowKeyboardHelp(false)}
-				shortcuts={getKeyboardShortcuts("basic", t)}
+				shortcuts={getKeyboardShortcuts("basic", t as TranslationFunction)}
 				studyMode="basic"
 			/>
 
