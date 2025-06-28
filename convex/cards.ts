@@ -360,41 +360,12 @@ export const getCardImageUrls = query({
 			throw new Error("You can only access images from your own cards");
 		}
 
-		// Generate URLs for images if they exist using optimized concurrent fetching
-		const imagePromises: Promise<string | null>[] = [];
-		const imageTypes: ("front" | "back")[] = [];
-
-		if (card.frontImageId) {
-			imagePromises.push(ctx.storage.getUrl(card.frontImageId));
-			imageTypes.push("front");
-		}
-		if (card.backImageId) {
-			imagePromises.push(ctx.storage.getUrl(card.backImageId));
-			imageTypes.push("back");
-		}
-
-		// Fetch all URLs concurrently
-		const imageUrls = await Promise.all(imagePromises);
-
-		// Map results back to the correct image types
-		let frontImageUrl: string | null = null;
-		let backImageUrl: string | null = null;
-
-		for (let i = 0; i < imageTypes.length; i++) {
-			if (imageTypes[i] === "front") {
-				frontImageUrl = imageUrls[i];
-			} else if (imageTypes[i] === "back") {
-				backImageUrl = imageUrls[i];
-			}
-		}
+		// Use the optimized image URL fetching utility
+		const [cardWithUrls] = await addImageUrlsToCards(ctx, [card]);
 
 		return {
-			backImageUrl,
-			frontImageUrl,
+			backImageUrl: cardWithUrls.backImageUrl,
+			frontImageUrl: cardWithUrls.frontImageUrl,
 		};
 	},
-	returns: v.object({
-		backImageUrl: v.union(v.string(), v.null()),
-		frontImageUrl: v.union(v.string(), v.null()),
-	}),
 });
