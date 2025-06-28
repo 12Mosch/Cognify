@@ -265,6 +265,29 @@ export const deleteCard = mutation({
 			throw new Error("You can only delete cards from your own decks");
 		}
 
+		// Delete associated images from storage before deleting the card
+		const imagesToDelete: Id<"_storage">[] = [];
+		if (existingCard.frontImageId) {
+			imagesToDelete.push(existingCard.frontImageId);
+		}
+		if (existingCard.backImageId) {
+			imagesToDelete.push(existingCard.backImageId);
+		}
+
+		// Delete images from storage (if any exist)
+		for (const imageId of imagesToDelete) {
+			try {
+				await ctx.storage.delete(imageId);
+			} catch (error) {
+				// Log the error but don't fail the card deletion
+				// The image might already be deleted or not exist
+				console.warn(
+					`Failed to delete image ${imageId} for card ${args.cardId}:`,
+					error,
+				);
+			}
+		}
+
 		// Delete the card
 		await ctx.db.delete(args.cardId);
 
