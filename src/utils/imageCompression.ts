@@ -7,7 +7,8 @@ const DEBUG = process.env.NODE_ENV === "development";
 /**
  * Supported compression formats
  */
-export type CompressionFormat = "avif" | "webp" | "jpeg" | "png";
+const COMPRESSION_FORMATS = ["avif", "webp", "jpeg", "png"] as const;
+export type CompressionFormat = typeof COMPRESSION_FORMATS[number];
 
 /**
  * Compression options
