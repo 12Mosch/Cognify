@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
 /**
@@ -169,7 +170,7 @@ export const deleteDeck = mutation({
 			.collect();
 
 		// Delete all images associated with cards in this deck
-		const imagesToDelete: string[] = [];
+		const imagesToDelete: Id<"_storage">[] = [];
 		for (const card of cards) {
 			if (card.frontImageId) {
 				imagesToDelete.push(card.frontImageId);
@@ -179,18 +180,25 @@ export const deleteDeck = mutation({
 			}
 		}
 
-		// Delete images from storage (if any exist)
-		for (const imageId of imagesToDelete) {
-			try {
-				await ctx.storage.delete(imageId);
-			} catch (error) {
-				// Log the error but don't fail the deck deletion
-				// The image might already be deleted or not exist
-				console.warn(
-					`Failed to delete image ${imageId} for deck ${args.deckId}:`,
-					error,
-				);
-			}
+		// Delete images from storage in parallel (if any exist)
+		if (imagesToDelete.length > 0) {
+			const deletionPromises = imagesToDelete.map(async (imageId) => {
+				try {
+					await ctx.storage.delete(imageId);
+					return { imageId, success: true };
+				} catch (error) {
+					// Log the error but don't fail the deck deletion
+					// The image might already be deleted or not exist
+					console.warn(
+						`Failed to delete image ${imageId} for deck ${args.deckId}:`,
+						error,
+					);
+					return { error, imageId, success: false };
+				}
+			});
+
+			// Wait for all deletion attempts to complete
+			await Promise.allSettled(deletionPromises);
 		}
 
 		// Delete all cards in the deck
