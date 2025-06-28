@@ -7,7 +7,7 @@ import {
 	useUser,
 } from "@clerk/clerk-react";
 import { Authenticated, Unauthenticated } from "convex/react";
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Dashboard } from "./components/Dashboard";
@@ -26,6 +26,11 @@ export default function App() {
 	const { trackUserSignUp } = useAnalytics();
 	const { identifyUser } = useAnalyticsEnhanced();
 	const dashboardRef = useRef<{ goHome: () => void }>(null);
+	const SpeedInsights = /* webpackChunkName: "speed-insights" */ lazy(() =>
+		import("@vercel/speed-insights/react").then((m) => ({
+			default: m.SpeedInsights,
+		})),
+	);
 
 	// State for Settings modal
 	const [showSettings, setShowSettings] = useState(false);
@@ -175,6 +180,9 @@ export default function App() {
 					},
 				}}
 			/>
+			<Suspense fallback={null}>
+				<SpeedInsights />
+			</Suspense>
 		</>
 	);
 }
