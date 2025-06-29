@@ -242,10 +242,11 @@
 			"conceptGroup": "Concept Group {{number}}"
 		},
 		"descriptions": {
-			"difficultyProgression": "Start with easier concepts and gradually increase difficulty",
-			"prerequisiteOrder": "Learn foundational concepts before advanced ones",
+			"difficultyProgression": "Start with easier concepts and gradually increase difficulty using content analysis",
+			"domainFocused": "Focus on cards from a specific subject area for specialized learning",
+			"prerequisiteOrder": "Learn foundational concepts before advanced ones using semantic analysis",
 			"relatedConcepts": "Related concepts",
-			"reviewFocused": "Focus on cards you find most challenging"
+			"reviewFocused": "Focus on cards you find most challenging using learning pattern analysis"
 		},
 		"errors": {
 			"cardNotFound": "Card not found",
@@ -258,6 +259,7 @@
 		},
 		"pathTypes": {
 			"difficultyProgression": "difficulty_progression",
+			"domainFocused": "domain_focused",
 			"prerequisiteOrder": "prerequisite_order",
 			"reviewFocused": "review_focused"
 		},
@@ -511,11 +513,20 @@
 	},
 	"relationships": {
 		"reasons": {
+			"buildsOnConcept": "Builds on this concept",
+			"complementaryConcepts": "Complementary concepts",
+			"conceptualOverlap": "Conceptual overlap detected",
+			"contextualRelationship": "Contextually related content",
+			"contrastingViewpoints": "Contrasting viewpoints",
 			"fewCommonTerms": "Few common terms",
 			"insufficientContent": "Insufficient content",
+			"keywordAlignment": "Aligned keywords",
 			"noCommonTerms": "No common terms",
 			"noMeaningfulContent": "No meaningful content",
+			"prerequisiteDependency": "Prerequisite dependency",
 			"relatedConcepts": "Related concepts",
+			"semanticSimilarity": "Semantic similarity",
+			"sharedDomainTerminology": "Shared domain terminology",
 			"verySimilarContent": "Very similar content"
 		}
 	},

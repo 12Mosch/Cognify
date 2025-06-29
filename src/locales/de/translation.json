@@ -242,10 +242,11 @@
 			"conceptGroup": "Konzeptgruppe {{number}}"
 		},
 		"descriptions": {
-			"difficultyProgression": "Beginnen Sie mit einfacheren Konzepten und steigern Sie allmählich die Schwierigkeit",
-			"prerequisiteOrder": "Lernen Sie grundlegende Konzepte vor fortgeschrittenen",
+			"difficultyProgression": "Beginnen Sie mit einfacheren Konzepten und steigern Sie allmählich die Schwierigkeit mit Inhaltsanalyse",
+			"domainFocused": "Konzentrieren Sie sich auf Karten aus einem bestimmten Fachbereich für spezialisiertes Lernen",
+			"prerequisiteOrder": "Lernen Sie grundlegende Konzepte vor fortgeschrittenen mit semantischer Analyse",
 			"relatedConcepts": "Verwandte Konzepte",
-			"reviewFocused": "Konzentrieren Sie sich auf Karten, die Sie am schwierigsten finden"
+			"reviewFocused": "Konzentrieren Sie sich auf Karten, die Sie am schwierigsten finden mit Lernmusteranalyse"
 		},
 		"errors": {
 			"cardNotFound": "Karte nicht gefunden",
@@ -258,6 +259,7 @@
 		},
 		"pathTypes": {
 			"difficultyProgression": "difficulty_progression",
+			"domainFocused": "domain_focused",
 			"prerequisiteOrder": "prerequisite_order",
 			"reviewFocused": "review_focused"
 		},
@@ -511,11 +513,20 @@
 	},
 	"relationships": {
 		"reasons": {
+			"buildsOnConcept": "Baut auf diesem Konzept auf",
+			"complementaryConcepts": "Ergänzende Konzepte",
+			"conceptualOverlap": "Konzeptuelle Überschneidung erkannt",
+			"contextualRelationship": "Kontextuell verwandter Inhalt",
+			"contrastingViewpoints": "Kontrastierende Standpunkte",
 			"fewCommonTerms": "Wenige gemeinsame Begriffe",
 			"insufficientContent": "Unzureichender Inhalt",
+			"keywordAlignment": "Übereinstimmende Schlüsselwörter",
 			"noCommonTerms": "Keine gemeinsamen Begriffe",
 			"noMeaningfulContent": "Kein sinnvoller Inhalt",
+			"prerequisiteDependency": "Voraussetzungsabhängigkeit",
 			"relatedConcepts": "Verwandte Konzepte",
+			"semanticSimilarity": "Semantische Ähnlichkeit",
+			"sharedDomainTerminology": "Gemeinsame Fachterminologie",
 			"verySimilarContent": "Sehr ähnlicher Inhalt"
 		}
 	},

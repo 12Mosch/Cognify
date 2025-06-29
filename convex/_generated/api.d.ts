@@ -30,6 +30,7 @@ import type * as streaks from "../streaks.js";
 import type * as studySessions from "../studySessions.js";
 import type * as utils_cache from "../utils/cache.js";
 import type * as utils_imageUrlCache from "../utils/imageUrlCache.js";
+import type * as utils_textAnalysis from "../utils/textAnalysis.js";
 import type * as utils_translations from "../utils/translations.js";
 
 /**
@@ -58,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   studySessions: typeof studySessions;
   "utils/cache": typeof utils_cache;
   "utils/imageUrlCache": typeof utils_imageUrlCache;
+  "utils/textAnalysis": typeof utils_textAnalysis;
   "utils/translations": typeof utils_translations;
 }>;
 export declare const api: FilterApi<
