@@ -14,15 +14,19 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as adaptiveLearning from "../adaptiveLearning.js";
+import type * as adaptiveLearningIntegration from "../adaptiveLearningIntegration.js";
 import type * as cacheCleanup from "../cacheCleanup.js";
 import type * as cards from "../cards.js";
 import type * as contextualLearning from "../contextualLearning.js";
 import type * as decks from "../decks.js";
 import type * as gamification from "../gamification.js";
+import type * as masteryTracking from "../masteryTracking.js";
 import type * as metacognition from "../metacognition.js";
 import type * as migrations_addCardCountToDecks from "../migrations/addCardCountToDecks.js";
 import type * as migrations_addUserIdToCards from "../migrations/addUserIdToCards.js";
 import type * as migrations_migrateStudySessionsDateField from "../migrations/migrateStudySessionsDateField.js";
+import type * as performanceOptimization from "../performanceOptimization.js";
+import type * as realTimeAdaptiveLearning from "../realTimeAdaptiveLearning.js";
 import type * as smartScheduling from "../smartScheduling.js";
 import type * as spacedRepetition from "../spacedRepetition.js";
 import type * as statistics from "../statistics.js";
@@ -43,15 +47,19 @@ import type * as utils_translations from "../utils/translations.js";
  */
 declare const fullApi: ApiFromModules<{
   adaptiveLearning: typeof adaptiveLearning;
+  adaptiveLearningIntegration: typeof adaptiveLearningIntegration;
   cacheCleanup: typeof cacheCleanup;
   cards: typeof cards;
   contextualLearning: typeof contextualLearning;
   decks: typeof decks;
   gamification: typeof gamification;
+  masteryTracking: typeof masteryTracking;
   metacognition: typeof metacognition;
   "migrations/addCardCountToDecks": typeof migrations_addCardCountToDecks;
   "migrations/addUserIdToCards": typeof migrations_addUserIdToCards;
   "migrations/migrateStudySessionsDateField": typeof migrations_migrateStudySessionsDateField;
+  performanceOptimization: typeof performanceOptimization;
+  realTimeAdaptiveLearning: typeof realTimeAdaptiveLearning;
   smartScheduling: typeof smartScheduling;
   spacedRepetition: typeof spacedRepetition;
   statistics: typeof statistics;

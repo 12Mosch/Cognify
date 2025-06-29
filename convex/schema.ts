@@ -17,6 +17,32 @@ export default defineSchema({
 		.index("by_cacheKey_and_timestamp", ["cacheKey", "timestamp"]) // Index for key-specific metrics
 		.index("by_userId_and_timestamp", ["userId", "timestamp"]), // Index for efficient user deck queries
 
+	// Card Interactions table - tracks real-time card interactions for adaptive learning
+	cardInteractions: defineTable({
+		cardId: v.id("cards"), // Reference to the interacted card
+		confidenceLevel: v.optional(v.number()), // User's confidence level (1-5)
+		deckId: v.id("decks"), // Reference to the deck (for efficient queries)
+		difficultyRating: v.optional(v.number()), // User's perceived difficulty (1-5)
+		interactionType: v.union(
+			v.literal("flip"),
+			v.literal("answer"),
+			v.literal("difficulty_rating"),
+			v.literal("confidence_rating"),
+		), // Type of interaction
+		processed: v.boolean(), // Whether this interaction has been processed for pattern updates
+		quality: v.optional(v.number()), // Quality rating (0-5 scale) for answers
+		responseTime: v.optional(v.number()), // Time taken for interaction in milliseconds
+		sessionId: v.optional(v.string()), // Session identifier for grouping
+		timestamp: v.number(), // Unix timestamp when interaction occurred
+		userId: v.string(), // ID of the user who performed the interaction
+		wasSuccessful: v.optional(v.boolean()), // Whether the interaction was successful
+	})
+		.index("by_userId_and_timestamp", ["userId", "timestamp"]) // Index for user interaction history
+		.index("by_cardId_and_timestamp", ["cardId", "timestamp"]) // Index for card-specific interactions
+		.index("by_sessionId", ["sessionId"]) // Index for session-based queries
+		.index("by_processed", ["processed"]) // Index for batch processing unprocessed interactions
+		.index("by_userId_and_processed", ["userId", "processed"]), // Index for user-specific processing
+
 	// Card Reviews table - tracks individual review outcomes for retention rate calculation
 	cardReviews: defineTable({
 		cardId: v.id("cards"), // ID of the user who performed the review
@@ -79,6 +105,69 @@ export default defineSchema({
 		.index("by_userId_and_dueDate", ["userId", "dueDate"]) // Compound index for user's due cards
 		.index("by_userId_and_repetition", ["userId", "repetition"]),
 
+	// Concept Masteries table - tracks granular mastery levels for individual concepts
+	conceptMasteries: defineTable({
+		averageMastery: v.number(), // Average mastery across all concepts
+		concepts: v.array(
+			v.object({
+				averageResponseTime: v.number(),
+				conceptId: v.string(),
+				conceptKeywords: v.array(v.string()),
+				confidenceLevel: v.number(),
+				difficultyTrend: v.union(
+					v.literal("improving"),
+					v.literal("stable"),
+					v.literal("declining"),
+				),
+				lastReviewed: v.number(),
+				learningVelocity: v.number(),
+				masteryCategory: v.union(
+					v.literal("beginner"),
+					v.literal("intermediate"),
+					v.literal("advanced"),
+					v.literal("expert"),
+				),
+				masteryLevel: v.number(),
+				relatedConcepts: v.array(
+					v.object({
+						conceptId: v.string(),
+						mutualReinforcementScore: v.number(),
+						relationshipStrength: v.number(),
+						relationshipType: v.union(
+							v.literal("prerequisite"),
+							v.literal("related"),
+							v.literal("advanced"),
+						),
+					}),
+				),
+				retentionStrength: v.number(),
+				reviewCount: v.number(),
+				strugglingAreas: v.array(
+					v.object({
+						firstDetected: v.number(),
+						issueType: v.union(
+							v.literal("inconsistent"),
+							v.literal("plateau"),
+							v.literal("declining"),
+							v.literal("slow_response"),
+						),
+						lastOccurrence: v.number(),
+						recommendedAction: v.string(),
+						severity: v.number(),
+					}),
+				),
+				successRate: v.number(),
+			}),
+		),
+		deckId: v.optional(v.id("decks")), // Optional deck filter
+		lastCalculated: v.number(), // Unix timestamp of last calculation
+		totalConcepts: v.number(), // Total number of concepts tracked
+		userId: v.string(), // ID of the user
+	})
+		.index("by_userId", ["userId"]) // Index for user-specific mastery queries
+		.index("by_deckId", ["deckId"]) // Index for deck-specific mastery
+		.index("by_lastCalculated", ["lastCalculated"]), // Index for finding stale data
+
 	// Confidence Calibrations table - tracks accuracy of confidence predictions
 	confidenceCalibrations: defineTable({
 		actualPerformance: v.number(), // ID of the user
@@ -98,6 +187,142 @@ export default defineSchema({
 		name: v.string(), // Description of the deck
 		userId: v.string(), // Number of cards in this deck (for performance optimization)
 	}).index("by_userId", ["userId"]), // Composite index for filtered retention rate queries
+
+	// Learning Pattern Cache table - caches frequently accessed learning patterns for performance
+	learningPatternCache: defineTable({
+		accessCount: v.number(), // Number of times this cache entry was accessed
+		cachedAt: v.number(), // Unix timestamp when cached
+		lastAccessed: v.number(), // Unix timestamp of last access
+		patterns: v.object({
+			_creationTime: v.number(),
+			_id: v.id("learningPatterns"),
+			averageSuccessRate: v.number(),
+			difficultyPatterns: v.object({
+				easyCards: v.object({
+					averageInterval: v.number(),
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					successRate: v.number(),
+				}),
+				hardCards: v.object({
+					averageInterval: v.number(),
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					successRate: v.number(),
+				}),
+				mediumCards: v.object({
+					averageInterval: v.number(),
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					successRate: v.number(),
+				}),
+			}),
+			inconsistencyPatterns: v.object({
+				averageVariance: v.number(),
+				cardIds: v.array(v.string()),
+				detectionThreshold: v.number(),
+				lastCalculated: v.number(),
+			}),
+			lastUpdated: v.number(),
+			learningVelocity: v.number(),
+			personalEaseFactorBias: v.number(),
+			personalizationConfig: v.object({
+				adaptDifficultyProgression: v.boolean(),
+				focusOnPlateauTopics: v.boolean(),
+				learningPatternInfluence: v.number(),
+				optimizeForTimeOfDay: v.boolean(),
+				prioritizeInconsistentCards: v.boolean(),
+			}),
+			plateauDetection: v.object({
+				lastAnalyzed: v.number(),
+				plateauThreshold: v.number(),
+				stagnantTopics: v.array(
+					v.object({
+						averagePerformance: v.number(),
+						cardIds: v.array(v.string()),
+						lastImprovement: v.number(),
+						plateauDuration: v.number(),
+						topicKeywords: v.array(v.string()),
+					}),
+				),
+			}),
+			recentPerformanceTrends: v.object({
+				last7Days: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				last14Days: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				lastUpdated: v.number(),
+				trend: v.object({
+					confidenceChange: v.number(),
+					responseTimeChange: v.number(),
+					successRateChange: v.number(),
+				}),
+			}),
+			retentionCurve: v.array(
+				v.object({
+					interval: v.number(),
+					retentionRate: v.number(),
+				}),
+			),
+			timeOfDayPerformance: v.object({
+				afternoon: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				early_morning: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				evening: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				late_night: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				morning: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				night: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+			}),
+			userId: v.string(),
+		}), // Cached learning patterns data
+		userId: v.string(), // ID of the user
+	})
+		.index("by_userId", ["userId"]) // Index for user-specific cache queries
+		.index("by_cachedAt", ["cachedAt"]) // Index for cache eviction
+		.index("by_lastAccessed", ["lastAccessed"]), // Index for LRU eviction
 
 	// Learning Patterns table - stores personalized learning analytics for adaptive algorithm
 	learningPatterns: defineTable({
@@ -239,7 +464,7 @@ export default defineSchema({
 		userId: v.string(), // ID of the user
 	})
 		.index("by_userId", ["userId"]) // Index for efficient user pattern queries
-		.index("by_lastUpdated", ["lastUpdated"]), // Index for finding patterns that need updating
+		.index("by_lastUpdated", ["lastUpdated"]), // Index for user-specific operation analysis
 
 	// Learning Reflections table - stores metacognitive reflections and self-assessments
 	learningReflections: defineTable({
@@ -263,7 +488,22 @@ export default defineSchema({
 	})
 		.index("by_userId_and_timestamp", ["userId", "timestamp"]) // Index for user reflection history
 		.index("by_category", ["category"]) // Index for analyzing reflection patterns
-		.index("by_deckId", ["deckId"]), // Index for efficient user preference queries
+		.index("by_deckId", ["deckId"]), // Index for finding patterns that need updating
+
+	// Performance Metrics table - tracks performance metrics for real-time adaptive learning operations
+	performanceMetrics: defineTable({
+		batchSize: v.optional(v.number()), // Size of batch processed (if applicable)
+		cacheHit: v.optional(v.boolean()), // Whether operation used cached data
+		duration: v.number(), // Duration of operation in milliseconds
+		errorOccurred: v.optional(v.boolean()), // Whether an error occurred during operation
+		operationType: v.string(), // Type of operation performed
+		timestamp: v.number(), // Unix timestamp when operation occurred
+		userId: v.string(), // ID of the user
+	})
+		.index("by_userId", ["userId"]) // Index for user-specific metrics
+		.index("by_operationType", ["operationType"]) // Index for operation type analysis
+		.index("by_timestamp", ["timestamp"]) // Index for temporal analysis
+		.index("by_userId_and_operationType", ["userId", "operationType"]), // Index for efficient user preference queries
 
 	// Statistics Cache table - caches frequently accessed computed statistics for performance
 	statisticsCache: defineTable({
@@ -277,6 +517,29 @@ export default defineSchema({
 		.index("by_userId_and_key", ["userId", "cacheKey"]) // Index for efficient cache lookups
 		.index("by_expiresAt", ["expiresAt"]) // Index for cache cleanup
 		.index("by_userId_and_expires", ["userId", "expiresAt"]), // Compound index for checking specific achievements
+
+	// Study Path Regeneration table - tracks dynamic study path changes for real-time adaptation
+	studyPathRegeneration: defineTable({
+		deckId: v.id("decks"), // Reference to the deck
+		newOrder: v.array(v.string()), // New card order after regeneration
+		originalOrder: v.array(v.string()), // Original card order before regeneration
+		priorityScores: v.array(
+			v.object({
+				boosts: v.array(v.string()),
+				cardId: v.string(),
+				reasoning: v.string(),
+				score: v.number(),
+			}),
+		), // Priority scores and reasoning for each card
+		sessionId: v.string(), // Session identifier
+		timestamp: v.number(), // Unix timestamp when regeneration occurred
+		triggerReason: v.string(), // Reason for regeneration
+		userId: v.string(), // ID of the user
+	})
+		.index("by_userId", ["userId"]) // Index for user-specific regenerations
+		.index("by_sessionId", ["sessionId"]) // Index for session-specific queries
+		.index("by_deckId", ["deckId"]) // Index for deck-specific regenerations
+		.index("by_timestamp", ["timestamp"]), // Index for deck-specific reflections
 
 	// Study Sessions table - tracks daily study activity for analytics and heatmap visualization
 	studySessions: defineTable({
@@ -299,7 +562,7 @@ export default defineSchema({
 			"sessionDate",
 			"deckId",
 			"studyMode",
-		]), // Index for deck-specific reflections
+		]), // Index for temporal analysis
 
 	// Study Streaks table - tracks daily study streaks for gamification and motivation
 	studyStreaks: defineTable({

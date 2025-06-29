@@ -202,8 +202,6 @@ function calculateInconsistencyPatterns(
 	// Calculate variance for each card with sufficient reviews
 	for (const [cardId, results] of cardReviews.entries()) {
 		if (results.length >= MIN_REVIEWS_FOR_INCONSISTENCY) {
-			const _successRate = results.filter((r) => r).length / results.length;
-
 			// Calculate variance in success rate over time windows
 			const windowSize = Math.min(5, Math.floor(results.length / 2));
 			let maxVariance = 0;

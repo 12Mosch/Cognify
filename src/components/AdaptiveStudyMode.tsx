@@ -55,6 +55,9 @@ export default function AdaptiveStudyMode({
 	} | null>(null);
 	const [reviewResults, setReviewResults] = useState<number[]>([]); // Track quality ratings for each review
 	const [sessionCompleted, setSessionCompleted] = useState(false); // Track if session is completed
+	const [sessionId] = useState<string>(
+		() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+	); // Generate unique session ID
 
 	// Ref to track timeout for personalized message cleanup
 	const messageTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -62,13 +65,23 @@ export default function AdaptiveStudyMode({
 	// Convex queries and mutations
 	const decks = useQuery(api.decks.getDecksForUser);
 	const deck = decks?.find((d) => d._id === deckId);
-	const studyQueue = useQuery(api.spacedRepetition.getStudyQueue, { deckId });
+	const studyQueue = useQuery(
+		api.realTimeAdaptiveLearning.getAdaptiveStudyQueue,
+		{
+			deckId,
+			maxCards: 20,
+			sessionId: sessionId || undefined,
+		},
+	);
 	const learningPattern = useQuery(
 		api.adaptiveLearning.getUserLearningPattern,
 		{},
 	);
 	const reviewCardAdaptive = useMutation(
 		api.adaptiveLearning.reviewCardAdaptive,
+	);
+	const recordCardInteraction = useMutation(
+		api.realTimeAdaptiveLearning.recordCardInteraction,
 	);
 	const checkAchievements = useMutation(api.gamification.checkAchievements);
 
@@ -142,18 +155,76 @@ export default function AdaptiveStudyMode({
 	}, []);
 
 	// Handle card flip
-	const handleFlipCard = useCallback(() => {
-		if (!isFlipped) {
+	const handleFlipCard = useCallback(async () => {
+		if (!isFlipped && currentCard) {
 			setIsFlipped(true);
 			setShowConfidenceRating(true);
+
+			// Record flip interaction for real-time adaptive learning
+			try {
+				await recordCardInteraction({
+					cardId: currentCard._id,
+					interactionType: "flip",
+					responseTime: responseStartTime
+						? Date.now() - responseStartTime
+						: undefined,
+					sessionContext: {
+						cardIndex: currentCardIndex,
+						sessionId: sessionId || `session_${Date.now()}`,
+						studyMode: "adaptive-spaced-repetition",
+						totalCards: studyQueue?.length || 0,
+					},
+				});
+			} catch (error) {
+				console.error("Error recording flip interaction:", error);
+			}
 		}
-	}, [isFlipped]);
+	}, [
+		isFlipped,
+		currentCard,
+		responseStartTime,
+		recordCardInteraction,
+		currentCardIndex,
+		studyQueue?.length,
+		sessionId,
+	]);
 
 	// Handle confidence rating
-	const handleConfidenceRating = useCallback((rating: number) => {
-		setConfidenceRating(rating);
-		setShowConfidenceRating(false);
-	}, []);
+	const handleConfidenceRating = useCallback(
+		async (rating: number) => {
+			setConfidenceRating(rating);
+			setShowConfidenceRating(false);
+
+			// Record confidence rating interaction for real-time adaptive learning
+			if (currentCard) {
+				try {
+					await recordCardInteraction({
+						cardId: currentCard._id,
+						confidenceLevel: rating,
+						interactionType: "confidence_rating",
+						sessionContext: {
+							cardIndex: currentCardIndex,
+							sessionId: sessionId || `session_${Date.now()}`,
+							studyMode: "adaptive-spaced-repetition",
+							totalCards: studyQueue?.length || 0,
+						},
+					});
+				} catch (error) {
+					console.error(
+						"Error recording confidence rating interaction:",
+						error,
+					);
+				}
+			}
+		},
+		[
+			currentCard,
+			recordCardInteraction,
+			currentCardIndex,
+			studyQueue?.length,
+			sessionId,
+		],
+	);
 
 	// Handle study session achievements
 	const handleStudyAchievements = useCallback(
@@ -257,6 +328,21 @@ export default function AdaptiveStudyMode({
 			const responseTime = Date.now() - responseStartTime;
 
 			try {
+				// Record answer interaction for real-time adaptive learning
+				await recordCardInteraction({
+					cardId: currentCard._id,
+					confidenceLevel: confidenceRating || undefined,
+					interactionType: "answer",
+					quality,
+					responseTime,
+					sessionContext: {
+						cardIndex: currentCardIndex,
+						sessionId: sessionId || `session_${Date.now()}`,
+						studyMode: "adaptive-spaced-repetition",
+						totalCards: studyQueue?.length || 0,
+					},
+				});
+
 				const result = await reviewCardAdaptive({
 					cardId: currentCard._id,
 					confidenceRating: confidenceRating || undefined,
@@ -287,11 +373,13 @@ export default function AdaptiveStudyMode({
 			responseStartTime,
 			confidenceRating,
 			reviewCardAdaptive,
+			recordCardInteraction,
 			currentCardIndex,
 			studyQueue,
 			handleStudyAchievements,
 			moveToNextCard,
 			completeSession,
+			sessionId,
 		],
 	);
 
