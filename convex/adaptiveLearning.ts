@@ -24,8 +24,16 @@ const PERFORMANCE_HISTORY_LIMIT = 100; // Recent reviews to consider
 // const TIME_SLOT_HOURS = 4; // Group hours into 6 time slots per day (unused for now)
 const MIN_REVIEWS_FOR_ADAPTATION = 20; // Minimum reviews before personalizing
 
+// Personalized learning pattern constants
+const INCONSISTENCY_VARIANCE_THRESHOLD = 0.3; // Success rate variance threshold
+const PLATEAU_DETECTION_DAYS = 14; // Days without improvement to consider plateau
+const RECENT_PERFORMANCE_WINDOW_SHORT = 7; // Days for short-term trend
+const RECENT_PERFORMANCE_WINDOW_LONG = 14; // Days for long-term trend
+const MIN_REVIEWS_FOR_INCONSISTENCY = 10; // Minimum reviews per card for inconsistency analysis
+const MIN_REVIEWS_FOR_PLATEAU = 15; // Minimum reviews for plateau detection
+
 /**
- * Learning pattern data structure
+ * Enhanced learning pattern data structure with personalized metrics
  */
 interface LearningPattern {
 	userId: string;
@@ -47,6 +55,621 @@ interface LearningPattern {
 	personalEaseFactorBias: number; // Adjustment to base ease factor
 	retentionCurve: Array<{ interval: number; retentionRate: number }>;
 	lastUpdated: number;
+}
+
+/**
+ * Comprehensive user learning patterns interface for personalized study paths
+ */
+export interface UserLearningPatterns {
+	userId: string;
+
+	// Core performance metrics
+	averageSuccessRate: number;
+	learningVelocity: number; // Cards mastered per day
+	personalEaseFactorBias: number;
+
+	// Inconsistency patterns - cards where user alternates between correct/incorrect
+	inconsistencyPatterns: {
+		cardIds: string[]; // Cards with high variance in performance
+		averageVariance: number; // Average success rate variance across inconsistent cards
+		detectionThreshold: number; // Variance threshold used (default: 0.3)
+		lastCalculated: number;
+	};
+
+	// Plateau detection - topics where performance has stagnated
+	plateauDetection: {
+		stagnantTopics: Array<{
+			topicKeywords: string[]; // Keywords representing the topic
+			cardIds: string[]; // Cards in this topic showing plateau
+			plateauDuration: number; // Days since improvement stopped
+			lastImprovement: number; // Timestamp of last improvement
+			averagePerformance: number; // Current performance level
+		}>;
+		plateauThreshold: number; // Days without improvement to consider plateau (default: 14)
+		lastAnalyzed: number;
+	};
+
+	// Recent performance trends - rolling averages over time windows
+	recentPerformanceTrends: {
+		last7Days: {
+			successRate: number;
+			averageResponseTime: number;
+			confidenceLevel: number;
+			reviewCount: number;
+		};
+		last14Days: {
+			successRate: number;
+			averageResponseTime: number;
+			confidenceLevel: number;
+			reviewCount: number;
+		};
+		trend: {
+			successRateChange: number; // Percentage change from 14d to 7d
+			responseTimeChange: number; // Change in ms
+			confidenceChange: number; // Change in confidence level
+		};
+		lastUpdated: number;
+	};
+
+	// Time-based learning preferences
+	timeOfDayPerformance: Record<
+		TimeSlot,
+		{
+			successRate: number;
+			reviewCount: number;
+			averageResponseTime: number;
+			confidenceLevel: number;
+			optimalForLearning: boolean; // Whether this time is optimal for this user
+		}
+	>;
+
+	// Difficulty-based patterns
+	difficultyPatterns: {
+		easyCards: {
+			successRate: number;
+			averageInterval: number;
+			averageResponseTime: number;
+			confidenceLevel: number;
+		};
+		mediumCards: {
+			successRate: number;
+			averageInterval: number;
+			averageResponseTime: number;
+			confidenceLevel: number;
+		};
+		hardCards: {
+			successRate: number;
+			averageInterval: number;
+			averageResponseTime: number;
+			confidenceLevel: number;
+		};
+	};
+
+	// Retention curve and predictions
+	retentionCurve: Array<{ interval: number; retentionRate: number }>;
+
+	// Configuration for personalization
+	personalizationConfig: {
+		learningPatternInfluence: number; // 0-1, how much to weight learning patterns vs SRS
+		prioritizeInconsistentCards: boolean;
+		focusOnPlateauTopics: boolean;
+		optimizeForTimeOfDay: boolean;
+		adaptDifficultyProgression: boolean;
+	};
+
+	lastUpdated: number;
+}
+
+/**
+ * Configuration options for path generation personalization
+ */
+export interface PathPersonalizationConfig {
+	learningPatternWeight: number; // 0-1, influence of learning patterns
+	srsWeight: number; // 0-1, influence of traditional SRS factors
+	inconsistencyBoost: number; // Multiplier for inconsistent cards
+	plateauBoost: number; // Multiplier for plateau topic cards
+	timeOfDayBoost: number; // Multiplier for optimal time performance
+	difficultyAdaptation: number; // How much to adapt difficulty progression
+}
+
+/**
+ * Calculate inconsistency patterns for cards where user alternates between correct/incorrect
+ */
+function calculateInconsistencyPatterns(
+	reviews: Array<{
+		cardId: string;
+		wasSuccessful: boolean;
+		reviewDate: number;
+	}>,
+): UserLearningPatterns["inconsistencyPatterns"] {
+	// Group reviews by card
+	const cardReviews = new Map<string, boolean[]>();
+
+	for (const review of reviews) {
+		if (!cardReviews.has(review.cardId)) {
+			cardReviews.set(review.cardId, []);
+		}
+		const cardResults = cardReviews.get(review.cardId);
+		if (cardResults) {
+			cardResults.push(review.wasSuccessful);
+		}
+	}
+
+	const inconsistentCards: string[] = [];
+	let totalVariance = 0;
+	let cardCount = 0;
+
+	// Calculate variance for each card with sufficient reviews
+	for (const [cardId, results] of cardReviews.entries()) {
+		if (results.length >= MIN_REVIEWS_FOR_INCONSISTENCY) {
+			const _successRate = results.filter((r) => r).length / results.length;
+
+			// Calculate variance in success rate over time windows
+			const windowSize = Math.min(5, Math.floor(results.length / 2));
+			let maxVariance = 0;
+
+			for (let i = 0; i <= results.length - windowSize * 2; i++) {
+				const window1 = results.slice(i, i + windowSize);
+				const window2 = results.slice(i + windowSize, i + windowSize * 2);
+
+				const rate1 = window1.filter((r) => r).length / window1.length;
+				const rate2 = window2.filter((r) => r).length / window2.length;
+
+				const variance = Math.abs(rate1 - rate2);
+				maxVariance = Math.max(maxVariance, variance);
+			}
+
+			if (maxVariance > INCONSISTENCY_VARIANCE_THRESHOLD) {
+				inconsistentCards.push(cardId);
+			}
+
+			totalVariance += maxVariance;
+			cardCount++;
+		}
+	}
+
+	return {
+		averageVariance: cardCount > 0 ? totalVariance / cardCount : 0,
+		cardIds: inconsistentCards,
+		detectionThreshold: INCONSISTENCY_VARIANCE_THRESHOLD,
+		lastCalculated: Date.now(),
+	};
+}
+
+/**
+ * Detect plateau patterns - topics where performance has stagnated
+ */
+function detectPlateauPatterns(
+	reviews: Array<{
+		cardId: string;
+		wasSuccessful: boolean;
+		reviewDate: number;
+		responseTime?: number;
+	}>,
+	cards: Array<{ _id: string; front: string; back: string }>,
+): UserLearningPatterns["plateauDetection"] {
+	// Simple topic extraction based on common keywords
+	const extractTopicKeywords = (text: string): string[] => {
+		const words = text
+			.toLowerCase()
+			.replace(/[^\w\s]/g, " ")
+			.split(/\s+/)
+			.filter((word) => word.length > 3);
+
+		// Return most frequent words as topic indicators
+		const wordCount = new Map<string, number>();
+		for (const word of words) {
+			wordCount.set(word, (wordCount.get(word) || 0) + 1);
+		}
+
+		return Array.from(wordCount.entries())
+			.sort((a, b) => b[1] - a[1])
+			.slice(0, 3)
+			.map(([word]) => word);
+	};
+
+	// Group cards by topics
+	const topicGroups = new Map<string, string[]>();
+	const cardTopics = new Map<string, string[]>();
+
+	for (const card of cards) {
+		const keywords = extractTopicKeywords(`${card.front} ${card.back}`);
+		cardTopics.set(card._id, keywords);
+
+		for (const keyword of keywords) {
+			if (!topicGroups.has(keyword)) {
+				topicGroups.set(keyword, []);
+			}
+			const topicCards = topicGroups.get(keyword);
+			if (topicCards) {
+				topicCards.push(card._id);
+			}
+		}
+	}
+
+	const stagnantTopics: UserLearningPatterns["plateauDetection"]["stagnantTopics"] =
+		[];
+	const cutoffDate = Date.now() - PLATEAU_DETECTION_DAYS * 24 * 60 * 60 * 1000;
+
+	// Analyze each topic for plateau patterns
+	for (const [topic, cardIds] of topicGroups.entries()) {
+		if (cardIds.length < 3) continue; // Need multiple cards for topic analysis
+
+		const topicReviews = reviews.filter((r) => cardIds.includes(r.cardId));
+		if (topicReviews.length < MIN_REVIEWS_FOR_PLATEAU) continue;
+
+		// Sort reviews by date
+		topicReviews.sort((a, b) => a.reviewDate - b.reviewDate);
+
+		// Calculate performance over time windows
+		const windowSize = Math.max(5, Math.floor(topicReviews.length / 4));
+		const windows: Array<{
+			startDate: number;
+			endDate: number;
+			performance: number;
+		}> = [];
+
+		for (
+			let i = 0;
+			i <= topicReviews.length - windowSize;
+			i += Math.floor(windowSize / 2)
+		) {
+			const windowReviews = topicReviews.slice(i, i + windowSize);
+			const performance =
+				windowReviews.filter((r) => r.wasSuccessful).length /
+				windowReviews.length;
+
+			windows.push({
+				endDate: windowReviews[windowReviews.length - 1].reviewDate,
+				performance,
+				startDate: windowReviews[0].reviewDate,
+			});
+		}
+
+		// Check for plateau (no significant improvement in recent windows)
+		if (windows.length >= 2) {
+			const recentWindows = windows.filter((w) => w.endDate > cutoffDate);
+			const olderWindows = windows.filter((w) => w.endDate <= cutoffDate);
+
+			if (recentWindows.length > 0 && olderWindows.length > 0) {
+				const recentAvg =
+					recentWindows.reduce((sum, w) => sum + w.performance, 0) /
+					recentWindows.length;
+				const olderAvg =
+					olderWindows.reduce((sum, w) => sum + w.performance, 0) /
+					olderWindows.length;
+
+				// If recent performance hasn't improved significantly
+				if (recentAvg - olderAvg < 0.1) {
+					const lastImprovement =
+						olderWindows[olderWindows.length - 1]?.endDate || 0;
+					const plateauDuration = Math.floor(
+						(Date.now() - lastImprovement) / (24 * 60 * 60 * 1000),
+					);
+
+					if (plateauDuration >= PLATEAU_DETECTION_DAYS) {
+						stagnantTopics.push({
+							averagePerformance: recentAvg,
+							cardIds: cardIds,
+							lastImprovement,
+							plateauDuration,
+							topicKeywords: [topic],
+						});
+					}
+				}
+			}
+		}
+	}
+
+	return {
+		lastAnalyzed: Date.now(),
+		plateauThreshold: PLATEAU_DETECTION_DAYS,
+		stagnantTopics,
+	};
+}
+
+/**
+ * Calculate recent performance trends with rolling averages
+ */
+function calculateRecentPerformanceTrends(
+	reviews: Array<{
+		wasSuccessful: boolean;
+		reviewDate: number;
+		responseTime?: number;
+		confidenceRating?: number;
+	}>,
+): UserLearningPatterns["recentPerformanceTrends"] {
+	const now = Date.now();
+	const shortTermCutoff =
+		now - RECENT_PERFORMANCE_WINDOW_SHORT * 24 * 60 * 60 * 1000;
+	const longTermCutoff =
+		now - RECENT_PERFORMANCE_WINDOW_LONG * 24 * 60 * 60 * 1000;
+
+	const shortTermReviews = reviews.filter(
+		(r) => r.reviewDate > shortTermCutoff,
+	);
+	const longTermReviews = reviews.filter((r) => r.reviewDate > longTermCutoff);
+
+	const calculateMetrics = (reviewSet: typeof reviews) => {
+		if (reviewSet.length === 0) {
+			return {
+				averageResponseTime: 0,
+				confidenceLevel: 0,
+				reviewCount: 0,
+				successRate: 0,
+			};
+		}
+
+		const successRate =
+			reviewSet.filter((r) => r.wasSuccessful).length / reviewSet.length;
+		const responseTimes = reviewSet
+			.filter((r) => r.responseTime)
+			.map((r) => r.responseTime || 0);
+		const averageResponseTime =
+			responseTimes.length > 0
+				? responseTimes.reduce((sum, time) => sum + time, 0) /
+					responseTimes.length
+				: 0;
+
+		const confidenceRatings = reviewSet
+			.filter((r) => r.confidenceRating)
+			.map((r) => r.confidenceRating || 0);
+		const confidenceLevel =
+			confidenceRatings.length > 0
+				? confidenceRatings.reduce((sum, rating) => sum + rating, 0) /
+					confidenceRatings.length
+				: 0;
+
+		return {
+			averageResponseTime,
+			confidenceLevel,
+			reviewCount: reviewSet.length,
+			successRate,
+		};
+	};
+
+	const last7Days = calculateMetrics(shortTermReviews);
+	const last14Days = calculateMetrics(longTermReviews);
+
+	// Calculate trends (percentage change from long-term to short-term)
+	const calculateChange = (oldValue: number, newValue: number): number => {
+		if (oldValue === 0) return 0;
+		return ((newValue - oldValue) / oldValue) * 100;
+	};
+
+	return {
+		last7Days,
+		last14Days,
+		lastUpdated: Date.now(),
+		trend: {
+			confidenceChange: calculateChange(
+				last14Days.confidenceLevel,
+				last7Days.confidenceLevel,
+			),
+			responseTimeChange:
+				last7Days.averageResponseTime - last14Days.averageResponseTime,
+			successRateChange: calculateChange(
+				last14Days.successRate,
+				last7Days.successRate,
+			),
+		},
+	};
+}
+
+/**
+ * Create default personalization configuration
+ */
+export function createDefaultPersonalizationConfig(): PathPersonalizationConfig {
+	return {
+		difficultyAdaptation: 0.2, // 20% adaptation for difficulty patterns
+		inconsistencyBoost: 1.5, // 50% boost for inconsistent cards
+		learningPatternWeight: 0.3, // 30% weight for learning patterns
+		plateauBoost: 1.3, // 30% boost for plateau topics
+		srsWeight: 0.7, // 70% weight for traditional SRS
+		timeOfDayBoost: 1.2, // 20% boost for optimal time performance
+	};
+}
+
+/**
+ * Calculate weighted score combining traditional SRS factors with personalized learning metrics
+ */
+export function calculateWeightedScore(
+	traditionalScore: number,
+	learningPatterns: UserLearningPatterns | null,
+	cardId: string,
+	config: PathPersonalizationConfig,
+	additionalFactors?: {
+		currentHour?: number;
+		cardEaseFactor?: number;
+		cardDueDate?: number;
+	},
+): {
+	finalScore: number;
+	appliedBoosts: string[];
+	reasoning: string;
+} {
+	if (!learningPatterns) {
+		return {
+			appliedBoosts: [],
+			finalScore: traditionalScore,
+			reasoning: "No learning patterns available - using traditional scoring",
+		};
+	}
+
+	let personalizedScore = traditionalScore;
+	const appliedBoosts: string[] = [];
+	const reasoningParts: string[] = [];
+
+	// 1. Apply inconsistency pattern boost
+	const isInconsistent =
+		learningPatterns.inconsistencyPatterns.cardIds.includes(cardId);
+	if (isInconsistent && config.inconsistencyBoost > 1) {
+		personalizedScore *= config.inconsistencyBoost;
+		appliedBoosts.push("inconsistency");
+		reasoningParts.push(
+			`Inconsistent performance pattern (${Math.round((config.inconsistencyBoost - 1) * 100)}% boost)`,
+		);
+	}
+
+	// 2. Apply plateau topic boost
+	const isInPlateauTopic =
+		learningPatterns.plateauDetection.stagnantTopics.some((topic) =>
+			topic.cardIds.includes(cardId),
+		);
+	if (isInPlateauTopic && config.plateauBoost > 1) {
+		personalizedScore *= config.plateauBoost;
+		appliedBoosts.push("plateau");
+		reasoningParts.push(
+			`Plateau topic detected (${Math.round((config.plateauBoost - 1) * 100)}% boost)`,
+		);
+	}
+
+	// 3. Apply time-of-day optimization
+	if (
+		additionalFactors?.currentHour !== undefined &&
+		config.timeOfDayBoost > 1
+	) {
+		const currentHour = additionalFactors.currentHour;
+		const timeSlot = getTimeSlot(currentHour);
+		const timePerformance = learningPatterns.timeOfDayPerformance[timeSlot];
+
+		if (
+			timePerformance.optimalForLearning &&
+			timePerformance.reviewCount >= 5
+		) {
+			personalizedScore *= config.timeOfDayBoost;
+			appliedBoosts.push("timeOfDay");
+			reasoningParts.push(
+				`Optimal study time (${Math.round((config.timeOfDayBoost - 1) * 100)}% boost)`,
+			);
+		}
+	}
+
+	// 4. Apply difficulty pattern adaptation
+	if (
+		additionalFactors?.cardEaseFactor !== undefined &&
+		config.difficultyAdaptation > 0
+	) {
+		const easeFactor = additionalFactors.cardEaseFactor;
+		const difficultyCategory =
+			easeFactor > 2.2
+				? "easyCards"
+				: easeFactor < 1.8
+					? "hardCards"
+					: "mediumCards";
+
+		const userDifficultyPattern =
+			learningPatterns.difficultyPatterns[difficultyCategory];
+		if (userDifficultyPattern.successRate < 0.6) {
+			const adaptationBoost = 1 + config.difficultyAdaptation;
+			personalizedScore *= adaptationBoost;
+			appliedBoosts.push("difficulty");
+			reasoningParts.push(
+				`Difficulty adaptation (${Math.round(config.difficultyAdaptation * 100)}% boost for struggling category)`,
+			);
+		}
+	}
+
+	// 5. Apply recent performance trend adjustment
+	const recentTrend =
+		learningPatterns.recentPerformanceTrends.trend.successRateChange;
+	if (recentTrend < -10) {
+		// Performance declining by more than 10%
+		personalizedScore *= 1.15; // 15% boost for declining performance
+		appliedBoosts.push("declining");
+		reasoningParts.push(`Recent performance decline (15% boost)`);
+	} else if (recentTrend > 20) {
+		// Performance improving by more than 20%
+		personalizedScore *= 0.9; // 10% reduction for improving performance
+		appliedBoosts.push("improving");
+		reasoningParts.push(`Recent performance improvement (10% reduction)`);
+	}
+
+	// 6. Calculate final weighted score
+	const finalScore =
+		traditionalScore * config.srsWeight +
+		personalizedScore * config.learningPatternWeight;
+
+	const reasoning =
+		reasoningParts.length > 0
+			? `Applied personalization: ${reasoningParts.join(", ")}`
+			: "No personalization factors applied";
+
+	return {
+		appliedBoosts,
+		finalScore,
+		reasoning,
+	};
+}
+
+/**
+ * Calculate card priority score for study path generation
+ */
+export function calculateCardPriorityScore(
+	card: {
+		_id: string;
+		dueDate?: number;
+		easeFactor?: number;
+		interval?: number;
+		repetition?: number;
+	},
+	reviews: Array<{ wasSuccessful: boolean; reviewDate: number }>,
+	learningPatterns: UserLearningPatterns | null,
+	config: PathPersonalizationConfig,
+	currentTime: number = Date.now(),
+): {
+	priorityScore: number;
+	reasoning: string;
+	appliedBoosts: string[];
+} {
+	// Calculate traditional SRS factors
+	const dueDate = card.dueDate || currentTime;
+	const overdueDays = Math.max(
+		0,
+		(currentTime - dueDate) / (24 * 60 * 60 * 1000),
+	);
+	const easeFactor = card.easeFactor || 2.5;
+	const repetition = card.repetition || 0;
+
+	// Traditional priority factors
+	let traditionalScore = 0;
+
+	// 1. Overdue factor (0-1, higher for more overdue)
+	traditionalScore += Math.min(1, overdueDays / 30) * 0.4;
+
+	// 2. Difficulty factor (0-1, higher for lower ease factor)
+	traditionalScore += Math.max(0, (2.5 - easeFactor) / 1.2) * 0.3;
+
+	// 3. Newness factor (0-1, higher for new cards)
+	traditionalScore += Math.max(0, (3 - repetition) / 3) * 0.2;
+
+	// 4. Recent performance factor
+	if (reviews.length > 0) {
+		const recentReviews = reviews.slice(-5); // Last 5 reviews
+		const successRate =
+			recentReviews.filter((r) => r.wasSuccessful).length /
+			recentReviews.length;
+		traditionalScore += (1 - successRate) * 0.1;
+	}
+
+	// Apply personalized weighting
+	const result = calculateWeightedScore(
+		traditionalScore,
+		learningPatterns,
+		card._id,
+		config,
+		{
+			cardDueDate: dueDate,
+			cardEaseFactor: easeFactor,
+			currentHour: new Date(currentTime).getHours(),
+		},
+	);
+
+	return {
+		appliedBoosts: result.appliedBoosts,
+		priorityScore: result.finalScore,
+		reasoning: result.reasoning,
+	};
 }
 
 /**
@@ -171,6 +794,177 @@ function calculateAdaptiveSM2(
 		repetition: newRepetition,
 	};
 }
+
+/**
+ * Get cached learning patterns with automatic refresh if stale
+ */
+export const getCachedLearningPatterns = query({
+	args: {
+		language: v.optional(v.string()),
+		maxAgeHours: v.optional(v.number()), // Maximum age in hours before refresh
+	},
+	handler: async (ctx, args) => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) {
+			const language = normalizeLanguage(args.language);
+			throw new Error(
+				t("adaptiveLearning.errors.userNotAuthenticated", language),
+			);
+		}
+
+		const maxAge = (args.maxAgeHours || 6) * 60 * 60 * 1000; // Default 6 hours
+		const pattern = await ctx.db
+			.query("learningPatterns")
+			.withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+			.first();
+
+		if (!pattern) {
+			// No pattern exists - return null to indicate patterns need calculation
+			return null;
+		}
+
+		// Check if pattern is stale
+		const age = Date.now() - pattern.lastUpdated;
+		if (age > maxAge) {
+			// Pattern is stale - return it but mark as stale
+			return {
+				...pattern,
+				isStale: true,
+			};
+		}
+
+		return pattern;
+	},
+	returns: v.union(
+		v.object({
+			_creationTime: v.number(),
+			_id: v.id("learningPatterns"),
+			averageSuccessRate: v.float64(),
+			difficultyPatterns: v.object({
+				easyCards: v.object({
+					averageInterval: v.float64(),
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					successRate: v.float64(),
+				}),
+				hardCards: v.object({
+					averageInterval: v.float64(),
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					successRate: v.float64(),
+				}),
+				mediumCards: v.object({
+					averageInterval: v.float64(),
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					successRate: v.float64(),
+				}),
+			}),
+			inconsistencyPatterns: v.object({
+				averageVariance: v.float64(),
+				cardIds: v.array(v.string()),
+				detectionThreshold: v.float64(),
+				lastCalculated: v.float64(),
+			}),
+			lastUpdated: v.float64(),
+			learningVelocity: v.float64(),
+			personalEaseFactorBias: v.float64(),
+			personalizationConfig: v.object({
+				adaptDifficultyProgression: v.boolean(),
+				focusOnPlateauTopics: v.boolean(),
+				learningPatternInfluence: v.float64(),
+				optimizeForTimeOfDay: v.boolean(),
+				prioritizeInconsistentCards: v.boolean(),
+			}),
+			plateauDetection: v.object({
+				lastAnalyzed: v.float64(),
+				plateauThreshold: v.float64(),
+				stagnantTopics: v.array(
+					v.object({
+						averagePerformance: v.float64(),
+						cardIds: v.array(v.string()),
+						lastImprovement: v.float64(),
+						plateauDuration: v.float64(),
+						topicKeywords: v.array(v.string()),
+					}),
+				),
+			}),
+			recentPerformanceTrends: v.object({
+				isStale: v.optional(v.boolean()),
+				last7Days: v.object({
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					reviewCount: v.float64(),
+					successRate: v.float64(),
+				}),
+				last14Days: v.object({
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					reviewCount: v.float64(),
+					successRate: v.float64(),
+				}),
+				lastUpdated: v.float64(),
+				trend: v.object({
+					confidenceChange: v.float64(),
+					responseTimeChange: v.float64(),
+					successRateChange: v.float64(),
+				}),
+			}),
+			retentionCurve: v.array(
+				v.object({
+					interval: v.float64(),
+					retentionRate: v.float64(),
+				}),
+			),
+			timeOfDayPerformance: v.object({
+				afternoon: v.object({
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.float64(),
+					successRate: v.float64(),
+				}),
+				early_morning: v.object({
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.float64(),
+					successRate: v.float64(),
+				}),
+				evening: v.object({
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.float64(),
+					successRate: v.float64(),
+				}),
+				late_night: v.object({
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.float64(),
+					successRate: v.float64(),
+				}),
+				morning: v.object({
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.float64(),
+					successRate: v.float64(),
+				}),
+				night: v.object({
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.float64(),
+					successRate: v.float64(),
+				}),
+			}),
+			userId: v.string(),
+		}),
+		v.null(),
+	),
+});
 
 /**
  * Get or create learning pattern for user
@@ -388,6 +1182,292 @@ export const reviewCardAdaptive = mutation({
 });
 
 /**
+ * Calculate comprehensive learning patterns for a user
+ * This is the main analytics service function
+ */
+export const calculateUserLearningPatterns = mutation({
+	args: {
+		forceRecalculation: v.optional(v.boolean()),
+		userId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		// Check if patterns were recently calculated (unless forced)
+		if (!args.forceRecalculation) {
+			const existingPattern = await ctx.db
+				.query("learningPatterns")
+				.withIndex("by_userId", (q) => q.eq("userId", args.userId))
+				.first();
+
+			if (existingPattern) {
+				const hoursSinceUpdate =
+					(Date.now() - existingPattern.lastUpdated) / (1000 * 60 * 60);
+				if (hoursSinceUpdate < 6) {
+					// Don't recalculate if updated within 6 hours
+					return existingPattern;
+				}
+			}
+		}
+
+		// Get comprehensive review history
+		const cutoffDate =
+			Date.now() - LEARNING_VELOCITY_WINDOW * 24 * 60 * 60 * 1000;
+		const allReviews = await ctx.db
+			.query("cardReviews")
+			.withIndex("by_userId_and_date", (q) =>
+				q.eq("userId", args.userId).gte("reviewDate", cutoffDate),
+			)
+			.order("desc")
+			.take(PERFORMANCE_HISTORY_LIMIT * 2); // Get more data for comprehensive analysis
+
+		if (allReviews.length < MIN_REVIEWS_FOR_ADAPTATION) {
+			return null; // Not enough data for meaningful patterns
+		}
+
+		// Get user's cards for topic analysis
+		const userCards = await ctx.db
+			.query("cards")
+			.filter((q) => q.eq(q.field("userId"), args.userId))
+			.collect();
+
+		// Calculate all learning pattern components
+		const inconsistencyPatterns = calculateInconsistencyPatterns(
+			allReviews.map((r) => ({
+				cardId: r.cardId,
+				reviewDate: r.reviewDate,
+				wasSuccessful: r.wasSuccessful,
+			})),
+		);
+
+		const plateauDetection = detectPlateauPatterns(
+			allReviews.map((r) => ({
+				cardId: r.cardId,
+				responseTime: r.responseTime,
+				reviewDate: r.reviewDate,
+				wasSuccessful: r.wasSuccessful,
+			})),
+			userCards.map((c) => ({
+				_id: c._id,
+				back: c.back,
+				front: c.front,
+			})),
+		);
+
+		const recentPerformanceTrends = calculateRecentPerformanceTrends(
+			allReviews.map((r) => ({
+				confidenceRating: r.confidenceRating,
+				responseTime: r.responseTime,
+				reviewDate: r.reviewDate,
+				wasSuccessful: r.wasSuccessful,
+			})),
+		);
+
+		// Calculate basic metrics (reuse existing logic)
+		const successfulReviews = allReviews.filter((r) => r.wasSuccessful).length;
+		const averageSuccessRate = successfulReviews / allReviews.length;
+
+		const masteredCards = allReviews.filter(
+			(r) => r.repetitionAfter >= 3,
+		).length;
+		const daysCovered = Math.max(
+			1,
+			(Date.now() - allReviews[allReviews.length - 1].reviewDate) /
+				(24 * 60 * 60 * 1000),
+		);
+		const learningVelocity = masteredCards / daysCovered;
+
+		// Calculate enhanced time-of-day performance
+		const timeSlotData: Record<
+			TimeSlot,
+			{
+				confidenceSum: number;
+				successes: number;
+				total: number;
+				totalResponseTime: number;
+			}
+		> = {
+			afternoon: {
+				confidenceSum: 0,
+				successes: 0,
+				total: 0,
+				totalResponseTime: 0,
+			},
+			early_morning: {
+				confidenceSum: 0,
+				successes: 0,
+				total: 0,
+				totalResponseTime: 0,
+			},
+			evening: {
+				confidenceSum: 0,
+				successes: 0,
+				total: 0,
+				totalResponseTime: 0,
+			},
+			late_night: {
+				confidenceSum: 0,
+				successes: 0,
+				total: 0,
+				totalResponseTime: 0,
+			},
+			morning: {
+				confidenceSum: 0,
+				successes: 0,
+				total: 0,
+				totalResponseTime: 0,
+			},
+			night: { confidenceSum: 0, successes: 0, total: 0, totalResponseTime: 0 },
+		};
+
+		for (const review of allReviews) {
+			if (review.timeOfDay !== undefined) {
+				const timeSlot = getTimeSlot(review.timeOfDay);
+				timeSlotData[timeSlot].total++;
+				if (review.wasSuccessful) {
+					timeSlotData[timeSlot].successes++;
+				}
+				if (review.responseTime) {
+					timeSlotData[timeSlot].totalResponseTime += review.responseTime;
+				}
+				if (review.confidenceRating) {
+					timeSlotData[timeSlot].confidenceSum += review.confidenceRating;
+				}
+			}
+		}
+
+		// Determine optimal time slots
+		const timeSlotPerformance = Object.entries(timeSlotData).map(
+			([slot, data]) => ({
+				averageResponseTime:
+					data.total > 0 ? data.totalResponseTime / data.total : 0,
+				confidenceLevel: data.total > 0 ? data.confidenceSum / data.total : 0,
+				reviewCount: data.total,
+				slot: slot as TimeSlot,
+				successRate: data.total > 0 ? data.successes / data.total : 0.5,
+			}),
+		);
+
+		const optimalSlots = timeSlotPerformance
+			.filter((p) => p.reviewCount >= 5)
+			.sort((a, b) => b.successRate - a.successRate)
+			.slice(0, 2)
+			.map((p) => p.slot);
+
+		const timeOfDayPerformance: UserLearningPatterns["timeOfDayPerformance"] =
+			Object.fromEntries(
+				timeSlotPerformance.map((p) => [
+					p.slot,
+					{
+						averageResponseTime: p.averageResponseTime,
+						confidenceLevel: p.confidenceLevel,
+						optimalForLearning: optimalSlots.includes(p.slot),
+						reviewCount: p.reviewCount,
+						successRate: p.successRate,
+					},
+				]),
+			) as UserLearningPatterns["timeOfDayPerformance"];
+
+		return {
+			averageSuccessRate,
+			inconsistencyPatterns,
+			learningVelocity,
+			plateauDetection,
+			recentPerformanceTrends,
+			timeOfDayPerformance,
+		};
+	},
+	returns: v.union(
+		v.object({
+			averageSuccessRate: v.number(),
+			inconsistencyPatterns: v.object({
+				averageVariance: v.number(),
+				cardIds: v.array(v.string()),
+				detectionThreshold: v.number(),
+				lastCalculated: v.number(),
+			}),
+			learningVelocity: v.number(),
+			plateauDetection: v.object({
+				lastAnalyzed: v.number(),
+				plateauThreshold: v.number(),
+				stagnantTopics: v.array(
+					v.object({
+						averagePerformance: v.number(),
+						cardIds: v.array(v.string()),
+						lastImprovement: v.number(),
+						plateauDuration: v.number(),
+						topicKeywords: v.array(v.string()),
+					}),
+				),
+			}),
+			recentPerformanceTrends: v.object({
+				last7Days: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				last14Days: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				lastUpdated: v.number(),
+				trend: v.object({
+					confidenceChange: v.number(),
+					responseTimeChange: v.number(),
+					successRateChange: v.number(),
+				}),
+			}),
+			timeOfDayPerformance: v.object({
+				afternoon: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				early_morning: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				evening: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				late_night: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				morning: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+				night: v.object({
+					averageResponseTime: v.number(),
+					confidenceLevel: v.number(),
+					optimalForLearning: v.boolean(),
+					reviewCount: v.number(),
+					successRate: v.number(),
+				}),
+			}),
+		}),
+		v.null(),
+	),
+});
+
+/**
  * Update user's learning pattern based on recent review history
  * This runs asynchronously after each review to maintain up-to-date patterns
  */
@@ -554,14 +1634,68 @@ export const updateLearningPattern = mutation({
 			.withIndex("by_userId", (q) => q.eq("userId", args.userId))
 			.first();
 
-		const patternData: Omit<LearningPattern, "userId"> = {
+		// Calculate new learning pattern metrics
+		const cards = await ctx.db.query("cards").collect();
+		const inconsistencyPatterns = calculateInconsistencyPatterns(recentReviews);
+		const plateauDetection = detectPlateauPatterns(recentReviews, cards);
+		const recentPerformanceTrends =
+			calculateRecentPerformanceTrends(recentReviews);
+
+		// Determine optimal time slots for learning
+		const optimalTimeSlots = Object.entries(timeOfDayPerformance)
+			.filter(([_, data]) => data.reviewCount >= 5)
+			.sort(([_, a], [__, b]) => b.successRate - a.successRate)
+			.slice(0, 2) // Top 2 time slots
+			.map(([slot]) => slot);
+
+		// Update time of day performance with optimal flags
+		const enhancedTimeOfDayPerformance = Object.fromEntries(
+			Object.entries(timeOfDayPerformance).map(([slot, data]) => [
+				slot,
+				{
+					...data,
+					optimalForLearning: optimalTimeSlots.includes(slot),
+				},
+			]),
+		) as UserLearningPatterns["timeOfDayPerformance"];
+
+		// Enhanced difficulty patterns with additional metrics
+		const enhancedDifficultyPatterns = {
+			easyCards: {
+				...difficultyPatterns.easyCards,
+				averageResponseTime: 0, // TODO: Calculate from response times
+				confidenceLevel: 0, // TODO: Calculate from confidence ratings
+			},
+			hardCards: {
+				...difficultyPatterns.hardCards,
+				averageResponseTime: 0,
+				confidenceLevel: 0,
+			},
+			mediumCards: {
+				...difficultyPatterns.mediumCards,
+				averageResponseTime: 0,
+				confidenceLevel: 0,
+			},
+		};
+
+		const patternData: Omit<UserLearningPatterns, "userId"> = {
 			averageSuccessRate,
-			difficultyPatterns,
+			difficultyPatterns: enhancedDifficultyPatterns,
+			inconsistencyPatterns,
 			lastUpdated: Date.now(),
 			learningVelocity,
 			personalEaseFactorBias,
+			personalizationConfig: {
+				adaptDifficultyProgression: true,
+				focusOnPlateauTopics: true,
+				learningPatternInfluence: 0.3,
+				optimizeForTimeOfDay: true,
+				prioritizeInconsistentCards: true,
+			},
+			plateauDetection,
+			recentPerformanceTrends,
 			retentionCurve,
-			timeOfDayPerformance,
+			timeOfDayPerformance: enhancedTimeOfDayPerformance,
 		};
 
 		if (existingPattern) {
@@ -576,6 +1710,259 @@ export const updateLearningPattern = mutation({
 		return null;
 	},
 	returns: v.null(),
+});
+
+/**
+ * Update user's personalization configuration
+ */
+export const updatePersonalizationConfig = mutation({
+	args: {
+		adaptDifficultyProgression: v.optional(v.boolean()),
+		focusOnPlateauTopics: v.optional(v.boolean()),
+		language: v.optional(v.string()),
+		learningPatternInfluence: v.optional(v.number()), // 0-1 scale
+		optimizeForTimeOfDay: v.optional(v.boolean()),
+		prioritizeInconsistentCards: v.optional(v.boolean()),
+	},
+	handler: async (ctx, args) => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) {
+			const language = normalizeLanguage(args.language);
+			throw new Error(
+				t("adaptiveLearning.errors.userNotAuthenticated", language),
+			);
+		}
+
+		// Validate learning pattern influence
+		if (args.learningPatternInfluence !== undefined) {
+			if (
+				args.learningPatternInfluence < 0 ||
+				args.learningPatternInfluence > 1
+			) {
+				throw new Error("Learning pattern influence must be between 0 and 1");
+			}
+		}
+
+		// Get existing learning pattern or create default
+		let existingPattern = await ctx.db
+			.query("learningPatterns")
+			.withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+			.first();
+
+		if (!existingPattern) {
+			// Create default learning pattern if none exists
+			const defaultConfig = {
+				adaptDifficultyProgression: true,
+				focusOnPlateauTopics: true,
+				learningPatternInfluence: 0.3,
+				optimizeForTimeOfDay: true,
+				prioritizeInconsistentCards: true,
+			};
+
+			await ctx.db.insert("learningPatterns", {
+				averageSuccessRate: 0.7,
+				difficultyPatterns: {
+					easyCards: {
+						averageInterval: 7,
+						averageResponseTime: 0,
+						confidenceLevel: 0,
+						successRate: 0.8,
+					},
+					hardCards: {
+						averageInterval: 3,
+						averageResponseTime: 0,
+						confidenceLevel: 0,
+						successRate: 0.6,
+					},
+					mediumCards: {
+						averageInterval: 5,
+						averageResponseTime: 0,
+						confidenceLevel: 0,
+						successRate: 0.7,
+					},
+				},
+				inconsistencyPatterns: {
+					averageVariance: 0,
+					cardIds: [],
+					detectionThreshold: INCONSISTENCY_VARIANCE_THRESHOLD,
+					lastCalculated: Date.now(),
+				},
+				lastUpdated: Date.now(),
+				learningVelocity: 1.0,
+				personalEaseFactorBias: 0,
+				personalizationConfig: defaultConfig,
+				plateauDetection: {
+					lastAnalyzed: Date.now(),
+					plateauThreshold: PLATEAU_DETECTION_DAYS,
+					stagnantTopics: [],
+				},
+				recentPerformanceTrends: {
+					last7Days: {
+						averageResponseTime: 0,
+						confidenceLevel: 0,
+						reviewCount: 0,
+						successRate: 0,
+					},
+					last14Days: {
+						averageResponseTime: 0,
+						confidenceLevel: 0,
+						reviewCount: 0,
+						successRate: 0,
+					},
+					lastUpdated: Date.now(),
+					trend: {
+						confidenceChange: 0,
+						responseTimeChange: 0,
+						successRateChange: 0,
+					},
+				},
+				retentionCurve: [
+					{ interval: 1, retentionRate: 0.9 },
+					{ interval: 7, retentionRate: 0.7 },
+					{ interval: 30, retentionRate: 0.6 },
+					{ interval: 90, retentionRate: 0.5 },
+				],
+				timeOfDayPerformance: {
+					afternoon: {
+						averageResponseTime: 0,
+						confidenceLevel: 0,
+						optimalForLearning: false,
+						reviewCount: 0,
+						successRate: 0.5,
+					},
+					early_morning: {
+						averageResponseTime: 0,
+						confidenceLevel: 0,
+						optimalForLearning: false,
+						reviewCount: 0,
+						successRate: 0.5,
+					},
+					evening: {
+						averageResponseTime: 0,
+						confidenceLevel: 0,
+						optimalForLearning: false,
+						reviewCount: 0,
+						successRate: 0.5,
+					},
+					late_night: {
+						averageResponseTime: 0,
+						confidenceLevel: 0,
+						optimalForLearning: false,
+						reviewCount: 0,
+						successRate: 0.5,
+					},
+					morning: {
+						averageResponseTime: 0,
+						confidenceLevel: 0,
+						optimalForLearning: false,
+						reviewCount: 0,
+						successRate: 0.5,
+					},
+					night: {
+						averageResponseTime: 0,
+						confidenceLevel: 0,
+						optimalForLearning: false,
+						reviewCount: 0,
+						successRate: 0.5,
+					},
+				},
+				userId: identity.subject,
+			});
+
+			existingPattern = await ctx.db
+				.query("learningPatterns")
+				.withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+				.first();
+		}
+
+		if (!existingPattern) {
+			throw new Error("Failed to create learning pattern");
+		}
+
+		// Update personalization configuration
+		const updatedConfig = {
+			adaptDifficultyProgression:
+				args.adaptDifficultyProgression ??
+				existingPattern.personalizationConfig.adaptDifficultyProgression,
+			focusOnPlateauTopics:
+				args.focusOnPlateauTopics ??
+				existingPattern.personalizationConfig.focusOnPlateauTopics,
+			learningPatternInfluence:
+				args.learningPatternInfluence ??
+				existingPattern.personalizationConfig.learningPatternInfluence,
+			optimizeForTimeOfDay:
+				args.optimizeForTimeOfDay ??
+				existingPattern.personalizationConfig.optimizeForTimeOfDay,
+			prioritizeInconsistentCards:
+				args.prioritizeInconsistentCards ??
+				existingPattern.personalizationConfig.prioritizeInconsistentCards,
+		};
+
+		await ctx.db.patch(existingPattern._id, {
+			lastUpdated: Date.now(),
+			personalizationConfig: updatedConfig,
+		});
+
+		return {
+			message: "Personalization settings updated successfully",
+			success: true,
+			updatedConfig,
+		};
+	},
+	returns: v.object({
+		message: v.string(),
+		success: v.boolean(),
+		updatedConfig: v.object({
+			adaptDifficultyProgression: v.boolean(),
+			focusOnPlateauTopics: v.boolean(),
+			learningPatternInfluence: v.number(),
+			optimizeForTimeOfDay: v.boolean(),
+			prioritizeInconsistentCards: v.boolean(),
+		}),
+	}),
+});
+
+/**
+ * Get user's current personalization configuration
+ */
+export const getPersonalizationConfig = query({
+	args: {
+		language: v.optional(v.string()),
+	},
+	handler: async (ctx, args) => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) {
+			const language = normalizeLanguage(args.language);
+			throw new Error(
+				t("adaptiveLearning.errors.userNotAuthenticated", language),
+			);
+		}
+
+		const pattern = await ctx.db
+			.query("learningPatterns")
+			.withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+			.first();
+
+		if (!pattern) {
+			// Return default configuration
+			return {
+				adaptDifficultyProgression: true,
+				focusOnPlateauTopics: true,
+				learningPatternInfluence: 0.3,
+				optimizeForTimeOfDay: true,
+				prioritizeInconsistentCards: true,
+			};
+		}
+
+		return pattern.personalizationConfig;
+	},
+	returns: v.object({
+		adaptDifficultyProgression: v.boolean(),
+		focusOnPlateauTopics: v.boolean(),
+		learningPatternInfluence: v.number(),
+		optimizeForTimeOfDay: v.boolean(),
+		prioritizeInconsistentCards: v.boolean(),
+	}),
 });
 
 /**

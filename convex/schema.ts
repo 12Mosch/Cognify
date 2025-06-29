@@ -101,66 +101,142 @@ export default defineSchema({
 
 	// Learning Patterns table - stores personalized learning analytics for adaptive algorithm
 	learningPatterns: defineTable({
-		averageSuccessRate: v.number(), // ID of the user
+		averageSuccessRate: v.number(), // Overall success rate across all reviews
+
 		// Difficulty-based performance patterns
 		difficultyPatterns: v.object({
 			easyCards: v.object({
 				averageInterval: v.number(),
+				averageResponseTime: v.number(),
+				confidenceLevel: v.number(),
 				successRate: v.number(),
 			}),
 			hardCards: v.object({
 				averageInterval: v.number(),
+				averageResponseTime: v.number(),
+				confidenceLevel: v.number(),
 				successRate: v.number(),
 			}),
 			mediumCards: v.object({
 				averageInterval: v.number(),
+				averageResponseTime: v.number(),
+				confidenceLevel: v.number(),
 				successRate: v.number(),
 			}),
-		}), // Overall success rate across all reviews
-		lastUpdated: v.number(), // Cards mastered per day
-		learningVelocity: v.number(),
-		personalEaseFactorBias: v.number(),
+		}),
+
+		// Inconsistency patterns - cards where user alternates between correct/incorrect
+		inconsistencyPatterns: v.object({
+			averageVariance: v.number(), // Average success rate variance across inconsistent cards
+			cardIds: v.array(v.string()), // Cards with high variance in performance
+			detectionThreshold: v.number(), // Variance threshold used (default: 0.3)
+			lastCalculated: v.number(),
+		}),
+
+		lastUpdated: v.number(), // Unix timestamp of last pattern update
+		learningVelocity: v.number(), // Cards mastered per day
+		personalEaseFactorBias: v.number(), // Personal adjustment to base ease factor (-0.5 to +0.5)
+
+		// Personalization configuration
+		personalizationConfig: v.object({
+			adaptDifficultyProgression: v.boolean(),
+			focusOnPlateauTopics: v.boolean(),
+			learningPatternInfluence: v.number(), // 0-1, how much to weight learning patterns vs SRS
+			optimizeForTimeOfDay: v.boolean(),
+			prioritizeInconsistentCards: v.boolean(),
+		}),
+
+		// Plateau detection - topics where performance has stagnated
+		plateauDetection: v.object({
+			lastAnalyzed: v.number(),
+			plateauThreshold: v.number(), // Days without improvement to consider plateau (default: 14)
+			stagnantTopics: v.array(
+				v.object({
+					averagePerformance: v.number(), // Current performance level
+					cardIds: v.array(v.string()), // Cards in this topic showing plateau
+					lastImprovement: v.number(), // Timestamp of last improvement
+					plateauDuration: v.number(), // Days since improvement stopped
+					topicKeywords: v.array(v.string()), // Keywords representing the topic
+				}),
+			),
+		}),
+
+		// Recent performance trends - rolling averages over time windows
+		recentPerformanceTrends: v.object({
+			last7Days: v.object({
+				averageResponseTime: v.number(),
+				confidenceLevel: v.number(),
+				reviewCount: v.number(),
+				successRate: v.number(),
+			}),
+			last14Days: v.object({
+				averageResponseTime: v.number(),
+				confidenceLevel: v.number(),
+				reviewCount: v.number(),
+				successRate: v.number(),
+			}),
+			lastUpdated: v.number(),
+			trend: v.object({
+				confidenceChange: v.number(), // Change in confidence level
+				responseTimeChange: v.number(), // Change in ms
+				successRateChange: v.number(), // Percentage change from 14d to 7d
+			}),
+		}),
+
 		retentionCurve: v.array(
 			v.object({
-				// Personal retention curve data points
 				interval: v.number(), // Interval in days
 				retentionRate: v.number(), // Retention rate at this interval (0-1)
 			}),
-		), // Personal adjustment to base ease factor (-0.5 to +0.5)
+		),
+
 		// Time-of-day performance breakdown
 		timeOfDayPerformance: v.object({
 			afternoon: v.object({
 				averageResponseTime: v.number(),
+				confidenceLevel: v.number(),
+				optimalForLearning: v.boolean(), // Whether this time is optimal for this user
 				reviewCount: v.number(),
 				successRate: v.number(),
 			}),
 			early_morning: v.object({
 				averageResponseTime: v.number(),
+				confidenceLevel: v.number(),
+				optimalForLearning: v.boolean(),
 				reviewCount: v.number(),
 				successRate: v.number(),
 			}),
 			evening: v.object({
 				averageResponseTime: v.number(),
+				confidenceLevel: v.number(),
+				optimalForLearning: v.boolean(),
 				reviewCount: v.number(),
 				successRate: v.number(),
 			}),
 			late_night: v.object({
 				averageResponseTime: v.number(),
+				confidenceLevel: v.number(),
+				optimalForLearning: v.boolean(),
 				reviewCount: v.number(),
 				successRate: v.number(),
 			}),
 			morning: v.object({
 				averageResponseTime: v.number(),
+				confidenceLevel: v.number(),
+				optimalForLearning: v.boolean(),
 				reviewCount: v.number(),
 				successRate: v.number(),
 			}),
 			night: v.object({
 				averageResponseTime: v.number(),
+				confidenceLevel: v.number(),
+				optimalForLearning: v.boolean(),
 				reviewCount: v.number(),
 				successRate: v.number(),
 			}),
 		}),
-		userId: v.string(), // Unix timestamp of last pattern update
+
+		userId: v.string(), // ID of the user
 	})
 		.index("by_userId", ["userId"]) // Index for efficient user pattern queries
 		.index("by_lastUpdated", ["lastUpdated"]), // Index for finding patterns that need updating

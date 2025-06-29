@@ -1,6 +1,10 @@
 import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { query } from "./_generated/server";
+import type {
+	PathPersonalizationConfig,
+	UserLearningPatterns,
+} from "./adaptiveLearning";
 import {
 	calculateAdvancedSimilarity,
 	type ProcessedText,
@@ -550,7 +554,48 @@ export const getLearningPathRecommendations = query({
 			return card !== undefined;
 		});
 
-		// Generate different types of learning paths using enhanced semantic analysis
+		// Get user's learning patterns for personalization
+		const learningPatterns = await ctx.db
+			.query("learningPatterns")
+			.withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+			.first();
+
+		// Create personalization configuration
+		const personalizationConfig: PathPersonalizationConfig =
+			learningPatterns?.personalizationConfig
+				? {
+						difficultyAdaptation: learningPatterns.personalizationConfig
+							.adaptDifficultyProgression
+							? 0.2
+							: 0,
+						inconsistencyBoost: learningPatterns.personalizationConfig
+							.prioritizeInconsistentCards
+							? 1.5
+							: 1.0,
+						learningPatternWeight:
+							learningPatterns.personalizationConfig.learningPatternInfluence,
+						plateauBoost: learningPatterns.personalizationConfig
+							.focusOnPlateauTopics
+							? 1.3
+							: 1.0,
+						srsWeight:
+							1 -
+							learningPatterns.personalizationConfig.learningPatternInfluence,
+						timeOfDayBoost: learningPatterns.personalizationConfig
+							.optimizeForTimeOfDay
+							? 1.2
+							: 1.0,
+					}
+				: {
+						difficultyAdaptation: 0.2,
+						inconsistencyBoost: 1.5,
+						learningPatternWeight: 0.3,
+						plateauBoost: 1.3,
+						srsWeight: 0.7,
+						timeOfDayBoost: 1.2,
+					};
+
+		// Generate different types of learning paths using enhanced semantic analysis and personalization
 		const paths = [];
 
 		// 1. Enhanced difficulty-based path (easy to hard with content analysis)
@@ -558,6 +603,8 @@ export const getLearningPathRecommendations = query({
 			cards,
 			deckReviews,
 			language,
+			learningPatterns || undefined,
+			personalizationConfig,
 		);
 		if (difficultyPath.length > 0) {
 			paths.push({
@@ -580,6 +627,8 @@ export const getLearningPathRecommendations = query({
 			cards,
 			deckReviews,
 			language,
+			learningPatterns || undefined,
+			personalizationConfig,
 		);
 		if (prerequisitePath.length > 0) {
 			paths.push({
@@ -595,7 +644,13 @@ export const getLearningPathRecommendations = query({
 		}
 
 		// 3. Enhanced review-focused path with learning pattern analysis
-		const reviewPath = generateReviewFocusedPath(cards, deckReviews, language);
+		const reviewPath = generateReviewFocusedPath(
+			cards,
+			deckReviews,
+			language,
+			learningPatterns || undefined,
+			personalizationConfig,
+		);
 		if (reviewPath.length > 0) {
 			paths.push({
 				confidence: 0.9, // High confidence for review-based recommendations
@@ -610,7 +665,13 @@ export const getLearningPathRecommendations = query({
 		}
 
 		// 4. Domain-focused path for specialized learning
-		const domainPath = generateDomainFocusedPath(cards, deckReviews, language);
+		const domainPath = generateDomainFocusedPath(
+			cards,
+			deckReviews,
+			language,
+			learningPatterns || undefined,
+			personalizationConfig,
+		);
 		if (domainPath.length > 0) {
 			paths.push({
 				confidence: 0.75,
@@ -1126,11 +1187,14 @@ function generateClusterName(
 
 /**
  * Enhanced difficulty-based path generation using semantic analysis and content complexity
+ * Includes personalized learning patterns for adaptive card selection
  */
 function generateDifficultyBasedPath(
 	cards: Doc<"cards">[],
 	reviews: Doc<"cardReviews">[],
 	language: string,
+	learningPatterns?: UserLearningPatterns,
+	personalizationConfig?: PathPersonalizationConfig,
 ) {
 	const normalizedLanguage = normalizeLanguage(language);
 	const langCode = normalizedLanguage as "en" | "de";
@@ -1193,13 +1257,69 @@ function generateDifficultyBasedPath(
 				);
 			}
 
+			// Apply personalized learning pattern adjustments
+			let personalizedDifficulty = totalDifficulty;
+			let personalizedReason = reason;
+
+			if (learningPatterns && personalizationConfig) {
+				const config = personalizationConfig;
+
+				// Check if this card is in inconsistency patterns
+				const isInconsistent =
+					learningPatterns.inconsistencyPatterns.cardIds.includes(card._id);
+				if (isInconsistent && config.inconsistencyBoost > 1) {
+					personalizedDifficulty *= config.inconsistencyBoost;
+					personalizedReason = t(
+						"contextualLearning.reasons.inconsistentPerformance",
+						normalizedLanguage,
+					);
+				}
+
+				// Check if this card is in plateau topics
+				const isInPlateauTopic =
+					learningPatterns.plateauDetection.stagnantTopics.some((topic) =>
+						topic.cardIds.includes(card._id),
+					);
+				if (isInPlateauTopic && config.plateauBoost > 1) {
+					personalizedDifficulty *= config.plateauBoost;
+					personalizedReason = t(
+						"contextualLearning.reasons.plateauTopic",
+						normalizedLanguage,
+					);
+				}
+
+				// Apply difficulty pattern adjustments based on user's historical performance
+				const cardEaseFactor = card.easeFactor || 2.5;
+				const difficultyCategory =
+					cardEaseFactor > 2.2
+						? "easyCards"
+						: cardEaseFactor < 1.8
+							? "hardCards"
+							: "mediumCards";
+
+				const userDifficultyPattern =
+					learningPatterns.difficultyPatterns[difficultyCategory];
+				if (
+					userDifficultyPattern.successRate < 0.6 &&
+					config.difficultyAdaptation > 0
+				) {
+					// User struggles with this difficulty level - increase priority
+					personalizedDifficulty *= 1 + config.difficultyAdaptation;
+				}
+
+				// Weight between traditional SRS and learning patterns
+				personalizedDifficulty =
+					totalDifficulty * config.srsWeight +
+					personalizedDifficulty * config.learningPatternWeight;
+			}
+
 			return {
 				cardId: card._id,
 				contentComplexity,
 				domainDifficulty,
-				estimatedDifficulty: Math.min(1, totalDifficulty),
+				estimatedDifficulty: Math.min(1, personalizedDifficulty),
 				front: card.front,
-				reason,
+				reason: personalizedReason,
 			};
 		},
 	);
@@ -1295,11 +1415,14 @@ function calculateConceptualDensity(processed: ProcessedText): number {
 
 /**
  * Enhanced prerequisite path generation using semantic analysis
+ * Now includes personalized learning patterns for adaptive card selection
  */
 function generatePrerequisitePath(
 	cards: Doc<"cards">[],
 	reviews: Doc<"cardReviews">[],
 	language: string,
+	learningPatterns?: UserLearningPatterns,
+	personalizationConfig?: PathPersonalizationConfig,
 ) {
 	const normalizedLanguage = normalizeLanguage(language);
 	const langCode = normalizedLanguage as "en" | "de";
@@ -1374,8 +1497,53 @@ function generatePrerequisitePath(
 		},
 	);
 
+	// Apply personalized learning pattern adjustments
+	const personalizedCardScores = cardScores.map((cardScore) => {
+		if (!learningPatterns || !personalizationConfig) {
+			return cardScore;
+		}
+
+		let personalizedScore = cardScore.prerequisiteScore;
+		let personalizedReason = cardScore.reason;
+
+		// Boost cards that are in inconsistency patterns
+		const isInconsistent =
+			learningPatterns.inconsistencyPatterns.cardIds.includes(cardScore.cardId);
+		if (isInconsistent && personalizationConfig.inconsistencyBoost > 1) {
+			personalizedScore *= personalizationConfig.inconsistencyBoost;
+			personalizedReason = t(
+				"contextualLearning.reasons.inconsistentPerformance",
+				normalizedLanguage,
+			);
+		}
+
+		// Boost cards in plateau topics
+		const isInPlateauTopic =
+			learningPatterns.plateauDetection.stagnantTopics.some((topic) =>
+				topic.cardIds.includes(cardScore.cardId),
+			);
+		if (isInPlateauTopic && personalizationConfig.plateauBoost > 1) {
+			personalizedScore *= personalizationConfig.plateauBoost;
+			personalizedReason = t(
+				"contextualLearning.reasons.plateauTopic",
+				normalizedLanguage,
+			);
+		}
+
+		// Weight between traditional prerequisite scoring and learning patterns
+		const finalScore =
+			cardScore.prerequisiteScore * personalizationConfig.srsWeight +
+			personalizedScore * personalizationConfig.learningPatternWeight;
+
+		return {
+			...cardScore,
+			prerequisiteScore: finalScore,
+			reason: personalizedReason,
+		};
+	});
+
 	// Sort by prerequisite score (highest first) and return top cards
-	return cardScores
+	return personalizedCardScores
 		.sort((a, b) => b.prerequisiteScore - a.prerequisiteScore)
 		.slice(0, 10);
 }
@@ -1476,11 +1644,14 @@ function calculateComplexityScore(processed: ProcessedText): number {
 
 /**
  * Enhanced review-focused path generation using semantic analysis and learning patterns
+ * Now includes personalized learning patterns for adaptive card selection
  */
 function generateReviewFocusedPath(
 	cards: Doc<"cards">[],
 	reviews: Doc<"cardReviews">[],
 	language: string,
+	learningPatterns?: UserLearningPatterns,
+	personalizationConfig?: PathPersonalizationConfig,
 ) {
 	const normalizedLanguage = normalizeLanguage(language);
 	const langCode = normalizedLanguage as "en" | "de";
@@ -1561,7 +1732,62 @@ function generateReviewFocusedPath(
 		)
 		.sort((a, b) => b.estimatedDifficulty - a.estimatedDifficulty);
 
-	return strugglingCards.slice(0, 8); // Increased from 6 to 8 for better coverage
+	// Apply personalized learning pattern adjustments
+	const personalizedCards = strugglingCards.map((card) => {
+		if (!learningPatterns || !personalizationConfig) {
+			return card;
+		}
+
+		let personalizedDifficulty = card.estimatedDifficulty;
+		let personalizedReason = card.reason;
+
+		// Prioritize cards with inconsistent performance patterns
+		const isInconsistent =
+			learningPatterns.inconsistencyPatterns.cardIds.includes(card.cardId);
+		if (isInconsistent) {
+			personalizedDifficulty *= personalizationConfig.inconsistencyBoost;
+			personalizedReason = t(
+				"contextualLearning.reasons.inconsistentPerformance",
+				normalizedLanguage,
+			);
+		}
+
+		// Prioritize cards in plateau topics for focused review
+		const isInPlateauTopic =
+			learningPatterns.plateauDetection.stagnantTopics.some((topic) =>
+				topic.cardIds.includes(card.cardId),
+			);
+		if (isInPlateauTopic) {
+			personalizedDifficulty *= personalizationConfig.plateauBoost;
+			personalizedReason = t(
+				"contextualLearning.reasons.plateauTopic",
+				normalizedLanguage,
+			);
+		}
+
+		// Consider recent performance trends
+		const recentTrend =
+			learningPatterns.recentPerformanceTrends.trend.successRateChange;
+		if (recentTrend < -10) {
+			// Performance declining
+			personalizedDifficulty *= 1.2; // Increase priority for review
+		}
+
+		// Weight between traditional review scoring and learning patterns
+		const finalDifficulty =
+			card.estimatedDifficulty * personalizationConfig.srsWeight +
+			personalizedDifficulty * personalizationConfig.learningPatternWeight;
+
+		return {
+			...card,
+			estimatedDifficulty: finalDifficulty,
+			reason: personalizedReason,
+		};
+	});
+
+	return personalizedCards
+		.sort((a, b) => b.estimatedDifficulty - a.estimatedDifficulty)
+		.slice(0, 8); // Increased from 6 to 8 for better coverage
 }
 
 /**
@@ -1692,11 +1918,14 @@ function calculateReviewComplexity(processed: ProcessedText): number {
 
 /**
  * NEW: Generate domain-focused learning path that groups cards by subject area
+ * Now includes personalized learning patterns for adaptive card selection
  */
 function generateDomainFocusedPath(
 	cards: Doc<"cards">[],
 	reviews: Doc<"cardReviews">[],
 	language: string,
+	learningPatterns?: UserLearningPatterns,
+	personalizationConfig?: PathPersonalizationConfig,
 ) {
 	const normalizedLanguage = normalizeLanguage(language);
 	const langCode = normalizedLanguage as "en" | "de";
@@ -1776,8 +2005,70 @@ function generateDomainFocusedPath(
 		},
 	);
 
+	// Apply personalized learning pattern adjustments
+	const personalizedPathCards = pathCards.map((card) => {
+		if (!learningPatterns || !personalizationConfig) {
+			return card;
+		}
+
+		let personalizedScore = card.domainScore;
+		let personalizedReason = card.reason;
+
+		// Boost cards with inconsistent performance in this domain
+		const isInconsistent =
+			learningPatterns.inconsistencyPatterns.cardIds.includes(card.cardId);
+		if (isInconsistent) {
+			personalizedScore *= personalizationConfig.inconsistencyBoost;
+			personalizedReason = t(
+				"contextualLearning.reasons.inconsistentPerformance",
+				normalizedLanguage,
+			);
+		}
+
+		// Boost cards in plateau topics within this domain
+		const isInPlateauTopic =
+			learningPatterns.plateauDetection.stagnantTopics.some((topic) =>
+				topic.cardIds.includes(card.cardId),
+			);
+		if (isInPlateauTopic) {
+			personalizedScore *= personalizationConfig.plateauBoost;
+			personalizedReason = t(
+				"contextualLearning.reasons.plateauTopic",
+				normalizedLanguage,
+			);
+		}
+
+		// Consider user's domain-specific performance patterns
+		const cardEaseFactor = card.estimatedDifficulty;
+		const difficultyCategory =
+			cardEaseFactor > 0.7
+				? "hardCards"
+				: cardEaseFactor < 0.3
+					? "easyCards"
+					: "mediumCards";
+
+		const userDomainPattern =
+			learningPatterns.difficultyPatterns[difficultyCategory];
+		if (userDomainPattern.successRate < 0.6) {
+			personalizedScore *= 1 + personalizationConfig.difficultyAdaptation;
+		}
+
+		// Weight between traditional domain scoring and learning patterns
+		const finalScore =
+			card.domainScore * personalizationConfig.srsWeight +
+			personalizedScore * personalizationConfig.learningPatternWeight;
+
+		return {
+			...card,
+			domainScore: finalScore,
+			reason: personalizedReason,
+		};
+	});
+
 	// Sort by domain score (easier concepts first within the domain)
-	return pathCards.sort((a, b) => b.domainScore - a.domainScore).slice(0, 8); // Limit to 8 cards for focused learning
+	return personalizedPathCards
+		.sort((a, b) => b.domainScore - a.domainScore)
+		.slice(0, 8); // Limit to 8 cards for focused learning
 }
 
 /**
