@@ -52,6 +52,9 @@ export default defineSchema({
 		easeFactorBefore: v.number(), // Quality rating (0-5 scale from SM-2 algorithm)
 		intervalAfter: v.number(), // Whether the review was successful (quality >= 3)
 		intervalBefore: v.number(), // Repetition count before this review
+		// Concept mastery integration fields
+		masteryAdjustment: v.optional(v.number()), // How much concept mastery influenced SM-2 calculation
+		masteryLevel: v.optional(v.number()), // Concept mastery level at time of review (0-1)
 		predictedConfidence: v.optional(v.number()), // Repetition count after this review
 		quality: v.number(), // Interval before this review
 		repetitionAfter: v.number(), // Interval after this review

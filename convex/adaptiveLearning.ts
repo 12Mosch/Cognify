@@ -709,7 +709,227 @@ function calculatePersonalizedEaseFactor(
 }
 
 /**
- * Enhanced SM-2 calculation with adaptive learning
+ * Calculate domain-specific performance adjustments
+ */
+function calculateDomainAdjustments(
+	conceptMastery: {
+		masteryLevel: number;
+		confidenceLevel: number;
+		learningVelocity: number;
+		difficultyTrend: "improving" | "stable" | "declining";
+		masteryCategory: "beginner" | "intermediate" | "advanced" | "expert";
+	},
+	learningPattern?: LearningPattern,
+): {
+	domainEaseAdjustment: number;
+	domainIntervalMultiplier: number;
+	domainReasoning: string;
+} {
+	let domainEaseAdjustment = 0;
+	let domainIntervalMultiplier = 1.0;
+	const reasoningParts: string[] = [];
+
+	// Adjust based on overall learning velocity patterns
+	if (learningPattern) {
+		// If user's general learning velocity differs significantly from concept-specific velocity
+		const velocityDifference =
+			conceptMastery.learningVelocity - learningPattern.learningVelocity;
+
+		if (Math.abs(velocityDifference) > 0.5) {
+			if (velocityDifference > 0) {
+				// This concept is learned faster than average - can be more aggressive
+				domainEaseAdjustment += 0.05;
+				domainIntervalMultiplier *= 1.1;
+				reasoningParts.push(
+					"Concept learned faster than average (+0.05 ease, +10% interval)",
+				);
+			} else {
+				// This concept is learned slower than average - be more conservative
+				domainEaseAdjustment -= 0.05;
+				domainIntervalMultiplier *= 0.95;
+				reasoningParts.push(
+					"Concept learned slower than average (-0.05 ease, -5% interval)",
+				);
+			}
+		}
+
+		// Adjust based on difficulty patterns for similar ease factor ranges
+		const currentEaseCategory =
+			conceptMastery.masteryLevel > 0.7
+				? "easyCards"
+				: conceptMastery.masteryLevel < 0.3
+					? "hardCards"
+					: "mediumCards";
+
+		const difficultyPattern =
+			learningPattern.difficultyPatterns[currentEaseCategory];
+		if (difficultyPattern.successRate < 0.6) {
+			// User struggles with this difficulty category
+			domainEaseAdjustment -= 0.1;
+			domainIntervalMultiplier *= 0.9;
+			reasoningParts.push(
+				`Struggling with ${currentEaseCategory} (-0.1 ease, -10% interval)`,
+			);
+		} else if (difficultyPattern.successRate > 0.85) {
+			// User excels at this difficulty category
+			domainEaseAdjustment += 0.05;
+			domainIntervalMultiplier *= 1.05;
+			reasoningParts.push(
+				`Excelling at ${currentEaseCategory} (+0.05 ease, +5% interval)`,
+			);
+		}
+
+		// Time-of-day performance consideration
+		const currentHour = new Date().getHours();
+		const timeSlot = getTimeSlot(currentHour);
+		const timePerformance = learningPattern.timeOfDayPerformance[timeSlot];
+
+		if (timePerformance.reviewCount >= 5) {
+			if (timePerformance.successRate > 0.8) {
+				domainIntervalMultiplier *= 1.05;
+				reasoningParts.push("Optimal time slot (+5% interval)");
+			} else if (timePerformance.successRate < 0.6) {
+				domainIntervalMultiplier *= 0.95;
+				reasoningParts.push("Suboptimal time slot (-5% interval)");
+			}
+		}
+	}
+
+	return {
+		domainEaseAdjustment,
+		domainIntervalMultiplier,
+		domainReasoning: reasoningParts.join("; "),
+	};
+}
+
+/**
+ * Calculate how concept mastery should influence SM-2 parameters
+ */
+function calculateMasteryInfluence(
+	conceptMastery: {
+		masteryLevel: number;
+		confidenceLevel: number;
+		learningVelocity: number;
+		difficultyTrend: "improving" | "stable" | "declining";
+		masteryCategory: "beginner" | "intermediate" | "advanced" | "expert";
+	},
+	quality: number,
+	learningPattern?: LearningPattern,
+): {
+	easeFactorAdjustment: number;
+	intervalMultiplier: number;
+	reasoning: string;
+} {
+	let easeFactorAdjustment = 0;
+	let intervalMultiplier = 1.0;
+	const reasoningParts: string[] = [];
+
+	// Apply domain-specific adjustments first
+	const domainAdjustments = calculateDomainAdjustments(
+		conceptMastery,
+		learningPattern,
+	);
+	easeFactorAdjustment += domainAdjustments.domainEaseAdjustment;
+	intervalMultiplier *= domainAdjustments.domainIntervalMultiplier;
+	if (domainAdjustments.domainReasoning) {
+		reasoningParts.push(domainAdjustments.domainReasoning);
+	}
+
+	// Base adjustments on mastery level
+	if (conceptMastery.masteryLevel >= 0.8) {
+		// High mastery - can handle longer intervals and higher ease factors
+		easeFactorAdjustment += 0.1;
+		intervalMultiplier *= 1.2;
+		reasoningParts.push("High mastery level (+0.1 ease, +20% interval)");
+	} else if (conceptMastery.masteryLevel <= 0.3) {
+		// Low mastery - needs more frequent reviews
+		easeFactorAdjustment -= 0.05;
+		intervalMultiplier *= 0.8;
+		reasoningParts.push("Low mastery level (-0.05 ease, -20% interval)");
+	}
+
+	// Adjust based on difficulty trend
+	switch (conceptMastery.difficultyTrend) {
+		case "improving":
+			easeFactorAdjustment += 0.05;
+			intervalMultiplier *= 1.1;
+			reasoningParts.push("Improving trend (+0.05 ease, +10% interval)");
+			break;
+		case "declining":
+			easeFactorAdjustment -= 0.1;
+			intervalMultiplier *= 0.85;
+			reasoningParts.push("Declining trend (-0.1 ease, -15% interval)");
+			break;
+		case "stable":
+			// No adjustment for stable trend
+			break;
+	}
+
+	// Adjust based on learning velocity
+	if (conceptMastery.learningVelocity > 1.5) {
+		// Fast learner for this concept
+		intervalMultiplier *= 1.15;
+		reasoningParts.push("High learning velocity (+15% interval)");
+	} else if (conceptMastery.learningVelocity < 0.5) {
+		// Slow learner for this concept
+		intervalMultiplier *= 0.9;
+		reasoningParts.push("Low learning velocity (-10% interval)");
+	}
+
+	// Adjust based on mastery category
+	switch (conceptMastery.masteryCategory) {
+		case "expert":
+			easeFactorAdjustment += 0.15;
+			intervalMultiplier *= 1.3;
+			reasoningParts.push("Expert level (+0.15 ease, +30% interval)");
+			break;
+		case "advanced":
+			easeFactorAdjustment += 0.1;
+			intervalMultiplier *= 1.2;
+			reasoningParts.push("Advanced level (+0.1 ease, +20% interval)");
+			break;
+		case "intermediate":
+			easeFactorAdjustment += 0.05;
+			intervalMultiplier *= 1.1;
+			reasoningParts.push("Intermediate level (+0.05 ease, +10% interval)");
+			break;
+		case "beginner":
+			easeFactorAdjustment -= 0.05;
+			intervalMultiplier *= 0.9;
+			reasoningParts.push("Beginner level (-0.05 ease, -10% interval)");
+			break;
+	}
+
+	// Quality-based fine-tuning
+	if (quality === 5 && conceptMastery.masteryLevel > 0.7) {
+		// Perfect response with high mastery - boost more aggressively
+		easeFactorAdjustment += 0.05;
+		intervalMultiplier *= 1.1;
+		reasoningParts.push(
+			"Perfect response with high mastery (+0.05 ease, +10% interval)",
+		);
+	} else if (quality === 3 && conceptMastery.masteryLevel < 0.4) {
+		// Barely correct with low mastery - be more conservative
+		easeFactorAdjustment -= 0.05;
+		intervalMultiplier *= 0.9;
+		reasoningParts.push(
+			"Barely correct with low mastery (-0.05 ease, -10% interval)",
+		);
+	}
+
+	// Ensure reasonable bounds
+	easeFactorAdjustment = Math.max(-0.3, Math.min(0.3, easeFactorAdjustment));
+	intervalMultiplier = Math.max(0.5, Math.min(2.0, intervalMultiplier));
+
+	return {
+		easeFactorAdjustment,
+		intervalMultiplier,
+		reasoning: reasoningParts.join("; "),
+	};
+}
+
+/**
+ * Enhanced SM-2 calculation with adaptive learning and concept mastery integration
  */
 function calculateAdaptiveSM2(
 	quality: number,
@@ -717,6 +937,13 @@ function calculateAdaptiveSM2(
 	easeFactor: number,
 	interval: number,
 	learningPattern?: LearningPattern,
+	conceptMastery?: {
+		masteryLevel: number;
+		confidenceLevel: number;
+		learningVelocity: number;
+		difficultyTrend: "improving" | "stable" | "declining";
+		masteryCategory: "beginner" | "intermediate" | "advanced" | "expert";
+	},
 	currentHour: number = new Date().getHours(),
 ): {
 	repetition: number;
@@ -724,16 +951,19 @@ function calculateAdaptiveSM2(
 	interval: number;
 	dueDate: number;
 	confidence: number;
+	masteryAdjustment: number;
 } {
 	let newRepetition: number;
 	let newEaseFactor = easeFactor;
 	let newInterval: number;
 	let confidence = 0.5; // Default confidence
+	let masteryAdjustment = 0; // Track how much concept mastery influenced the calculation
 
 	// Standard SM-2 logic
 	if (quality < 3) {
 		newRepetition = 0;
 		newInterval = 1;
+		// Don't update ease factor for failed reviews (as per SM-2 spec)
 	} else {
 		newRepetition = repetition + 1;
 
@@ -745,10 +975,35 @@ function calculateAdaptiveSM2(
 			newInterval = Math.round(interval * easeFactor);
 		}
 
-		// Update ease factor
+		// Update ease factor (only for successful reviews)
 		newEaseFactor =
 			easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
 		newEaseFactor = Math.max(1.3, newEaseFactor);
+	}
+
+	// Apply concept mastery adjustments if available
+	if (conceptMastery && quality >= 3) {
+		// Concept mastery influences ease factor adjustments
+		const masteryInfluence = calculateMasteryInfluence(
+			conceptMastery,
+			quality,
+			learningPattern,
+		);
+
+		// Apply mastery-based ease factor adjustment
+		const masteryEaseAdjustment = masteryInfluence.easeFactorAdjustment;
+		newEaseFactor += masteryEaseAdjustment;
+		newEaseFactor = Math.max(1.3, Math.min(3.0, newEaseFactor));
+
+		// Apply mastery-based interval adjustment
+		const masteryIntervalMultiplier = masteryInfluence.intervalMultiplier;
+		newInterval = Math.round(newInterval * masteryIntervalMultiplier);
+
+		// Track the total adjustment made
+		masteryAdjustment = masteryEaseAdjustment + (masteryIntervalMultiplier - 1);
+
+		// Update confidence based on mastery
+		confidence = Math.max(confidence, conceptMastery.confidenceLevel);
 	}
 
 	// Apply adaptive learning if pattern data is available
@@ -763,20 +1018,24 @@ function calculateAdaptiveSM2(
 			cardDifficulty,
 		);
 
-		// Adjust interval based on learning velocity
-		if (learningPattern.learningVelocity > 1.5) {
-			// Fast learner - can handle slightly longer intervals
-			newInterval = Math.round(newInterval * 1.1);
-		} else if (learningPattern.learningVelocity < 0.5) {
-			// Slower learner - use shorter intervals
-			newInterval = Math.round(newInterval * 0.9);
+		// Adjust interval based on learning velocity (if not already adjusted by mastery)
+		if (!conceptMastery) {
+			if (learningPattern.learningVelocity > 1.5) {
+				// Fast learner - can handle slightly longer intervals
+				newInterval = Math.round(newInterval * 1.1);
+			} else if (learningPattern.learningVelocity < 0.5) {
+				// Slower learner - use shorter intervals
+				newInterval = Math.round(newInterval * 0.9);
+			}
 		}
 
-		// Calculate confidence based on historical performance
-		const timeSlot = getTimeSlot(currentHour);
-		const timePerformance = learningPattern.timeOfDayPerformance[timeSlot];
-		confidence =
-			timePerformance.reviewCount >= 5 ? timePerformance.successRate : 0.5;
+		// Calculate confidence based on patterns (if not already set by mastery)
+		if (!conceptMastery) {
+			const timeSlot = getTimeSlot(currentHour);
+			const timePerformance = learningPattern.timeOfDayPerformance[timeSlot];
+			confidence =
+				timePerformance.reviewCount >= 5 ? timePerformance.successRate : 0.5;
+		}
 	}
 
 	// Calculate due date
@@ -789,6 +1048,7 @@ function calculateAdaptiveSM2(
 		dueDate,
 		easeFactor: newEaseFactor,
 		interval: newInterval,
+		masteryAdjustment,
 		repetition: newRepetition,
 	};
 }
@@ -1093,18 +1353,56 @@ export const reviewCardAdaptive = mutation({
 			.withIndex("by_userId", (q) => q.eq("userId", identity.subject))
 			.first();
 
+		// Get concept mastery data for this card
+		const conceptMasteries = await ctx.db
+			.query("conceptMasteries")
+			.withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+			.first();
+
+		// Extract relevant concept mastery for this card
+		let relevantConceptMastery:
+			| {
+					masteryLevel: number;
+					confidenceLevel: number;
+					learningVelocity: number;
+					difficultyTrend: "improving" | "stable" | "declining";
+					masteryCategory: "beginner" | "intermediate" | "advanced" | "expert";
+			  }
+			| undefined;
+
+		if (conceptMasteries) {
+			// Find concept mastery that matches this card's content
+			// For now, use the first concept or average if multiple concepts exist
+			const concepts = conceptMasteries.concepts;
+			if (concepts.length > 0) {
+				// Use the concept with the lowest mastery level (most challenging)
+				const mostChallengingConcept = concepts.reduce((min, concept) =>
+					concept.masteryLevel < min.masteryLevel ? concept : min,
+				);
+
+				relevantConceptMastery = {
+					confidenceLevel: mostChallengingConcept.confidenceLevel,
+					difficultyTrend: mostChallengingConcept.difficultyTrend,
+					learningVelocity: mostChallengingConcept.learningVelocity || 1.0,
+					masteryCategory: mostChallengingConcept.masteryCategory,
+					masteryLevel: mostChallengingConcept.masteryLevel,
+				};
+			}
+		}
+
 		// Get current card parameters
 		const currentRepetition = card.repetition ?? 0;
 		const currentEaseFactor = card.easeFactor ?? 2.5;
 		const currentInterval = card.interval ?? 1;
 
-		// Calculate new parameters with adaptive algorithm
+		// Calculate new parameters with adaptive algorithm including concept mastery
 		const result = calculateAdaptiveSM2(
 			args.quality,
 			currentRepetition,
 			currentEaseFactor,
 			currentInterval,
 			learningPattern || undefined,
+			relevantConceptMastery,
 		);
 
 		// Update card
@@ -1124,6 +1422,8 @@ export const reviewCardAdaptive = mutation({
 			easeFactorBefore: currentEaseFactor,
 			intervalAfter: result.interval,
 			intervalBefore: currentInterval,
+			masteryAdjustment: result.masteryAdjustment,
+			masteryLevel: relevantConceptMastery?.masteryLevel,
 			predictedConfidence: result.confidence,
 			quality: args.quality,
 			repetitionAfter: result.repetition,

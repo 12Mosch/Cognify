@@ -140,6 +140,21 @@ export const recordCardInteraction = mutation({
 			wasSuccessful: interaction.wasSuccessful, // Flag for batch processing
 		});
 
+		// If this is an answer interaction with quality rating, trigger SM-2 update
+		if (args.interactionType === "answer" && args.quality !== undefined) {
+			await ctx.scheduler.runAfter(
+				500, // Small delay to allow interaction to be stored
+				api.realTimeAdaptiveLearning.updateCardSM2Parameters,
+				{
+					cardId: args.cardId,
+					confidenceLevel: args.confidenceLevel,
+					quality: args.quality,
+					responseTime: args.responseTime,
+					userId: identity.subject,
+				},
+			);
+		}
+
 		// Trigger immediate pattern update (debounced)
 		await ctx.scheduler.runAfter(
 			DEBOUNCE_DELAY_MS,
@@ -437,12 +452,44 @@ export const updateLearningPatternsRealTime = mutation({
 				await ctx.db.patch(interaction._id, { processed: true });
 			}
 
+			const significantChanges = identifySignificantChanges(
+				currentPatterns,
+				updatedPatterns,
+			);
+
+			// If there are significant changes, trigger concept mastery recalculation
+			if (significantChanges.length > 0) {
+				// Get unique deck IDs from processed interactions
+				const deckIds = Array.from(
+					new Set(unprocessedInteractions.map((i) => i.deckId)),
+				);
+
+				// Trigger concept mastery recalculation for affected decks
+				for (const deckId of deckIds) {
+					await ctx.scheduler.runAfter(
+						1000, // 1 second delay
+						api.masteryTracking.calculateConceptMastery,
+						{
+							deckId,
+							forceRecalculation: true,
+						},
+					);
+				}
+
+				// Trigger SM-2 parameter optimization for cards with significant pattern changes
+				await ctx.scheduler.runAfter(
+					2000, // 2 second delay to allow mastery calculation
+					api.realTimeAdaptiveLearning.optimizeCardParameters,
+					{
+						significantChanges,
+						userId: args.userId,
+					},
+				);
+			}
+
 			return {
 				interactionsProcessed: unprocessedInteractions.length,
-				significantChanges: identifySignificantChanges(
-					currentPatterns,
-					updatedPatterns,
-				),
+				significantChanges,
 				updated: true,
 			};
 		}
@@ -1073,6 +1120,185 @@ export const getAdaptiveStudyQueue = query({
 
 		return studyQueueWithImages;
 	},
+});
+
+/**
+ * Optimize card parameters based on significant learning pattern changes
+ */
+export const optimizeCardParameters = mutation({
+	args: {
+		significantChanges: v.array(v.string()),
+		userId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		// Get user's updated learning patterns
+		const learningPatterns = await ctx.db
+			.query("learningPatterns")
+			.withIndex("by_userId", (q) => q.eq("userId", args.userId))
+			.first();
+
+		if (!learningPatterns) {
+			return {
+				optimized: false,
+				reason: "no_learning_patterns",
+			};
+		}
+
+		// Note: Concept masteries will be automatically recalculated by the scheduled task
+
+		// Get cards that might need parameter optimization
+		// Focus on cards with recent reviews that might benefit from updated patterns
+		const recentReviews = await ctx.db
+			.query("cardReviews")
+			.withIndex(
+				"by_userId_and_date",
+				(q) =>
+					q
+						.eq("userId", args.userId)
+						.gte("reviewDate", Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
+			)
+			.order("desc")
+			.take(50);
+
+		const cardIds = Array.from(new Set(recentReviews.map((r) => r.cardId)));
+		let optimizedCount = 0;
+
+		// Optimize parameters for cards that might benefit from pattern changes
+		for (const cardId of cardIds.slice(0, 20)) {
+			// Limit to 20 cards per optimization run
+			try {
+				// deepcode ignore Sqli: <No SQL injection risk in Convex>
+				const card = await ctx.db.get(cardId);
+				if (!card) continue;
+
+				// Check if this card's parameters should be adjusted based on new patterns
+				const shouldOptimize = shouldOptimizeCardParameters(
+					recentReviews.filter((r) => r.cardId === cardId),
+					args.significantChanges,
+				);
+
+				if (shouldOptimize) {
+					// Trigger a parameter recalculation by simulating a review with the last quality
+					const lastReview = recentReviews
+						.filter((r) => r.cardId === cardId)
+						.sort((a, b) => b.reviewDate - a.reviewDate)[0];
+
+					if (lastReview) {
+						await ctx.runMutation(api.adaptiveLearning.reviewCardAdaptive, {
+							cardId,
+							confidenceRating: lastReview.confidenceRating,
+							quality: lastReview.quality,
+							responseTime: lastReview.responseTime,
+						});
+						optimizedCount++;
+					}
+				}
+			} catch (error) {
+				console.error(`Error optimizing card ${cardId}:`, error);
+			}
+		}
+
+		return {
+			cardsOptimized: optimizedCount,
+			optimized: optimizedCount > 0,
+			significantChanges: args.significantChanges,
+		};
+	},
+	returns: v.object({
+		cardsOptimized: v.optional(v.number()),
+		optimized: v.boolean(),
+		reason: v.optional(v.string()),
+		significantChanges: v.optional(v.array(v.string())),
+	}),
+});
+
+/**
+ * Determine if a card's parameters should be optimized based on pattern changes
+ */
+function shouldOptimizeCardParameters(
+	recentReviews: Array<{
+		quality: number;
+		wasSuccessful: boolean;
+		reviewDate: number;
+	}>,
+	significantChanges: string[],
+): boolean {
+	// Optimize if there are significant pattern changes and recent reviews
+	if (significantChanges.length === 0 || recentReviews.length === 0) {
+		return false;
+	}
+
+	// Check for specific conditions that warrant optimization
+	const hasPerformanceChanges = significantChanges.some(
+		(change) =>
+			change.includes("success_rate") || change.includes("performance_trend"),
+	);
+
+	const hasInconsistencyChanges = significantChanges.some((change) =>
+		change.includes("inconsistent_cards"),
+	);
+
+	const hasRecentActivity = recentReviews.some(
+		(review) => Date.now() - review.reviewDate < 3 * 24 * 60 * 60 * 1000, // Last 3 days
+	);
+
+	// Optimize if there are performance changes and recent activity
+	return (
+		(hasPerformanceChanges || hasInconsistencyChanges) && hasRecentActivity
+	);
+}
+
+/**
+ * Update card SM-2 parameters based on interaction data
+ */
+export const updateCardSM2Parameters = mutation({
+	args: {
+		cardId: v.id("cards"),
+		confidenceLevel: v.optional(v.number()),
+		quality: v.number(),
+		responseTime: v.optional(v.number()),
+		userId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		// Get card and verify ownership
+		const card = await ctx.db.get(args.cardId);
+		if (!card) {
+			throw new Error("Card not found");
+		}
+
+		// deepcode ignore Sqli: <No SQL injection risk in Convex>
+		const deck = await ctx.db.get(card.deckId);
+		if (!deck || deck.userId !== args.userId) {
+			throw new Error("Access denied to card");
+		}
+
+		// Use the adaptive learning system to update SM-2 parameters
+		try {
+			await ctx.runMutation(api.adaptiveLearning.reviewCardAdaptive, {
+				cardId: args.cardId,
+				confidenceRating: args.confidenceLevel,
+				quality: args.quality,
+				responseTime: args.responseTime,
+			});
+
+			return {
+				success: true,
+				updated: true,
+			};
+		} catch (error) {
+			console.error("Error updating SM-2 parameters:", error);
+			return {
+				error: error instanceof Error ? error.message : "Unknown error",
+				success: false,
+				updated: false,
+			};
+		}
+	},
+	returns: v.object({
+		error: v.optional(v.string()),
+		success: v.boolean(),
+		updated: v.boolean(),
+	}),
 });
 
 /**
