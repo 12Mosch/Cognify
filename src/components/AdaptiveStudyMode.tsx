@@ -3,9 +3,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import { usePathChangeDetection } from "../hooks/usePathChangeDetection";
 import { useAnalytics } from "../lib/analytics";
 import { toastHelpers } from "../lib/toast";
 import LearningReflectionModal from "./LearningReflectionModal";
+import NextCardHighlight from "./NextCardHighlight";
+import PathOptimizationBadge from "./PathOptimizationBadge";
 import { FlashcardSkeleton } from "./skeletons/SkeletonComponents";
 
 // SM-2 algorithm considers quality >= 3 as successful
@@ -58,9 +61,48 @@ export default function AdaptiveStudyMode({
 	const [sessionId] = useState<string>(
 		() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 	); // Generate unique session ID
+	const [showPathOptimizationBadge, setShowPathOptimizationBadge] =
+		useState(false);
+	const [pathOptimizationInfo, setPathOptimizationInfo] = useState<{
+		changePercentage: number;
+		reason: string;
+	} | null>(null);
+	const [highlightNextCard, setHighlightNextCard] = useState(false);
+	const [isPathRecalculating, setIsPathRecalculating] = useState(false);
 
 	// Ref to track timeout for personalized message cleanup
 	const messageTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+
+	// Todo: Cache for study queue to minimize re-queries (for future optimization)
+	// const studyQueueCacheRef = useRef<Map<string, typeof studyQueue>>(new Map());
+
+	// Path change detection hook
+	const { getFormattedChangeReason } = usePathChangeDetection({
+		deckId,
+		enableCaching: true,
+		onPathChange: (changeInfo) => {
+			// Set loading state during path recalculation
+			setIsPathRecalculating(true);
+
+			// Show toast notification for significant path changes
+			toastHelpers.pathOptimized(changeInfo.changePercentage);
+
+			// Show visual feedback
+			setShowPathOptimizationBadge(true);
+			setPathOptimizationInfo({
+				changePercentage: changeInfo.changePercentage,
+				reason: getFormattedChangeReason(changeInfo.triggerReason),
+			});
+			setHighlightNextCard(true);
+
+			// Clear loading state after a brief delay
+			setTimeout(() => {
+				setIsPathRecalculating(false);
+			}, 1000);
+		},
+		sessionId,
+		significantChangeThreshold: 0.3,
+	});
 
 	// Convex queries and mutations
 	const decks = useQuery(api.decks.getDecksForUser);
@@ -546,6 +588,18 @@ export default function AdaptiveStudyMode({
 				</div>
 			)}
 
+			{/* Path Recalculation Loading Indicator */}
+			{isPathRecalculating && (
+				<div className="border-purple-200 border-b bg-purple-50 p-4 dark:border-purple-800 dark:bg-purple-900/20">
+					<div className="flex items-center gap-3">
+						<div className="h-4 w-4 animate-spin rounded-full border-2 border-purple-300 border-t-purple-600 dark:border-purple-600 dark:border-t-purple-400" />
+						<span className="text-purple-700 text-sm dark:text-purple-300">
+							{t("study.pathOptimization.optimizing")}
+						</span>
+					</div>
+				</div>
+			)}
+
 			{/* Personalized Message */}
 			{personalizedMessage && (
 				<div className="border-green-200 border-b bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
@@ -561,45 +615,50 @@ export default function AdaptiveStudyMode({
 			{/* Main Card Area */}
 			<div className="flex flex-1 items-center justify-center p-8">
 				<div className="w-full max-w-2xl">
-					{/* Flashcard */}
-					<button
-						className="flex min-h-[300px] w-full cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white shadow-lg transition-all duration-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800"
-						onClick={handleFlipCard}
-						type="button"
+					{/* Flashcard with path optimization highlight */}
+					<NextCardHighlight
+						highlightReason={pathOptimizationInfo?.reason}
+						isHighlighted={highlightNextCard}
 					>
-						<div className="p-8 text-center">
-							<div className="space-y-4">
-								{/* Display image if available */}
-								{isFlipped && currentCard?.backImageUrl && (
-									<img
-										alt="Back side content"
-										className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
-										crossOrigin="anonymous"
-										src={currentCard.backImageUrl}
-									/>
-								)}
-								{!isFlipped && currentCard?.frontImageUrl && (
-									<img
-										alt="Front side content"
-										className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
-										crossOrigin="anonymous"
-										src={currentCard.frontImageUrl}
-									/>
-								)}
-								{/* Display text content */}
-								<div className="text-lg text-slate-900 leading-relaxed dark:text-slate-100">
-									{isFlipped
-										? currentCard?.back || ""
-										: currentCard?.front || ""}
+						<button
+							className="flex min-h-[300px] w-full cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white shadow-lg transition-all duration-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800"
+							onClick={handleFlipCard}
+							type="button"
+						>
+							<div className="p-8 text-center">
+								<div className="space-y-4">
+									{/* Display image if available */}
+									{isFlipped && currentCard?.backImageUrl && (
+										<img
+											alt="Back side content"
+											className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+											crossOrigin="anonymous"
+											src={currentCard.backImageUrl}
+										/>
+									)}
+									{!isFlipped && currentCard?.frontImageUrl && (
+										<img
+											alt="Front side content"
+											className="mx-auto max-h-48 max-w-full rounded-lg object-contain"
+											crossOrigin="anonymous"
+											src={currentCard.frontImageUrl}
+										/>
+									)}
+									{/* Display text content */}
+									<div className="text-lg text-slate-900 leading-relaxed dark:text-slate-100">
+										{isFlipped
+											? currentCard?.back || ""
+											: currentCard?.front || ""}
+									</div>
 								</div>
+								{!isFlipped && (
+									<div className="mt-6 text-slate-500 text-sm dark:text-slate-400">
+										{t("study.clickToReveal", "Click to reveal")}
+									</div>
+								)}
 							</div>
-							{!isFlipped && (
-								<div className="mt-6 text-slate-500 text-sm dark:text-slate-400">
-									{t("study.clickToReveal", "Click to reveal")}
-								</div>
-							)}
-						</div>
-					</button>
+						</button>
+					</NextCardHighlight>
 
 					{/* Confidence Rating */}
 					{showConfidenceRating && (
@@ -665,6 +724,17 @@ export default function AdaptiveStudyMode({
 					{t("study.toFlip", "to flip")}, 1-4 {t("study.toRate", "to rate")}
 				</div>
 			</div>
+
+			{/* Path Optimization Badge */}
+			<PathOptimizationBadge
+				changePercentage={pathOptimizationInfo?.changePercentage}
+				isVisible={showPathOptimizationBadge}
+				onAnimationComplete={() => {
+					setShowPathOptimizationBadge(false);
+					setHighlightNextCard(false);
+					setPathOptimizationInfo(null);
+				}}
+			/>
 		</div>
 	);
 }

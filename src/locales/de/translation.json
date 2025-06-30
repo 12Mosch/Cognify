@@ -462,6 +462,8 @@
 		"deckUpdated": "Stapel erfolgreich aktualisiert!",
 		"deckUpdatedWithName": "\"{{deckName}}\" erfolgreich aktualisiert!",
 		"networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+		"pathOptimized": "Lernpfad basierend auf Ihrer aktuellen Leistung optimiert",
+		"pathUpdated": "Lernpfad aktualisiert",
 		"privacyCustomize": "Datenschutzeinstellungen über das Profilmenü anpassen.",
 		"settingsSaved": "Einstellungen erfolgreich gespeichert!",
 		"studySessionCompleted": "Lernsitzung abgeschlossen!",

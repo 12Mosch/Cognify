@@ -28,6 +28,10 @@ const TOAST_CONFIG = {
 		duration: 4000, // 4 seconds for info messages
 		icon: "ℹ️",
 	},
+	pathAdjustment: {
+		duration: 3500, // 3.5 seconds for path adjustments (subtle, non-intrusive)
+		icon: "🎯",
+	},
 	success: {
 		duration: 4000, // 4 seconds for success messages
 		icon: "✅",
@@ -122,6 +126,37 @@ export function showAchievementToast(
 }
 
 /**
+ * Show a path adjustment toast notification
+ * Used for subtle, non-intrusive feedback when study paths are optimized
+ */
+export function showPathAdjustmentToast(
+	message: string,
+	changePercentage?: number,
+): void {
+	const displayMessage = changePercentage
+		? `${message} (${Math.round(changePercentage * 100)}% of cards reordered)`
+		: message;
+
+	toast(displayMessage, {
+		ariaProps: {
+			"aria-live": "polite",
+			role: "status",
+		},
+		duration: TOAST_CONFIG.pathAdjustment.duration,
+		icon: TOAST_CONFIG.pathAdjustment.icon,
+		style: {
+			background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)", // purple gradient
+			border: "1px solid #7c3aed",
+			boxShadow: "0 4px 12px rgba(139, 92, 246, 0.15)",
+			color: "#ffffff",
+			fontSize: "13px",
+			fontWeight: "500",
+			maxWidth: "350px",
+		},
+	});
+}
+
+/**
  * Get internationalized success messages for common actions
  */
 export const getSuccessMessages = () =>
@@ -159,6 +194,7 @@ export const toastHelpers = {
 	cardDeleted: () => showSuccessToast(getSuccessMessages().CARD_DELETED),
 
 	cardUpdated: () => showSuccessToast(getSuccessMessages().CARD_UPDATED),
+
 	deckCreated: (deckName?: string) =>
 		showSuccessToast(
 			deckName
@@ -176,6 +212,20 @@ export const toastHelpers = {
 	error: (message: string) => showErrorToast(message),
 
 	networkError: () => showErrorToast(getErrorMessages().NETWORK_ERROR),
+
+	// Path adjustment notifications
+	pathOptimized: (changePercentage?: number) =>
+		showPathAdjustmentToast(
+			i18n.t("notifications.pathOptimized"),
+			changePercentage,
+		),
+
+	pathUpdated: (reason?: string) =>
+		showPathAdjustmentToast(
+			reason
+				? `${i18n.t("notifications.pathUpdated")}: ${reason}`
+				: i18n.t("notifications.pathUpdated"),
+		),
 
 	studySessionComplete: (cardsReviewed?: number) =>
 		showSuccessToast(

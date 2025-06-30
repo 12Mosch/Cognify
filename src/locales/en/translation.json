@@ -462,6 +462,8 @@
 		"deckUpdated": "Deck updated successfully!",
 		"deckUpdatedWithName": "\"{{deckName}}\" updated successfully!",
 		"networkError": "Network error. Please check your connection and try again.",
+		"pathOptimized": "Study path optimized based on your recent performance",
+		"pathUpdated": "Study path updated",
 		"privacyCustomize": "Customize privacy settings from the profile menu.",
 		"settingsSaved": "Settings saved successfully!",
 		"studySessionCompleted": "Study session completed!",
@@ -983,6 +985,18 @@
 		},
 		"next": "Next",
 		"noCardsToReview": "No cards to review",
+		"pathOptimization": {
+			"optimizing": "Optimizing study path...",
+			"reasons": {
+				"answerSignificantChange": "Performance improvement detected",
+				"confidenceRatingSignificantChange": "Confidence level adjustment",
+				"difficultyRatingSignificantChange": "Difficulty assessment update",
+				"flipSignificantChange": "Study pattern optimization",
+				"inconsistencyPattern": "Consistency improvement focus",
+				"plateauDetection": "Learning plateau addressed",
+				"significantPerformanceChange": "Learning progress update"
+			}
+		},
 		"previous": "Previous",
 		"progress": {
 			"aria": "Study progress: {{current}} of {{total}} cards completed, {{percentage}}% done",

@@ -1074,3 +1074,56 @@ export const getAdaptiveStudyQueue = query({
 		return studyQueueWithImages;
 	},
 });
+
+/**
+ * Get recent path regenerations for a session
+ */
+export const getRecentPathRegeneration = query({
+	args: {
+		limit: v.optional(v.number()),
+		sessionId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) {
+			throw new Error("User must be authenticated");
+		}
+
+		const limit = args.limit || 5;
+
+		// Get recent path regenerations for this session
+		const regenerations = await ctx.db
+			.query("studyPathRegeneration")
+			.withIndex("by_sessionId", (q) => q.eq("sessionId", args.sessionId))
+			.order("desc")
+			.take(limit);
+
+		// Filter to only return regenerations for the authenticated user
+		const userRegenerations = regenerations.filter(
+			(regen) => regen.userId === identity.subject,
+		);
+
+		return userRegenerations;
+	},
+	returns: v.array(
+		v.object({
+			_creationTime: v.number(),
+			_id: v.id("studyPathRegeneration"),
+			deckId: v.id("decks"),
+			newOrder: v.array(v.string()),
+			originalOrder: v.array(v.string()),
+			priorityScores: v.array(
+				v.object({
+					boosts: v.array(v.string()),
+					cardId: v.string(),
+					reasoning: v.string(),
+					score: v.number(),
+				}),
+			),
+			sessionId: v.string(),
+			timestamp: v.number(),
+			triggerReason: v.string(),
+			userId: v.string(),
+		}),
+	),
+});
