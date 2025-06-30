@@ -18,6 +18,7 @@ import AchievementsWidget from "./AchievementsWidget";
 import { CreateDeckForm } from "./CreateDeckForm";
 
 import KnowledgeMapWidget from "./KnowledgeMapWidget";
+import type { PathCustomizationOptions } from "./PathCustomizationPanel";
 import PrivacyBanner from "./PrivacyBanner";
 import { QuickAddCardForm } from "./QuickAddCardForm";
 import SmartSchedulingWidget from "./SmartSchedulingWidget";
@@ -76,6 +77,9 @@ export const Dashboard = forwardRef<
 	>(null);
 	const [selectingStudyMode, setSelectingStudyMode] =
 		useState<Id<"decks"> | null>(null);
+	const [selectedPathType, setSelectedPathType] = useState<string | null>(null);
+	const [pathCustomization, setPathCustomization] =
+		useState<PathCustomizationOptions | null>(null);
 	const [viewingDeckId, setViewingDeckId] = useState<Id<"decks"> | null>(null);
 
 	// Expose goHome method to parent component
@@ -123,8 +127,14 @@ export const Dashboard = forwardRef<
 					deckId={selectingStudyMode}
 					deckName="Deck" // We'll get the name in the component
 					onCancel={() => setSelectingStudyMode(null)}
-					onSelectMode={(mode: "basic" | "spaced-repetition" | "adaptive") => {
+					onSelectMode={(
+						mode: "basic" | "spaced-repetition" | "adaptive",
+						pathType?: string,
+						customization?: PathCustomizationOptions,
+					) => {
 						setStudyMode(mode);
+						setSelectedPathType(pathType || null);
+						setPathCustomization(customization || null);
 						setStudyingDeckId(selectingStudyMode);
 						setSelectingStudyMode(null);
 					}}
@@ -138,6 +148,8 @@ export const Dashboard = forwardRef<
 		const handleExitStudy = () => {
 			setStudyingDeckId(null);
 			setStudyMode(null);
+			setSelectedPathType(null);
+			setPathCustomization(null);
 		};
 
 		if (studyMode === "spaced-repetition") {
@@ -152,7 +164,12 @@ export const Dashboard = forwardRef<
 		} else if (studyMode === "adaptive") {
 			return (
 				<Suspense fallback={<LoadingFallback type="flashcard" />}>
-					<AdaptiveStudyMode deckId={studyingDeckId} onExit={handleExitStudy} />
+					<AdaptiveStudyMode
+						customization={pathCustomization || undefined}
+						deckId={studyingDeckId}
+						onExit={handleExitStudy}
+						pathType={selectedPathType || undefined}
+					/>
 				</Suspense>
 			);
 		} else {

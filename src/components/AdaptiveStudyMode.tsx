@@ -17,6 +17,8 @@ const SM2_SUCCESS_THRESHOLD = 3;
 interface AdaptiveStudyModeProps {
 	deckId: Id<"decks">;
 	onExit: () => void;
+	pathType?: string;
+	customization?: import("./PathCustomizationPanel").PathCustomizationOptions;
 }
 
 /**
@@ -35,9 +37,16 @@ interface AdaptiveStudyModeProps {
 export default function AdaptiveStudyMode({
 	deckId,
 	onExit,
+	pathType,
+	customization,
 }: AdaptiveStudyModeProps) {
 	const { t, i18n } = useTranslation();
 	const { trackStudySessionStarted } = useAnalytics();
+
+	// TODO: Use pathType and customization for path-specific adaptive learning optimizations
+	// This will be implemented in future iterations to customize the adaptive
+	// learning algorithm based on the selected learning path type and user preferences
+	console.log("Selected path type:", pathType, "Customization:", customization);
 
 	// Component state
 	const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -59,7 +68,8 @@ export default function AdaptiveStudyMode({
 	const [reviewResults, setReviewResults] = useState<number[]>([]); // Track quality ratings for each review
 	const [sessionCompleted, setSessionCompleted] = useState(false); // Track if session is completed
 	const [sessionId] = useState<string>(
-		() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+		() =>
+			`session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
 	); // Generate unique session ID
 	const [showPathOptimizationBadge, setShowPathOptimizationBadge] =
 		useState(false);

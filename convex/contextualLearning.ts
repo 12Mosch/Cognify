@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import type { Doc } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import type {
 	PathPersonalizationConfig,
@@ -685,7 +685,31 @@ export const getLearningPathRecommendations = query({
 			});
 		}
 
-		return paths.slice(0, 4); // Return top 4 paths (increased from 3)
+		// 5. Spaced Repetition Optimized path for long-term retention
+		const spacedRepetitionPath = generateSpacedRepetitionOptimizedPath(
+			cards,
+			deckReviews,
+			language,
+			learningPatterns || undefined,
+			personalizationConfig,
+		);
+		if (spacedRepetitionPath.length > 0) {
+			paths.push({
+				confidence: 0.9, // High confidence for SRS-based recommendations
+				description: t(
+					"contextualLearning.descriptions.spacedRepetitionOptimized",
+					language,
+				),
+				estimatedTime: spacedRepetitionPath.length * 1.5, // Shorter sessions for SRS
+				path: spacedRepetitionPath,
+				pathType: t(
+					"contextualLearning.pathTypes.spacedRepetitionOptimized",
+					language,
+				),
+			});
+		}
+
+		return paths.slice(0, 5); // Return top 5 paths (increased from 4)
 	},
 	returns: v.array(
 		v.object({
@@ -2108,4 +2132,161 @@ function calculateDomainSpecificComplexity(
 	complexity += Math.min(0.3, otherDomainCount * 0.1);
 
 	return Math.min(1, complexity);
+}
+
+/**
+ * Generate Spaced Repetition Optimized path using SM-2 algorithm principles
+ * Prioritizes cards based on due dates, ease factors, and learning patterns
+ * Optimized for long-term retention and efficient review scheduling
+ */
+function generateSpacedRepetitionOptimizedPath(
+	cards: Doc<"cards">[],
+	reviews: Doc<"cardReviews">[],
+	language: string,
+	learningPatterns?: UserLearningPatterns,
+	personalizationConfig?: PathPersonalizationConfig,
+): Array<{
+	cardId: Id<"cards">;
+	front: string;
+	reason: string;
+	estimatedDifficulty: number;
+}> {
+	if (cards.length === 0) return [];
+
+	const normalizedLanguage = normalizeLanguage(language);
+	const now = Date.now();
+	const config = personalizationConfig || {
+		difficultyAdaptation: 0.8,
+		inconsistencyBoost: 1.5,
+		learningPatternWeight: 0.3,
+		plateauBoost: 1.3,
+		srsWeight: 0.7,
+		timeOfDayBoost: 1.2,
+	};
+
+	// Calculate priority scores for each card based on SRS factors
+	const cardPriorities = cards.map((card) => {
+		let priority = 0;
+		let reason = "";
+
+		// 1. Due date priority (highest for overdue cards)
+		const dueDate = card.dueDate || now;
+		const daysSinceDue = Math.max(0, (now - dueDate) / (1000 * 60 * 60 * 24));
+
+		if (daysSinceDue > 0) {
+			priority += Math.min(1.0, daysSinceDue * 0.2); // Overdue cards get high priority
+			reason = t("contextualLearning.reasons.overdue", normalizedLanguage, {
+				days: Math.ceil(daysSinceDue),
+			});
+		} else if (daysSinceDue === 0) {
+			priority += 0.8; // Due today
+			reason = t("contextualLearning.reasons.dueToday", normalizedLanguage);
+		} else {
+			priority += 0.3; // Future cards get lower priority
+			reason = t(
+				"contextualLearning.reasons.scheduledReview",
+				normalizedLanguage,
+			);
+		}
+
+		// 2. Ease factor consideration (lower ease = higher priority)
+		const easeFactor = card.easeFactor || 2.5;
+		const easeBonus = Math.max(0, (2.5 - easeFactor) * 0.3);
+		priority += easeBonus;
+
+		// 3. Repetition count (new cards get moderate priority)
+		const repetition = card.repetition || 0;
+		if (repetition === 0) {
+			priority += 0.6; // New cards
+			reason = t("contextualLearning.reasons.newCard", normalizedLanguage);
+		} else if (repetition < 3) {
+			priority += 0.4; // Learning phase cards
+		}
+
+		// 4. Learning pattern adjustments
+		if (learningPatterns) {
+			// Inconsistency boost
+			const cardReviews = reviews.filter((r) => r.cardId === card._id);
+			if (cardReviews.length >= 3) {
+				const recentReviews = cardReviews.slice(-5);
+				const variance = calculateSuccessVariance(
+					recentReviews.map((r) => (r.wasSuccessful ? 1 : 0)),
+				);
+
+				if (variance > 0.3) {
+					// High inconsistency
+					priority *= config.inconsistencyBoost;
+					reason = t(
+						"contextualLearning.reasons.inconsistentPerformance",
+						normalizedLanguage,
+					);
+				}
+			}
+
+			// Plateau detection boost
+			const isInPlateauTopic =
+				learningPatterns.plateauDetection.stagnantTopics.some((topic) =>
+					topic.cardIds.includes(card._id),
+				);
+			if (isInPlateauTopic) {
+				priority *= config.plateauBoost;
+				reason = t(
+					"contextualLearning.reasons.plateauDetected",
+					normalizedLanguage,
+				);
+			}
+		}
+
+		// 5. Estimated difficulty based on content and performance
+		const cardReviews = reviews.filter((r) => r.cardId === card._id);
+		const avgQuality =
+			cardReviews.length > 0
+				? cardReviews.reduce((sum, r) => sum + r.quality, 0) /
+					cardReviews.length
+				: 2.5;
+
+		const estimatedDifficulty = Math.max(
+			0.1,
+			Math.min(
+				1.0,
+				((5 - avgQuality) / 5) * 0.7 + // Performance-based difficulty
+					((card.front.length + card.back.length) / 500) * 0.3, // Content length factor
+			),
+		);
+
+		return {
+			card,
+			estimatedDifficulty,
+			priority:
+				priority * config.srsWeight +
+				(learningPatterns ? config.learningPatternWeight : 0),
+			reason,
+		};
+	});
+
+	// Sort by priority (highest first) and take top cards for optimal session length
+	const sortedCards = cardPriorities
+		.sort((a, b) => b.priority - a.priority)
+		.slice(0, Math.min(30, cards.length)); // Limit to 30 cards for optimal SRS session
+
+	return sortedCards.map(({ card, reason, estimatedDifficulty }) => ({
+		cardId: card._id,
+		estimatedDifficulty,
+		front: card.front,
+		reason,
+	}));
+}
+
+/**
+ * Calculate variance in success rates to detect inconsistent performance
+ */
+function calculateSuccessVariance(successes: number[]): number {
+	if (successes.length < 2) return 0;
+
+	const mean = successes.reduce((sum, val) => sum + val, 0) / successes.length;
+	const variance =
+		successes.reduce((sum, val) => sum + (val - mean) ** 2, 0) /
+		successes.length;
+
+	return Math.sqrt(variance);
 }

@@ -1,10 +1,19 @@
+import { useQuery } from "convex/react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import type { PathCustomizationOptions } from "./PathCustomizationPanel";
+import PathSelectionModal from "./PathSelectionModal";
 
 interface StudyModeSelectorProps {
 	deckId: Id<"decks">;
 	deckName: string;
-	onSelectMode: (mode: "basic" | "spaced-repetition" | "adaptive") => void;
+	onSelectMode: (
+		mode: "basic" | "spaced-repetition" | "adaptive",
+		pathType?: string,
+		customization?: PathCustomizationOptions,
+	) => void;
 	onCancel: () => void;
 }
 
@@ -17,12 +26,51 @@ interface StudyModeSelectorProps {
  * - Adaptive Learning: Personalized spaced repetition with learning patterns
  */
 function StudyModeSelector({
-	deckId: _deckId,
+	deckId,
 	deckName,
 	onSelectMode,
 	onCancel,
 }: StudyModeSelectorProps) {
 	const { t } = useTranslation();
+	const [showPathSelection, setShowPathSelection] = useState(false);
+	const [selectedMode, setSelectedMode] = useState<
+		"basic" | "spaced-repetition" | "adaptive" | null
+	>(null);
+
+	// Fetch learning paths for adaptive mode
+	const learningPaths = useQuery(
+		api.contextualLearning.generateLearningPaths,
+		deckId ? { deckId, language: "en" } : "skip",
+	);
+
+	const handleModeSelection = (
+		mode: "basic" | "spaced-repetition" | "adaptive",
+	) => {
+		if (mode === "adaptive" && learningPaths && learningPaths.length > 0) {
+			// Show path selection for adaptive mode
+			setSelectedMode(mode);
+			setShowPathSelection(true);
+		} else {
+			// Direct mode selection for basic and spaced-repetition
+			onSelectMode(mode);
+		}
+	};
+
+	const handlePathSelection = (
+		pathType: string,
+		customization?: PathCustomizationOptions,
+	) => {
+		if (selectedMode) {
+			onSelectMode(selectedMode, pathType, customization);
+		}
+		setShowPathSelection(false);
+		setSelectedMode(null);
+	};
+
+	const handlePathSelectionCancel = () => {
+		setShowPathSelection(false);
+		setSelectedMode(null);
+	};
 
 	return (
 		<div className="mx-auto flex max-w-2xl flex-col gap-8">
@@ -43,7 +91,7 @@ function StudyModeSelector({
 					aria-label="Select Basic Study Mode"
 					className="group w-full cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 text-left transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
 					data-testid="basic-study-card"
-					onClick={() => onSelectMode("basic")}
+					onClick={() => handleModeSelection("basic")}
 					type="button"
 				>
 					<div className="flex items-start gap-4">
@@ -90,7 +138,7 @@ function StudyModeSelector({
 					aria-label="Select Spaced Repetition Study Mode"
 					className="group w-full cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 text-left transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
 					data-testid="spaced-repetition-card"
-					onClick={() => onSelectMode("spaced-repetition")}
+					onClick={() => handleModeSelection("spaced-repetition")}
 					type="button"
 				>
 					<div className="flex items-start gap-4">
@@ -140,7 +188,7 @@ function StudyModeSelector({
 					aria-label="Select Adaptive Learning Study Mode"
 					className="group w-full cursor-pointer rounded-lg border-2 border-slate-200 bg-slate-50 p-6 text-left transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
 					data-testid="adaptive-learning-card"
-					onClick={() => onSelectMode("adaptive")}
+					onClick={() => handleModeSelection("adaptive")}
 					type="button"
 				>
 					<div className="flex items-start gap-4">
@@ -242,6 +290,18 @@ function StudyModeSelector({
 					</div>
 				</div>
 			</div>
+
+			{/* Path Selection Modal */}
+			{showPathSelection && learningPaths && (
+				<PathSelectionModal
+					availablePaths={learningPaths}
+					deckId={deckId}
+					deckName={deckName}
+					isOpen={showPathSelection}
+					onClose={handlePathSelectionCancel}
+					onSelectPath={handlePathSelection}
+				/>
+			)}
 		</div>
 	);
 }

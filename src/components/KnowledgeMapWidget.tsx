@@ -11,6 +11,7 @@ type TabId = "clusters" | "paths" | "graph";
 interface KnowledgeMapWidgetProps {
 	deckId?: Id<"decks">;
 	className?: string;
+	onStartPath?: (pathType: string) => void;
 }
 
 // Helper component prop interfaces
@@ -43,6 +44,7 @@ interface LearningPathsViewProps {
 		}>;
 	}>;
 	t: TFunction;
+	onStartPath?: (pathType: string) => void;
 }
 
 interface KnowledgeGraphViewProps {
@@ -66,6 +68,7 @@ interface KnowledgeGraphViewProps {
 const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
 	deckId,
 	className = "",
+	onStartPath,
 }: KnowledgeMapWidgetProps) {
 	const { t } = useTranslation();
 	const [activeTab, setActiveTab] = useState<TabId>("clusters");
@@ -186,7 +189,11 @@ const KnowledgeMapWidget = memo(function KnowledgeMapWidget({
 				)}
 
 				{activeTab === "paths" && (
-					<LearningPathsView paths={deckId ? learningPaths || [] : []} t={t} />
+					<LearningPathsView
+						onStartPath={onStartPath}
+						paths={deckId ? learningPaths || [] : []}
+						t={t}
+					/>
 				)}
 
 				{activeTab === "graph" && (
@@ -292,6 +299,7 @@ const ConceptClustersView = memo(function ConceptClustersView({
 const LearningPathsView = memo(function LearningPathsView({
 	paths,
 	t,
+	onStartPath,
 }: LearningPathsViewProps) {
 	if (!paths || paths.length === 0) {
 		return (
@@ -318,29 +326,43 @@ const LearningPathsView = memo(function LearningPathsView({
 
 			{paths.map((path, index: number) => (
 				<div
-					className="cursor-pointer rounded-lg bg-slate-50 p-4 transition-all duration-200 hover:scale-[1.02] hover:bg-slate-100 hover:shadow-md dark:bg-slate-700 dark:hover:bg-slate-600"
+					className="rounded-lg bg-slate-50 p-4 transition-all duration-200 hover:shadow-md dark:bg-slate-700"
 					key={`${path.pathType}-${index}`}
 				>
 					<div className="mb-3 flex items-start justify-between">
-						<div>
-							<h4 className="mb-1 font-semibold text-slate-900 transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
+						<div className="flex-1">
+							<h4 className="mb-1 font-semibold text-slate-900 dark:text-slate-100">
 								{t(
 									`knowledge.paths.types.${path.pathType}`,
 									path.pathType.replace(/_/g, " "),
 								)}
 							</h4>
-							<p className="text-slate-600 text-sm transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
+							<p className="text-slate-600 text-sm dark:text-slate-400">
 								{path.description}
 							</p>
 						</div>
-						<div className="text-right">
-							<div className="font-medium text-slate-900 text-sm transition-colors hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-200">
-								~{path.estimatedTime} {t("knowledge.paths.minutes", "min")}
+						<div className="ml-4 flex flex-col items-end gap-2">
+							<div className="text-right">
+								<div className="font-medium text-slate-900 text-sm dark:text-slate-100">
+									~{path.estimatedTime} {t("knowledge.paths.minutes", "min")}
+								</div>
+								<div className="text-slate-600 text-xs dark:text-slate-400">
+									{Math.round(path.confidence * 100)}%{" "}
+									{t("knowledge.paths.confidence", "confidence")}
+								</div>
 							</div>
-							<div className="text-slate-600 text-xs transition-colors hover:text-slate-500 dark:text-slate-400 dark:hover:text-slate-300">
-								{Math.round(path.confidence * 100)}%{" "}
-								{t("knowledge.paths.confidence", "confidence")}
-							</div>
+							{onStartPath && (
+								<button
+									className="rounded-md bg-blue-600 px-3 py-1.5 font-medium text-sm text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+									onClick={(e) => {
+										e.stopPropagation();
+										onStartPath(path.pathType);
+									}}
+									type="button"
+								>
+									{t("knowledge.paths.startPath", "Start Path")}
+								</button>
+							)}
 						</div>
 					</div>
 

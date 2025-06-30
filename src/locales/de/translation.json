@@ -246,7 +246,8 @@
 			"domainFocused": "Konzentrieren Sie sich auf Karten aus einem bestimmten Fachbereich für spezialisiertes Lernen",
 			"prerequisiteOrder": "Lernen Sie grundlegende Konzepte vor fortgeschrittenen mit semantischer Analyse",
 			"relatedConcepts": "Verwandte Konzepte",
-			"reviewFocused": "Konzentrieren Sie sich auf Karten, die Sie am schwierigsten finden mit Lernmusteranalyse"
+			"reviewFocused": "Konzentrieren Sie sich auf Karten, die Sie am schwierigsten finden mit Lernmusteranalyse",
+			"spacedRepetitionOptimized": "Optimieren Sie die Langzeitretention mit Spaced-Repetition-Planung und Fälligkeitspriorisierung"
 		},
 		"errors": {
 			"cardNotFound": "Karte nicht gefunden",
@@ -261,11 +262,18 @@
 			"difficultyProgression": "difficulty_progression",
 			"domainFocused": "domain_focused",
 			"prerequisiteOrder": "prerequisite_order",
-			"reviewFocused": "review_focused"
+			"reviewFocused": "review_focused",
+			"spacedRepetitionOptimized": "spaced_repetition_optimized"
 		},
 		"reasons": {
+			"dueToday": "Heute zur Wiederholung fällig",
 			"estimatedDifficulty": "Geschätzte Schwierigkeit: {{percentage}}%",
 			"foundationalConcept": "Grundlegendes Konzept",
+			"inconsistentPerformance": "Inkonsistentes Leistungsmuster",
+			"newCard": "Neue Karte bereit zum Lernen",
+			"overdue": "Überfällig um {{days}} Tag(e)",
+			"plateauDetected": "Lernplateau erkannt",
+			"scheduledReview": "Für zukünftige Wiederholung geplant",
 			"successRate": "Erfolgsrate: {{percentage}}%"
 		}
 	},
@@ -431,11 +439,17 @@
 			"more": "weitere",
 			"noData": "Lernpfade werden angezeigt, wenn Sie mehr Karten in diesem Stapel haben",
 			"sequence": "Lernsequenz",
+			"startPath": "Pfad starten",
 			"types": {
 				"conceptual": "Konzeptueller Pfad",
 				"difficulty_based": "Schwierigkeitsbasierter Pfad",
+				"difficultyProgression": "Schwierigkeitsbasiertes Lernen",
+				"domainFocused": "Domänenorientiertes Studium",
 				"prerequisite": "Voraussetzungspfad",
-				"sequential": "Sequenzieller Pfad"
+				"prerequisiteOrder": "Grundlagen-zuerst-Lernen",
+				"reviewFocused": "Wiederholungsorientierte Praxis",
+				"sequential": "Sequenzieller Pfad",
+				"spacedRepetitionOptimized": "Spaced-Repetition-Optimiert"
 			}
 		},
 		"subtitle": "Entdecken Sie Verbindungen in Ihrem Lernen",
@@ -470,6 +484,79 @@
 		"studySessionCompletedWithCount_one": "Lernsitzung abgeschlossen! {{count}} Karte wiederholt.",
 		"studySessionCompletedWithCount_other": "Lernsitzung abgeschlossen! {{count}} Karten wiederholt.",
 		"temporaryError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es in einem Moment erneut."
+	},
+	"pathCustomization": {
+		"description": "Passen Sie diese Einstellungen an, um Ihre Lernerfahrung zu personalisieren.",
+		"difficultySpeed": {
+			"fast": "Beschleunigt",
+			"fastDesc": "Schnellere Progression für erfahrene Lernende",
+			"normal": "Standard",
+			"normalDesc": "Ausgewogene Schwierigkeitsprogression",
+			"slow": "Allmählich",
+			"slowDesc": "Langsamere Progression mit mehr Übung",
+			"title": "Schwierigkeitsprogression"
+		},
+		"focusMode": {
+			"balanced": "Ausgewogen",
+			"balancedDesc": "Gleichmäßige Abdeckung und Tiefe",
+			"breadth": "Breite",
+			"breadthDesc": "Mehr Themen mit geringerer Tiefe abdecken",
+			"depth": "Tiefe",
+			"depthDesc": "Tiefe Beherrschung weniger Themen",
+			"title": "Lernfokus"
+		},
+		"personalization": {
+			"maximum": "Maximum",
+			"maximumDesc": "Vollständige Personalisierung mit erweiterten Analysen",
+			"minimal": "Minimal",
+			"minimalDesc": "Standard-Algorithmus mit grundlegender Anpassung",
+			"moderate": "Moderat",
+			"moderateDesc": "Adaptives Lernen mit Mustererkennung",
+			"title": "Personalisierung"
+		},
+		"presets": {
+			"beginner": "Anfänger",
+			"intensive": "Intensiv",
+			"standard": "Standard",
+			"title": "Schnelle Voreinstellungen"
+		},
+		"reviewFrequency": {
+			"aggressive": "Aggressiv",
+			"aggressiveDesc": "Längere Intervalle für schnelleren Fortschritt",
+			"balanced": "Ausgewogen",
+			"balancedDesc": "Standard-Wiederholungsintervalle",
+			"conservative": "Konservativ",
+			"conservativeDesc": "Häufigere Wiederholungen für bessere Retention",
+			"title": "Wiederholungsfrequenz"
+		},
+		"sessionLength": {
+			"long": "Lang",
+			"longDesc": "45+ Minuten pro Sitzung",
+			"medium": "Mittel",
+			"mediumDesc": "20-30 Minuten pro Sitzung",
+			"short": "Kurz",
+			"shortDesc": "10-15 Minuten pro Sitzung",
+			"title": "Sitzungslänge"
+		},
+		"title": "Passen Sie Ihren Lernpfad an"
+	},
+	"pathSelection": {
+		"customize": "Anpassen & Starten",
+		"description": "Jeder Lernpfad ist für verschiedene Ziele optimiert. Wählen Sie den aus, der am besten zu Ihren aktuellen Bedürfnissen und Ihrem Lernstil passt.",
+		"noPaths": {
+			"description": "Fügen Sie mehr Karten zu diesem Stapel hinzu, um personalisierte Lernpfade zu generieren.",
+			"title": "Keine Lernpfade verfügbar"
+		},
+		"pathDescriptions": {
+			"difficultyProgression": "Beginnen Sie mit einfacheren Konzepten und steigern Sie allmählich die Schwierigkeit mit Inhaltsanalyse",
+			"domainFocused": "Konzentrieren Sie sich auf Karten aus einem bestimmten Fachbereich für spezialisiertes Lernen",
+			"prerequisiteOrder": "Lernen Sie grundlegende Konzepte vor fortgeschrittenen mit semantischer Analyse",
+			"reviewFocused": "Konzentrieren Sie sich auf Karten, die Sie am schwierigsten finden mit Lernmusteranalyse",
+			"spacedRepetitionOptimized": "Optimieren Sie die Langzeitretention mit Spaced-Repetition-Planung und Fälligkeitspriorisierung"
+		},
+		"startPath": "Lernpfad starten",
+		"subtitle": "Wählen Sie den besten Ansatz zum Lernen",
+		"title": "Wählen Sie Ihren Lernpfad"
 	},
 	"postSessionSummary": {
 		"actions": {

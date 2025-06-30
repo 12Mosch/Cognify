@@ -246,7 +246,8 @@
 			"domainFocused": "Focus on cards from a specific subject area for specialized learning",
 			"prerequisiteOrder": "Learn foundational concepts before advanced ones using semantic analysis",
 			"relatedConcepts": "Related concepts",
-			"reviewFocused": "Focus on cards you find most challenging using learning pattern analysis"
+			"reviewFocused": "Focus on cards you find most challenging using learning pattern analysis",
+			"spacedRepetitionOptimized": "Optimize long-term retention using spaced repetition scheduling and due date prioritization"
 		},
 		"errors": {
 			"cardNotFound": "Card not found",
@@ -261,11 +262,18 @@
 			"difficultyProgression": "difficulty_progression",
 			"domainFocused": "domain_focused",
 			"prerequisiteOrder": "prerequisite_order",
-			"reviewFocused": "review_focused"
+			"reviewFocused": "review_focused",
+			"spacedRepetitionOptimized": "spaced_repetition_optimized"
 		},
 		"reasons": {
+			"dueToday": "Due for review today",
 			"estimatedDifficulty": "Estimated difficulty: {{percentage}}%",
 			"foundationalConcept": "Foundational concept",
+			"inconsistentPerformance": "Inconsistent performance pattern",
+			"newCard": "New card ready to learn",
+			"overdue": "Overdue by {{days}} day(s)",
+			"plateauDetected": "Learning plateau detected",
+			"scheduledReview": "Scheduled for future review",
 			"successRate": "Success rate: {{percentage}}%"
 		}
 	},
@@ -431,11 +439,17 @@
 			"more": "more",
 			"noData": "Learning paths will appear when you have more cards in this deck",
 			"sequence": "Learning Sequence",
+			"startPath": "Start Path",
 			"types": {
 				"conceptual": "Conceptual Path",
 				"difficulty_based": "Difficulty-Based Path",
+				"difficultyProgression": "Difficulty-Based Learning",
+				"domainFocused": "Domain-Focused Study",
 				"prerequisite": "Prerequisite Path",
-				"sequential": "Sequential Path"
+				"prerequisiteOrder": "Foundation-First Learning",
+				"reviewFocused": "Review-Focused Practice",
+				"sequential": "Sequential Path",
+				"spacedRepetitionOptimized": "Spaced Repetition Optimized"
 			}
 		},
 		"subtitle": "Explore connections in your learning",
@@ -470,6 +484,79 @@
 		"studySessionCompletedWithCount_one": "Study session complete! Reviewed {{count}} card.",
 		"studySessionCompletedWithCount_other": "Study session complete! Reviewed {{count}} cards.",
 		"temporaryError": "Something went wrong. Please try again in a moment."
+	},
+	"pathCustomization": {
+		"description": "Adjust these settings to personalize your learning experience.",
+		"difficultySpeed": {
+			"fast": "Accelerated",
+			"fastDesc": "Faster progression for experienced learners",
+			"normal": "Standard",
+			"normalDesc": "Balanced difficulty progression",
+			"slow": "Gradual",
+			"slowDesc": "Slower progression with more practice",
+			"title": "Difficulty Progression"
+		},
+		"focusMode": {
+			"balanced": "Balanced",
+			"balancedDesc": "Even coverage and depth",
+			"breadth": "Breadth",
+			"breadthDesc": "Cover more topics with lighter depth",
+			"depth": "Depth",
+			"depthDesc": "Deep mastery of fewer topics",
+			"title": "Learning Focus"
+		},
+		"personalization": {
+			"maximum": "Maximum",
+			"maximumDesc": "Full personalization with advanced analytics",
+			"minimal": "Minimal",
+			"minimalDesc": "Standard algorithm with basic adaptation",
+			"moderate": "Moderate",
+			"moderateDesc": "Adaptive learning with pattern recognition",
+			"title": "Personalization"
+		},
+		"presets": {
+			"beginner": "Beginner",
+			"intensive": "Intensive",
+			"standard": "Standard",
+			"title": "Quick Presets"
+		},
+		"reviewFrequency": {
+			"aggressive": "Aggressive",
+			"aggressiveDesc": "Longer intervals for faster progress",
+			"balanced": "Balanced",
+			"balancedDesc": "Standard review intervals",
+			"conservative": "Conservative",
+			"conservativeDesc": "More frequent reviews for better retention",
+			"title": "Review Frequency"
+		},
+		"sessionLength": {
+			"long": "Long",
+			"longDesc": "45+ minutes per session",
+			"medium": "Medium",
+			"mediumDesc": "20-30 minutes per session",
+			"short": "Short",
+			"shortDesc": "10-15 minutes per session",
+			"title": "Session Length"
+		},
+		"title": "Customize Your Learning Path"
+	},
+	"pathSelection": {
+		"customize": "Customize & Start",
+		"description": "Each learning path is optimized for different goals. Choose the one that best matches your current needs and learning style.",
+		"noPaths": {
+			"description": "Add more cards to this deck to generate personalized learning paths.",
+			"title": "No Learning Paths Available"
+		},
+		"pathDescriptions": {
+			"difficultyProgression": "Start with easier concepts and gradually increase difficulty using content analysis",
+			"domainFocused": "Focus on cards from a specific subject area for specialized learning",
+			"prerequisiteOrder": "Learn foundational concepts before advanced ones using semantic analysis",
+			"reviewFocused": "Focus on cards you find most challenging using learning pattern analysis",
+			"spacedRepetitionOptimized": "Optimize long-term retention using spaced repetition scheduling and due date prioritization"
+		},
+		"startPath": "Start Learning Path",
+		"subtitle": "Select the best approach for studying",
+		"title": "Choose Your Learning Path"
 	},
 	"postSessionSummary": {
 		"actions": {

@@ -7,6 +7,11 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import StudyModeSelector from "../StudyModeSelector";
 
+// Mock the useQuery hook
+jest.mock("convex/react", () => ({
+	useQuery: jest.fn(() => []), // Return empty array for learning paths
+}));
+
 const mockDeckId = "test-deck-id" as Id<"decks">;
 const mockDeckName = "Test Deck";
 const mockOnSelectMode = jest.fn();
