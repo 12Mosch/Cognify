@@ -5,7 +5,8 @@ import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { usePathChangeDetection } from "../hooks/usePathChangeDetection";
 import { useAnalytics } from "../lib/analytics";
-import { toastHelpers } from "../lib/toast";
+import { getLocalDateString, getUserTimeZone } from "../lib/dateUtils";
+import { showSuccessToast, toastHelpers } from "../lib/toast";
 import LearningReflectionModal from "./LearningReflectionModal";
 import NextCardHighlight from "./NextCardHighlight";
 import PathOptimizationBadge from "./PathOptimizationBadge";
@@ -136,6 +137,8 @@ export default function AdaptiveStudyMode({
 		api.realTimeAdaptiveLearning.recordCardInteraction,
 	);
 	const checkAchievements = useMutation(api.gamification.checkAchievements);
+	const recordStudySession = useMutation(api.studySessions.recordStudySession);
+	const updateStreak = useMutation(api.streaks.updateStreak);
 
 	// Get current card with bounds checking
 	const currentCard =
@@ -358,6 +361,55 @@ export default function AdaptiveStudyMode({
 			};
 			setSessionStats(finalStats);
 			setSessionCompleted(true); // Mark session as completed to prevent loading states
+
+			// Record study session in database and update streak
+			try {
+				const userTimeZone = getUserTimeZone();
+				const localDate = getLocalDateString(userTimeZone);
+
+				await recordStudySession({
+					cardsStudied: studyQueue?.length || 0,
+					deckId,
+					localDate,
+					sessionDuration: sessionDuration,
+					studyMode: "spaced-repetition", // Note: Using "spaced-repetition" as adaptive learning is a variant
+					userTimeZone,
+				});
+
+				// Update streak and track streak events
+				const streakResult = await updateStreak({
+					studyDate: localDate,
+					timezone: userTimeZone,
+				});
+
+				// Show streak-related toast notifications
+				if (streakResult) {
+					if (streakResult.streakEvent === "started") {
+						showSuccessToast(
+							`🔥 Study streak started! Day ${streakResult.currentStreak}`,
+						);
+					} else if (streakResult.streakEvent === "continued") {
+						showSuccessToast(
+							`🔥 Study streak continued! Day ${streakResult.currentStreak}`,
+						);
+					} else if (streakResult.streakEvent === "broken") {
+						showSuccessToast(
+							"💪 Starting fresh! New study streak begins today",
+						);
+					}
+
+					// Show milestone notifications
+					if (streakResult.isNewMilestone) {
+						showSuccessToast(
+							`🏆 Milestone reached! ${streakResult.currentStreak} day streak!`,
+						);
+					}
+				}
+			} catch (error) {
+				console.error("Error completing session:", error);
+				// Don't block the UI if session recording fails
+			}
+
 			setShowReflectionModal(true);
 
 			// Check for session-based achievements
@@ -369,6 +421,9 @@ export default function AdaptiveStudyMode({
 			reviewResults,
 			onExit,
 			handleSessionCompletionAchievements,
+			recordStudySession,
+			updateStreak,
+			deckId,
 		],
 	);
 
