@@ -1072,6 +1072,18 @@
 		},
 		"next": "Weiter",
 		"noCardsToReview": "Keine Karten zum Wiederholen",
+		"pathOptimization": {
+			"optimizing": "Lernpfad wird optimiert...",
+			"reasons": {
+				"answerSignificantChange": "Leistungsverbesserung erkannt",
+				"confidenceRatingSignificantChange": "Anpassung des Vertrauensniveaus",
+				"difficultyRatingSignificantChange": "Aktualisierung der Schwierigkeitsbewertung",
+				"flipSignificantChange": "Optimierung des Lernmusters",
+				"inconsistencyPattern": "Fokus auf Konsistenzverbesserung",
+				"plateauDetection": "Lernplateau behoben",
+				"significantPerformanceChange": "Lernfortschritt aktualisiert"
+			}
+		},
 		"previous": "Zurück",
 		"progress": {
 			"aria": "Lernfortschritt: {{current}} von {{total}} Karten bearbeitet, {{percentage}}% erledigt",
