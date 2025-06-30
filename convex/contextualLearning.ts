@@ -1339,8 +1339,6 @@ function generateDifficultyBasedPath(
 
 			return {
 				cardId: card._id,
-				contentComplexity,
-				domainDifficulty,
 				estimatedDifficulty: Math.min(1, personalizedDifficulty),
 				front: card.front,
 				reason: personalizedReason,
@@ -1515,6 +1513,7 @@ function generatePrerequisitePath(
 				cardId: card._id,
 				estimatedDifficulty: 1 - prerequisiteScore, // Convert to difficulty (lower prerequisite = higher difficulty)
 				front: card.front,
+				// Keep prerequisiteScore for internal sorting, will be removed later
 				prerequisiteScore,
 				reason,
 			};
@@ -1569,7 +1568,8 @@ function generatePrerequisitePath(
 	// Sort by prerequisite score (highest first) and return top cards
 	return personalizedCardScores
 		.sort((a, b) => b.prerequisiteScore - a.prerequisiteScore)
-		.slice(0, 10);
+		.slice(0, 10)
+		.map(({ prerequisiteScore, ...card }) => card); // Remove prerequisiteScore field for validator compliance
 }
 
 /**
@@ -1743,6 +1743,7 @@ function generateReviewFocusedPath(
 				cardId: card._id,
 				estimatedDifficulty: Math.min(1, totalPriority),
 				front: card.front,
+				// Keep extra fields for internal processing, will be removed later
 				learningPatternScore,
 				reason,
 				retentionDifficulty,
@@ -1811,7 +1812,16 @@ function generateReviewFocusedPath(
 
 	return personalizedCards
 		.sort((a, b) => b.estimatedDifficulty - a.estimatedDifficulty)
-		.slice(0, 8); // Increased from 6 to 8 for better coverage
+		.slice(0, 8) // Increased from 6 to 8 for better coverage
+		.map(
+			({
+				learningPatternScore,
+				retentionDifficulty,
+				reviewCount,
+				successRate,
+				...card
+			}) => card,
+		); // Remove extra fields for validator compliance
 }
 
 /**
@@ -2016,9 +2026,7 @@ function generateDomainFocusedPath(
 
 			return {
 				cardId: card._id,
-				domainComplexity,
-				domainDensity,
-				domainScore,
+				domainScore, // Keep this for internal sorting, will be removed later
 				estimatedDifficulty: 1 - domainScore,
 				front: card.front,
 				reason: t(
@@ -2092,7 +2100,8 @@ function generateDomainFocusedPath(
 	// Sort by domain score (easier concepts first within the domain)
 	return personalizedPathCards
 		.sort((a, b) => b.domainScore - a.domainScore)
-		.slice(0, 8); // Limit to 8 cards for focused learning
+		.slice(0, 8) // Limit to 8 cards for focused learning
+		.map(({ domainScore, ...card }) => card); // Remove domainScore field for validator compliance
 }
 
 /**

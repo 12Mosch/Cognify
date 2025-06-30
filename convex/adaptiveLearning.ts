@@ -1249,26 +1249,78 @@ export const getUserLearningPattern = query({
 	},
 	returns: v.union(
 		v.object({
-			_creationTime: v.number(),
+			_creationTime: v.float64(),
 			_id: v.id("learningPatterns"),
 			averageSuccessRate: v.float64(),
 			difficultyPatterns: v.object({
 				easyCards: v.object({
 					averageInterval: v.float64(),
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
 					successRate: v.float64(),
 				}),
 				hardCards: v.object({
 					averageInterval: v.float64(),
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
 					successRate: v.float64(),
 				}),
 				mediumCards: v.object({
 					averageInterval: v.float64(),
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
 					successRate: v.float64(),
 				}),
+			}),
+			inconsistencyPatterns: v.object({
+				averageVariance: v.float64(),
+				cardIds: v.array(v.string()),
+				detectionThreshold: v.float64(),
+				lastCalculated: v.float64(),
 			}),
 			lastUpdated: v.float64(),
 			learningVelocity: v.float64(),
 			personalEaseFactorBias: v.float64(),
+			personalizationConfig: v.object({
+				adaptDifficultyProgression: v.boolean(),
+				focusOnPlateauTopics: v.boolean(),
+				learningPatternInfluence: v.float64(),
+				optimizeForTimeOfDay: v.boolean(),
+				prioritizeInconsistentCards: v.boolean(),
+			}),
+			plateauDetection: v.object({
+				lastAnalyzed: v.float64(),
+				plateauThreshold: v.float64(),
+				stagnantTopics: v.array(
+					v.object({
+						averagePerformance: v.float64(),
+						cardIds: v.array(v.string()),
+						lastImprovement: v.float64(),
+						plateauDuration: v.float64(),
+						topicKeywords: v.array(v.string()),
+					}),
+				),
+			}),
+			recentPerformanceTrends: v.object({
+				last7Days: v.object({
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					reviewCount: v.float64(),
+					successRate: v.float64(),
+				}),
+				last14Days: v.object({
+					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					reviewCount: v.float64(),
+					successRate: v.float64(),
+				}),
+				lastUpdated: v.float64(),
+				trend: v.object({
+					confidenceChange: v.float64(),
+					responseTimeChange: v.float64(),
+					successRateChange: v.float64(),
+				}),
+			}),
 			retentionCurve: v.array(
 				v.object({
 					interval: v.float64(),
@@ -1278,31 +1330,43 @@ export const getUserLearningPattern = query({
 			timeOfDayPerformance: v.object({
 				afternoon: v.object({
 					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
 					reviewCount: v.float64(),
 					successRate: v.float64(),
 				}),
 				early_morning: v.object({
 					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
 					reviewCount: v.float64(),
 					successRate: v.float64(),
 				}),
 				evening: v.object({
 					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
 					reviewCount: v.float64(),
 					successRate: v.float64(),
 				}),
 				late_night: v.object({
 					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
 					reviewCount: v.float64(),
 					successRate: v.float64(),
 				}),
 				morning: v.object({
 					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
 					reviewCount: v.float64(),
 					successRate: v.float64(),
 				}),
 				night: v.object({
 					averageResponseTime: v.float64(),
+					confidenceLevel: v.float64(),
+					optimalForLearning: v.boolean(),
 					reviewCount: v.float64(),
 					successRate: v.float64(),
 				}),
