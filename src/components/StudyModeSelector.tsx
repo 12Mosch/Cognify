@@ -39,7 +39,7 @@ function StudyModeSelector({
 
 	// Fetch learning paths for adaptive mode
 	const learningPaths = useQuery(
-		api.contextualLearning.generateLearningPaths,
+		api.contextualLearning.getLearningPathRecommendations,
 		deckId ? { deckId, language: "en" } : "skip",
 	);
 
