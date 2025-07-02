@@ -134,7 +134,7 @@ export function showPathAdjustmentToast(
 	changePercentage?: number,
 ): void {
 	const displayMessage = changePercentage
-		? `${message} (${Math.round(changePercentage * 100)}% of cards reordered)`
+		? `${message} (${i18n.t("notifications.cardsReordered", { percentage: Math.round(changePercentage * 100) })})`
 		: message;
 
 	toast(displayMessage, {

@@ -919,7 +919,7 @@ export const regenerateStudyPath = mutation({
 		}
 
 		return {
-			cardsReordered: cardPriorities.length,
+			cards: cardPriorities.length,
 			regenerated: true,
 			topPriorityCards: cardPriorities.slice(0, 5).map((cp) => ({
 				cardId: cp.cardId,

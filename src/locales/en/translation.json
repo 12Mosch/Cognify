@@ -468,6 +468,7 @@
 	"notifications": {
 		"cardAdded": "Card added successfully!",
 		"cardDeleted": "Card deleted successfully!",
+		"cardsReordered": "{{percentage}}% of cards reordered",
 		"cardUpdated": "Card updated successfully!",
 		"deckCreated": "Deck created successfully!",
 		"deckCreatedWithName": "\"{{deckName}}\" created successfully!",

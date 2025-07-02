@@ -468,6 +468,7 @@
 	"notifications": {
 		"cardAdded": "Karte erfolgreich hinzugefügt!",
 		"cardDeleted": "Karte erfolgreich gelöscht!",
+		"cardsReordered": "{{percentage}}% der Karten neu angeordnet",
 		"cardUpdated": "Karte erfolgreich aktualisiert!",
 		"deckCreated": "Stapel erfolgreich erstellt!",
 		"deckCreatedWithName": "\"{{deckName}}\" erfolgreich erstellt!",
