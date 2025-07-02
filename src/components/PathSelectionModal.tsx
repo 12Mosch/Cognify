@@ -66,6 +66,14 @@ const PathSelectionModal = memo(function PathSelectionModal({
 			icon: "🎓",
 			title: t("knowledge.paths.types.domainFocused", "Domain-Focused Study"),
 		},
+		forgetting_curve_optimized: {
+			color: "orange",
+			icon: "📉",
+			title: t(
+				"knowledge.paths.types.forgettingCurveOptimized",
+				"Forgetting Curve Optimized",
+			),
+		},
 		prerequisite_order: {
 			color: "green",
 			icon: "🏗️",

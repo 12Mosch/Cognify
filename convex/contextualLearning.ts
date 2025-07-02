@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { getTimeSlot } from "../src/utils/scheduling";
 import type { Doc, Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import type {
@@ -709,7 +710,31 @@ export const getLearningPathRecommendations = query({
 			});
 		}
 
-		return paths.slice(0, 5); // Return top 5 paths (increased from 4)
+		// 6. Forgetting Curve Optimized path for maximum retention efficiency
+		const forgettingCurvePath = generateForgettingCurveOptimizedPath(
+			cards,
+			deckReviews,
+			language,
+			learningPatterns || undefined,
+			personalizationConfig,
+		);
+		if (forgettingCurvePath.length > 0) {
+			paths.push({
+				confidence: 0.9, // High confidence due to personalized forgetting curve data
+				description: t(
+					"contextualLearning.descriptions.forgettingCurveOptimized",
+					language,
+				),
+				estimatedTime: forgettingCurvePath.length * 2.5,
+				path: forgettingCurvePath,
+				pathType: t(
+					"contextualLearning.pathTypes.forgettingCurveOptimized",
+					language,
+				),
+			});
+		}
+
+		return paths.slice(0, 6); // Return top 6 paths (increased from 5)
 	},
 	returns: v.array(
 		v.object({
@@ -2298,4 +2323,300 @@ function calculateSuccessVariance(successes: number[]): number {
 		successes.length;
 
 	return Math.sqrt(variance);
+}
+
+/**
+ * Generate Forgetting Curve Optimized path using personalized forgetting curves
+ * Targets cards at optimal forgetting intervals based on individual retention patterns
+ * Maximizes retention efficiency by preventing over/under-studying
+ */
+function generateForgettingCurveOptimizedPath(
+	cards: Doc<"cards">[],
+	reviews: Doc<"cardReviews">[],
+	language: string,
+	learningPatterns?: UserLearningPatterns,
+	personalizationConfig?: PathPersonalizationConfig,
+): Array<{
+	cardId: Id<"cards">;
+	front: string;
+	reason: string;
+	estimatedDifficulty: number;
+}> {
+	if (cards.length === 0) return [];
+
+	const normalizedLanguage = normalizeLanguage(language);
+	const config = personalizationConfig || {
+		difficultyAdaptation: 0.2,
+		inconsistencyBoost: 1.5,
+		learningPatternWeight: 0.3,
+		plateauBoost: 1.3,
+		srsWeight: 0.7,
+		timeOfDayBoost: 1.2,
+	};
+
+	const now = Date.now();
+	const millisecondsPerDay = 24 * 60 * 60 * 1000;
+
+	// Calculate forgetting curve scores for each card
+	const cardScores = cards.map((card) => {
+		const cardReviews = reviews.filter((r) => r.cardId === card._id);
+
+		// Skip cards with no review history
+		if (cardReviews.length === 0) {
+			return {
+				card,
+				estimatedDifficulty: 0.5,
+				forgettingScore: 0,
+				reason: t("contextualLearning.reasons.newCard", normalizedLanguage),
+			};
+		}
+
+		// Calculate personal forgetting curve parameters
+		const forgettingCurveData = calculatePersonalForgettingCurve(
+			cardReviews,
+			learningPatterns,
+		);
+
+		// Calculate optimal review timing based on forgetting curve
+		const daysSinceLastReview = card.dueDate
+			? Math.max(0, (now - card.dueDate) / millisecondsPerDay)
+			: 0;
+
+		const optimalReviewTime = calculateOptimalReviewTime(
+			forgettingCurveData,
+			card.easeFactor || 2.5,
+			card.interval || 1,
+		);
+
+		// Calculate forgetting score (higher = more urgent to review)
+		const forgettingScore = calculateForgettingScore(
+			daysSinceLastReview,
+			optimalReviewTime,
+			forgettingCurveData.retentionRate,
+			forgettingCurveData.forgettingRate,
+		);
+
+		// Determine reason for inclusion
+		let reason = t(
+			"contextualLearning.reasons.optimalTiming",
+			normalizedLanguage,
+		);
+		if (forgettingScore > 0.8) {
+			reason = t(
+				"contextualLearning.reasons.criticalForgetting",
+				normalizedLanguage,
+			);
+		} else if (forgettingScore > 0.6) {
+			reason = t(
+				"contextualLearning.reasons.approachingForgetfulness",
+				normalizedLanguage,
+			);
+		} else if (forgettingScore < 0.2) {
+			reason = t("contextualLearning.reasons.earlyReview", normalizedLanguage);
+		}
+
+		// Calculate estimated difficulty based on historical performance
+		const avgQuality =
+			cardReviews.length > 0
+				? cardReviews.reduce((sum, r) => sum + r.quality, 0) /
+					cardReviews.length
+				: 2.5;
+
+		const estimatedDifficulty = Math.max(
+			0.1,
+			Math.min(1.0, (5 - avgQuality) / 5),
+		);
+
+		return {
+			card,
+			estimatedDifficulty,
+			forgettingScore,
+			reason,
+		};
+	});
+
+	// Apply learning pattern adjustments if available
+	const adjustedScores = cardScores.map((cardScore) => {
+		let adjustedScore = cardScore.forgettingScore;
+
+		if (learningPatterns && personalizationConfig) {
+			// Boost inconsistent cards
+			if (
+				learningPatterns.inconsistencyPatterns.cardIds.includes(
+					cardScore.card._id,
+				)
+			) {
+				adjustedScore *= config.inconsistencyBoost;
+			}
+
+			// Boost plateau cards
+			const isInPlateauTopic =
+				learningPatterns.plateauDetection.stagnantTopics.some((topic) =>
+					topic.cardIds.includes(cardScore.card._id),
+				);
+			if (isInPlateauTopic) {
+				adjustedScore *= config.plateauBoost;
+			}
+
+			// Apply time-of-day optimization
+			if (learningPatterns.personalizationConfig?.optimizeForTimeOfDay) {
+				const currentHour = new Date().getHours();
+				const timeSlot = getTimeSlot(currentHour);
+				const timePerformance = learningPatterns.timeOfDayPerformance[timeSlot];
+				if (timePerformance && timePerformance.successRate > 0.7) {
+					adjustedScore *= config.timeOfDayBoost;
+				}
+			}
+		}
+
+		return {
+			...cardScore,
+			forgettingScore: adjustedScore,
+		};
+	});
+
+	// Sort by forgetting score (highest first) and limit session size
+	const sortedCards = adjustedScores
+		.sort((a, b) => b.forgettingScore - a.forgettingScore)
+		.slice(0, Math.min(25, cards.length)); // Optimal session size for forgetting curve
+
+	return sortedCards.map(({ card, reason, estimatedDifficulty }) => ({
+		cardId: card._id,
+		estimatedDifficulty,
+		front: card.front,
+		reason,
+	}));
+}
+
+/**
+ * Calculate personal forgetting curve parameters based on review history
+ */
+function calculatePersonalForgettingCurve(
+	cardReviews: Doc<"cardReviews">[],
+	learningPatterns?: UserLearningPatterns,
+): {
+	retentionRate: number;
+	forgettingRate: number;
+	stabilityFactor: number;
+} {
+	if (cardReviews.length === 0) {
+		return {
+			forgettingRate: 0.3, // Default forgetting rate
+			retentionRate: 0.7, // Default retention rate
+			stabilityFactor: 1.0,
+		};
+	}
+
+	// Sort reviews by date
+	const sortedReviews = cardReviews.sort((a, b) => a.reviewDate - b.reviewDate);
+
+	// Calculate retention rate based on success patterns
+	const successRate =
+		sortedReviews.filter((r) => r.wasSuccessful).length / sortedReviews.length;
+
+	// Calculate forgetting rate based on interval patterns
+	let forgettingRate = 0.3; // Default
+	if (sortedReviews.length >= 3) {
+		// Analyze how quickly performance degrades over time
+		const recentReviews = sortedReviews.slice(-5); // Last 5 reviews
+		const recentSuccessRate =
+			recentReviews.filter((r) => r.wasSuccessful).length /
+			recentReviews.length;
+
+		// If recent performance is worse than overall, increase forgetting rate
+		if (recentSuccessRate < successRate) {
+			forgettingRate = Math.min(0.5, 0.3 + (successRate - recentSuccessRate));
+		} else {
+			forgettingRate = Math.max(0.1, 0.3 - (recentSuccessRate - successRate));
+		}
+	}
+
+	// Use learning patterns if available for more accurate calculation
+	let stabilityFactor = 1.0;
+	if (learningPatterns) {
+		// Users with higher learning velocity have more stable retention
+		stabilityFactor = Math.min(
+			1.5,
+			0.8 + learningPatterns.learningVelocity * 0.2,
+		);
+
+		// Adjust based on retention curve data
+		if (learningPatterns.retentionCurve.length > 0) {
+			const avgRetention =
+				learningPatterns.retentionCurve.reduce(
+					(sum, point) => sum + point.retentionRate,
+					0,
+				) / learningPatterns.retentionCurve.length;
+			stabilityFactor *= avgRetention;
+		}
+	}
+
+	return {
+		forgettingRate,
+		retentionRate: successRate,
+		stabilityFactor,
+	};
+}
+
+/**
+ * Calculate optimal review time based on forgetting curve
+ */
+function calculateOptimalReviewTime(
+	forgettingCurveData: {
+		retentionRate: number;
+		forgettingRate: number;
+		stabilityFactor: number;
+	},
+	easeFactor: number,
+	currentInterval: number,
+): number {
+	// Base optimal time on current interval and ease factor
+	let optimalTime = currentInterval * easeFactor;
+
+	// Adjust based on personal forgetting curve
+	const retentionAdjustment = forgettingCurveData.retentionRate / 0.7; // Normalize to 70% baseline
+	const forgettingAdjustment = 0.3 / forgettingCurveData.forgettingRate; // Inverse relationship
+
+	optimalTime *=
+		retentionAdjustment *
+		forgettingAdjustment *
+		forgettingCurveData.stabilityFactor;
+
+	// Ensure reasonable bounds (1 day to 180 days)
+	return Math.max(1, Math.min(180, optimalTime));
+}
+
+/**
+ * Calculate forgetting score based on timing and curve parameters
+ */
+function calculateForgettingScore(
+	daysSinceLastReview: number,
+	optimalReviewTime: number,
+	retentionRate: number,
+	forgettingRate: number,
+): number {
+	// Calculate how far we are from optimal timing
+	const timingRatio = daysSinceLastReview / optimalReviewTime;
+
+	// Score increases as we approach and pass optimal time
+	let score = 0;
+
+	if (timingRatio < 0.5) {
+		// Too early - low score
+		score = timingRatio * 0.4;
+	} else if (timingRatio <= 1.0) {
+		// Approaching optimal - increasing score
+		score = 0.2 + (timingRatio - 0.5) * 1.6; // 0.2 to 1.0
+	} else {
+		// Past optimal - high score with forgetting curve decay
+		const overdue = timingRatio - 1.0;
+		const forgettingDecay = Math.exp(-forgettingRate * overdue);
+		score = 1.0 + (1.0 - forgettingDecay) * 0.5; // 1.0 to 1.5 max
+	}
+
+	// Adjust based on retention rate (lower retention = higher urgency)
+	score *= 2.0 - retentionRate; // Scale from 1.0 to 2.0
+
+	// Ensure score is between 0 and 1.5
+	return Math.max(0, Math.min(1.5, score));
 }

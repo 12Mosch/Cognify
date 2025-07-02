@@ -244,6 +244,7 @@
 		"descriptions": {
 			"difficultyProgression": "Beginnen Sie mit einfacheren Konzepten und steigern Sie allmählich die Schwierigkeit mit Inhaltsanalyse",
 			"domainFocused": "Konzentrieren Sie sich auf Karten aus einem bestimmten Fachbereich für spezialisiertes Lernen",
+			"forgettingCurveOptimized": "Zielen Sie auf Karten zu optimalen Vergessensintervallen basierend auf Ihren persönlichen Retentionsmustern für maximale Effizienz",
 			"prerequisiteOrder": "Lernen Sie grundlegende Konzepte vor fortgeschrittenen mit semantischer Analyse",
 			"relatedConcepts": "Verwandte Konzepte",
 			"reviewFocused": "Konzentrieren Sie sich auf Karten, die Sie am schwierigsten finden mit Lernmusteranalyse",
@@ -261,16 +262,21 @@
 		"pathTypes": {
 			"difficultyProgression": "difficulty_progression",
 			"domainFocused": "domain_focused",
+			"forgettingCurveOptimized": "forgetting_curve_optimized",
 			"prerequisiteOrder": "prerequisite_order",
 			"reviewFocused": "review_focused",
 			"spacedRepetitionOptimized": "spaced_repetition_optimized"
 		},
 		"reasons": {
+			"approachingForgetfulness": "Nähert sich dem optimalen Vergessenspunkt",
+			"criticalForgetting": "Kritische Vergessensschwelle erreicht",
 			"dueToday": "Heute zur Wiederholung fällig",
+			"earlyReview": "Frühe Wiederholung zur Verstärkung",
 			"estimatedDifficulty": "Geschätzte Schwierigkeit: {{percentage}}%",
 			"foundationalConcept": "Grundlegendes Konzept",
 			"inconsistentPerformance": "Inkonsistentes Leistungsmuster",
 			"newCard": "Neue Karte bereit zum Lernen",
+			"optimalTiming": "Optimales Wiederholungstiming basierend auf Vergessensskurve",
 			"overdue": "Überfällig um {{days}} Tag(e)",
 			"plateauDetected": "Lernplateau erkannt",
 			"scheduledReview": "Für zukünftige Wiederholung geplant",
@@ -445,6 +451,7 @@
 				"difficulty_based": "Schwierigkeitsbasierter Pfad",
 				"difficultyProgression": "Schwierigkeitsbasiertes Lernen",
 				"domainFocused": "Domänenorientiertes Studium",
+				"forgettingCurveOptimized": "Vergessensskurve-Optimiert",
 				"prerequisite": "Voraussetzungspfad",
 				"prerequisiteOrder": "Grundlagen-zuerst-Lernen",
 				"reviewFocused": "Wiederholungsorientierte Praxis",
@@ -551,6 +558,7 @@
 		"pathDescriptions": {
 			"difficultyProgression": "Beginnen Sie mit einfacheren Konzepten und steigern Sie allmählich die Schwierigkeit mit Inhaltsanalyse",
 			"domainFocused": "Konzentrieren Sie sich auf Karten aus einem bestimmten Fachbereich für spezialisiertes Lernen",
+			"forgettingCurveOptimized": "Zielen Sie auf Karten zu optimalen Vergessensintervallen basierend auf Ihren persönlichen Retentionsmustern für maximale Effizienz",
 			"prerequisiteOrder": "Lernen Sie grundlegende Konzepte vor fortgeschrittenen mit semantischer Analyse",
 			"reviewFocused": "Konzentrieren Sie sich auf Karten, die Sie am schwierigsten finden mit Lernmusteranalyse",
 			"spacedRepetitionOptimized": "Optimieren Sie die Langzeitretention mit Spaced-Repetition-Planung und Fälligkeitspriorisierung"

@@ -244,6 +244,7 @@
 		"descriptions": {
 			"difficultyProgression": "Start with easier concepts and gradually increase difficulty using content analysis",
 			"domainFocused": "Focus on cards from a specific subject area for specialized learning",
+			"forgettingCurveOptimized": "Target cards at optimal forgetting intervals based on your personal retention patterns for maximum efficiency",
 			"prerequisiteOrder": "Learn foundational concepts before advanced ones using semantic analysis",
 			"relatedConcepts": "Related concepts",
 			"reviewFocused": "Focus on cards you find most challenging using learning pattern analysis",
@@ -261,16 +262,21 @@
 		"pathTypes": {
 			"difficultyProgression": "difficulty_progression",
 			"domainFocused": "domain_focused",
+			"forgettingCurveOptimized": "forgetting_curve_optimized",
 			"prerequisiteOrder": "prerequisite_order",
 			"reviewFocused": "review_focused",
 			"spacedRepetitionOptimized": "spaced_repetition_optimized"
 		},
 		"reasons": {
+			"approachingForgetfulness": "Approaching optimal forgetting point",
+			"criticalForgetting": "Critical forgetting threshold reached",
 			"dueToday": "Due for review today",
+			"earlyReview": "Early review for reinforcement",
 			"estimatedDifficulty": "Estimated difficulty: {{percentage}}%",
 			"foundationalConcept": "Foundational concept",
 			"inconsistentPerformance": "Inconsistent performance pattern",
 			"newCard": "New card ready to learn",
+			"optimalTiming": "Optimal review timing based on forgetting curve",
 			"overdue": "Overdue by {{days}} day(s)",
 			"plateauDetected": "Learning plateau detected",
 			"scheduledReview": "Scheduled for future review",
@@ -445,6 +451,7 @@
 				"difficulty_based": "Difficulty-Based Path",
 				"difficultyProgression": "Difficulty-Based Learning",
 				"domainFocused": "Domain-Focused Study",
+				"forgettingCurveOptimized": "Forgetting Curve Optimized",
 				"prerequisite": "Prerequisite Path",
 				"prerequisiteOrder": "Foundation-First Learning",
 				"reviewFocused": "Review-Focused Practice",
@@ -551,6 +558,7 @@
 		"pathDescriptions": {
 			"difficultyProgression": "Start with easier concepts and gradually increase difficulty using content analysis",
 			"domainFocused": "Focus on cards from a specific subject area for specialized learning",
+			"forgettingCurveOptimized": "Target cards at optimal forgetting intervals based on your personal retention patterns for maximum efficiency",
 			"prerequisiteOrder": "Learn foundational concepts before advanced ones using semantic analysis",
 			"reviewFocused": "Focus on cards you find most challenging using learning pattern analysis",
 			"spacedRepetitionOptimized": "Optimize long-term retention using spaced repetition scheduling and due date prioritization"
