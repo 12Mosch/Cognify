@@ -15,7 +15,7 @@
 		"react-dom": "^19.0.0",
 		"react-focus-lock": "^2.13.6",
 		"react-hot-toast": "^2.5.2",
-		"react-i18next": "^15.5.3",
+		"react-i18next": "^15.6.0",
 		"react-swipeable": "^7.0.2",
 		"recharts": "^3.0.2"
 	},
