@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"@clerk/clerk-react": "^5.32.4",
+		"@clerk/clerk-react": "^5.33.0",
 		"@jsquash/avif": "^2.1.1",
 		"@jsquash/webp": "^1.5.0",
 		"@vercel/analytics": "^1.5.0",
