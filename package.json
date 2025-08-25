@@ -12,7 +12,7 @@
 		"i18next-browser-languagedetector": "^8.2.0",
 		"posthog-js": "^1.257.0",
 		"react": "^19.0.0",
-		"react-dom": "^19.0.0",
+		"react-dom": "^19.1.1",
 		"react-focus-lock": "^2.13.6",
 		"react-hot-toast": "^2.5.2",
 		"react-i18next": "^15.6.1",
