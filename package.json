@@ -8,7 +8,7 @@
 		"browser-image-compression": "^2.0.2",
 		"convex": "^1.26.2",
 		"file-saver": "^2.0.5",
-		"i18next": "^25.4.2",
+		"i18next": "^25.6.0",
 		"i18next-browser-languagedetector": "^8.2.0",
 		"posthog-js": "^1.261.4",
 		"react": "^19.1.1",
