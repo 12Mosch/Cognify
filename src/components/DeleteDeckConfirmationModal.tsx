@@ -1,4 +1,4 @@
-import { useUser } from "@clerk/clerk-react";
+import { useUser } from "@clerk/react";
 import { useMutation } from "convex/react";
 import { useEffect, useId, useRef, useState } from "react";
 import FocusLock from "react-focus-lock";

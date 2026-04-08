@@ -57,7 +57,9 @@ export default function AdaptiveStudyMode({
 	const [sessionCompleted, setSessionCompleted] = useState(false); // Track if session is completed
 
 	// Ref to track timeout for personalized message cleanup
-	const messageTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+	const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+		undefined,
+	);
 
 	// Convex queries and mutations
 	const decks = useQuery(api.decks.getDecksForUser);

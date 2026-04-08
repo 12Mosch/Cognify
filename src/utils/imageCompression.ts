@@ -57,14 +57,14 @@ export function isAvifSupported(): boolean {
 
 	// Chrome/Chromium 85+
 	const chromeMatch = userAgent.match(/(?:Chrome|Chromium|Edg)\/(\d+)/);
-	if (chromeMatch && parseInt(chromeMatch[1]) >= 85) {
+	if (chromeMatch && Number.parseInt(chromeMatch[1], 10) >= 85) {
 		return true;
 	}
 
 	// Firefox 93+
 	if (userAgent.includes("Firefox/")) {
 		const firefoxVersion = userAgent.match(/Firefox\/(\d+)/);
-		if (firefoxVersion && parseInt(firefoxVersion[1]) >= 93) {
+		if (firefoxVersion && Number.parseInt(firefoxVersion[1], 10) >= 93) {
 			return true;
 		}
 	}
@@ -73,8 +73,8 @@ export function isAvifSupported(): boolean {
 	if (userAgent.includes("Safari/") && !userAgent.includes("Chrome/")) {
 		const safariVersion = userAgent.match(/Version\/(\d+)\.(\d+)/);
 		if (safariVersion) {
-			const major = parseInt(safariVersion[1]);
-			const minor = parseInt(safariVersion[2]);
+			const major = Number.parseInt(safariVersion[1], 10);
+			const minor = Number.parseInt(safariVersion[2], 10);
 			if (major > 16 || (major === 16 && minor >= 1)) {
 				return true;
 			}

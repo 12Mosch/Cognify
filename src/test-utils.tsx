@@ -1,4 +1,3 @@
-import { ClerkProvider } from "@clerk/clerk-react";
 import { type RenderOptions, render } from "@testing-library/react";
 import {
 	ConvexProvider,
@@ -15,9 +14,6 @@ import testI18n from "./test-i18n";
 // Mock Convex client for testing
 const mockConvexClient = new ConvexReactClient("https://test.convex.cloud");
 
-// Mock Clerk publishable key for testing
-const CLERK_PUBLISHABLE_KEY = "pk_test_mock_key_for_testing";
-
 interface AllTheProvidersProps {
 	children: React.ReactNode;
 }
@@ -26,9 +22,7 @@ interface AllTheProvidersProps {
 const AllTheProviders = ({ children }: AllTheProvidersProps) => {
 	return (
 		<I18nextProvider i18n={testI18n}>
-			<ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
-				<ConvexProvider client={mockConvexClient}>{children}</ConvexProvider>
-			</ClerkProvider>
+			<ConvexProvider client={mockConvexClient}>{children}</ConvexProvider>
 		</I18nextProvider>
 	);
 };
@@ -128,7 +122,7 @@ export const setupMockTimers = () => {
 	beforeEach(() => {
 		jest.useFakeTimers({
 			legacyFakeTimers: false,
-			now: new Date("2024-01-15T12:00:00.000Z"),
+			now: new Date("2024-01-15T12:00:00.000Z").getTime(),
 		});
 	});
 

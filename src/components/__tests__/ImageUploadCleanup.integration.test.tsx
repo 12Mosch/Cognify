@@ -37,7 +37,7 @@ jest.mock("convex/react", () => ({
 }));
 
 // Mock Clerk
-jest.mock("@clerk/clerk-react", () => ({
+jest.mock("@clerk/react", () => ({
 	useUser: () => ({
 		user: { id: "user1" },
 	}),

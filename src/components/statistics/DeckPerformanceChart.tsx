@@ -63,7 +63,7 @@ const CustomTooltip = ({
 }) => {
 	"use no memo"; // Directive to prevent React Compiler optimization
 
-	if (active && payload && payload.length) {
+	if (active && payload?.length) {
 		const data = payload[0].payload;
 		return (
 			<div className="min-w-[200px] rounded-lg border border-slate-600 bg-slate-800 p-4 shadow-lg dark:bg-slate-900">

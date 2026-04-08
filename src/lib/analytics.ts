@@ -507,12 +507,10 @@ export interface AnalyticsEventData {
  * Safe wrapper for PostHog event tracking
  * Ensures analytics failures don't break app functionality
  */
-type PropsArg<E extends AnalyticsEvent> = AnalyticsEventData[E] extends Record<
-	string,
-	never
->
-	? []
-	: [properties: AnalyticsEventData[E]];
+type PropsArg<E extends AnalyticsEvent> =
+	AnalyticsEventData[E] extends Record<string, never>
+		? []
+		: [properties: AnalyticsEventData[E]];
 
 export function trackEvent<E extends AnalyticsEvent>(
 	posthog: ReturnType<typeof usePostHog> | null,

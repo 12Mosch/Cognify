@@ -1,11 +1,6 @@
 "use client";
 
-import {
-	SignInButton,
-	SignUpButton,
-	UserButton,
-	useUser,
-} from "@clerk/clerk-react";
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/react";
 import { Analytics } from "@vercel/analytics/react";
 import { Authenticated, Unauthenticated } from "convex/react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";

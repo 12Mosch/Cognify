@@ -567,7 +567,9 @@ export const ErrorRecovery = {
 				(key) =>
 					key.includes(`form_${formName}`) || key.includes(`draft_${formName}`),
 			);
-			formKeys.forEach((key) => localStorage.removeItem(key));
+			for (const key of formKeys) {
+				localStorage.removeItem(key);
+			}
 
 			return true;
 		} catch {
@@ -584,7 +586,9 @@ export const ErrorRecovery = {
 			const sessionKeys = Object.keys(localStorage).filter(
 				(key) => key.includes("study_session") || key.includes(deckId),
 			);
-			sessionKeys.forEach((key) => localStorage.removeItem(key));
+			for (const key of sessionKeys) {
+				localStorage.removeItem(key);
+			}
 
 			return true;
 		} catch {

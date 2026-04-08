@@ -22,7 +22,7 @@ describe("dateUtils", () => {
 		jest.useFakeTimers({
 			// Explicitly request modern timers – protects against config drift
 			legacyFakeTimers: false,
-			now: new Date("2024-01-15T12:00:00.000Z"),
+			now: new Date("2024-01-15T12:00:00.000Z").getTime(),
 		});
 	});
 

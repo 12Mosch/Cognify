@@ -157,7 +157,7 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 							{heatmapData.weeks.map((week) => (
 								<div className="flex flex-col gap-1" key={week.weekIndex}>
 									{week.days.map((day) => (
-										<div
+										<button
 											aria-label={formatTooltipContent(day)}
 											className={`h-3 w-3 cursor-pointer rounded-sm border transition-all duration-200 hover:scale-110 ${getActivityLevelClasses(day.level)} `}
 											key={`${week.weekIndex}-${day.dayIndex}`}
@@ -168,6 +168,7 @@ const StudyHistoryHeatmap = memo(function StudyHistoryHeatmap() {
 											onMouseLeave={handleDayMouseLeave}
 											role="gridcell"
 											tabIndex={0}
+											type="button"
 										/>
 									))}
 								</div>

@@ -60,7 +60,7 @@ interface CardDistributionChartProps {
 const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
 	"use no memo"; // Directive to prevent React Compiler optimization
 
-	if (active && payload && payload.length) {
+	if (active && payload?.length) {
 		const data = payload[0].payload;
 		const totalCards = data.totalCards || 1; // Fallback to prevent division by zero
 		const percentage = ((data.value / totalCards) * 100).toFixed(1);

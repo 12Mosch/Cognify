@@ -33,7 +33,7 @@ class ErrorBoundaryClass extends Component<
 	ErrorBoundaryProps & { posthog: ReturnType<typeof usePostHog> | null },
 	ErrorBoundaryState
 > {
-	private retryTimeoutId: NodeJS.Timeout | null = null;
+	private retryTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
 	constructor(
 		props: ErrorBoundaryProps & {
@@ -334,7 +334,7 @@ class ErrorBoundaryClass extends Component<
 			// Check for specific error types and provide appropriate UI
 			const error = this.state.error;
 			const isClerkError =
-				error.message.includes("@clerk/clerk-react") &&
+				error.message.includes("@clerk/react") &&
 				error.message.includes("publishableKey");
 
 			if (isClerkError) {

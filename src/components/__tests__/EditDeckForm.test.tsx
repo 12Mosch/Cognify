@@ -42,7 +42,7 @@ jest.mock("react-i18next", () => ({
 }));
 
 // Mock Clerk
-jest.mock("@clerk/clerk-react", () => ({
+jest.mock("@clerk/react", () => ({
 	useUser: () => ({
 		isLoaded: true,
 		user: { id: "test-user-id" },

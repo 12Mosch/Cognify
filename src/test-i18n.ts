@@ -516,9 +516,6 @@ void i18n.use(initReactI18next).init({
 	debug: false,
 	fallbackLng: "en",
 
-	// Ensure synchronous behavior in tests
-	initImmediate: false,
-
 	interpolation: {
 		escapeValue: false, // React already does escaping
 	},

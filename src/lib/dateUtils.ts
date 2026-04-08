@@ -193,8 +193,8 @@ export function getStartOfTodayLocal(timeZone?: string): number {
 	}
 
 	const sign = offsetMatch[1] === "+" ? 1 : -1;
-	const offsetHours = parseInt(offsetMatch[2]);
-	const offsetMinutes = parseInt(offsetMatch[3]);
+	const offsetHours = Number.parseInt(offsetMatch[2], 10);
+	const offsetMinutes = Number.parseInt(offsetMatch[3], 10);
 	const offsetMs = sign * (offsetHours * 60 + offsetMinutes) * 60 * 1000;
 
 	// Subtract the offset to get the correct UTC timestamp for local midnight

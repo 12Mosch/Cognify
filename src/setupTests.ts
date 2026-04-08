@@ -5,7 +5,7 @@ import "@testing-library/jest-dom";
 import "./test-i18n";
 
 // Mock IntersectionObserver for components that use it
-global.IntersectionObserver = jest.fn().mockImplementation(() => ({
+globalThis.IntersectionObserver = jest.fn().mockImplementation(() => ({
 	disconnect: jest.fn(),
 	observe: jest.fn(),
 	root: null,
@@ -16,7 +16,7 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
 }));
 
 // Mock ResizeObserver for components that use it (like charts)
-global.ResizeObserver = jest.fn().mockImplementation(() => ({
+globalThis.ResizeObserver = jest.fn().mockImplementation(() => ({
 	disconnect: jest.fn(),
 	observe: jest.fn(),
 	unobserve: jest.fn(),
@@ -48,7 +48,9 @@ const makeMemoryStorage = () => {
 	const store: Record<string, string> = {};
 	return {
 		clear: jest.fn(() => {
-			Object.keys(store).forEach((k) => delete store[k]);
+			for (const key of Object.keys(store)) {
+				delete store[key];
+			}
 		}),
 		getItem: jest.fn((k) => store[k] ?? null),
 		removeItem: jest.fn((k) => {

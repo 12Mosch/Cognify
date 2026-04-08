@@ -1,11 +1,11 @@
-import { useUser } from "@clerk/clerk-react";
+import { useUser } from "@clerk/react";
 import { render, screen } from "@testing-library/react";
 import { useQuery } from "convex/react";
 import React from "react";
 import App from "../App";
 
 // Mock Clerk
-jest.mock("@clerk/clerk-react", () => {
+jest.mock("@clerk/react", () => {
 	// Helper function to generate test IDs from labels
 	const slugify = (text: string): string => {
 		return text

@@ -19,14 +19,7 @@ export default defineConfig({
 	optimizeDeps: {
 		exclude: ["@jsquash/avif", "@jsquash/webp"],
 	},
-	plugins: [
-		react({
-			babel: {
-				plugins: ["babel-plugin-react-compiler"],
-			},
-		}),
-		tailwindcss(),
-	],
+	plugins: [react(), tailwindcss()],
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
